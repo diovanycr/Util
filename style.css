@@ -1,100 +1,16 @@
-/* RESET */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+:root{
+  --bg:#f3f4f6; --card:#fff; --border:#e5e7eb;
+  --text:#111827; --muted:#6b7280;
+  --primary:#2563eb; --danger:#dc2626; --success:#16a34a;
 }
-
-body {
-  font-family: 'Inter', Arial, sans-serif;
-  background: #f3f4f6;
-  color: #111827;
-  min-height: 100vh;
-}
-
-.hidden {
-  display: none;
-}
-
-/* CARD */
-.card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 24px;
-  width: 100%;
-  max-width: 360px;
-  margin: 80px auto;
-  box-shadow: 0 10px 25px rgba(0,0,0,.08);
-}
-
-/* CONTAINER */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-}
-
-/* HEADER */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.sub {
-  font-size: .9rem;
-  color: #6b7280;
-}
-
-/* INPUTS */
-input {
-  width: 100%;
-  padding: 10px 12px;
-  margin: 8px 0;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: .95rem;
-}
-
-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-}
-
-/* BOTÕES */
-.btn {
-  padding: 10px 14px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-.btn.primary {
-  background: #3b82f6;
-  color: #fff;
-}
-
-.btn.primary:hover {
-  background: #2563eb;
-}
-
-.btn.ghost {
-  background: transparent;
-  border: 1px solid #e5e7eb;
-}
-
-.btn.ghost:hover {
-  background: #f3f4f6;
-}
-
-/* AREAS */
-#adminArea,
-#userArea {
-  background: #fff;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.06);
-}
-
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,Arial;background:var(--bg);color:var(--text)}
+.hidden{display:none}
+.card{background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)}
+.btn{padding:10px 16px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.danger{background:var(--danger);color:#fff}
+.btn.ghost{background:#eef2ff;color:var(--primary)}
+.header{display:flex;justify-content:space-between;align-items:center;padding:20px}
+input,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid var(--border)}
+#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:8px;display:none}
