@@ -1,1 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Respostas Automáticas</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Fontes e ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- LOGIN -->
+  <div id="loginBox" class="card">
+    <h2>Login</h2>
+    <input id="loginUser" type="text" placeholder="Usuário" />
+    <input id="loginPass" type="password" placeholder="Senha" />
+    <button id="btnLogin" class="btn primary" style="width:100%">Entrar</button>
+  </div>
+
+  <!-- APP -->
+  <div id="app" class="container hidden">
+    <div class="header">
+      <div>
+        <h1>Respostas Automáticas</h1>
+        <div id="loggedUser" class="sub"></div>
+      </div>
+      <button id="btnLogout" class="btn ghost">Sair</button>
+    </div>
+
+    <div id="adminArea"></div>
+    <div id="userArea" class="hidden"></div>
+  </div>
+
+  <!-- MODAIS -->
+  <div id="confirmModal" class="hidden"></div>
+  <div id="modalOverlay" class="hidden"></div>
+
+  <!-- JS -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
 
