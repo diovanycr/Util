@@ -1,39 +1,46 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Respostas Automáticas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Fonte -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <div id="loginBox" class="card">
-    <h2>Login</h2>
-    <input id="loginUser" placeholder="Usuário" />
-    <input id="loginPass" type="password" placeholder="Senha" />
-    <button id="btnLogin" class="btn primary">Entrar</button>
-  </div>
+<!-- LOGIN -->
+<div id="loginBox" class="card">
+  <h2>Login</h2>
+  <input id="loginUser" placeholder="Usuário">
+  <input id="loginPass" type="password" placeholder="Senha">
+  <button id="btnLogin" class="btn primary">Entrar</button>
+</div>
 
-  <div id="app" class="hidden">
-    <header class="header">
+<!-- APP -->
+<div id="app" class="container hidden">
+  <div class="header">
+    <div>
       <h1>Respostas Automáticas</h1>
-      <div>
-        <span id="loggedUser"></span>
-        <button id="btnLogout" class="btn ghost">Sair</button>
-      </div>
-    </header>
-
-    <section id="adminArea" class="hidden"></section>
-    <section id="userArea" class="hidden"></section>
+      <div id="loggedUser" class="sub"></div>
+    </div>
+    <button id="btnLogout" class="btn ghost">Sair</button>
   </div>
 
-  <div id="confirmModal" class="hidden"></div>
-  <div id="toast"></div>
+  <div id="adminArea"></div>
+  <div id="userArea" class="hidden"></div>
+</div>
 
-  <script type="module" src="js/app.js"></script>
+<!-- MODAIS -->
+<div id="confirmModal" class="hidden"></div>
+<div id="modalOverlay" class="hidden"></div>
+
+<script type="module" src="js/app.js"></script>
 </body>
 </html>
