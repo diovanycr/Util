@@ -6,13 +6,19 @@ const firebaseConfig = {
   apiKey: "AIzaSyB3nb-CDShDxKnN-naZdLWlyaXZfI6wvmY",
   authDomain: "respostas-automaticas-35aea.firebaseapp.com",
   projectId: "respostas-automaticas-35aea",
-  storageBucket: "respostas-automaticas-35aea.appspot.com",
+  storageBucket: "respostas-automaticas-35aea.firebasestorage.app",
   messagingSenderId: "61793341031",
   appId: "1:61793341031:web:572601dfa18fbf88248ec2"
 };
 
+// App principal
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
+// App secundário para criação de usuários (Admin)
+export const secondaryApp = initializeApp(firebaseConfig, 'Secondary');
+export const secondaryAuth = getAuth(secondaryApp);
+
+// Atalho útil
 export const el = id => document.getElementById(id);
