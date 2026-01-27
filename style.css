@@ -190,16 +190,26 @@ input:focus, textarea:focus {
 /* Badge da Lixeira */
 .btn-trash-toggle { position: relative; }
 
+/* Garante que o botão seja a referência para o badge */
+#btnTrashToggle {
+    position: relative; /* CRUCIAL: Mantém o badge "preso" ao botão */
+    display: inline-flex;
+    align-items: center;
+    overflow: visible; /* Permite que o badge saia um pouco da borda */
+}
+
 .badge {
-  position: absolute;
-  top: -5px;
-  right: -5px;
-  background: var(--danger);
-  color: white;
-  font-size: 0.7rem;
-  padding: 2px 6px;
-  border-radius: 10px;
-  border: 2px solid white;
-  min-width: 18px;
-  text-align: center;
+    position: absolute;
+    top: -8px;      /* Ajuste fino da posição superior */
+    right: -8px;    /* Ajuste fino da posição direita */
+    background: var(--danger);
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid white; /* Cria um destaque visual */
+    min-width: 20px;
+    text-align: center;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
