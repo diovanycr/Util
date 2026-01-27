@@ -224,3 +224,15 @@ input:focus, textarea:focus {
     justify-content: center;
     z-index: 100; /* Garante que fique acima das mensagens */
 }
+
+/* Estilo para a linha do usuário quando estiver bloqueado */
+.user-row.blocked {
+    background-color: #fef2f2; /* Vermelho bem clarinho */
+    border-color: #fecaca;     /* Borda avermelhada */
+    transition: all 0.3s ease;
+}
+
+/* Opcional: Deixar o texto do nome em vermelho escuro também */
+.user-row.blocked span {
+    color: #991b1b;
+}
