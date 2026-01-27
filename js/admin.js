@@ -1,5 +1,5 @@
 import { db, el, secondaryAuth } from './firebase.js';
-// FUNÇÕES DE BANCO DE DADOS (Firestore)
+// Importação correta separada por módulos
 import { 
     collection, 
     getDocs, 
@@ -9,7 +9,6 @@ import {
     setDoc 
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; 
 
-// FUNÇÕES DE USUÁRIO (Auth)
 import { 
     createUserWithEmailAndPassword, 
     signOut 
@@ -19,10 +18,7 @@ import { showModal } from './modal.js';
 
 export async function loadUsers() {
     const userList = el('userList');
-    if (!userList) {
-        console.error("Erro: Elemento #userList não encontrado no HTML.");
-        return;
-    }
+    if (!userList) return;
     
     userList.innerHTML = '<p class="sub">Carregando usuários...</p>';
     
@@ -58,7 +54,7 @@ export async function loadUsers() {
             };
 
             row.querySelector('.btnDelete').onclick = async () => {
-                if (confirm(`Excluir ${u.username}?`)) {
+                if (confirm(`Deseja realmente excluir ${u.username}?`)) {
                     await deleteDoc(doc(db, 'users', d.id));
                     loadUsers();
                 }
@@ -67,8 +63,7 @@ export async function loadUsers() {
             userList.appendChild(row);
         });
     } catch (e) {
-        console.error("Erro ao buscar usuários:", e);
-        userList.innerHTML = '<p style="color:red">Erro ao carregar dados do Firestore.</p>';
+        console.error("Erro ao carregar lista:", e);
     }
 }
 
@@ -82,26 +77,27 @@ export function initAdminActions() {
         const password = el('newPass').value.trim();
 
         if (!username || !email || !password) {
-            showModal("Por favor, preencha todos os campos.");
+            showModal("Preencha todos os campos para continuar.");
             return;
         }
 
         try {
-            // Criação no Firebase Auth
+            // Criação no Firebase Auth através da instância secundária
             const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
             
-            // Gravação no Firestore
+            // Salva dados adicionais no Firestore
             await setDoc(doc(db, 'users', cred.user.uid), {
                 username,
                 email,
                 role: 'user',
-                blocked: false
+                blocked: false,
+                createdAt: new Date().toISOString()
             });
 
-            // Desloga a conta secundária para manter o Admin logado
+            // Desloga a conta criada do app secundário para não afetar o Admin
             await signOut(secondaryAuth);
 
-            // Limpa campos e sucesso
+            // Sucesso
             el('newUser').value = el('newEmail').value = el('newPass').value = '';
             el('createSuccess').classList.remove('hidden');
             setTimeout(() => el('createSuccess').classList.add('hidden'), 3000);
@@ -111,15 +107,15 @@ export function initAdminActions() {
         } catch (e) {
             console.error("Erro capturado:", e.code);
             
-            // TRATAMENTO DO ERRO DE E-MAIL DUPLICADO
+            // LÓGICA DO MODAL DE ERRO PARA E-MAIL EXISTENTE
             if (e.code === 'auth/email-already-in-use') {
-                showModal("Este e-mail já está em uso por outro usuário.");
-            } else if (e.code === 'auth/invalid-email') {
-                showModal("O formato do e-mail é inválido.");
+                showModal("Ops! Este e-mail já está sendo usado por outro usuário.");
             } else if (e.code === 'auth/weak-password') {
-                showModal("A senha deve ter no mínimo 6 caracteres.");
+                showModal("Senha muito fraca. Use pelo menos 6 caracteres.");
+            } else if (e.code === 'auth/invalid-email') {
+                showModal("O endereço de e-mail informado não é válido.");
             } else {
-                showModal("Erro ao criar usuário: " + e.message);
+                showModal("Ocorreu um erro ao criar o usuário. Tente novamente.");
             }
         }
     };
