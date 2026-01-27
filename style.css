@@ -250,3 +250,15 @@ input:focus, textarea:focus {
     color: #c53030;
     font-weight: 600;
 }
+
+
+.btnReset:hover {
+    background: #fffbeb !important; /* Fundo amarelo clarinho no hover */
+    border-color: #f59e0b !important;
+}
+
+/* Garante que os botões na linha de usuário fiquem alinhados */
+.user-row .actions {
+    display: flex;
+    gap: 8px;
+}
