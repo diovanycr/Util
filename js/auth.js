@@ -1,99 +1,66 @@
 import { auth, db } from './firebase.js';
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { signInWithEmailAndPassword, signOut } from 
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, getDocs } from 
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { showModal } from './modal.js';
+import { loadUsers } from './admin.js';
+import { loadMessages } from './messages.js';
 
-import {
-  collection,
-  query,
-  where,
-  getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+export let currentUserId = null;
 
-import { loadAdmin } from './admin.js';
-import { loadUser } from './user.js';
+export async function doLogin(){
+  const username = loginUser.value.trim().toLowerCase();
+  const password = loginPass.value.trim();
 
-const el = id => document.getElementById(id);
-
-export function initAuth(){
-
-  el('btnLogin').onclick = async () => {
-    const username = el('loginUser').value.trim();
-    const password = el('loginPass').value.trim();
-
-    if(!username || !password){
-      alert('Preencha usuário e senha');
-      return;
-    }
-
-    try {
-      // 🔎 Busca usuário pelo username
-      const q = query(
-        collection(db, 'users'),
-        where('username', '==', username)
-      );
-
-      const snap = await getDocs(q);
-
-      if(snap.empty){
-        alert('Usuário não encontrado');
-        return;
-      }
-
-      const userData = snap.docs[0].data();
-
-      if(userData.blocked){
-        alert('Usuário bloqueado');
-        return;
-      }
-
-      // 🔐 Login com e-mail real
-      await signInWithEmailAndPassword(auth, userData.email, password);
-
-    } catch (e) {
-      console.error('LOGIN ERROR:', e);
-      alert(e.message);
-    }
-  };
-
-  el('btnLogout').onclick = () => signOut(auth);
-
-  onAuthStateChanged(auth, user => {
-    if(!user){
-      el('loginBox').classList.remove('hidden');
-      el('app').classList.add('hidden');
-      return;
-    }
-
-    el('loginBox').classList.add('hidden');
-    el('app').classList.remove('hidden');
-
-    // Verifica role no Firestore
-    loadUserData(user.uid);
-  });
-}
-
-async function loadUserData(uid){
-  const q = query(
-    collection(db,'users'),
-    where('__name__','==',uid)
-  );
-
-  const snap = await getDocs(q);
-
-  if(snap.empty){
-    alert('Usuário sem registro');
+  if(!username || !password){
+    showModal('Preencha usuário e senha');
     return;
   }
 
-  const data = snap.docs[0].data();
-  el('loggedUser').textContent = data.username;
+  const snap = await getDocs(collection(db,'users'));
+  const userDoc = snap.docs.find(d =>
+    (d.data().username||'').toLowerCase() === username
+  );
 
-  if(data.role === 'admin'){
-    loadAdmin();
-  } else {
-    loadUser(uid);
+  if(!userDoc){
+    showModal('Usuário não encontrado');
+    return;
   }
+
+  const user = userDoc.data();
+  if(user.blocked){
+    showModal('Usuário bloqueado');
+    return;
+  }
+
+  try{
+    await signInWithEmailAndPassword(auth, user.email, password);
+    currentUserId = auth.currentUser.uid;
+
+    loginBox.classList.add('hidden');
+    app.classList.remove('hidden');
+
+    loggedUser.innerText = user.role === 'admin'
+      ? `Logado como ADMIN (${user.username})`
+      : `Logado como ${user.username}`;
+
+    if(user.role === 'admin'){
+      adminArea.style.display = 'block';
+      userArea.classList.add('hidden');
+      loadUsers();
+    }else{
+      adminArea.style.display = 'none';
+      userArea.classList.remove('hidden');
+      loadMessages(currentUserId);
+    }
+
+  }catch{
+    showModal('Senha incorreta');
+  }
+}
+
+export async function doLogout(){
+  await signOut(auth);
+  location.reload();
 }
