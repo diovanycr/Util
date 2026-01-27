@@ -1,16 +1,156 @@
-:root{
-  --bg:#f3f4f6; --card:#fff; --border:#e5e7eb;
-  --text:#111827; --muted:#6b7280;
-  --primary:#2563eb; --danger:#dc2626; --success:#16a34a;
+:root {
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --danger: #dc2626;
+  --success: #16a34a;
 }
-*{box-sizing:border-box}
-body{margin:0;font-family:Inter,Arial;background:var(--bg);color:var(--text)}
-.hidden{display:none}
-.card{background:var(--card);padding:20px;border-radius:12px;border:1px solid var(--border)}
-.btn{padding:10px 16px;border-radius:10px;border:none;cursor:pointer;font-weight:600}
-.btn.primary{background:var(--primary);color:#fff}
-.btn.danger{background:var(--danger);color:#fff}
-.btn.ghost{background:#eef2ff;color:var(--primary)}
-.header{display:flex;justify-content:space-between;align-items:center;padding:20px}
-input,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid var(--border)}
-#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 16px;border-radius:8px;display:none}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.hidden { display: none !important; }
+
+/* Layout */
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 32px 20px;
+}
+
+.card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 25px rgba(0,0,0,.05);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+/* Modais */
+#confirmModal, #modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+}
+
+.modal-box {
+  position: relative;
+  max-width: 360px;
+  width: 90%;
+  z-index: 1;
+  animation: modalIn .2s ease-out;
+}
+
+@keyframes modalIn {
+  from { transform: scale(.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Formulários e Botões */
+input, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter 0.2s;
+}
+
+.btn:active { filter: brightness(0.9); }
+.btn.primary { background: var(--primary); color: #fff; }
+.btn.danger { background: var(--danger); color: #fff; }
+.btn.ghost { background: #eef2ff; color: var(--primary); }
+
+/* Listas e Linhas */
+.list { display: flex; flex-direction: column; gap: 12px; }
+
+.user-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  gap: 12px;
+}
+
+.user-row.blocked { background: #fef2f2; border-color: #fecaca; }
+
+.drag-handle {
+  cursor: grab;
+  color: var(--muted);
+  font-size: 18px;
+  user-select: none;
+}
+
+.drag-handle:active { cursor: grabbing; }
+
+/* Auxiliares */
+.sub { color: var(--muted); font-size: 14px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
+.toolbar { display: flex; gap: 12px; flex-wrap: wrap; }
+.flex-end { display: flex; justify-content: flex-end; gap: 8px; }
+.center { text-align: center; }
+.mt-10 { margin-top: 10px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.success-text { color: var(--success); font-weight: 500; }
+
+.badge {
+  background: var(--danger);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+@media(max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+}
