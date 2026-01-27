@@ -1,116 +1,67 @@
-import { auth, db } from './firebase.js'; // Importa as instâncias centralizadas
+import { auth, db, el } from './firebase.js';
+import { signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { showModal } from './modal.js';
-
-// Importando da mesma versão (10.12.2) para evitar conflitos
-import {
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-import {
-  doc,
-  getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { loadUsers } from './admin.js';
+import { initMessages } from './messages.js';
 
 export function initAuth() {
-  const loginForm = document.getElementById('loginForm');
-  const logoutBtn = document.getElementById('logoutBtn');
+  el('btnLogin').addEventListener('click', doLogin);
+  el('loginPass').addEventListener('keydown', (e) => e.key === 'Enter' && doLogin());
+  el('btnLogout').addEventListener('click', () => signOut(auth));
 
-  const loginBox = document.getElementById('loginBox');
-  const app = document.getElementById('app');
-  const adminArea = document.getElementById('adminArea');
-  const userArea = document.getElementById('userArea');
-  const loggedUser = document.getElementById('loggedUser');
-
-  /* ======================
-      LOGIN
-  ====================== */
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const email = document.getElementById('email')?.value.trim();
-      const password = document.getElementById('password')?.value;
-
-      if (!email || !password) {
-        showModal('Preencha email e senha');
-        return;
-      }
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        showModal('Usuário ou senha inválidos');
-        console.error(error);
-      }
-    });
-  }
-
-  /* ======================
-      LOGOUT
-  ====================== */
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', async () => {
-      try {
-        await signOut(auth);
-      } catch (error) {
-        showModal('Erro ao sair');
-        console.error(error);
-      }
-    });
-  }
-
-  /* ======================
-      ESTADO DE AUTENTICAÇÃO
-  ====================== */
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // 🔒 Deslogado: Limpa a interface
-      loginBox?.classList.remove('hidden');
-      app?.classList.add('hidden');
-      adminArea?.classList.add('hidden');
-      userArea?.classList.add('hidden');
+      el('app').classList.add('hidden');
+      el('loginBox').classList.remove('hidden');
       return;
     }
 
-    // ✅ Logado: Mostra o app
-    loginBox?.classList.add('hidden');
-    app?.classList.remove('hidden');
-
     try {
-      // Busca o documento do usuário pelo UID
-      const userRef = doc(db, 'users', user.uid);
-      const snap = await getDoc(userRef);
-      
-      if (snap.exists()) {
-        const data = snap.data();
-        const role = data.role || 'user';
+      const snap = await getDocs(collection(db, 'users'));
+      const userDoc = snap.docs.find(d => d.id === user.uid);
+      const data = userDoc ? userDoc.data() : null;
 
-        if (loggedUser) {
-          loggedUser.textContent = role === 'admin' 
-            ? `Admin: ${data.username || user.email}` 
-            : `Usuário: ${data.username || user.email}`;
-        }
-
-        // Alterna as áreas de acordo com o nível de acesso
-        if (role === 'admin') {
-          adminArea?.classList.remove('hidden');
-          userArea?.classList.add('hidden');
-          // Se tiver uma função loadUsers() no admin.js, chame aqui
-        } else {
-          userArea?.classList.remove('hidden');
-          adminArea?.classList.add('hidden');
-          // Se tiver uma função loadMessages() no messages.js, chame aqui
-        }
-      } else {
-        console.error('Documento do usuário não encontrado no Firestore');
-        showModal('Erro: Perfil de usuário não configurado.');
+      if (!data || data.blocked) {
+        signOut(auth);
+        showModal("Acesso negado ou conta bloqueada.");
+        return;
       }
 
-    } catch (err) {
-      console.error('Erro ao verificar papel do usuário:', err);
-      showModal('Erro ao carregar permissões');
+      el('loginBox').classList.add('hidden');
+      el('app').classList.remove('hidden');
+      
+      const isAdmin = data.role === 'admin';
+      el('loggedUser').textContent = isAdmin ? `Admin: ${data.username}` : `Usuário: ${data.username}`;
+
+      if (isAdmin) {
+        el('adminArea').style.display = 'block';
+        el('userArea').classList.add('hidden');
+        loadUsers();
+      } else {
+        el('adminArea').style.display = 'none';
+        el('userArea').classList.remove('hidden');
+        initMessages(user.uid);
+      }
+    } catch (e) {
+      console.error(e);
     }
   });
+}
+
+async function doLogin() {
+  const username = el('loginUser').value.trim().toLowerCase();
+  const password = el('loginPass').value.trim();
+
+  if (!username || !password) return showModal("Preencha usuário e senha.");
+
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    const userDoc = snap.docs.find(d => (d.data().username || '').toLowerCase() === username);
+
+    if (!userDoc) return showModal("Usuário não encontrado.");
+    await signInWithEmailAndPassword(auth, userDoc.data().email, password);
+  } catch (e) {
+    showModal("Senha incorreta ou erro de conexão.");
+  }
 }
