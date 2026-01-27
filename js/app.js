@@ -12,3 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializa o clique do botão "Criar Usuário"
     initAdminActions();
 });
+
+// Exemplo de como alternar as telas no login de sucesso
+function onLoginSuccess() {
+    document.getElementById('loginWrapper').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+}
