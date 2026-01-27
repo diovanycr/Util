@@ -1,90 +1,305 @@
+:root {
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --danger: #dc2626;
+  --success: #16a34a;
+}
+
+* { box-sizing: border-box; }
+
 body {
-    margin: 0;
-    font-family: sans-serif;
-    background: #f0f2f5;
-    color: #333;
-}
-
-.container {
-    max-width: 800px;
-    margin: 20px auto; /* Mantém tudo no topo */
-    padding: 0 15px;
-}
-
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-bottom: 20px;
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
 }
 
 .hidden { display: none !important; }
 
-/* Botões simples */
-.btn {
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    border: none;
-    font-size: 14px;
-    font-weight: bold;
+/* Layout */
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 32px 20px;
 }
-.btn.primary { background: #007bff; color: white; }
-.btn.danger { background: #dc3545; color: white; }
-.btn.ghost { background: #f8f9fa; border: 1px solid #ddd; color: #333; }
 
-/* Alinhamentos */
-.grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; }
-.list { display: flex; flex-direction: column; gap: 8px; }
-.flex-end { display: flex; justify-content: flex-end; gap: 10px; }
-.mt-16 { margin-top: 16px; }
+.card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 25px rgba(0,0,0,.05);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+/* Modais */
+#confirmModal, #modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+}
+
+.modal-box {
+  position: relative;
+  max-width: 360px;
+  width: 90%;
+  z-index: 1;
+  animation: modalIn .2s ease-out;
+}
+
+
+#modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: none; /* Começa oculto */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Quando removermos a classe hidden, o JS mudará o display para flex */
+#modalOverlay.hidden {
+  display: none !important;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal-box {
+  position: relative;
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  z-index: 10000;
+}
+
+@keyframes modalIn {
+  from { transform: scale(.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Formulários e Botões */
+input, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+input:focus, textarea:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: filter 0.2s;
+}
+
+.btn:active { filter: brightness(0.9); }
+.btn.primary { background: var(--primary); color: #fff; }
+.btn.danger { background: var(--danger); color: #fff; }
+.btn.ghost { background: #eef2ff; color: var(--primary); }
+
+/* Listas e Linhas */
+.list { display: flex; flex-direction: column; gap: 12px; }
 
 .user-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  gap: 12px;
 }
 
-/* Badge Lixeira */
-.btn-trash-toggle { position: relative; }
+.user-row.blocked { background: #fef2f2; border-color: #fecaca; }
+
+.drag-handle {
+  cursor: grab;
+  color: var(--muted);
+  font-size: 18px;
+  user-select: none;
+}
+
+.drag-handle:active { cursor: grabbing; }
+
+/* Auxiliares */
+.sub { color: var(--muted); font-size: 14px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
+.toolbar { display: flex; gap: 12px; flex-wrap: wrap; }
+.flex-end { display: flex; justify-content: flex-end; gap: 8px; }
+.center { text-align: center; }
+.mt-10 { margin-top: 10px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.success-text { color: var(--success); font-weight: 500; }
+
 .badge {
-    background: red;
-    color: white;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 10px;
-    vertical-align: top;
+  background: var(--danger);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
 }
 
-/* Modal */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-.modal-box {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    min-width: 300px;
+@media(max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
 }
 
-/* Toasts */
+
+/* Estilo para o Toast de Sucesso (Copiado) */
 .toast-success {
     position: fixed;
     bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
-    background: #28a745;
+    background: #10b981; /* Verde esmeralda */
     color: white;
-    padding: 10px 20px;
-    border-radius: 5px;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10001;
+    animation: slideUp 0.3s ease-out;
 }
+
+@keyframes slideUp {
+    from { transform: translate(-50%, 20px); opacity: 0; }
+    to { transform: translate(-50%, 0); opacity: 1; }
+}
+
+
+/* --- Modais e Overlays --- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-box {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+/* --- Feedback de "Copiado" (Toast) --- */
+.toast-success {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #10b981;
+    color: white;
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: bold;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    z-index: 10001;
+    animation: bounceUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceUp {
+    from { bottom: 0; opacity: 0; }
+    to { bottom: 30px; opacity: 1; }
+}
+
+/* --- Drag & Drop Visuals --- */
+.user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    transition: all 0.2s;
+}
+
+.user-row.dragging {
+    opacity: 0.4;
+    background: #e2e8f0;
+    border: 1px dashed #64748b;
+}
+
+.drag-handle {
+    cursor: grab;
+    color: #94a3b8;
+    font-size: 1.2rem;
+}
+
+.drag-handle:active { cursor: grabbing; }
+
+/* --- Badge da Lixeira --- */
+.btn-trash-toggle { position: relative; }
+
+.badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid white;
+}
+
+/* --- Helpers --- */
+.hidden { display: none !important; }
+.full-width { width: 100%; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.flex-end { display: flex; justify-content: flex-end; gap: 8px; }
+.border-danger { border: 2px solid #fee2e2; }
