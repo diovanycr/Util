@@ -284,16 +284,27 @@ input:focus, textarea:focus {
 /* --- Badge da Lixeira --- */
 .btn-trash-toggle { position: relative; }
 
+/* Garante que o botão seja a "âncora" para o número */
+.btn-trash-toggle { 
+    position: relative; /* CRUCIAL: Mantém o badge dentro do botão */
+    display: inline-flex;
+    align-items: center;
+}
+
 .badge {
     position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #ef4444;
+    top: -8px;      /* Ajusta para ficar um pouco acima do botão */
+    right: -8px;    /* Ajusta para ficar no canto direito do botão */
+    background: #dc3545; /* Vermelho padrão */
     color: white;
-    font-size: 0.7rem;
+    font-size: 11px;
+    font-weight: bold;
     padding: 2px 6px;
     border-radius: 10px;
-    border: 2px solid white;
+    border: 2px solid #fff; /* Cria um contorno para destacar */
+    min-width: 18px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* --- Helpers --- */
