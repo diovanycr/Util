@@ -1,55 +1,106 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Respostas Automáticas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="loginBox" class="card">
-  <h2>Login</h2>
-  <form id="loginForm">
-    <input id="email" type="email" placeholder="E-mail" required>
-    <input id="password" type="password" placeholder="Senha" required>
-    <button type="submit" id="btnLogin" class="btn primary" style="width:100%">Entrar</button>
-  </form>
-</div>
-
-<div id="app" class="container hidden">
-  <div class="header">
-    <div>
-      <h1>Respostas Automáticas</h1>
-      <div id="loggedUser" class="sub"></div>
-    </div>
-    <button id="logoutBtn" class="btn ghost">Sair</button>
+  <div id="loginBox" class="card">
+    <h2>Login</h2>
+    <input id="loginUser" type="text" placeholder="Usuário" />
+    <input id="loginPass" type="password" placeholder="Senha" />
+    <button id="btnLogin" class="btn primary" style="width:100%">Entrar</button>
   </div>
 
-  <div id="adminArea" class="hidden">
-    <h3>Gestão de Usuários</h3>
-    <div class="list" id="userList"></div>
+  <div id="app" class="container hidden">
+    <div class="header">
+      <div>
+        <h1>Respostas Automáticas</h1>
+        <div id="loggedUser" class="sub"></div>
+      </div>
+      <button id="btnLogout" class="btn ghost">Sair</button>
+    </div>
+
+    <div id="adminArea" class="hidden">
+      <h2>Administração</h2>
+      <div class="card">
+        <div class="grid">
+          <input id="newUser" placeholder="Usuário" />
+          <input id="newEmail" placeholder="E-mail" />
+          <input id="newPass" placeholder="Senha" />
+          <button id="btnCreateUser" class="btn primary">Criar usuário</button>
+        </div>
+      </div>
+      <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso</p>
+
+      <h2>Usuários</h2>
+      <div class="list" id="userList"></div>
+    </div>
+
+    <div id="userArea" class="hidden">
+      <h2>Painel do Usuário</h2>
+
+      <div class="card toolbar">
+        <button id="btnImport" class="btn ghost"><i class="fa-solid fa-file-import"></i> Importar</button>
+        <button id="btnExport" class="btn ghost"><i class="fa-solid fa-file-export"></i> Exportar</button>
+        <button id="btnNewMsg" class="btn primary"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
+      </div>
+
+      <div id="newMsgBox" class="card hidden mt-16">
+        <textarea id="msgText" rows="4" placeholder="Digite a mensagem"></textarea>
+        <div class="flex-end mt-10">
+          <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
+          <button id="btnAddMsg" class="btn primary">Salvar mensagem</button>
+        </div>
+      </div>
+
+      <div id="trashBox" class="card hidden mt-16">
+        <h3><i class="fa-solid fa-trash"></i> Lixeira</h3>
+        <div class="list" id="trashList"></div>
+        <div class="flex-end mt-12">
+          <button id="btnCancelTrash" class="btn ghost">Fechar</button>
+          <button id="btnEmptyTrash" class="btn danger">Esvaziar lixeira</button>
+        </div>
+      </div>
+
+      <div class="list mt-16" id="msgList"></div>
+
+      <div class="center mt-12">
+        <button id="btnTrashToggle" class="btn ghost">
+          <i class="fa-solid fa-trash"></i> Ver Lixeira <span id="trashCount" class="badge"></span>
+        </button>
+      </div>
+    </div>
   </div>
 
-  <div id="userArea" class="hidden">
-    <div class="card">
-        <textarea id="msgText" placeholder="Nova resposta rápida..."></textarea>
-        <button id="btnAddMsg" class="btn primary">Salvar Mensagem</button>
+  <div id="confirmModal" class="hidden">
+    <div class="modal-backdrop"></div>
+    <div class="card modal-box">
+      <h3>Confirmar exclusão</h3>
+      <p class="sub">Esta ação moverá o item para a lixeira.</p>
+      <div class="flex-end mt-16">
+        <button id="modalCancel" class="btn ghost">Cancelar</button>
+        <button id="modalConfirm" class="btn danger">Excluir</button>
+      </div>
     </div>
-    <div class="list" id="msgList" style="margin-top: 20px;"></div>
   </div>
-</div>
 
-<div id="modalOverlay" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:999;">
-    <div class="card" style="max-width:300px; text-align:center;">
-        <p id="modalMessage"></p>
-        <button onclick="document.getElementById('modalOverlay').style.display='none'" class="btn primary">OK</button>
+  <div id="modalOverlay" class="hidden">
+    <div class="modal-box card center">
+      <h3>Aviso</h3>
+      <p id="modalMessage" class="mt-10"></p>
+      <button onclick="closeModal()" class="btn primary mt-16" style="width:100%">OK</button>
     </div>
-</div>
+  </div>
 
-<script type="module" src="js/app.js"></script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
