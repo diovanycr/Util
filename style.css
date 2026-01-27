@@ -213,3 +213,8 @@ input:focus, textarea:focus {
   .grid { grid-template-columns: 1fr; }
   .header { flex-direction: column; align-items: flex-start; gap: 15px; }
 }
+
+.center.mt-12 {
+    margin-top: 50px; /* Ajuste esse valor (50px, 80px...) conforme desejar */
+    margin-bottom: 20px; /* Um espaço extra no final da página */
+}
