@@ -1,278 +1,112 @@
 :root {
-  --bg: #f3f4f6;
-  --card: #ffffff;
-  --border: #e5e7eb;
-  --text: #111827;
-  --muted: #6b7280;
-  --primary: #2563eb;
-  --danger: #dc2626;
-  --success: #16a34a;
-  --toast: #10b981;
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #111827;
+    --muted: #6b7280;
+    --primary: #2563eb;
+    --danger: #dc2626;
 }
 
 * { box-sizing: border-box; }
 
 body {
-  margin: 0;
-  font-family: 'Inter', Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.5;
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
 }
 
-/* Utilitários Essenciais */
-.hidden { display: none !important; }
-.mt-10 { margin-top: 10px; }
-.mt-12 { margin-top: 12px; }
-.mt-16 { margin-top: 16px; }
-.center { text-align: center; }
-.full-width { width: 100%; }
-.sub { color: var(--muted); font-size: 14px; }
-.success-text { color: var(--success); font-weight: 500; }
-.border-danger { border: 2px solid #fee2e2 !important; }
-
-/* Layout Geral */
 .container {
-  max-width: 1100px;
-  margin: auto;
-  padding: 32px 20px;
-}
-
-
-/* Container de fundo para centralização total na tela */
-.login-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  background-color: #f0f2f5; /* Cinza claro de fundo */
-  padding: 20px;
-}
-
-/* O cartão de login */
-.login-card {
-  width: 100%;
-  max-width: 400px;
-  padding: 40px;
-  background: #ffffff;
-  border-radius: 16px; /* Bordas bem arredondadas */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra suave */
-  border: none;
-  text-align: center;
-}
-
-.login-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 24px;
-}
-
-/* Estilização dos inputs para ficarem iguais à imagem */
-.input-group input {
-  margin-bottom: 12px;
-  background-color: #ffffff;
-  border: 1px solid #e0e0e0;
-  padding: 14px;
-  border-radius: 8px;
-  font-size: 15px;
-}
-
-.input-group input::placeholder {
-  color: #a0a0a0;
-}
-
-/* Botão de entrar azul vibrante */
-.btn-login {
-  width: 100%;
-  padding: 14px;
-  background-color: #2563eb !important; /* Azul da imagem */
-  color: white;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  margin-top: 10px;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-login:hover {
-  background-color: #1d4ed8 !important;
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 0 20px;
 }
 
 .card {
-  background: var(--card);
-  border-radius: 14px;
-  padding: 20px;
-  border: 1px solid var(--border);
-  box-shadow: 0 10px 25px rgba(0,0,0,.05);
+    background: var(--card);
+    padding: 24px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    margin-bottom: 20px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 24px;
+.hidden { display: none !important; }
+
+/* Botões */
+.btn {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+.btn.primary { background: var(--primary); color: white; }
+.btn.danger { background: var(--danger); color: white; }
+.btn.ghost { background: #eef2ff; color: var(--primary); }
+.btn:hover { opacity: 0.9; }
+
+/* Grid e Listas */
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 10px; }
+.list { display: flex; flex-direction: column; gap: 10px; }
+
+.user-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
 }
 
-.grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
-.toolbar { display: flex; gap: 12px; flex-wrap: wrap; }
-.flex-end { display: flex; justify-content: flex-end; gap: 8px; }
-
-@media(max-width: 768px) {
-  .grid { grid-template-columns: 1fr; }
-}
-
-/* Modais e Overlays */
+/* Modais */
 .modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(3px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-.modal-backdrop {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
 .modal-box {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  width: 90%;
-  max-width: 400px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  text-align: center;
-  animation: modalIn .2s ease-out;
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
 }
 
-@keyframes modalIn {
-  from { transform: scale(.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-/* Toast de Feedback (Copiado) */
-.toast-success {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--toast);
-  color: white;
-  padding: 12px 28px;
-  border-radius: 50px;
-  font-weight: bold;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-  z-index: 10001;
-  animation: bounceUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes bounceUp {
-  from { bottom: 0; opacity: 0; }
-  to { bottom: 30px; opacity: 1; }
-}
-
-/* Formulários e Botões */
-input, textarea {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  font-size: 14px;
-  font-family: inherit;
-  transition: border-color 0.2s;
-}
-
-input:focus, textarea:focus {
-  outline: none;
-  border-color: var(--primary);
-}
-
-.btn {
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: filter 0.2s, transform 0.1s;
-}
-
-.btn:active { 
-  filter: brightness(0.9); 
-  transform: scale(0.98);
-}
-
-.btn.primary { background: var(--primary); color: #fff; }
-.btn.danger { background: var(--danger); color: #fff; }
-.btn.ghost { background: #eef2ff; color: var(--primary); }
-
-/* Listas e Mensagens */
-.list { display: flex; flex-direction: column; gap: 12px; }
-
-.user-row {
-  display: flex;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 12px;
-  border: 1px solid var(--border);
-  background: #fff;
-  gap: 12px;
-  transition: background 0.2s;
-}
-
-.user-row.blocked { background: #fef2f2; border-color: #fecaca; }
-
-.user-row.dragging {
-  opacity: 0.4;
-  background: #e2e8f0;
-  border: 1px dashed #64748b;
-}
-
-.drag-handle {
-  cursor: grab;
-  color: var(--muted);
-  font-size: 1.2rem;
-  user-select: none;
-  padding: 4px;
-}
-
-.drag-handle:active { cursor: grabbing; }
-
-/* Badge da Lixeira */
+/* Badge Lixeira */
 .btn-trash-toggle { position: relative; }
-
-/* Garante que o botão seja a referência para o badge */
-#btnTrashToggle {
-    position: relative; /* CRUCIAL: Mantém o badge "preso" ao botão */
-    display: inline-flex;
-    align-items: center;
-    overflow: visible; /* Permite que o badge saia um pouco da borda */
-}
-
 .badge {
-    position: absolute;
-    top: -8px;      /* Ajuste fino da posição superior */
-    right: -8px;    /* Ajuste fino da posição direita */
     background: var(--danger);
     color: white;
-    font-size: 11px;
-    font-weight: bold;
+    font-size: 10px;
     padding: 2px 6px;
     border-radius: 10px;
-    border: 2px solid white; /* Cria um destaque visual */
-    min-width: 20px;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Toast de Sucesso */
+.toast-success {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #10b981;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 20px;
+    z-index: 2000;
+}
+
+@media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
 }
