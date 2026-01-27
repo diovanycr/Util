@@ -1,115 +1,91 @@
-import { db, auth } from './firebase.js';
-import { showModal } from './modal.js';
-
-// Sincronizando para a versão 10.12.2
-import {
-  collection,
-  getDocs,
-  addDoc,
-  updateDoc,
-  deleteDoc,
-  doc,
-  query,
-  orderBy,
-  where
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { db, el } from './firebase.js';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { openConfirmModal, showModal } from './modal.js';
 
 let currentUid = null;
+let dragSrc = null;
 
 export function initMessages(uid) {
-  const msgList = document.getElementById('msgList');
-  if (!msgList || !uid) return;
-
   currentUid = uid;
   loadMessages();
-
-  // Configuração do botão de adicionar (se houver no seu HTML)
-  const btnAdd = document.getElementById('btnAddMsg');
-  if (btnAdd) {
-    btnAdd.onclick = () => {
-      const text = document.getElementById('msgText')?.value.trim();
-      if (text) addMessage(text);
-    };
-  }
+  setupMessageListeners();
 }
 
-/* ===== FUNÇÕES INTERNAS ===== */
+function setupMessageListeners() {
+  el('btnNewMsg').onclick = () => { el('newMsgBox').classList.remove('hidden'); el('msgText').focus(); };
+  el('btnCancelMsg').onclick = () => { el('msgText').value = ''; el('newMsgBox').classList.add('hidden'); };
+  el('btnAddMsg').onclick = handleSaveMessage;
+  el('btnTrashToggle').onclick = () => el('trashActions').classList.toggle('hidden');
+  el('btnTrashMain').onclick = () => { el('trashBox').classList.remove('hidden'); loadTrash(); };
+  el('btnCancelTrash').onclick = () => el('trashBox').classList.add('hidden');
+}
 
 async function loadMessages() {
-  const msgList = document.getElementById('msgList');
-  msgList.innerHTML = '<div class="sub">Carregando mensagens...</div>';
+  const list = el('msgList');
+  list.innerHTML = '';
+  const snap = await getDocs(collection(db, 'users', currentUid, 'messages'));
+  
+  const docs = snap.docs
+    .map(d => ({ id: d.id, ...d.data() }))
+    .filter(d => !d.deleted)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
 
-  try {
-    // Busca mensagens que não foram deletadas (lógica de lixeira)
-    const q = query(
-      collection(db, 'users', currentUid, 'messages'),
-      where('deleted', '==', false),
-      orderBy('order', 'asc')
-    );
+  docs.forEach(item => {
+    const row = document.createElement('div');
+    row.className = 'user-row';
+    row.draggable = true;
+    row.dataset.id = item.id;
+    row.innerHTML = `
+      <span class="drag-handle">&#9776;</span>
+      <div class="msg-content" style="flex:1;cursor:pointer">${item.text}</div>
+      <button class="btn danger btnDel"><i class="fa-solid fa-trash"></i></button>
+    `;
 
-    const snap = await getDocs(q);
-    msgList.innerHTML = '';
+    // Drag & Drop
+    row.ondragstart = () => { dragSrc = row; row.style.opacity = '0.5'; };
+    row.ondragend = () => { row.style.opacity = '1'; saveOrder(); };
+    row.ondragover = e => {
+      e.preventDefault();
+      const rect = row.getBoundingClientRect();
+      if (e.clientY > rect.top + rect.height / 2) list.insertBefore(dragSrc, row.nextSibling);
+      else list.insertBefore(dragSrc, row);
+    };
 
-    snap.forEach(docSnap => {
-      const item = docSnap.data();
-      const div = document.createElement('div');
-      div.className = 'user-row';
-      div.innerHTML = `
-        <div class="content" style="flex:1; cursor:pointer">${item.text}</div>
-        <div style="display:flex; gap:8px">
-          <button class="btn ghost btnCopy" title="Copiar"><i class="fa-solid fa-copy"></i></button>
-          <button class="btn danger btnDel" title="Excluir"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      `;
+    // Copiar
+    row.querySelector('.msg-content').onclick = () => copyToClipboard(item.text);
 
-      // Eventos
-      div.querySelector('.content').onclick = () => copyText(item.text);
-      div.querySelector('.btnCopy').onclick = () => copyText(item.text);
-      div.querySelector('.btnDel').onclick = () => deleteMessage(docSnap.id);
-
-      msgList.appendChild(div);
+    // Lixeira
+    row.querySelector('.btnDel').onclick = () => openConfirmModal(async () => {
+      await updateDoc(doc(db, 'users', currentUid, 'messages', item.id), { deleted: true });
+      loadMessages();
     });
 
-    if (snap.empty) {
-      msgList.innerHTML = '<div class="sub">Nenhuma mensagem salva.</div>';
-    }
-  } catch (error) {
-    console.error("Erro ao carregar mensagens:", error);
-    msgList.innerHTML = '<div class="sub" style="color:red">Erro ao carregar mensagens.</div>';
-  }
-}
-
-async function addMessage(text) {
-  try {
-    await addDoc(collection(db, 'users', currentUid, 'messages'), {
-      text: text,
-      order: Date.now(),
-      deleted: false,
-      createdAt: Date.now()
-    });
-    document.getElementById('msgText').value = '';
-    loadMessages();
-  } catch (error) {
-    console.error("Erro ao salvar:", error);
-    showModal("Erro ao salvar mensagem.");
-  }
-}
-
-async function deleteMessage(id) {
-  if (!confirm("Deseja mover para a lixeira?")) return;
-  try {
-    const msgRef = doc(db, 'users', currentUid, 'messages', id);
-    // Em vez de deletar fixo, apenas marcamos como deletado
-    await updateDoc(msgRef, { deleted: true });
-    loadMessages();
-  } catch (error) {
-    console.error("Erro ao excluir:", error);
-  }
-}
-
-function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    // Se tiver um toast, mostre aqui
-    alert("Copiado!"); 
+    list.appendChild(row);
   });
 }
+
+async function saveOrder() {
+  const rows = [...el('msgList').children];
+  for (let i = 0; i < rows.length; i++) {
+    const id = rows[i].dataset.id;
+    if (id) await updateDoc(doc(db, 'users', currentUid, 'messages', id), { order: i + 1 });
+  }
+}
+
+async function handleSaveMessage() {
+  const text = el('msgText').value.trim();
+  if (!text) return;
+  await addDoc(collection(db, 'users', currentUid, 'messages'), {
+    text, order: Date.now(), deleted: false
+  });
+  el('msgText').value = '';
+  el('newMsgBox').classList.add('hidden');
+  loadMessages();
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text);
+  alert("Copiado!");
+}
+
+async function loadTrash() { /* Lógica similar para deletados... */ }
