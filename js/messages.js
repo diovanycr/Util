@@ -12,6 +12,9 @@ import { openConfirmModal, showModal } from './modal.js';
 let currentUserId = null;
 let dragSrc = null;
 
+/**
+ * Inicializa a área de mensagens
+ */
 export function initMessages(uid) {
     currentUserId = uid;
     loadMessages(uid);
@@ -19,7 +22,11 @@ export function initMessages(uid) {
     setupUserInterface();
 }
 
+/**
+ * Configura os botões e eventos
+ */
 function setupUserInterface() {
+    // Nova Mensagem
     el('btnNewMsg').onclick = () => {
         el('newMsgBox').classList.remove('hidden');
         el('msgText').focus();
@@ -45,14 +52,14 @@ function setupUserInterface() {
             el('msgText').value = '';
             el('newMsgBox').classList.add('hidden');
             loadMessages(currentUserId);
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Erro ao salvar:", e); }
     };
 
-    // BOTÃO VER LIXEIRA
+    // CONTROLE DA LIXEIRA
     el('btnTrashToggle').onclick = () => {
         const isHidden = el('trashBox').classList.toggle('hidden');
         if (!isHidden) {
-            loadTrash(currentUserId); // Carrega os itens quando abrir
+            loadTrash(currentUserId); // CARREGA AO ABRIR
         }
     };
 
@@ -65,13 +72,17 @@ function setupUserInterface() {
     };
 }
 
-// MENSAGENS ATIVAS
+/**
+ * Carrega mensagens ativas
+ */
 export async function loadMessages(userId) {
     const list = el('msgList');
     if (!list) return;
+
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
         list.innerHTML = '';
+        
         const docs = snap.docs
             .map(d => ({ id: d.id, ...d.data() }))
             .filter(d => !d.deleted)
@@ -92,86 +103,143 @@ export async function loadMessages(userId) {
                 <div class="msg-text" style="flex:1; cursor:pointer">${item.text}</div>
                 <button class="btn danger btn-del"><i class="fa-solid fa-trash"></i></button>
             `;
+
+            // Clique para Copiar
             row.querySelector('.msg-text').onclick = async () => {
                 await navigator.clipboard.writeText(item.text);
                 showToast("Copiado!");
             };
-            row.querySelector('.btn-del').onclick = () => {
-                // Aqui não precisa confirmar, pois vai para a lixeira
-                moveToTrash(item.id);
+
+            // Mover para lixeira
+            row.querySelector('.btn-del').onclick = async () => {
+                await updateDoc(doc(db, 'users', userId, 'messages', item.id), { 
+                    deleted: true,
+                    deletedAt: Date.now() 
+                });
+                loadMessages(userId);
+                updateTrashCount(userId);
             };
-            // Drag events... (omitidos para brevidade, mas mantenha os seus)
+
+            // Drag & Drop
+            row.ondragstart = () => { dragSrc = row; row.classList.add('dragging'); };
+            row.ondragend = () => { row.classList.remove('dragging'); saveOrder(userId); };
+            row.ondragover = (e) => {
+                e.preventDefault();
+                const rect = row.getBoundingClientRect();
+                const next = (e.clientY > rect.top + rect.height / 2);
+                list.insertBefore(dragSrc, next ? row.nextSibling : row);
+            };
+
             list.appendChild(row);
         });
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Erro ao carregar mensagens:", e); }
 }
 
-// --- NOVA FUNÇÃO: CARREGAR ITENS DA LIXEIRA ---
+/**
+ * Carrega mensagens excluídas (Lixeira)
+ */
 async function loadTrash(userId) {
     const list = el('trashList');
     if (!list) return;
-    list.innerHTML = '<p class="sub">Carregando lixeira...</p>';
+
+    list.innerHTML = '<p class="sub center">Carregando...</p>';
     
-    const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-    const deletedDocs = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .filter(d => d.deleted);
+    try {
+        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
+        const deletedDocs = snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .filter(d => d.deleted === true);
 
-    list.innerHTML = '';
-    if (deletedDocs.length === 0) {
-        list.innerHTML = '<p class="sub center">A lixeira está vazia.</p>';
-        return;
+        list.innerHTML = '';
+
+        if (deletedDocs.length === 0) {
+            list.innerHTML = '<p class="sub center">A lixeira está vazia.</p>';
+            return;
+        }
+
+        deletedDocs.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'user-row';
+            row.style.background = '#f9fafb';
+            row.innerHTML = `
+                <div style="flex:1; font-size: 14px; color: #6b7280;">${item.text}</div>
+                <button class="btn ghost btn-restore" title="Restaurar">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </button>
+            `;
+            
+            row.querySelector('.btn-restore').onclick = async () => {
+                await updateDoc(doc(db, 'users', userId, 'messages', item.id), { 
+                    deleted: false 
+                });
+                loadMessages(userId);
+                loadTrash(userId);
+                updateTrashCount(userId);
+                showToast("Mensagem restaurada!");
+            };
+
+            list.appendChild(row);
+        });
+    } catch (e) { console.error("Erro na lixeira:", e); }
+}
+
+/**
+ * Salva nova ordem das mensagens
+ */
+async function saveOrder(userId) {
+    const rows = [...el('msgList').children];
+    for (let i = 0; i < rows.length; i++) {
+        const id = rows[i].dataset.id;
+        if (id) {
+            await updateDoc(doc(db, 'users', userId, 'messages', id), { order: i + 1 });
+        }
     }
-
-    deletedDocs.forEach(item => {
-        const row = document.createElement('div');
-        row.className = 'user-row';
-        row.style.background = '#fff5f5';
-        row.innerHTML = `
-            <div style="flex:1; color:#666">${item.text}</div>
-            <button class="btn ghost btn-restore" title="Restaurar"><i class="fa-solid fa-undo"></i></button>
-        `;
-        
-        // Restaurar mensagem
-        row.querySelector('.btn-restore').onclick = async () => {
-            await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: false });
-            loadMessages(userId);
-            loadTrash(userId);
-            updateTrashCount(userId);
-        };
-        list.appendChild(row);
-    });
 }
 
-async function moveToTrash(msgId) {
-    await updateDoc(doc(db, 'users', currentUserId, 'messages', msgId), { 
-        deleted: true,
-        deletedAt: Date.now() 
-    });
-    loadMessages(currentUserId);
-    updateTrashCount(currentUserId);
-}
-
+/**
+ * Esvazia a lixeira (Exclusão Permanente)
+ */
 async function emptyTrash(userId) {
-    const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-    const toDelete = snap.docs.filter(d => d.data().deleted);
-    await Promise.all(toDelete.map(d => deleteDoc(doc(db, 'users', userId, 'messages', d.id))));
-    showToast("Lixeira esvaziada!");
-    updateTrashCount(userId);
-    loadTrash(userId);
+    try {
+        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
+        const toDelete = snap.docs.filter(d => d.data().deleted);
+        
+        if (toDelete.length === 0) return;
+
+        await Promise.all(toDelete.map(d => deleteDoc(doc(db, 'users', userId, 'messages', d.id))));
+        
+        showToast("Lixeira limpa!");
+        updateTrashCount(userId);
+        loadTrash(userId);
+    } catch (e) { console.error("Erro ao esvaziar:", e); }
 }
 
+/**
+ * Atualiza o contador visual
+ */
 async function updateTrashCount(userId) {
     const badge = el('trashCount');
+    if (!badge) return;
     const snap = await getDocs(collection(db, 'users', userId, 'messages'));
     const count = snap.docs.filter(d => d.data().deleted).length;
     badge.textContent = count;
+    badge.style.display = count > 0 ? 'inline-block' : 'none';
 }
 
-function showToast(msg) {
-    const t = document.createElement('div');
-    t.className = 'toast-success';
-    t.innerText = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2000);
+/**
+ * Feedback Toast
+ */
+function showToast(message) {
+    const old = document.querySelector('.toast-success');
+    if (old) old.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-success';
+    toast.innerText = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 500);
+    }, 2000);
 }
