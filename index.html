@@ -1,110 +1,116 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8" />
-  <title>Respostas Automáticas</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Respostas Rápidas</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div id="loginWrapper" class="login-container">
-  <div id="loginBox" class="card login-card">
-    <h2 class="login-title">Login</h2>
-    <div class="input-group">
-      <input id="loginUser" type="text" placeholder="Usuário" />
-      <input id="loginPass" type="password" placeholder="Senha" />
-    </div>
-    <button id="btnLogin" class="btn primary btn-login">Entrar</button>
-  </div>
-</div>
-
-  <div id="app" class="container hidden">
-    
-    <div class="header">
-      <div>
-        <h1>Respostas Automáticas</h1>
-        <div id="loggedUser" class="sub"></div>
-      </div>
-      <button id="btnLogout" class="btn ghost">Sair</button>
-    </div>
-
-    <div id="adminArea" class="hidden">
-      <h2>Administração</h2>
-      <div class="card">
-        <div class="grid">
-          <input id="newUser" placeholder="Nome de Usuário" />
-          <input id="newEmail" type="email" placeholder="E-mail" />
-          <input id="newPass" type="password" placeholder="Senha" />
-          <button id="btnCreateUser" class="btn primary">Criar usuário</button>
+    <div id="loginWrapper" class="login-page">
+        <div class="login-card">
+            <h2 class="login-title">Login</h2>
+            <div class="input-group">
+                <input id="loginUser" type="text" placeholder="Usuário">
+                <input id="loginPass" type="password" placeholder="Senha">
+            </div>
+            <button id="btnLogin" class="btn-login">Entrar</button>
         </div>
-      </div>
-      <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso!</p>
-
-      <h2 class="mt-16">Usuários Cadastrados</h2>
-      <div class="list" id="userList"></div>
     </div>
 
-    <div id="userArea" class="hidden">
-      <h2>Painel do Usuário</h2>
+    <div id="app" class="container hidden">
+        
+        <header class="header">
+            <div>
+                <h1 id="welcomeTitle">Carregando...</h1>
+                <p class="sub">Gerencie suas mensagens e usuários</p>
+            </div>
+            <button id="btnLogout" class="btn ghost">
+                <i class="fa-solid fa-right-from-bracket"></i> Sair
+            </button>
+        </header>
 
-      <div class="card toolbar">
-        <button id="btnImport" class="btn ghost"><i class="fa-solid fa-file-import"></i> Importar</button>
-        <button id="btnExport" class="btn ghost"><i class="fa-solid fa-file-export"></i> Exportar</button>
-        <button id="btnNewMsg" class="btn primary"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
-      </div>
+        <section id="adminArea" class="hidden">
+            <div class="card">
+                <h3>Gerenciar Usuários</h3>
+                <div class="grid mt-16">
+                    <input id="userName" type="text" placeholder="Nome do Usuário">
+                    <input id="userEmail" type="email" placeholder="E-mail (Login)">
+                    <input id="userPass" type="text" placeholder="Senha Inicial">
+                    <button id="btnAddUser" class="btn primary">Criar Usuário</button>
+                </div>
+                <div id="userList" class="list mt-20">
+                    </div>
+            </div>
+        </section>
 
-      <div id="newMsgBox" class="card hidden mt-16">
-        <textarea id="msgText" rows="4" placeholder="Digite sua resposta automática aqui..."></textarea>
-        <div class="flex-end mt-10">
-          <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
-          <button id="btnAddMsg" class="btn primary">Salvar mensagem</button>
+        <section id="userArea" class="hidden">
+            <div class="toolbar mb-24">
+                <button id="btnNewMsg" class="btn primary">
+                    <i class="fa-solid fa-plus"></i> Nova Mensagem
+                </button>
+                <button id="btnTrashToggle" class="btn ghost btn-trash-toggle">
+                    <i class="fa-solid fa-trash-can"></i> Ver Lixeira
+                    <span id="trashCount" class="badge">0</span>
+                </button>
+                <button id="btnExport" class="btn ghost">
+                    <i class="fa-solid fa-file-export"></i> Exportar .txt
+                </button>
+                <button id="btnImport" class="btn ghost">
+                    <i class="fa-solid fa-file-import"></i> Importar .txt
+                </button>
+            </div>
+
+            <div id="newMsgBox" class="card mt-16 hidden">
+                <textarea id="msgText" placeholder="Digite sua resposta rápida aqui..." rows="3"></textarea>
+                <div class="flex-end mt-12">
+                    <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
+                    <button id="btnAddMsg" class="btn primary">Salvar Mensagem</button>
+                </div>
+            </div>
+
+            <div id="msgList" class="list mt-20">
+                </div>
+
+            <div id="trashBox" class="card mt-16 border-danger hidden">
+                <div class="header">
+                    <h3 class="danger-text">Lixeira</h3>
+                    <button id="btnEmptyTrash" class="btn danger">Esvaziar Lixeira</button>
+                </div>
+                <div id="trashList" class="list">
+                    </div>
+                <div class="flex-end mt-12">
+                    <button id="btnCancelTrash" class="btn ghost">Fechar Lixeira</button>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <div id="modalOverlay" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3 id="modalTitle">Aviso</h3>
+            <p id="modalMessage" class="mt-12"></p>
+            <div class="flex-end mt-20">
+                <button onclick="closeModal()" class="btn primary">Entendido</button>
+            </div>
         </div>
-      </div>
+    </div>
 
-      <div class="list mt-16" id="msgList"></div>
-
-      <div class="center mt-12">
-        <button id="btnTrashToggle" class="btn ghost">
-          <i class="fa-solid fa-trash"></i> Ver Lixeira <span id="trashCount" class="badge">0</span>
-        </button>
-      </div>
-
-      <div id="trashBox" class="card hidden mt-16 border-danger">
-        <h3><i class="fa-solid fa-trash"></i> Lixeira</h3>
-        <p class="sub">Mensagens deletadas aparecem aqui antes da exclusão definitiva.</p>
-        <div class="list mt-10" id="trashList"></div>
-        <div class="flex-end mt-12">
-          <button id="btnCancelTrash" class="btn ghost">Fechar</button>
-          <button id="btnEmptyTrash" class="btn danger">Esvaziar lixeira</button>
+    <div id="confirmModal" class="modal-overlay hidden">
+        <div class="modal-box">
+            <h3>Confirmação</h3>
+            <p id="confirmMessage" class="sub mt-12">Deseja prosseguir com esta ação?</p>
+            <div class="flex-end mt-20">
+                <button id="modalCancel" class="btn ghost">Cancelar</button>
+                <button id="modalConfirm" class="btn danger">Confirmar</button>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <div id="confirmModal" class="modal-overlay hidden">
-    <div class="modal-box card">
-      <h3>Tem certeza?</h3>
-      <p id="confirmMessage" class="sub mt-10">Esta ação não poderá ser desfeita.</p>
-      <div class="flex-end mt-20">
-        <button id="modalCancel" class="btn ghost">Cancelar</button>
-        <button id="modalConfirm" class="btn danger">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="modalOverlay" class="modal-overlay hidden">
-    <div class="modal-backdrop" onclick="closeModal()"></div>
-    <div class="modal-box card center">
-      <h3>Aviso</h3>
-      <p id="modalMessage" class="mt-10"></p>
-      <button onclick="closeModal()" class="btn primary mt-16" style="width:100%">OK</button>
-    </div>
-  </div>
-
-  <script type="module" src="js/app.js"></script>
+    <script type="module" src="js/app.js"></script>
 </body>
 </html>
