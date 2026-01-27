@@ -7,6 +7,7 @@
   --primary: #2563eb;
   --danger: #dc2626;
   --success: #16a34a;
+  --toast: #10b981;
 }
 
 * { box-sizing: border-box; }
@@ -19,9 +20,18 @@ body {
   line-height: 1.5;
 }
 
+/* Utilitários Essenciais */
 .hidden { display: none !important; }
+.mt-10 { margin-top: 10px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.center { text-align: center; }
+.full-width { width: 100%; }
+.sub { color: var(--muted); font-size: 14px; }
+.success-text { color: var(--success); font-weight: 500; }
+.border-danger { border: 2px solid #fee2e2 !important; }
 
-/* Layout */
+/* Layout Geral */
 .container {
   max-width: 1100px;
   margin: auto;
@@ -43,10 +53,20 @@ body {
   margin-bottom: 24px;
 }
 
-/* Modais */
-#confirmModal, #modalOverlay {
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
+.toolbar { display: flex; gap: 12px; flex-wrap: wrap; }
+.flex-end { display: flex; justify-content: flex-end; gap: 8px; }
+
+@media(max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+/* Modais e Overlays */
+.modal-overlay {
   position: fixed;
   inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -56,54 +76,44 @@ body {
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,.45);
-  backdrop-filter: blur(2px);
+  z-index: -1;
 }
 
 .modal-box {
-  position: relative;
-  max-width: 360px;
-  width: 90%;
-  z-index: 1;
-  animation: modalIn .2s ease-out;
-}
-
-
-#modalOverlay {
-  position: fixed;
-  inset: 0;
-  display: none; /* Começa oculto */
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-}
-
-/* Quando removermos a classe hidden, o JS mudará o display para flex */
-#modalOverlay.hidden {
-  display: none !important;
-}
-
-.modal-backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal-box {
-  position: relative;
   background: white;
   padding: 24px;
   border-radius: 12px;
-  max-width: 400px;
   width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
   text-align: center;
-  z-index: 10000;
+  animation: modalIn .2s ease-out;
 }
 
 @keyframes modalIn {
   from { transform: scale(.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
+}
+
+/* Toast de Feedback (Copiado) */
+.toast-success {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--toast);
+  color: white;
+  padding: 12px 28px;
+  border-radius: 50px;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  z-index: 10001;
+  animation: bounceUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes bounceUp {
+  from { bottom: 0; opacity: 0; }
+  to { bottom: 30px; opacity: 1; }
 }
 
 /* Formulários e Botões */
@@ -114,6 +124,7 @@ input, textarea {
   border: 1px solid var(--border);
   font-size: 14px;
   font-family: inherit;
+  transition: border-color 0.2s;
 }
 
 input:focus, textarea:focus {
@@ -132,174 +143,63 @@ input:focus, textarea:focus {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: filter 0.2s;
+  transition: filter 0.2s, transform 0.1s;
 }
 
-.btn:active { filter: brightness(0.9); }
+.btn:active { 
+  filter: brightness(0.9); 
+  transform: scale(0.98);
+}
+
 .btn.primary { background: var(--primary); color: #fff; }
 .btn.danger { background: var(--danger); color: #fff; }
 .btn.ghost { background: #eef2ff; color: var(--primary); }
 
-/* Listas e Linhas */
+/* Listas e Mensagens */
 .list { display: flex; flex-direction: column; gap: 12px; }
 
 .user-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   padding: 14px 16px;
   border-radius: 12px;
   border: 1px solid var(--border);
   background: #fff;
   gap: 12px;
+  transition: background 0.2s;
 }
 
 .user-row.blocked { background: #fef2f2; border-color: #fecaca; }
 
+.user-row.dragging {
+  opacity: 0.4;
+  background: #e2e8f0;
+  border: 1px dashed #64748b;
+}
+
 .drag-handle {
   cursor: grab;
   color: var(--muted);
-  font-size: 18px;
+  font-size: 1.2rem;
   user-select: none;
+  padding: 4px;
 }
 
 .drag-handle:active { cursor: grabbing; }
 
-/* Auxiliares */
-.sub { color: var(--muted); font-size: 14px; }
-.grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
-.toolbar { display: flex; gap: 12px; flex-wrap: wrap; }
-.flex-end { display: flex; justify-content: flex-end; gap: 8px; }
-.center { text-align: center; }
-.mt-10 { margin-top: 10px; }
-.mt-12 { margin-top: 12px; }
-.mt-16 { margin-top: 16px; }
-.success-text { color: var(--success); font-weight: 500; }
-
-.badge {
-  background: var(--danger);
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 11px;
-}
-
-@media(max-width: 768px) {
-  .grid { grid-template-columns: 1fr; }
-}
-
-
-/* Estilo para o Toast de Sucesso (Copiado) */
-.toast-success {
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #10b981; /* Verde esmeralda */
-    color: white;
-    padding: 12px 24px;
-    border-radius: 50px;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    z-index: 10001;
-    animation: slideUp 0.3s ease-out;
-}
-
-@keyframes slideUp {
-    from { transform: translate(-50%, 20px); opacity: 0; }
-    to { transform: translate(-50%, 0); opacity: 1; }
-}
-
-
-/* --- Modais e Overlays --- */
-.modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(3px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
-
-.modal-box {
-    background: white;
-    padding: 24px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    text-align: center;
-}
-
-/* --- Feedback de "Copiado" (Toast) --- */
-.toast-success {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #10b981;
-    color: white;
-    padding: 12px 28px;
-    border-radius: 50px;
-    font-weight: bold;
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    z-index: 10001;
-    animation: bounceUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-@keyframes bounceUp {
-    from { bottom: 0; opacity: 0; }
-    to { bottom: 30px; opacity: 1; }
-}
-
-/* --- Drag & Drop Visuals --- */
-.user-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    margin-bottom: 8px;
-    transition: all 0.2s;
-}
-
-.user-row.dragging {
-    opacity: 0.4;
-    background: #e2e8f0;
-    border: 1px dashed #64748b;
-}
-
-.drag-handle {
-    cursor: grab;
-    color: #94a3b8;
-    font-size: 1.2rem;
-}
-
-.drag-handle:active { cursor: grabbing; }
-
-/* --- Badge da Lixeira --- */
+/* Badge da Lixeira */
 .btn-trash-toggle { position: relative; }
 
 .badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    background: #ef4444;
-    color: white;
-    font-size: 0.7rem;
-    padding: 2px 6px;
-    border-radius: 10px;
-    border: 2px solid white;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: var(--danger);
+  color: white;
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 10px;
+  border: 2px solid white;
+  min-width: 18px;
+  text-align: center;
 }
-
-/* --- Helpers --- */
-.hidden { display: none !important; }
-.full-width { width: 100%; }
-.mt-12 { margin-top: 12px; }
-.mt-16 { margin-top: 16px; }
-.flex-end { display: flex; justify-content: flex-end; gap: 8px; }
-.border-danger { border: 2px solid #fee2e2; }
