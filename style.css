@@ -225,14 +225,28 @@ input:focus, textarea:focus {
     z-index: 100; /* Garante que fique acima das mensagens */
 }
 
-/* Estilo para a linha do usuário quando estiver bloqueado */
+/* Container do usuário bloqueado */
 .user-row.blocked {
-    background-color: #fef2f2; /* Vermelho bem clarinho */
-    border-color: #fecaca;     /* Borda avermelhada */
-    transition: all 0.3s ease;
+    background-color: #fff5f5; /* Fundo levemente rosado */
+    border-color: #feb2b2;     /* Borda vermelha clara */
 }
 
-/* Opcional: Deixar o texto do nome em vermelho escuro também */
-.user-row.blocked span {
-    color: #991b1b;
+/* O Badge de "Bloqueado" */
+.status-badge-blocked {
+    background-color: #dc3545; /* Vermelho forte */
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Estilo para o texto do nome quando bloqueado */
+.user-row.blocked .user-name {
+    color: #c53030;
+    font-weight: 600;
 }
