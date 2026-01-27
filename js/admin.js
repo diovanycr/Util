@@ -1,42 +1,85 @@
-import { db } from './firebase.js';
-import { collection, getDocs, updateDoc, deleteDoc, doc } from 
-  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { openConfirmModal } from './modal.js';
+// js/admin.js
 
-export async function loadUsers(){
-  userList.innerHTML = '';
-  const snap = await getDocs(collection(db,'users'));
+import { auth, db } from './firebase.js';
+import {
+  onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
 
-  snap.forEach(d=>{
-    const u = d.data();
-    if(u.role === 'admin') return;
+import {
+  collection,
+  getDocs,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-    const row = document.createElement('div');
-    row.className = 'user-row';
+let userList; // escopo do módulo
 
-    row.innerHTML = `
-      <div>
-        <strong>${u.username}</strong><br>
-        <span class="sub">${u.email}</span>
-      </div>
-      <div>
-        <button class="btn ghost">${u.blocked?'Desbloquear':'Bloquear'}</button>
-        <button class="btn danger">Excluir</button>
-      </div>
-    `;
+// 🔹 inicializador do módulo
+export function initAdmin() {
+  userList = document.getElementById('userList');
 
-    row.querySelector('.ghost').onclick = async ()=>{
-      await updateDoc(doc(db,'users',d.id),{ blocked:!u.blocked });
-      loadUsers();
-    };
+  // se não existir na tela, sai silenciosamente
+  if (!userList) return;
 
-    row.querySelector('.danger').onclick = ()=>{
-      openConfirmModal(async()=>{
-        await deleteDoc(doc(db,'users',d.id));
-        loadUsers();
-      });
-    };
+  onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      userList.innerHTML = '';
+      return;
+    }
 
-    userList.appendChild(row);
+    // aqui você pode validar se é admin
+    loadUsers();
   });
+}
+
+// 🔹 carrega usuários (Firestore)
+async function loadUsers() {
+  if (!userList) return;
+
+  userList.innerHTML = '<li>Carregando usuários...</li>';
+
+  try {
+    const snapshot = await getDocs(collection(db, 'users'));
+
+    userList.innerHTML = '';
+
+    snapshot.forEach((docSnap) => {
+      const data = docSnap.data();
+
+      const li = document.createElement('li');
+      li.className = 'user-item';
+
+      li.innerHTML = `
+        <span>${data.email || 'Sem email'}</span>
+        <button data-id="${docSnap.id}">Excluir</button>
+      `;
+
+      li.querySelector('button').addEventListener('click', () => {
+        deleteUser(docSnap.id);
+      });
+
+      userList.appendChild(li);
+    });
+
+    if (snapshot.empty) {
+      userList.innerHTML = '<li>Nenhum usuário encontrado</li>';
+    }
+
+  } catch (error) {
+    console.error('Erro ao carregar usuários:', error);
+    userList.innerHTML = '<li>Erro ao carregar usuários</li>';
+  }
+}
+
+// 🔹 excluir usuário
+async function deleteUser(userId) {
+  if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
+
+  try {
+    await deleteDoc(doc(db, 'users', userId));
+    loadUsers();
+  } catch (error) {
+    console.error('Erro ao excluir usuário:', error);
+    alert('Erro ao excluir usuário');
+  }
 }
