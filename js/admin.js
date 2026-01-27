@@ -1,20 +1,23 @@
 import { db, el, secondaryAuth } from './firebase.js';
-import { collection, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { showModal } from './modal.js';
 
 export async function loadUsers() {
     const userList = el('userList');
-    if (!userList) return;
+    if (!userList) {
+        console.error("Erro: Elemento #userList não encontrado no HTML.");
+        return;
+    }
     
-    userList.innerHTML = '<p style="padding:10px">Carregando usuários...</p>';
+    userList.innerHTML = '<p class="sub">Carregando usuários...</p>';
     
     try {
         const snap = await getDocs(collection(db, 'users'));
-        userList.innerHTML = ''; // Limpa o "Carregando"
+        userList.innerHTML = ''; 
 
         if (snap.empty) {
-            userList.innerHTML = '<p style="padding:10px">Nenhum usuário encontrado.</p>';
+            userList.innerHTML = '<p class="sub">Nenhum usuário cadastrado.</p>';
             return;
         }
 
@@ -35,13 +38,11 @@ export async function loadUsers() {
                 </div>
             `;
 
-            // Evento Bloquear
             row.querySelector('.btnBlock').onclick = async () => {
                 await updateDoc(doc(db, 'users', d.id), { blocked: !u.blocked });
                 loadUsers();
             };
 
-            // Evento Deletar
             row.querySelector('.btnDelete').onclick = async () => {
                 if (confirm(`Excluir ${u.username}?`)) {
                     await deleteDoc(doc(db, 'users', d.id));
@@ -52,8 +53,8 @@ export async function loadUsers() {
             userList.appendChild(row);
         });
     } catch (e) {
-        console.error("Erro ao carregar lista:", e);
-        userList.innerHTML = '<p style="color:red">Erro ao carregar usuários.</p>';
+        console.error("Erro ao buscar usuários:", e);
+        userList.innerHTML = '<p style="color:red">Erro ao carregar dados do Firestore.</p>';
     }
 }
 
@@ -66,13 +67,16 @@ export function initAdminActions() {
         const email = el('newEmail').value.trim().toLowerCase();
         const password = el('newPass').value.trim();
 
-        if (!username || !email || !password) return showModal("Preencha tudo!");
+        if (!username || !email || !password) {
+            showModal("Por favor, preencha todos os campos.");
+            return;
+        }
 
         try {
-            // Cria no App Secundário para não deslogar o Admin atual
+            // Criação no Firebase Auth
             const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
             
-            // Salva no Firestore
+            // Gravação no Firestore
             await setDoc(doc(db, 'users', cred.user.uid), {
                 username,
                 email,
@@ -80,24 +84,28 @@ export function initAdminActions() {
                 blocked: false
             });
 
-            // Desloga o novo usuário da instância secundária
+            // Desloga a conta secundária para manter o Admin logado
             await signOut(secondaryAuth);
 
-            // Limpa campos e avisa
+            // Limpa campos e sucesso
             el('newUser').value = el('newEmail').value = el('newPass').value = '';
             el('createSuccess').classList.remove('hidden');
             setTimeout(() => el('createSuccess').classList.add('hidden'), 3000);
             
-            loadUsers(); // Atualiza a lista na hora
+            loadUsers();
 
         } catch (e) {
-            console.error("Erro ao criar:", e.code);
+            console.error("Erro capturado:", e.code);
+            
+            // TRATAMENTO DO ERRO DE E-MAIL DUPLICADO
             if (e.code === 'auth/email-already-in-use') {
-                showModal("Este e-mail já está cadastrado.");
+                showModal("Este e-mail já está em uso por outro usuário.");
+            } else if (e.code === 'auth/invalid-email') {
+                showModal("O formato do e-mail é inválido.");
             } else if (e.code === 'auth/weak-password') {
-                showModal("A senha deve ter pelo menos 6 caracteres.");
+                showModal("A senha deve ter no mínimo 6 caracteres.");
             } else {
-                showModal("Erro: " + e.message);
+                showModal("Erro ao criar usuário: " + e.message);
             }
         }
     };
