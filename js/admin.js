@@ -1,4 +1,4 @@
-import { db, el, secondaryAuth } from './firebase.js';
+import { db, el, secondaryAuth, auth } from './firebase.js'; // Certifique-se de exportar 'auth' do firebase.js
 // Importação correta separada por módulos
 import { 
     collection, 
@@ -11,7 +11,8 @@ import {
 
 import { 
     createUserWithEmailAndPassword, 
-    signOut 
+    signOut,
+    sendPasswordResetEmail // Nova importação para o Reset
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import { showModal } from './modal.js';
@@ -38,7 +39,6 @@ export async function loadUsers() {
             const isBlocked = u.blocked === true;
             const row = document.createElement('div');
             
-            // Adiciona a classe 'blocked' para ficar vermelho
             row.className = 'user-row' + (isBlocked ? ' blocked' : '');
             
             row.innerHTML = `
@@ -48,11 +48,29 @@ export async function loadUsers() {
                     <br>
                     <span class="sub">${u.email}</span>
                 </div>
-                <div style="display:flex;gap:8px">
+                <div style="display:flex;gap:8px;align-items:center;">
                     <button class="btn ghost btnBlock">${isBlocked ? 'Desbloquear' : 'Bloquear'}</button>
+                    
+                    <button class="btn ghost btnReset" title="Resetar Senha" style="color: #f59e0b;">
+                        <i class="fa-solid fa-key"></i>
+                    </button>
+
                     <button class="btn danger btnDelete"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
+
+            // Lógica do botão Reset de Senha
+            row.querySelector('.btnReset').onclick = async () => {
+                if (confirm(`Enviar e-mail de redefinição de senha para ${u.email}?`)) {
+                    try {
+                        await sendPasswordResetEmail(auth, u.email);
+                        showModal("E-mail de redefinição enviado com sucesso!");
+                    } catch (err) {
+                        console.error("Erro no reset:", err);
+                        showModal("Erro ao enviar e-mail de recuperação.");
+                    }
+                }
+            };
 
             // Lógica do botão Bloquear/Desbloquear
             row.querySelector('.btnBlock').onclick = async () => {
