@@ -1,93 +1,62 @@
-import { auth, db, el } from './firebase.js'; // el é o atalho que criamos no firebase.js
-import {
-  onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { db, el, secondaryAuth } from './firebase.js';
+import { collection, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { showModal } from './modal.js';
 
-import {
-  collection,
-  getDocs,
-  deleteDoc,
-  doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+export async function loadUsers() {
+  el('userList').innerHTML = '';
+  const snap = await getDocs(collection(db, 'users'));
 
-let userList; 
+  snap.forEach(d => {
+    const u = d.data();
+    if (u.role === 'admin') return;
 
-// 🔹 inicializador do módulo
-export function initAdmin() {
-  userList = document.getElementById('userList');
+    const row = document.createElement('div');
+    row.className = 'user-row' + (u.blocked ? ' blocked' : '');
+    row.innerHTML = `
+      <div><strong>${u.username}</strong><br><span class="sub">${u.email}</span></div>
+      <div style="display:flex;gap:8px">
+        <button class="btn ghost btnBlock">${u.blocked ? 'Desbloquear' : 'Bloquear'}</button>
+        <button class="btn danger btnDelete">Excluir</button>
+      </div>
+    `;
 
-  if (!userList) return;
+    row.querySelector('.btnBlock').onclick = async () => {
+      await updateDoc(doc(db, 'users', d.id), { blocked: !u.blocked });
+      loadUsers();
+    };
 
-  onAuthStateChanged(auth, (user) => {
-    if (!user) {
-      userList.innerHTML = '';
-      return;
-    }
-    
-    // Opcional: Você pode adicionar uma verificação extra de papel aqui se desejar
-    loadUsers();
+    row.querySelector('.btnDelete').onclick = async () => {
+      if (confirm(`Excluir ${u.username}?`)) {
+        await deleteDoc(doc(db, 'users', d.id));
+        loadUsers();
+      }
+    };
+    el('userList').appendChild(row);
   });
 }
 
-// 🔹 carrega usuários (Firestore)
-async function loadUsers() {
-  if (!userList) return;
+export function initAdminActions() {
+  el('btnCreateUser').onclick = async () => {
+    const username = el('newUser').value.trim().toLowerCase();
+    const email = el('newEmail').value.trim().toLowerCase();
+    const password = el('newPass').value.trim();
 
-  userList.innerHTML = '<div class="sub">Carregando usuários...</div>';
+    if (!username || !email || !password) return showModal("Preencha todos os campos.");
 
-  try {
-    const snapshot = await getDocs(collection(db, 'users'));
-
-    userList.innerHTML = '';
-
-    snapshot.forEach((docSnap) => {
-      const data = docSnap.data();
-      
-      // Ignora o próprio admin na listagem para evitar auto-exclusão acidental
-      if (data.role === 'admin') return;
-
-      const div = document.createElement('div');
-      div.className = 'user-row'; // Usando a classe que definimos no CSS
-
-      div.innerHTML = `
-        <div>
-            <strong>${data.username || 'Sem nome'}</strong><br>
-            <span class="sub">${data.email || 'Sem email'}</span>
-        </div>
-        <div style="display:flex; gap:8px;">
-            <button class="btn danger btnDelete" data-id="${docSnap.id}">
-                <i class="fa-solid fa-trash"></i> Excluir
-            </button>
-        </div>
-      `;
-
-      div.querySelector('.btnDelete').addEventListener('click', () => {
-        deleteUser(docSnap.id);
+    try {
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        username, email, role: 'user', blocked: false
       });
-
-      userList.appendChild(div);
-    });
-
-    if (userList.innerHTML === '') {
-      userList.innerHTML = '<div class="sub">Nenhum usuário encontrado</div>';
+      await signOut(secondaryAuth);
+      
+      el('newUser').value = el('newEmail').value = el('newPass').value = '';
+      el('createSuccess').classList.remove('hidden');
+      setTimeout(() => el('createSuccess').classList.add('hidden'), 3000);
+      loadUsers();
+    } catch (e) {
+      showModal("Erro ao criar usuário: " + e.message);
     }
-
-  } catch (error) {
-    console.error('Erro ao carregar usuários:', error);
-    userList.innerHTML = '<div class="sub" style="color:red">Erro ao carregar usuários no banco.</div>';
-  }
-}
-
-// 🔹 excluir usuário
-async function deleteUser(userId) {
-  // Nota: Idealmente use o modal.js que você já tem para confirmar
-  if (!confirm('Tem certeza que deseja excluir este usuário?')) return;
-
-  try {
-    await deleteDoc(doc(db, 'users', userId));
-    loadUsers();
-  } catch (error) {
-    console.error('Erro ao excluir usuário:', error);
-    alert('Erro ao excluir usuário no banco de dados.');
-  }
+  };
 }
