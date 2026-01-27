@@ -11,12 +11,16 @@
 </head>
 <body>
 
-  <div id="loginBox" class="card">
-    <h2>Login</h2>
-    <input id="loginUser" type="text" placeholder="Usuário" />
-    <input id="loginPass" type="password" placeholder="Senha" />
-    <button id="btnLogin" class="btn primary" style="width:100%">Entrar</button>
+<div id="loginWrapper" class="login-container">
+  <div id="loginBox" class="card login-card">
+    <h2 class="login-title">Login</h2>
+    <div class="input-group">
+      <input id="loginUser" type="text" placeholder="Usuário" />
+      <input id="loginPass" type="password" placeholder="Senha" />
+    </div>
+    <button id="btnLogin" class="btn primary btn-login">Entrar</button>
   </div>
+</div>
 
   <div id="app" class="container hidden">
     
