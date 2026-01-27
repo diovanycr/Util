@@ -1,4 +1,4 @@
-import './firebase.js';
-import { initAuth } from './auth.js';
+import { doLogin, doLogout } from './auth.js';
 
-initAuth();
+btnLogin.onclick = doLogin;
+btnLogout.onclick = doLogout;
