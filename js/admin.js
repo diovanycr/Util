@@ -1,42 +1,29 @@
 import { db, el, secondaryAuth } from './firebase.js';
-import { 
-    collection, 
-    getDocs, 
-    updateDoc, 
-    deleteDoc, 
-    doc, 
-    setDoc 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { 
-    createUserWithEmailAndPassword, 
-    signOut, 
-    signInAnonymously 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { collection, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import { showModal } from './modal.js';
 
-// --- FUNÇÃO PARA CARREGAR A LISTA DE USUÁRIOS ---
 export async function loadUsers() {
     const userList = el('userList');
     if (!userList) return;
     
-    userList.innerHTML = ''; // Limpa a lista antes de carregar
+    userList.innerHTML = '<p style="padding:10px">Carregando usuários...</p>';
     
     try {
         const snap = await getDocs(collection(db, 'users'));
-        const seen = new Set();
+        userList.innerHTML = ''; // Limpa o "Carregando"
+
+        if (snap.empty) {
+            userList.innerHTML = '<p style="padding:10px">Nenhum usuário encontrado.</p>';
+            return;
+        }
 
         snap.forEach(d => {
             const u = d.data();
-            
-            // Lógica Original: Não listar admins nem duplicados
-            const key = `${u.username}|${u.email}`;
-            if (seen.has(key)) return;
-            seen.add(key);
             if (u.role === 'admin') return;
 
             const row = document.createElement('div');
             row.className = 'user-row' + (u.blocked ? ' blocked' : '');
-
             row.innerHTML = `
                 <div>
                     <strong>${u.username}</strong><br>
@@ -44,19 +31,19 @@ export async function loadUsers() {
                 </div>
                 <div style="display:flex;gap:8px">
                     <button class="btn ghost btnBlock">${u.blocked ? 'Desbloquear' : 'Bloquear'}</button>
-                    <button class="btn danger btnDelete">Excluir</button>
+                    <button class="btn danger btnDelete"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
 
-            // Botão Bloquear/Desbloquear
+            // Evento Bloquear
             row.querySelector('.btnBlock').onclick = async () => {
                 await updateDoc(doc(db, 'users', d.id), { blocked: !u.blocked });
-                loadUsers(); // Recarrega a lista
+                loadUsers();
             };
 
-            // Botão Excluir
+            // Evento Deletar
             row.querySelector('.btnDelete').onclick = async () => {
-                if (confirm(`Excluir usuário ${u.username}?`)) {
+                if (confirm(`Excluir ${u.username}?`)) {
                     await deleteDoc(doc(db, 'users', d.id));
                     loadUsers();
                 }
@@ -65,38 +52,27 @@ export async function loadUsers() {
             userList.appendChild(row);
         });
     } catch (e) {
-        console.error("Erro ao carregar usuários:", e);
+        console.error("Erro ao carregar lista:", e);
+        userList.innerHTML = '<p style="color:red">Erro ao carregar usuários.</p>';
     }
 }
 
-// --- FUNÇÃO PARA CRIAR NOVOS USUÁRIOS (SÓ PARA ADMIN) ---
 export function initAdminActions() {
-    const btnCreate = el('btnCreateUser');
-    if (!btnCreate) return;
+    const btn = el('btnCreateUser');
+    if (!btn) return;
 
-    btnCreate.onclick = async () => {
+    btn.onclick = async () => {
         const username = el('newUser').value.trim().toLowerCase();
         const email = el('newEmail').value.trim().toLowerCase();
         const password = el('newPass').value.trim();
 
-        if (!username || !email || !password) {
-            showModal("Preencha todos os campos para criar o usuário.");
-            return;
-        }
+        if (!username || !email || !password) return showModal("Preencha tudo!");
 
         try {
-            // 1. Verifica duplicidade no Firestore
-            const snap = await getDocs(collection(db, 'users'));
-            if (snap.docs.some(d => d.data().username?.toLowerCase() === username)) {
-                return showModal("Este nome de usuário já existe.");
-            }
-
-            // 2. Cria no Firebase Auth usando o app secundário (para não deslogar o admin)
-            try { await signInAnonymously(secondaryAuth); } catch(e) {}
-            
+            // Cria no App Secundário para não deslogar o Admin atual
             const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-
-            // 3. Salva os dados no Firestore vinculados ao UID criado
+            
+            // Salva no Firestore
             await setDoc(doc(db, 'users', cred.user.uid), {
                 username,
                 email,
@@ -104,21 +80,25 @@ export function initAdminActions() {
                 blocked: false
             });
 
-            // 4. Limpa e desloga o app secundário
+            // Desloga o novo usuário da instância secundária
             await signOut(secondaryAuth);
-            
-            el('newUser').value = '';
-            el('newEmail').value = '';
-            el('newPass').value = '';
-            
+
+            // Limpa campos e avisa
+            el('newUser').value = el('newEmail').value = el('newPass').value = '';
             el('createSuccess').classList.remove('hidden');
             setTimeout(() => el('createSuccess').classList.add('hidden'), 3000);
-
-            loadUsers(); // Atualiza a lista na tela
+            
+            loadUsers(); // Atualiza a lista na hora
 
         } catch (e) {
-            console.error("Erro ao criar:", e);
-            showModal("Erro ao criar usuário: " + e.message);
+            console.error("Erro ao criar:", e.code);
+            if (e.code === 'auth/email-already-in-use') {
+                showModal("Este e-mail já está cadastrado.");
+            } else if (e.code === 'auth/weak-password') {
+                showModal("A senha deve ter pelo menos 6 caracteres.");
+            } else {
+                showModal("Erro: " + e.message);
+            }
         }
     };
 }
