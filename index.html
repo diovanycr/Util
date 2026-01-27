@@ -81,17 +81,16 @@
     </div>
   </div>
 
-  <div id="confirmModal" class="hidden">
-    <div class="modal-backdrop"></div>
-    <div class="card modal-box">
-      <h3>Confirmar exclusão</h3>
-      <p class="sub">Esta ação moverá o item para a lixeira.</p>
-      <div class="flex-end mt-16">
-        <button id="modalCancel" class="btn ghost">Cancelar</button>
-        <button id="modalConfirm" class="btn danger">Excluir</button>
-      </div>
+<div id="confirmModal" class="hidden" style="position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);">
+  <div class="card" style="max-width:400px; width:90%; padding:20px; text-align:center; background:white; border-radius:12px;">
+    <h3>Tem certeza?</h3>
+    <p class="sub">Esta mensagem será movida para a lixeira.</p>
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
+      <button id="modalCancel" class="btn ghost">Cancelar</button>
+      <button id="modalConfirm" class="btn danger">Excluir</button>
     </div>
   </div>
+</div>
 
   <div id="modalOverlay" class="hidden">
   <div class="modal-backdrop" onclick="closeModal()"></div>
