@@ -35,24 +35,32 @@ export async function loadUsers() {
             const u = d.data();
             if (u.role === 'admin') return;
 
+            const isBlocked = u.blocked === true;
             const row = document.createElement('div');
-            row.className = 'user-row' + (u.blocked ? ' blocked' : '');
+            
+            // Adiciona a classe 'blocked' para ficar vermelho
+            row.className = 'user-row' + (isBlocked ? ' blocked' : '');
+            
             row.innerHTML = `
                 <div>
-                    <strong>${u.username}</strong><br>
+                    <strong>${u.username}</strong> 
+                    ${isBlocked ? '<span class="status-badge-blocked">Bloqueado</span>' : ''}
+                    <br>
                     <span class="sub">${u.email}</span>
                 </div>
                 <div style="display:flex;gap:8px">
-                    <button class="btn ghost btnBlock">${u.blocked ? 'Desbloquear' : 'Bloquear'}</button>
+                    <button class="btn ghost btnBlock">${isBlocked ? 'Desbloquear' : 'Bloquear'}</button>
                     <button class="btn danger btnDelete"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
 
+            // Lógica do botão Bloquear/Desbloquear
             row.querySelector('.btnBlock').onclick = async () => {
-                await updateDoc(doc(db, 'users', d.id), { blocked: !u.blocked });
+                await updateDoc(doc(db, 'users', d.id), { blocked: !isBlocked });
                 loadUsers();
             };
 
+            // Lógica do botão Excluir
             row.querySelector('.btnDelete').onclick = async () => {
                 if (confirm(`Deseja realmente excluir ${u.username}?`)) {
                     await deleteDoc(doc(db, 'users', d.id));
@@ -82,10 +90,8 @@ export function initAdminActions() {
         }
 
         try {
-            // Criação no Firebase Auth através da instância secundária
             const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
             
-            // Salva dados adicionais no Firestore
             await setDoc(doc(db, 'users', cred.user.uid), {
                 username,
                 email,
@@ -94,10 +100,8 @@ export function initAdminActions() {
                 createdAt: new Date().toISOString()
             });
 
-            // Desloga a conta criada do app secundário para não afetar o Admin
             await signOut(secondaryAuth);
 
-            // Sucesso
             el('newUser').value = el('newEmail').value = el('newPass').value = '';
             el('createSuccess').classList.remove('hidden');
             setTimeout(() => el('createSuccess').classList.add('hidden'), 3000);
@@ -107,7 +111,6 @@ export function initAdminActions() {
         } catch (e) {
             console.error("Erro capturado:", e.code);
             
-            // LÓGICA DO MODAL DE ERRO PARA E-MAIL EXISTENTE
             if (e.code === 'auth/email-already-in-use') {
                 showModal("Ops! Este e-mail já está sendo usado por outro usuário.");
             } else if (e.code === 'auth/weak-password') {
