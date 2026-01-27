@@ -4,6 +4,7 @@ import {
     getDocs, 
     addDoc, 
     updateDoc, 
+    deleteDoc, 
     doc, 
     query, 
     orderBy 
@@ -58,19 +59,31 @@ function setupUserInterface() {
             el('newMsgBox').classList.add('hidden');
             loadMessages(currentUserId);
         } catch (e) {
-            console.error("Erro ao salvar mensagem:", e);
+            console.error("Erro ao salvar:", e);
         }
     };
 
-    // Toggle da Lixeira (Ações rápidas)
+    // Toggle da Lixeira
     el('btnTrashToggle').onclick = () => {
-        const trashActions = el('trashActions');
-        if (trashActions) trashActions.classList.toggle('hidden');
+        const trashBox = el('trashBox');
+        if (trashBox) trashBox.classList.toggle('hidden');
+    };
+
+    // FECHAR Lixeira
+    if (el('btnCancelTrash')) {
+        el('btnCancelTrash').onclick = () => el('trashBox').classList.add('hidden');
+    }
+
+    // ESVAZIAR Lixeira (Ação solicitada)
+    el('btnEmptyTrash').onclick = () => {
+        openConfirmModal(async () => {
+            await emptyTrash(currentUserId);
+        });
     };
 }
 
 /**
- * Carrega e renderiza as mensagens ativas
+ * Carrega e renderiza as mensagens ativas (não deletadas)
  */
 export async function loadMessages(userId) {
     const list = el('msgList');
@@ -88,7 +101,7 @@ export async function loadMessages(userId) {
             .sort((a, b) => (a.order || 0) - (b.order || 0));
 
         if (docs.length === 0) {
-            list.innerHTML = '<p class="sub center">Nenhuma mensagem cadastrada.</p>';
+            list.innerHTML = '<p class="sub center">Nenhuma mensagem ativa.</p>';
             return;
         }
 
@@ -100,21 +113,21 @@ export async function loadMessages(userId) {
 
             row.innerHTML = `
                 <span class="drag-handle" title="Arraste para reordenar">&#9776;</span>
-                <div class="msg-text" style="flex:1; cursor:pointer" title="Clique para copiar">${item.text}</div>
-                <button class="btn danger btn-del" title="Excluir"><i class="fa-solid fa-trash"></i></button>
+                <div class="msg-text" style="flex:1; cursor:pointer">${item.text}</div>
+                <button class="btn danger btn-del"><i class="fa-solid fa-trash"></i></button>
             `;
 
-            // EVENTO: COPIAR (Com Toast)
+            // COPIAR COM TOAST
             row.querySelector('.msg-text').onclick = async () => {
                 try {
                     await navigator.clipboard.writeText(item.text);
-                    showToast("Copiado com sucesso!");
+                    showToast("Mensagem copiada!");
                 } catch (err) {
-                    showModal("Erro ao copiar para a área de transferência.");
+                    showModal("Erro ao copiar.");
                 }
             };
 
-            // EVENTO: EXCLUIR (Com Modal de Confirmação)
+            // MOVER PARA LIXEIRA
             row.querySelector('.btn-del').onclick = () => {
                 openConfirmModal(async () => {
                     await updateDoc(doc(db, 'users', userId, 'messages', item.id), { 
@@ -126,9 +139,9 @@ export async function loadMessages(userId) {
                 });
             };
 
-            // EVENTOS: DRAG & DROP
-            row.ondragstart = () => { dragSrc = row; row.style.opacity = '0.5'; };
-            row.ondragend = () => { row.style.opacity = '1'; saveOrder(userId); };
+            // DRAG & DROP
+            row.ondragstart = () => { dragSrc = row; row.classList.add('dragging'); };
+            row.ondragend = () => { row.classList.remove('dragging'); saveOrder(userId); };
             row.ondragover = (e) => {
                 e.preventDefault();
                 const rect = row.getBoundingClientRect();
@@ -139,12 +152,34 @@ export async function loadMessages(userId) {
             list.appendChild(row);
         });
     } catch (e) {
-        console.error("Erro ao carregar mensagens:", e);
+        console.error("Erro ao carregar:", e);
     }
 }
 
 /**
- * Salva a nova ordem das mensagens após o Drag & Drop
+ * Esvazia a lixeira permanentemente do Firestore
+ */
+async function emptyTrash(userId) {
+    try {
+        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
+        const toDelete = snap.docs.filter(d => d.data().deleted === true);
+
+        if (toDelete.length === 0) return showModal("A lixeira já está vazia.");
+
+        const promises = toDelete.map(d => deleteDoc(doc(db, 'users', userId, 'messages', d.id)));
+        await Promise.all(promises);
+
+        showToast("Lixeira esvaziada!");
+        updateTrashCount(userId);
+        el('trashBox').classList.add('hidden');
+    } catch (e) {
+        console.error("Erro ao esvaziar:", e);
+        showModal("Erro ao limpar o banco de dados.");
+    }
+}
+
+/**
+ * Salva a nova ordem após arraste
  */
 async function saveOrder(userId) {
     const rows = [...el('msgList').children];
@@ -157,7 +192,7 @@ async function saveOrder(userId) {
 }
 
 /**
- * Atualiza o contador de itens na lixeira
+ * Atualiza o badge da lixeira
  */
 async function updateTrashCount(userId) {
     const badge = el('trashCount');
@@ -171,22 +206,19 @@ async function updateTrashCount(userId) {
 }
 
 /**
- * Função de Feedback Visual (Toast)
+ * Feedback Visual (Toast)
  */
 function showToast(message) {
-    // Remove toast antigo se houver
-    const oldToast = document.querySelector('.toast-success');
-    if (oldToast) oldToast.remove();
+    const old = document.querySelector('.toast-success');
+    if (old) old.remove();
 
     const toast = document.createElement('div');
     toast.className = 'toast-success';
     toast.innerText = message;
     document.body.appendChild(toast);
 
-    // Fade out e remoção
     setTimeout(() => {
         toast.style.opacity = '0';
-        toast.style.transition = 'opacity 0.5s ease';
         setTimeout(() => toast.remove(), 500);
     }, 2000);
 }
