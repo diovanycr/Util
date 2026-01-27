@@ -3,92 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Respostas Rápidas</title>
+    <title>Sistema de Respostas</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div class="container">
         
         <div id="loginBox" class="card">
-            <h2>Acesse sua conta</h2>
-            <p class="sub">Digite suas credenciais para continuar</p>
+            <h2>Login</h2>
             <div class="list mt-16">
-                <input id="loginUser" type="email" placeholder="E-mail cadastrado">
-                <input id="loginPass" type="password" placeholder="Sua senha">
-                <button id="btnLogin" class="btn primary full-width">
-                    <i class="fa-solid fa-right-to-bracket"></i> Entrar
-                </button>
+                <input id="loginUser" type="email" placeholder="E-mail">
+                <input id="loginPass" type="password" placeholder="Senha">
+                <button id="btnLogin" class="btn primary">Entrar</button>
             </div>
         </div>
 
         <div id="app" class="hidden">
-            
             <header class="header">
                 <div>
-                    <h1 id="welcomeTitle">Olá!</h1>
-                    <p class="sub">O que vamos fazer hoje?</p>
+                    <h1 id="welcomeTitle">Painel de Mensagens</h1>
+                    <button id="btnLogout" class="btn ghost mt-10">Sair do Sistema</button>
                 </div>
-                <button id="btnLogout" class="btn ghost">
-                    <i class="fa-solid fa-power-off"></i> Sair
-                </button>
             </header>
 
             <section id="adminArea" class="hidden">
                 <div class="card">
-                    <h3><i class="fa-solid fa-user-plus"></i> Cadastrar Novo Usuário</h3>
+                    <h3>Usuários</h3>
                     <div class="grid mt-12">
-                        <input id="userName" type="text" placeholder="Nome completo">
-                        <input id="userEmail" type="email" placeholder="E-mail de login">
-                        <input id="userPass" type="text" placeholder="Senha provisória">
-                        <button id="btnAddUser" class="btn primary">Criar Conta</button>
+                        <input id="userName" type="text" placeholder="Nome">
+                        <input id="userEmail" type="email" placeholder="E-mail">
+                        <input id="userPass" type="text" placeholder="Senha">
+                        <button id="btnAddUser" class="btn primary">Criar</button>
                     </div>
-                    
-                    <h4 class="mt-20">Usuários Ativos</h4>
-                    <div id="userList" class="list mt-12">
-                        </div>
+                    <div id="userList" class="list mt-16"></div>
                 </div>
             </section>
 
             <section id="userArea" class="hidden">
                 <div class="toolbar">
-                    <button id="btnNewMsg" class="btn primary">
-                        <i class="fa-solid fa-plus"></i> Nova Mensagem
-                    </button>
+                    <button id="btnNewMsg" class="btn primary">Nova Mensagem</button>
                     <button id="btnTrashToggle" class="btn ghost btn-trash-toggle">
-                        <i class="fa-solid fa-trash"></i> Lixeira 
-                        <span id="trashCount" class="badge">0</span>
+                        Lixeira <span id="trashCount" class="badge">0</span>
                     </button>
-                    <button id="btnExport" class="btn ghost">
-                        <i class="fa-solid fa-download"></i> Exportar .txt
-                    </button>
-                    <button id="btnImport" class="btn ghost">
-                        <i class="fa-solid fa-upload"></i> Importar .txt
-                    </button>
+                    <button id="btnExport" class="btn ghost">Exportar .txt</button>
+                    <button id="btnImport" class="btn ghost">Importar .txt</button>
                 </div>
 
                 <div id="newMsgBox" class="card mt-16 hidden">
-                    <textarea id="msgText" placeholder="Escreva sua resposta rápida aqui..." rows="4"></textarea>
+                    <textarea id="msgText" placeholder="Digite sua resposta..." rows="3"></textarea>
                     <div class="flex-end mt-12">
                         <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
-                        <button id="btnAddMsg" class="btn primary">Salvar Resposta</button>
+                        <button id="btnAddMsg" class="btn primary">Salvar</button>
                     </div>
                 </div>
 
-                <div id="msgList" class="list mt-16">
-                    </div>
+                <div id="msgList" class="list mt-16"></div>
 
                 <div id="trashBox" class="card mt-16 hidden border-danger">
-                    <div class="header">
-                        <h3 style="color: var(--danger);">Mensagens Excluídas</h3>
-                        <button id="btnEmptyTrash" class="btn danger btn-sm">Limpar Tudo</button>
-                    </div>
-                    <div id="trashList" class="list mt-12">
-                        </div>
+                    <h3>Lixeira</h3>
+                    <div id="trashList" class="list mt-12"></div>
                     <div class="flex-end mt-12">
-                        <button id="btnCancelTrash" class="btn ghost">Fechar Lixeira</button>
+                        <button id="btnEmptyTrash" class="btn danger">Esvaziar Tudo</button>
+                        <button id="btnCancelTrash" class="btn ghost">Fechar</button>
                     </div>
                 </div>
             </section>
@@ -97,19 +75,17 @@
 
     <div id="modalOverlay" class="modal-overlay hidden">
         <div class="modal-box">
-            <h3 id="modalTitle">Aviso</h3>
-            <p id="modalMessage" class="mt-12"></p>
-            <button onclick="closeModal()" class="btn primary mt-20 full-width">Ok, entendi</button>
+            <p id="modalMessage"></p>
+            <button onclick="closeModal()" class="btn primary mt-12">Fechar</button>
         </div>
     </div>
 
     <div id="confirmModal" class="modal-overlay hidden">
         <div class="modal-box">
-            <h3>Confirme sua ação</h3>
-            <p id="confirmMessage" class="sub mt-12"></p>
-            <div class="flex-end mt-20">
-                <button id="modalCancel" class="btn ghost">Voltar</button>
-                <button id="modalConfirm" class="btn danger">Sim, confirmar</button>
+            <p id="confirmMessage"></p>
+            <div class="flex-end mt-16">
+                <button id="modalCancel" class="btn ghost">Não</button>
+                <button id="modalConfirm" class="btn danger">Sim</button>
             </div>
         </div>
     </div>
