@@ -5,10 +5,8 @@
   <title>Respostas Automáticas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" referrerpolicy="no-referrer" />
-
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -21,6 +19,7 @@
   </div>
 
   <div id="app" class="container hidden">
+    
     <div class="header">
       <div>
         <h1>Respostas Automáticas</h1>
@@ -33,15 +32,15 @@
       <h2>Administração</h2>
       <div class="card">
         <div class="grid">
-          <input id="newUser" placeholder="Usuário" />
-          <input id="newEmail" placeholder="E-mail" />
-          <input id="newPass" placeholder="Senha" />
+          <input id="newUser" placeholder="Nome de Usuário" />
+          <input id="newEmail" type="email" placeholder="E-mail" />
+          <input id="newPass" type="password" placeholder="Senha" />
           <button id="btnCreateUser" class="btn primary">Criar usuário</button>
         </div>
       </div>
-      <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso</p>
+      <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso!</p>
 
-      <h2>Usuários</h2>
+      <h2 class="mt-16">Usuários Cadastrados</h2>
       <div class="list" id="userList"></div>
     </div>
 
@@ -55,19 +54,10 @@
       </div>
 
       <div id="newMsgBox" class="card hidden mt-16">
-        <textarea id="msgText" rows="4" placeholder="Digite a mensagem"></textarea>
+        <textarea id="msgText" rows="4" placeholder="Digite sua resposta automática aqui..."></textarea>
         <div class="flex-end mt-10">
           <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
           <button id="btnAddMsg" class="btn primary">Salvar mensagem</button>
-        </div>
-      </div>
-
-      <div id="trashBox" class="card hidden mt-16">
-        <h3><i class="fa-solid fa-trash"></i> Lixeira</h3>
-        <div class="list" id="trashList"></div>
-        <div class="flex-end mt-12">
-          <button id="btnCancelTrash" class="btn ghost">Fechar</button>
-          <button id="btnEmptyTrash" class="btn danger">Esvaziar lixeira</button>
         </div>
       </div>
 
@@ -75,30 +65,40 @@
 
       <div class="center mt-12">
         <button id="btnTrashToggle" class="btn ghost">
-          <i class="fa-solid fa-trash"></i> Ver Lixeira <span id="trashCount" class="badge"></span>
+          <i class="fa-solid fa-trash"></i> Ver Lixeira <span id="trashCount" class="badge">0</span>
         </button>
+      </div>
+
+      <div id="trashBox" class="card hidden mt-16 border-danger">
+        <h3><i class="fa-solid fa-trash"></i> Lixeira</h3>
+        <p class="sub">Mensagens deletadas aparecem aqui antes da exclusão definitiva.</p>
+        <div class="list mt-10" id="trashList"></div>
+        <div class="flex-end mt-12">
+          <button id="btnCancelTrash" class="btn ghost">Fechar</button>
+          <button id="btnEmptyTrash" class="btn danger">Esvaziar lixeira</button>
+        </div>
       </div>
     </div>
   </div>
 
-<div id="confirmModal" class="hidden" style="position:fixed; inset:0; z-index:9999; align-items:center; justify-content:center; background:rgba(0,0,0,0.5);">
-  <div class="card" style="max-width:400px; width:90%; padding:20px; text-align:center; background:white; border-radius:12px;">
-    <h3>Tem certeza?</h3>
-    <p class="sub">Esta mensagem será movida para a lixeira.</p>
-    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
-      <button id="modalCancel" class="btn ghost">Cancelar</button>
-      <button id="modalConfirm" class="btn danger">Excluir</button>
+  <div id="confirmModal" class="modal-overlay hidden">
+    <div class="modal-box card">
+      <h3>Tem certeza?</h3>
+      <p id="confirmMessage" class="sub mt-10">Esta ação não poderá ser desfeita.</p>
+      <div class="flex-end mt-20">
+        <button id="modalCancel" class="btn ghost">Cancelar</button>
+        <button id="modalConfirm" class="btn danger">Confirmar</button>
+      </div>
     </div>
   </div>
-</div>
 
-  <div id="modalOverlay" class="hidden">
-  <div class="modal-backdrop" onclick="closeModal()"></div>
-  <div class="modal-box card center">
-    <h3>Aviso</h3>
-    <p id="modalMessage" class="mt-10"></p>
-    <button onclick="closeModal()" class="btn primary mt-16" style="width:100%">OK</button>
-  </div>
+  <div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal-backdrop" onclick="closeModal()"></div>
+    <div class="modal-box card center">
+      <h3>Aviso</h3>
+      <p id="modalMessage" class="mt-10"></p>
+      <button onclick="closeModal()" class="btn primary mt-16" style="width:100%">OK</button>
+    </div>
   </div>
 
   <script type="module" src="js/app.js"></script>
