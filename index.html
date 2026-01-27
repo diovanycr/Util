@@ -5,41 +5,50 @@
   <title>Respostas Automáticas</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-
-  <!-- Fonte -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginBox" class="card">
   <h2>Login</h2>
-  <input id="loginUser" placeholder="Usuário">
-  <input id="loginPass" type="password" placeholder="Senha">
-  <button id="btnLogin" class="btn primary">Entrar</button>
+  <form id="loginForm">
+    <input id="email" type="email" placeholder="E-mail" required>
+    <input id="password" type="password" placeholder="Senha" required>
+    <button type="submit" id="btnLogin" class="btn primary" style="width:100%">Entrar</button>
+  </form>
 </div>
 
-<!-- APP -->
 <div id="app" class="container hidden">
   <div class="header">
     <div>
       <h1>Respostas Automáticas</h1>
       <div id="loggedUser" class="sub"></div>
     </div>
-    <button id="btnLogout" class="btn ghost">Sair</button>
+    <button id="logoutBtn" class="btn ghost">Sair</button>
   </div>
 
-  <div id="adminArea"></div>
-  <div id="userArea" class="hidden"></div>
+  <div id="adminArea" class="hidden">
+    <h3>Gestão de Usuários</h3>
+    <div class="list" id="userList"></div>
+  </div>
+
+  <div id="userArea" class="hidden">
+    <div class="card">
+        <textarea id="msgText" placeholder="Nova resposta rápida..."></textarea>
+        <button id="btnAddMsg" class="btn primary">Salvar Mensagem</button>
+    </div>
+    <div class="list" id="msgList" style="margin-top: 20px;"></div>
+  </div>
 </div>
 
-<!-- MODAIS -->
-<div id="confirmModal" class="hidden"></div>
-<div id="modalOverlay" class="hidden"></div>
+<div id="modalOverlay" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.5); display:none; align-items:center; justify-content:center; z-index:999;">
+    <div class="card" style="max-width:300px; text-align:center;">
+        <p id="modalMessage"></p>
+        <button onclick="document.getElementById('modalOverlay').style.display='none'" class="btn primary">OK</button>
+    </div>
+</div>
 
 <script type="module" src="js/app.js"></script>
 </body>
