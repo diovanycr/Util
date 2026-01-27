@@ -1,6 +1,20 @@
 import { db, el, secondaryAuth } from './firebase.js';
-import { collection, getDocs, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+// FUNÇÕES DE BANCO DE DADOS (Firestore)
+import { 
+    collection, 
+    getDocs, 
+    updateDoc, 
+    deleteDoc, 
+    doc, 
+    setDoc 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; 
+
+// FUNÇÕES DE USUÁRIO (Auth)
+import { 
+    createUserWithEmailAndPassword, 
+    signOut 
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
 import { showModal } from './modal.js';
 
 export async function loadUsers() {
