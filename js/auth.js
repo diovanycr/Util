@@ -1,20 +1,17 @@
-// js/auth.js
-
-import { auth } from './firebase.js';
+import { auth, db } from './firebase.js'; // Importa as instâncias centralizadas
 import { showModal } from './modal.js';
 
+// Importando da mesma versão (10.12.2) para evitar conflitos
 import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import {
   doc,
   getDoc
-} from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
-
-import { db } from './firebase.js';
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 export function initAuth() {
   const loginForm = document.getElementById('loginForm');
@@ -27,7 +24,7 @@ export function initAuth() {
   const loggedUser = document.getElementById('loggedUser');
 
   /* ======================
-     LOGIN
+      LOGIN
   ====================== */
   if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
@@ -43,7 +40,6 @@ export function initAuth() {
 
       try {
         await signInWithEmailAndPassword(auth, email, password);
-        // 🔥 NÃO decide nada aqui
       } catch (error) {
         showModal('Usuário ou senha inválidos');
         console.error(error);
@@ -52,7 +48,7 @@ export function initAuth() {
   }
 
   /* ======================
-     LOGOUT
+      LOGOUT
   ====================== */
   if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
@@ -66,11 +62,11 @@ export function initAuth() {
   }
 
   /* ======================
-     ESTADO DE AUTENTICAÇÃO
+      ESTADO DE AUTENTICAÇÃO
   ====================== */
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // 🔒 deslogado
+      // 🔒 Deslogado: Limpa a interface
       loginBox?.classList.remove('hidden');
       app?.classList.add('hidden');
       adminArea?.classList.add('hidden');
@@ -78,33 +74,43 @@ export function initAuth() {
       return;
     }
 
-    // ✅ logado
+    // ✅ Logado: Mostra o app
     loginBox?.classList.add('hidden');
     app?.classList.remove('hidden');
 
     try {
-      const snap = await getDoc(doc(db, 'users', user.uid));
-      const data = snap.exists() ? snap.data() : null;
-      const role = data?.role || 'user';
+      // Busca o documento do usuário pelo UID
+      const userRef = doc(db, 'users', user.uid);
+      const snap = await getDoc(userRef);
+      
+      if (snap.exists()) {
+        const data = snap.data();
+        const role = data.role || 'user';
 
-      if (loggedUser) {
-        loggedUser.textContent =
-          role === 'admin'
-            ? 'Logado como: ADMIN'
-            : 'Logado como: USUÁRIO';
-      }
+        if (loggedUser) {
+          loggedUser.textContent = role === 'admin' 
+            ? `Admin: ${data.username || user.email}` 
+            : `Usuário: ${data.username || user.email}`;
+        }
 
-      if (role === 'admin') {
-        adminArea?.classList.remove('hidden');
-        userArea?.classList.add('hidden');
+        // Alterna as áreas de acordo com o nível de acesso
+        if (role === 'admin') {
+          adminArea?.classList.remove('hidden');
+          userArea?.classList.add('hidden');
+          // Se tiver uma função loadUsers() no admin.js, chame aqui
+        } else {
+          userArea?.classList.remove('hidden');
+          adminArea?.classList.add('hidden');
+          // Se tiver uma função loadMessages() no messages.js, chame aqui
+        }
       } else {
-        userArea?.classList.remove('hidden');
-        adminArea?.classList.add('hidden');
+        console.error('Documento do usuário não encontrado no Firestore');
+        showModal('Erro: Perfil de usuário não configurado.');
       }
 
     } catch (err) {
       console.error('Erro ao verificar papel do usuário:', err);
-      showModal('Erro ao carregar dados do usuário');
+      showModal('Erro ao carregar permissões');
     }
   });
 }
