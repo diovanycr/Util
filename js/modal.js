@@ -1,7 +1,7 @@
 import { el } from './firebase.js';
 
-// Variável de controle interna
-let modalCallback = null;
+let modalConfirmCallback = null;
+let modalCancelCallback = null; // Nova variável para o segundo caminho
 
 export function showModal(message) {
   const modal = el('modalOverlay');
@@ -21,9 +21,15 @@ export function closeModal() {
   }
 }
 
-// ADICIONE O 'export' AQUI:
-export function openConfirmModal(cb) {
-  modalCallback = cb;
+/**
+ * Abre o modal de confirmação.
+ * @param {Function} confirmCb - Executado ao clicar em Confirmar (Substituir)
+ * @param {Function} cancelCb - Executado ao clicar em Cancelar (Manter/Ignorar)
+ */
+export function openConfirmModal(confirmCb, cancelCb = null) {
+  modalConfirmCallback = confirmCb;
+  modalCancelCallback = cancelCb; // Armazena a função de cancelar, se existir
+  
   const confirmModal = el('confirmModal');
   if (confirmModal) {
     confirmModal.classList.remove('hidden');
@@ -32,21 +38,39 @@ export function openConfirmModal(cb) {
 }
 
 export function initModalListeners() {
-  // Configura o botão Cancelar do modal de exclusão
-  el('modalCancel')?.addEventListener('click', () => {
-    modalCallback = null;
-    el('confirmModal').classList.add('hidden');
-    el('confirmModal').style.display = 'none';
+  // Configura o botão CANCELAR
+  el('modalCancel')?.addEventListener('click', async () => {
+    // Se houver uma função específica para o cancelamento (ex: importar sem duplicatas), executa.
+    if (modalCancelCallback) await modalCancelCallback();
+    
+    resetCallbacks();
+    closeConfirmModal();
   });
 
-  // Configura o botão Confirmar do modal de exclusão
+  // Configura o botão CONFIRMAR
   el('modalConfirm')?.addEventListener('click', async () => {
-    if (modalCallback) await modalCallback();
-    modalCallback = null;
-    el('confirmModal').classList.add('hidden');
-    el('confirmModal').style.display = 'none';
+    if (modalConfirmCallback) await modalConfirmCallback();
+    
+    resetCallbacks();
+    closeConfirmModal();
   });
   
-  // Torna acessível via HTML onclick
   window.closeModal = closeModal; 
+}
+
+// Funções auxiliares para limpar o código
+function closeConfirmModal() {
+  const modal = el('confirmModal');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.style.display = 'none';
+  }
+}
+
+function resetCallbacks() {
+  modalConfirmCallback = null;
+  modalCancelCallback = null;
+  // Opcional: Reseta o texto do modal para o padrão após o uso
+  const confirmP = document.querySelector('#confirmModal .sub');
+  if (confirmP) confirmP.innerText = "Esta ação não poderá ser desfeita.";
 }
