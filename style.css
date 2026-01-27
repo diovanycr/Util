@@ -68,6 +68,39 @@ body {
   animation: modalIn .2s ease-out;
 }
 
+
+#modalOverlay {
+  position: fixed;
+  inset: 0;
+  display: none; /* Começa oculto */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+/* Quando removermos a classe hidden, o JS mudará o display para flex */
+#modalOverlay.hidden {
+  display: none !important;
+}
+
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.modal-box {
+  position: relative;
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  z-index: 10000;
+}
+
 @keyframes modalIn {
   from { transform: scale(.95); opacity: 0; }
   to { transform: scale(1); opacity: 1; }
