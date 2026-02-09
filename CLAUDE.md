@@ -1,42 +1,42 @@
 # CLAUDE.md — Respostas Automáticas
 
-## Project Overview
+## Visão Geral do Projeto
 
-**Respostas Automáticas** is a client-side web application for managing automatic message responses. It provides role-based access (admin/user), message CRUD with drag-and-drop reordering, import/export, and a soft-delete trash system. The UI is in **Portuguese (pt-BR)**.
+**Respostas Automáticas** é uma aplicação web client-side para gerenciamento de respostas automáticas de mensagens. Oferece controle de acesso por papéis (admin/usuário), CRUD de mensagens com reordenação via drag-and-drop, importação/exportação e sistema de lixeira com exclusão reversível. A interface é em **Português (pt-BR)**.
 
-## Tech Stack
+## Stack Tecnológica
 
-- **Language:** Vanilla JavaScript (ES6 modules)
-- **Markup/Styling:** HTML5, CSS3 with CSS custom properties
-- **Backend:** None — fully client-side, Firebase handles data and auth
-- **Database:** Cloud Firestore (NoSQL)
-- **Authentication:** Firebase Authentication (email/password)
-- **CDN Dependencies:**
+- **Linguagem:** JavaScript puro (módulos ES6)
+- **Marcação/Estilo:** HTML5, CSS3 com variáveis CSS (custom properties)
+- **Backend:** Nenhum — totalmente client-side, Firebase cuida dos dados e autenticação
+- **Banco de Dados:** Cloud Firestore (NoSQL)
+- **Autenticação:** Firebase Authentication (e-mail/senha)
+- **Dependências via CDN:**
   - Firebase SDK v10.12.2
   - Font Awesome 6.5.1
   - Google Fonts (Inter)
 
-There is **no build step**, no bundler, no package.json, no Node.js. Files are served as static assets directly.
+**Não há etapa de build**, nem bundler, nem package.json, nem Node.js. Os arquivos são servidos como assets estáticos diretamente.
 
-## File Structure
+## Estrutura de Arquivos
 
 ```
 resposta2/
-├── index.html        # Single-page HTML shell (login, admin, user, modals)
-├── style.css         # All styles, CSS variables, responsive breakpoints
+├── index.html        # HTML single-page (login, admin, usuário, modais)
+├── style.css         # Todos os estilos, variáveis CSS, breakpoints responsivos
 └── js/
-    ├── app.js        # Entry point — initializes modules on DOMContentLoaded
-    ├── firebase.js   # Firebase config, exports app/auth/db/secondaryAuth/el()
-    ├── auth.js       # Login flow, session monitor (onAuthStateChanged), logout
-    ├── admin.js      # Admin: create user, list users, block/unblock, reset password, delete
-    ├── messages.js   # User: message CRUD, drag-and-drop, import/export, trash
-    ├── modal.js      # Alert modal + confirmation modal with callbacks
-    └── user.js       # Helper: isAdmin(user) check
+    ├── app.js        # Ponto de entrada — inicializa módulos no DOMContentLoaded
+    ├── firebase.js   # Configuração Firebase, exporta app/auth/db/secondaryAuth/el()
+    ├── auth.js       # Fluxo de login, monitor de sessão (onAuthStateChanged), logout
+    ├── admin.js      # Admin: criar usuário, listar, bloquear/desbloquear, resetar senha, excluir
+    ├── messages.js   # Usuário: CRUD de mensagens, drag-and-drop, importar/exportar, lixeira
+    ├── modal.js      # Modal de alerta + modal de confirmação com callbacks
+    └── user.js       # Helper: verificação isAdmin(user)
 ```
 
-## Architecture
+## Arquitetura
 
-### Module Dependency Graph
+### Grafo de Dependências entre Módulos
 
 ```
 app.js
@@ -45,93 +45,93 @@ app.js
  └── modal.js     → firebase.js
 ```
 
-- `app.js` is the entry point, loaded as `<script type="module">`.
-- All modules import from Firebase CDN URLs directly (no npm/local packages).
-- `firebase.js` exports shared instances: `app`, `auth`, `db`, `secondaryAuth`, and the `el()` DOM helper.
-- A secondary Firebase app instance (`secondaryAuth`) is used for admin user creation to avoid signing out the current admin.
+- `app.js` é o ponto de entrada, carregado como `<script type="module">`.
+- Todos os módulos importam do Firebase via URLs CDN diretamente (sem npm/pacotes locais).
+- `firebase.js` exporta instâncias compartilhadas: `app`, `auth`, `db`, `secondaryAuth` e o helper DOM `el()`.
+- Uma instância secundária do Firebase (`secondaryAuth`) é usada para criação de usuários pelo admin, evitando deslogar o admin atual.
 
-### Firestore Data Model
+### Modelo de Dados no Firestore
 
-**`users` collection:**
+**Coleção `users`:**
 ```
 {uid}/
-  username: string (lowercase)
-  email: string (lowercase)
+  username: string (minúsculo)
+  email: string (minúsculo)
   role: "admin" | "user"
   blocked: boolean
-  createdAt: ISO string
+  createdAt: string ISO
 ```
 
-**`users/{uid}/messages` subcollection:**
+**Subcoleção `users/{uid}/messages`:**
 ```
 {messageId}/
   text: string
   order: number
-  deleted: boolean       # soft-delete flag
-  createdAt: number      # Date.now() timestamp
-  updatedAt: number      # optional, set on import restore
+  deleted: boolean       # flag de exclusão reversível (soft-delete)
+  createdAt: number      # timestamp via Date.now()
+  updatedAt: number      # opcional, definido ao restaurar na importação
 ```
 
-### Authentication Flow
+### Fluxo de Autenticação
 
-1. User enters username (not email) on the login screen.
-2. `auth.js` looks up the email from Firestore `users` collection by matching `username`.
-3. Firebase `signInWithEmailAndPassword` authenticates with the resolved email.
-4. `onAuthStateChanged` checks `blocked` flag — blocked users are immediately signed out.
-5. Based on `role`, either the admin panel or user panel is shown.
+1. O usuário digita o **nome de usuário** (não o e-mail) na tela de login.
+2. `auth.js` busca o e-mail correspondente na coleção `users` do Firestore pelo campo `username`.
+3. `signInWithEmailAndPassword` do Firebase autentica com o e-mail encontrado.
+4. `onAuthStateChanged` verifica a flag `blocked` — usuários bloqueados são deslogados imediatamente.
+5. Com base no `role`, o painel de admin ou de usuário é exibido.
 
-## Code Conventions
+## Convenções de Código
 
-### Naming
+### Nomenclatura
 
-| Context | Convention | Examples |
-|---------|-----------|----------|
-| Variables/Functions | camelCase | `currentUserId`, `loadMessages()` |
-| HTML element IDs | camelCase with prefix | `btnLogin`, `msgList`, `newMsgBox` |
-| CSS classes | kebab-case | `user-row`, `btn-primary`, `modal-overlay` |
-| CSS variables | kebab-case | `--primary`, `--bg`, `--danger` |
-| Button IDs | `btn[Name]` | `btnLogin`, `btnExport`, `btnTrashToggle` |
-| Input IDs (create forms) | `new[Field]` | `newUser`, `newEmail`, `newPass` |
-| List containers | `[entity]List` | `userList`, `msgList`, `trashList` |
+| Contexto | Convenção | Exemplos |
+|----------|-----------|----------|
+| Variáveis/Funções | camelCase | `currentUserId`, `loadMessages()` |
+| IDs de elementos HTML | camelCase com prefixo | `btnLogin`, `msgList`, `newMsgBox` |
+| Classes CSS | kebab-case | `user-row`, `btn-primary`, `modal-overlay` |
+| Variáveis CSS | kebab-case | `--primary`, `--bg`, `--danger` |
+| IDs de botões | `btn[Nome]` | `btnLogin`, `btnExport`, `btnTrashToggle` |
+| IDs de inputs (formulários de criação) | `new[Campo]` | `newUser`, `newEmail`, `newPass` |
+| Containers de listas | `[entidade]List` | `userList`, `msgList`, `trashList` |
 
-### DOM Access
+### Acesso ao DOM
 
-All `getElementById` calls use the shared helper:
+Todas as chamadas `getElementById` usam o helper compartilhado:
 ```js
 import { el } from './firebase.js';
-el('btnLogin')  // equivalent to document.getElementById('btnLogin')
+el('btnLogin')  // equivalente a document.getElementById('btnLogin')
 ```
 
-### Visibility Toggling
+### Alternância de Visibilidade
 
-Elements are shown/hidden using the `.hidden` CSS class (`display: none !important`) and sometimes direct `style.display` assignment for reliability.
+Elementos são exibidos/ocultados usando a classe CSS `.hidden` (`display: none !important`) e, em alguns casos, atribuição direta de `style.display` para garantir confiabilidade.
 
-### Error Handling Pattern
+### Padrão de Tratamento de Erros
 
 ```js
 try {
-    // Firebase operation
+    // operação Firebase
 } catch (error) {
-    console.error("Descriptive context:", error);
-    showModal("User-friendly message in Portuguese");
+    console.error("Contexto descritivo:", error);
+    showModal("Mensagem amigável em português para o usuário");
 }
 ```
 
-### User Feedback
+### Feedback ao Usuário
 
-- **Modals** (`showModal`): For errors and informational alerts.
-- **Confirm modals** (`openConfirmModal`): For destructive actions; accepts both confirm and cancel callbacks.
-- **Toasts** (`showToast`): For transient success feedback (auto-dismiss after 2s).
+- **Modais** (`showModal`): Para erros e alertas informativos.
+- **Modais de confirmação** (`openConfirmModal`): Para ações destrutivas; aceita callbacks de confirmação e cancelamento.
+- **Toasts** (`showToast`): Para feedback temporário de sucesso (desaparece após 2s).
 
-### Soft Delete
+### Exclusão Reversível (Soft Delete)
 
-Messages use `deleted: boolean` rather than being removed from Firestore. The trash view shows `deleted: true` items. "Empty trash" performs the actual `deleteDoc` calls.
+Mensagens usam `deleted: boolean` ao invés de serem removidas do Firestore. A lixeira exibe itens com `deleted: true`. "Esvaziar lixeira" executa as chamadas `deleteDoc` de fato.
 
-## Development
+## Desenvolvimento
 
-### Running Locally
+### Executando Localmente
 
-Serve the project root with any static HTTP server. ES modules require a server (not `file://`):
+Sirva a raiz do projeto com qualquer servidor HTTP estático. Módulos ES6 exigem servidor (não funciona via `file://`):
 
 ```bash
 # Python
@@ -141,27 +141,27 @@ python3 -m http.server 8000
 npx serve .
 ```
 
-Then open `http://localhost:8000`.
+Depois abra `http://localhost:8000`.
 
-### No Build / No Tests / No Linting
+### Sem Build / Sem Testes / Sem Linting
 
-This project has no build step, test suite, or linter configured. Changes take effect immediately on page reload.
+Este projeto não possui etapa de build, suite de testes ou linter configurado. Alterações entram em vigor imediatamente ao recarregar a página.
 
-### Firebase Configuration
+### Configuração do Firebase
 
-Firebase credentials are hardcoded in `js/firebase.js`. This is standard for client-side Firebase apps — security is enforced via Firestore Security Rules in the Firebase Console, not by hiding the config.
+As credenciais do Firebase estão fixas em `js/firebase.js`. Isso é padrão para apps Firebase client-side — a segurança é garantida pelas Regras de Segurança do Firestore no Console do Firebase, não pela ocultação do config.
 
-## Key Behaviors to Preserve
+## Comportamentos Importantes a Preservar
 
-- **Username-based login:** Users log in with usernames, not emails. The email lookup is done in Firestore.
-- **Secondary auth for admin user creation:** `secondaryAuth` prevents the admin from being logged out when creating new users.
-- **Drag-and-drop ordering:** Messages have an `order` field that gets persisted to Firestore after each reorder.
-- **Import deduplication:** When importing a `.txt` file, existing messages are detected and the user is prompted about duplicates.
-- **Responsive layout:** The grid switches to single-column at 768px. The trash toggle button is fixed at the bottom of the viewport.
+- **Login por nome de usuário:** Usuários fazem login com username, não e-mail. A busca do e-mail é feita no Firestore.
+- **Auth secundário para criação de usuários:** `secondaryAuth` evita que o admin seja deslogado ao criar novos usuários.
+- **Ordenação por drag-and-drop:** Mensagens possuem campo `order` que é persistido no Firestore após cada reordenação.
+- **Deduplicação na importação:** Ao importar um arquivo `.txt`, mensagens existentes são detectadas e o usuário é consultado sobre duplicatas.
+- **Layout responsivo:** O grid muda para coluna única em 768px. O botão da lixeira fica fixo na parte inferior da viewport.
 
-## Common Modification Patterns
+## Padrões Comuns de Modificação
 
-- **Adding a new page section:** Add HTML in `index.html` (hidden by default), toggle visibility in `auth.js` based on role.
-- **Adding a new Firestore operation:** Import Firestore functions from the CDN URL in the relevant module, use `db` from `firebase.js`.
-- **Adding a new UI action:** Attach event listener in the module's `init*` function, use `el()` for DOM access.
-- **Adding a new modal flow:** Use `showModal()` for alerts or `openConfirmModal(onConfirm, onCancel)` for confirmations.
+- **Adicionar nova seção na página:** Adicione HTML no `index.html` (oculto por padrão), alterne visibilidade em `auth.js` com base no role.
+- **Adicionar nova operação no Firestore:** Importe funções do Firestore pela URL CDN no módulo correspondente, use `db` de `firebase.js`.
+- **Adicionar nova ação na UI:** Vincule event listener na função `init*` do módulo, use `el()` para acesso ao DOM.
+- **Adicionar novo fluxo de modal:** Use `showModal()` para alertas ou `openConfirmModal(onConfirm, onCancel)` para confirmações.
