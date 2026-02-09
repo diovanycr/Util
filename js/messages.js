@@ -152,11 +152,45 @@ export async function loadMessages(userId) {
         row.innerHTML = `
             <span class="drag-handle">&#9776;</span>
             <div class="msg-text" style="flex:1; cursor:pointer">${item.text}</div>
-            <button class="btn danger btn-del"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn ghost btn-edit"><i class="fa-solid fa-pen"></i></button>
+            <button class="btn ghost btn-del"><i class="fa-solid fa-trash"></i></button>
         `;
         row.querySelector('.msg-text').onclick = async () => {
             await navigator.clipboard.writeText(item.text);
             showToast("Copiado!");
+        };
+        row.querySelector('.btn-edit').onclick = () => {
+            const msgDiv = row.querySelector('.msg-text');
+            const oldText = item.text;
+            const textarea = document.createElement('textarea');
+            textarea.value = oldText;
+            textarea.rows = 3;
+            textarea.style.flex = '1';
+            msgDiv.replaceWith(textarea);
+            textarea.focus();
+
+            // Esconde botões de editar/excluir e mostra salvar/cancelar
+            row.querySelector('.btn-edit').classList.add('hidden');
+            row.querySelector('.btn-del').classList.add('hidden');
+            const saveBtn = document.createElement('button');
+            saveBtn.className = 'btn primary btn-save';
+            saveBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+            const cancelBtn = document.createElement('button');
+            cancelBtn.className = 'btn ghost btn-cancel-edit';
+            cancelBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            row.appendChild(cancelBtn);
+            row.appendChild(saveBtn);
+
+            saveBtn.onclick = async () => {
+                const newText = textarea.value.trim();
+                if (!newText) return showModal("A mensagem não pode estar vazia.");
+                if (newText !== oldText) {
+                    await updateDoc(doc(db, 'users', userId, 'messages', item.id), { text: newText });
+                    showToast("Mensagem atualizada!");
+                }
+                loadMessages(userId);
+            };
+            cancelBtn.onclick = () => loadMessages(userId);
         };
         row.querySelector('.btn-del').onclick = async () => {
             await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: true });
