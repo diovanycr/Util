@@ -262,3 +262,105 @@ input:focus, textarea:focus {
     display: flex;
     gap: 8px;
 }
+
+/* --- ABAS --- */
+.tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0;
+}
+
+.tab {
+    padding: 12px 24px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: inherit;
+    color: var(--muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab:hover {
+    color: var(--text);
+    background: #f8fafc;
+    border-radius: 8px 8px 0 0;
+}
+
+.tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.tab-content.hidden { display: none; }
+
+/* --- PROBLEMAS / SOLUÇÕES --- */
+.problem-card {
+    position: relative;
+}
+
+.problem-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.problem-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+}
+
+.problem-actions {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.problem-desc {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+}
+
+.problem-solution {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+
+.solution-label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--success);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.solution-text {
+    font-size: 14px;
+    color: #166534;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.solution-text:hover {
+    background: #dcfce7;
+    border-radius: 4px;
+}
