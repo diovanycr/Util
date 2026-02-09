@@ -88,13 +88,18 @@
       <!-- ABA: Problemas / Soluções -->
       <div id="tabProblems" class="tab-content hidden">
         <div class="card toolbar">
+          <div class="search-box">
+            <i class="fa-solid fa-search"></i>
+            <input id="problemSearch" type="text" placeholder="Pesquisar problemas..." />
+          </div>
           <button id="btnNewProblem" class="btn primary"><i class="fa-solid fa-plus"></i> Novo problema</button>
         </div>
 
         <div id="newProblemBox" class="card hidden mt-16">
           <input id="problemTitle" type="text" placeholder="Título do problema..." />
           <textarea id="problemDesc" rows="3" placeholder="Descreva o problema..."></textarea>
-          <textarea id="problemSolution" rows="3" placeholder="Solução..."></textarea>
+          <label class="field-label">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
+          <div id="problemSolution" class="rich-editor" contenteditable="true" data-placeholder="Digite a solução... Cole imagens aqui"></div>
           <div class="flex-end mt-10">
             <button id="btnCancelProblem" class="btn ghost">Cancelar</button>
             <button id="btnAddProblem" class="btn primary">Salvar</button>
