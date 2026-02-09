@@ -364,3 +364,80 @@ input:focus, textarea:focus {
     background: #dcfce7;
     border-radius: 4px;
 }
+
+.solution-text img {
+    max-width: 100%;
+    border-radius: 6px;
+    margin: 8px 0;
+    cursor: default;
+}
+
+/* --- BARRA DE PESQUISA --- */
+.search-box {
+    position: relative;
+    flex: 1;
+}
+
+.search-box i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.search-box input {
+    padding-left: 38px;
+    margin-bottom: 0;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* --- EDITOR RICO (contenteditable) --- */
+.rich-editor {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    font-size: 14px;
+    font-family: inherit;
+    margin-bottom: 12px;
+    outline: none;
+    line-height: 1.6;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.rich-editor:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.rich-editor:empty::before {
+    content: attr(data-placeholder);
+    color: var(--muted);
+    pointer-events: none;
+}
+
+.rich-editor img {
+    max-width: 100%;
+    border-radius: 6px;
+    margin: 6px 0;
+    display: block;
+}
+
+.field-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+    display: block;
+}
