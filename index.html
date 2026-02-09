@@ -45,38 +45,63 @@
     </div>
 
     <div id="userArea" class="hidden">
-      <h2>Painel do Usuário</h2>
-
-      <div class="card toolbar">
-        <button id="btnImport" class="btn ghost"><i class="fa-solid fa-file-import"></i> Importar</button>
-        <button id="btnExport" class="btn ghost"><i class="fa-solid fa-file-export"></i> Exportar</button>
-        <button id="btnNewMsg" class="btn primary"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
+      <div class="tabs">
+        <button class="tab active" data-tab="tabMessages"><i class="fa-solid fa-message"></i> Mensagens</button>
+        <button class="tab" data-tab="tabProblems"><i class="fa-solid fa-wrench"></i> Problemas / Soluções</button>
       </div>
 
-      <div id="newMsgBox" class="card hidden mt-16">
-        <textarea id="msgText" rows="4" placeholder="Digite sua resposta automática aqui..."></textarea>
-        <div class="flex-end mt-10">
-          <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
-          <button id="btnAddMsg" class="btn primary">Salvar mensagem</button>
+      <!-- ABA: Mensagens -->
+      <div id="tabMessages" class="tab-content">
+        <div class="card toolbar">
+          <button id="btnImport" class="btn ghost"><i class="fa-solid fa-file-import"></i> Importar</button>
+          <button id="btnExport" class="btn ghost"><i class="fa-solid fa-file-export"></i> Exportar</button>
+          <button id="btnNewMsg" class="btn primary"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
+        </div>
+
+        <div id="newMsgBox" class="card hidden mt-16">
+          <textarea id="msgText" rows="4" placeholder="Digite sua resposta automática aqui..."></textarea>
+          <div class="flex-end mt-10">
+            <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
+            <button id="btnAddMsg" class="btn primary">Salvar mensagem</button>
+          </div>
+        </div>
+
+        <div class="list mt-16" id="msgList"></div>
+
+        <div class="center mt-12">
+          <button id="btnTrashToggle" class="btn ghost">
+            <i class="fa-solid fa-trash"></i> Ver Lixeira <span id="trashCount" class="badge">0</span>
+          </button>
+        </div>
+
+        <div id="trashBox" class="card hidden mt-16 border-danger">
+          <h3><i class="fa-solid fa-trash"></i> Lixeira</h3>
+          <p class="sub">Mensagens deletadas aparecem aqui antes da exclusão definitiva.</p>
+          <div class="list mt-10" id="trashList"></div>
+          <div class="flex-end mt-12">
+            <button id="btnCancelTrash" class="btn ghost">Fechar</button>
+            <button id="btnEmptyTrash" class="btn danger">Esvaziar lixeira</button>
+          </div>
         </div>
       </div>
 
-      <div class="list mt-16" id="msgList"></div>
-
-      <div class="center mt-12">
-        <button id="btnTrashToggle" class="btn ghost">
-          <i class="fa-solid fa-trash"></i> Ver Lixeira <span id="trashCount" class="badge">0</span>
-        </button>
-      </div>
-
-      <div id="trashBox" class="card hidden mt-16 border-danger">
-        <h3><i class="fa-solid fa-trash"></i> Lixeira</h3>
-        <p class="sub">Mensagens deletadas aparecem aqui antes da exclusão definitiva.</p>
-        <div class="list mt-10" id="trashList"></div>
-        <div class="flex-end mt-12">
-          <button id="btnCancelTrash" class="btn ghost">Fechar</button>
-          <button id="btnEmptyTrash" class="btn danger">Esvaziar lixeira</button>
+      <!-- ABA: Problemas / Soluções -->
+      <div id="tabProblems" class="tab-content hidden">
+        <div class="card toolbar">
+          <button id="btnNewProblem" class="btn primary"><i class="fa-solid fa-plus"></i> Novo problema</button>
         </div>
+
+        <div id="newProblemBox" class="card hidden mt-16">
+          <input id="problemTitle" type="text" placeholder="Título do problema..." />
+          <textarea id="problemDesc" rows="3" placeholder="Descreva o problema..."></textarea>
+          <textarea id="problemSolution" rows="3" placeholder="Solução..."></textarea>
+          <div class="flex-end mt-10">
+            <button id="btnCancelProblem" class="btn ghost">Cancelar</button>
+            <button id="btnAddProblem" class="btn primary">Salvar</button>
+          </div>
+        </div>
+
+        <div class="list mt-16" id="problemList"></div>
       </div>
     </div>
   </div>

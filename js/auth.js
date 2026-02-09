@@ -11,6 +11,7 @@ import {
 import { showModal } from './modal.js';
 import { loadUsers } from './admin.js';
 import { initMessages } from './messages.js';
+import { initProblems } from './problems.js';
 
 /**
  * Inicializa os ouvintes de autenticação e monitora a sessão
@@ -75,6 +76,7 @@ export function initAuth() {
                     el('userArea').classList.remove('hidden');
                     el('userArea').style.display = 'block';
                     initMessages(user.uid); // Carrega mensagens do usuário
+                    initProblems(user.uid); // Carrega problemas/soluções
                 }
 
             } catch (error) {
@@ -94,6 +96,7 @@ export function initAuth() {
             // 3. Limpa os containers de dados por segurança
             if (el('userList')) el('userList').innerHTML = '';
             if (el('msgList')) el('msgList').innerHTML = '';
+            if (el('problemList')) el('problemList').innerHTML = '';
             
             // 4. Coloca o foco de volta no campo usuário
             el('loginUser').focus();
