@@ -253,6 +253,15 @@ input:focus, textarea:focus {
 .mt-20 { margin-top: 20px; }
 .border-danger { border-color: #fecaca; }
 
+/* ? CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
+.success-text {
+    color: var(--success);
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    padding: 8px 0;
+}
+
 @media (max-width: 768px) {
   .grid { grid-template-columns: 1fr; }
   .header { flex-direction: column; align-items: flex-start; gap: 15px; }
