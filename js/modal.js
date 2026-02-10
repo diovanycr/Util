@@ -1,7 +1,7 @@
 import { el } from './firebase.js';
 
 let modalConfirmCallback = null;
-let modalCancelCallback = null; // Nova variável para o segundo caminho
+let modalCancelCallback = null;
 
 export function showModal(message) {
   const modal = el('modalOverlay');
@@ -23,12 +23,19 @@ export function closeModal() {
 
 /**
  * Abre o modal de confirmação.
- * @param {Function} confirmCb - Executado ao clicar em Confirmar (Substituir)
- * @param {Function} cancelCb - Executado ao clicar em Cancelar (Manter/Ignorar)
+ * @param {Function} confirmCb - Executado ao clicar em Confirmar
+ * @param {Function} cancelCb - Executado ao clicar em Cancelar
+ * @param {string} [message] - Mensagem personalizada (opcional)
  */
-export function openConfirmModal(confirmCb, cancelCb = null) {
+export function openConfirmModal(confirmCb, cancelCb = null, message = null) {
   modalConfirmCallback = confirmCb;
-  modalCancelCallback = cancelCb; // Armazena a função de cancelar, se existir
+  modalCancelCallback = cancelCb;
+  
+  // Atualiza mensagem se fornecida
+  const confirmP = document.querySelector('#confirmModal .sub');
+  if (confirmP && message) {
+    confirmP.innerText = message;
+  }
   
   const confirmModal = el('confirmModal');
   if (confirmModal) {
@@ -38,27 +45,33 @@ export function openConfirmModal(confirmCb, cancelCb = null) {
 }
 
 export function initModalListeners() {
-  // Configura o botão CANCELAR
+  // Botão CANCELAR do confirm modal
   el('modalCancel')?.addEventListener('click', async () => {
-    // Se houver uma função específica para o cancelamento (ex: importar sem duplicatas), executa.
     if (modalCancelCallback) await modalCancelCallback();
-    
     resetCallbacks();
     closeConfirmModal();
   });
 
-  // Configura o botão CONFIRMAR
+  // Botão CONFIRMAR do confirm modal
   el('modalConfirm')?.addEventListener('click', async () => {
     if (modalConfirmCallback) await modalConfirmCallback();
-    
     resetCallbacks();
     closeConfirmModal();
   });
   
-  window.closeModal = closeModal; 
+  // Botão OK do modal de alerta (substituindo onclick inline no HTML)
+  const modalOkBtn = document.querySelector('#modalOverlay .btn.primary');
+  if (modalOkBtn) {
+    modalOkBtn.addEventListener('click', closeModal);
+  }
+
+  // Backdrop do modal de alerta
+  const backdrop = document.querySelector('#modalOverlay .modal-backdrop');
+  if (backdrop) {
+    backdrop.addEventListener('click', closeModal);
+  }
 }
 
-// Funções auxiliares para limpar o código
 function closeConfirmModal() {
   const modal = el('confirmModal');
   if (modal) {
@@ -70,7 +83,6 @@ function closeConfirmModal() {
 function resetCallbacks() {
   modalConfirmCallback = null;
   modalCancelCallback = null;
-  // Opcional: Reseta o texto do modal para o padrão após o uso
   const confirmP = document.querySelector('#confirmModal .sub');
   if (confirmP) confirmP.innerText = "Esta ação não poderá ser desfeita.";
 }
