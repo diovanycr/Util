@@ -39,7 +39,16 @@
         <h1>PainelAtende</h1>
         <div id="loggedUser" class="sub"></div>
       </div>
-      <button id="btnLogout" class="btn ghost">Sair</button>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button id="btnSearch" class="btn ghost" title="Busca global (Ctrl+K)">
+          <i class="fa-solid fa-search"></i>
+          <span class="search-shortcut-hint">Ctrl+K</span>
+        </button>
+        <button id="btnTheme" class="btn ghost" title="Modo escuro">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button id="btnLogout" class="btn ghost">Sair</button>
+      </div>
     </div>
 
     <div id="adminArea" class="hidden">
@@ -155,6 +164,20 @@
       <h3>Aviso</h3>
       <p id="modalMessage" class="mt-10"></p>
       <button class="btn primary mt-16" style="width:100%">OK</button>
+    </div>
+  </div>
+
+  <!-- Modal de busca global (Ctrl+K) -->
+  <div id="globalSearchModal" class="modal-overlay hidden">
+    <div class="global-search-box">
+      <div class="global-search-header">
+        <i class="fa-solid fa-search"></i>
+        <input id="globalSearchInput" type="text" placeholder="Buscar em mensagens e problemas..." autocomplete="off" />
+        <kbd>Esc</kbd>
+      </div>
+      <div id="globalSearchResults" class="global-search-results">
+        <p class="search-hint">Digite para buscar...</p>
+      </div>
     </div>
   </div>
 
