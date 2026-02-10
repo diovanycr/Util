@@ -52,7 +52,7 @@ export function initAuth() {
 
                 if (data.blocked) {
                     await signOut(auth);
-                    showModal("Sua conta ainda não foi aprovada pelo administrador. Aguarde a liberação.");
+                    showModal("Sua conta está bloqueada. Entre em contato com o administrador para liberar o acesso.");
                     return;
                 }
 
