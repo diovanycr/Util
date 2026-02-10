@@ -20,7 +20,6 @@
 
 ## Estrutura de Arquivos
 
-```
 resposta2/
 ├── index.html        # HTML single-page (login, admin, usuário, modais)
 ├── style.css         # Todos os estilos, variáveis CSS, breakpoints responsivos
@@ -30,9 +29,11 @@ resposta2/
     ├── auth.js       # Fluxo de login, monitor de sessão (onAuthStateChanged), logout
     ├── admin.js      # Admin: criar usuário, listar, bloquear/desbloquear, resetar senha, excluir
     ├── messages.js   # Usuário: CRUD de mensagens, drag-and-drop, importar/exportar, lixeira
+    ├── problems.js   # Usuário: CRUD de problemas/soluções com editor rico e pesquisa
+    ├── tabs.js       # Controle de abas (Mensagens / Problemas)
     ├── modal.js      # Modal de alerta + modal de confirmação com callbacks
-    └── user.js       # Helper: verificação isAdmin(user)
-```
+    ├── toast.js      # Toast de feedback temporário (2s)
+    └── utils.js      # (a criar) Funções utilitárias compartilhadas: escapeHtml, etc.
 
 ## Arquitetura
 
