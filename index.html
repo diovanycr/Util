@@ -113,9 +113,15 @@
         <div id="newProblemBox" class="card hidden mt-16">
           <input id="problemTitle" type="text" placeholder="Título do problema..." />
           <textarea id="problemDesc" rows="3" placeholder="Descreva o problema..."></textarea>
-          <label class="field-label">Soluções <span class="sub">(cole imagens com Ctrl+V)</span></label>
-          <div id="solutionEditorsList" class="solution-editors-list"></div>
-          <button id="btnAddSolution" class="btn ghost mt-10">
+          <label class="field-label">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
+
+          <!-- Modo simples: editor único (padrão) -->
+          <div id="problemSolution" class="rich-editor" contenteditable="true" data-placeholder="Digite a solução... Cole imagens aqui"></div>
+
+          <!-- Modo múltiplo: aparece ao clicar em + Adicionar solução -->
+          <div id="solutionEditorsList" class="solution-editors-list hidden"></div>
+
+          <button id="btnAddSolution" class="btn ghost" style="align-self:flex-start; margin-top:8px;">
             <i class="fa-solid fa-plus"></i> Adicionar solução
           </button>
           <div class="flex-end mt-10">
