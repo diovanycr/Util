@@ -253,7 +253,7 @@ input:focus, textarea:focus {
 .mt-20 { margin-top: 20px; }
 .border-danger { border-color: #fecaca; }
 
-/* ? CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
+/* ✅ CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
 .success-text {
     color: var(--success);
     font-size: 14px;
@@ -512,4 +512,129 @@ input:focus, textarea:focus {
     color: var(--text);
     margin-bottom: 6px;
     display: block;
+}
+
+/* --- MÚLTIPLAS SOLUÇÕES — EDITOR --- */
+.solution-editors-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.solution-editor-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    background: #f8fafc;
+}
+
+.solution-editor-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.solution-label-input {
+    flex: 1;
+    margin-bottom: 0;
+    font-size: 13px;
+    font-weight: 600;
+    background: #fff;
+}
+
+.btn-remove-solution {
+    flex-shrink: 0;
+    padding: 8px 10px;
+    color: var(--danger) !important;
+}
+
+.solution-rich-editor {
+    background: #fff;
+    margin-bottom: 0;
+}
+
+/* --- ACORDEÃO DE SOLUÇÕES --- */
+.accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 10px;
+}
+
+.accordion-item {
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f0fdf4;
+}
+
+.accordion-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    color: var(--success);
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    gap: 8px;
+    text-align: left;
+    transition: background 0.15s;
+}
+
+.accordion-trigger:hover {
+    background: #dcfce7;
+}
+
+.accordion-trigger span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.accordion-icon {
+    font-size: 11px;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+
+.accordion-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.accordion-body {
+    display: none;
+    padding: 0 14px 14px;
+}
+
+.accordion-body.open {
+    display: block;
+}
+
+.accordion-body .solution-text {
+    font-size: 14px;
+    color: #166534;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    cursor: pointer;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+.accordion-body .solution-text:hover {
+    background: #dcfce7;
+}
+
+.accordion-body .solution-text img {
+    max-width: 100%;
+    border-radius: 6px;
+    margin: 8px 0;
+    cursor: default;
 }
