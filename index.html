@@ -75,6 +75,7 @@
       <div class="tabs">
         <button class="tab active" data-tab="tabMessages"><i class="fa-solid fa-message"></i> Mensagens</button>
         <button class="tab" data-tab="tabProblems"><i class="fa-solid fa-wrench"></i> Problemas / Soluções</button>
+        <button class="tab" data-tab="tabLinks"><i class="fa-solid fa-link"></i> Links Úteis</button>
       </div>
 
       <!-- ABA: Mensagens -->
@@ -143,6 +144,29 @@
         </div>
 
         <div class="list mt-16" id="problemList"></div>
+      </div>
+
+      <!-- ABA: Links Úteis -->
+      <div id="tabLinks" class="tab-content hidden">
+        <div class="card toolbar">
+          <div class="search-box">
+            <i class="fa-solid fa-search"></i>
+            <input id="linkSearch" type="text" placeholder="Pesquisar links..." />
+          </div>
+          <button id="btnNewLink" class="btn primary"><i class="fa-solid fa-plus"></i> Novo link</button>
+        </div>
+
+        <div id="newLinkBox" class="card hidden mt-16">
+          <input id="linkUrl" type="url" placeholder="URL (ex: https://site.com.br)" />
+          <input id="linkTitle" type="text" placeholder="Título (opcional — usa o domínio se vazio)" />
+          <input id="linkCategory" type="text" placeholder="Categoria (ex: Sistemas, Ferramentas...)" />
+          <div class="flex-end mt-10">
+            <button id="btnCancelLink" class="btn ghost">Cancelar</button>
+            <button id="btnAddLink" class="btn primary">Salvar</button>
+          </div>
+        </div>
+
+        <div class="list mt-16" id="linkList"></div>
       </div>
     </div>
   </div>
