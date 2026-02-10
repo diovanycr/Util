@@ -18,6 +18,7 @@ import { loadUsers } from './admin.js';
 import { initMessages, resetMessages } from './messages.js';
 import { initProblems, resetProblems } from './problems.js';
 import { initSearch } from './search.js';
+import { initLinks, resetLinks } from './links.js';
 
 let messagesInitialized = false;
 let problemsInitialized = false;
@@ -79,6 +80,7 @@ export function initAuth() {
                     el('userArea').style.display = 'block';
 
                     initSearch(user.uid);
+                    initLinks(user.uid);
 
                     if (!messagesInitialized) {
                         initMessages(user.uid);
