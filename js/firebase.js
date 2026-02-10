@@ -8,8 +8,7 @@ import {
     onAuthStateChanged,
     sendPasswordResetEmail,
     GoogleAuthProvider,
-    signInWithRedirect,
-    getRedirectResult
+    signInWithPopup
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 import { 
@@ -36,33 +35,26 @@ const firebaseConfig = {
   appId: "1:61793341031:web:572601dfa18fbf88248ec2"
 };
 
-// App principal
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// App secundário para criação de usuários (Admin)
 export const secondaryApp = initializeApp(firebaseConfig, 'Secondary');
 export const secondaryAuth = getAuth(secondaryApp);
 
-// Atalho útil
 export const el = id => document.getElementById(id);
 
-// Provider do Google
 export const googleProvider = new GoogleAuthProvider();
 
-// Re-exporta tudo do Auth
 export {
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
     signOut,
     onAuthStateChanged,
     sendPasswordResetEmail,
-    signInWithRedirect,
-    getRedirectResult
+    signInWithPopup
 };
 
-// Re-exporta tudo do Firestore
 export {
     collection,
     getDoc,
