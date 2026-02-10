@@ -52,7 +52,7 @@
           <button id="btnCreateUser" class="btn primary">Criar usuário</button>
         </div>
       </div>
-      <!-- ? CORREÇÃO 5: success-text agora tem estilo definido no style.css -->
+      <!-- ✅ CORREÇÃO 5: success-text agora tem estilo definido no style.css -->
       <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso!</p>
 
       <h2 class="mt-16">Usuários Cadastrados</h2>
@@ -113,8 +113,11 @@
         <div id="newProblemBox" class="card hidden mt-16">
           <input id="problemTitle" type="text" placeholder="Título do problema..." />
           <textarea id="problemDesc" rows="3" placeholder="Descreva o problema..."></textarea>
-          <label class="field-label">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
-          <div id="problemSolution" class="rich-editor" contenteditable="true" data-placeholder="Digite a solução... Cole imagens aqui"></div>
+          <label class="field-label">Soluções <span class="sub">(cole imagens com Ctrl+V)</span></label>
+          <div id="solutionEditorsList" class="solution-editors-list"></div>
+          <button id="btnAddSolution" class="btn ghost mt-10">
+            <i class="fa-solid fa-plus"></i> Adicionar solução
+          </button>
           <div class="flex-end mt-10">
             <button id="btnCancelProblem" class="btn ghost">Cancelar</button>
             <button id="btnAddProblem" class="btn primary">Salvar</button>
@@ -139,7 +142,7 @@
   </div>
 
   <!-- Modal de alerta -->
-  <!-- ? CORREÇÃO 6: Removido div.modal-backdrop redundante -->
+  <!-- ✅ CORREÇÃO 6: Removido div.modal-backdrop redundante -->
   <!-- O fechamento ao clicar fora agora é tratado em modal.js via e.target === overlay -->
   <div id="modalOverlay" class="modal-overlay hidden">
     <div class="modal-box card center">
