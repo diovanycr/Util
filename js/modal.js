@@ -31,7 +31,6 @@ export function openConfirmModal(confirmCb, cancelCb = null, message = null) {
   modalConfirmCallback = confirmCb;
   modalCancelCallback = cancelCb;
   
-  // Atualiza mensagem se fornecida
   const confirmP = document.querySelector('#confirmModal .sub');
   if (confirmP && message) {
     confirmP.innerText = message;
@@ -59,17 +58,16 @@ export function initModalListeners() {
     closeConfirmModal();
   });
   
-  // Botão OK do modal de alerta (substituindo onclick inline no HTML)
+  // Botão OK do modal de alerta
   const modalOkBtn = document.querySelector('#modalOverlay .btn.primary');
   if (modalOkBtn) {
     modalOkBtn.addEventListener('click', closeModal);
   }
 
-  // Backdrop do modal de alerta
-  const backdrop = document.querySelector('#modalOverlay .modal-backdrop');
-  if (backdrop) {
-    backdrop.addEventListener('click', closeModal);
-  }
+  // ? CORREÇÃO 6: Fecha ao clicar no overlay (fora da modal-box), sem backdrop redundante
+  el('modalOverlay')?.addEventListener('click', (e) => {
+    if (e.target === el('modalOverlay')) closeModal();
+  });
 }
 
 function closeConfirmModal() {
