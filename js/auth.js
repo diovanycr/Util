@@ -1,13 +1,18 @@
-import { auth, db, el } from './firebase.js';
 import { 
-    signInWithEmailAndPassword, 
-    signOut, 
-    onAuthStateChanged 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { 
-    collection, 
-    getDocs 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    auth, db, el, googleProvider,
+    signInWithEmailAndPassword,
+    signInWithPopup,
+    signOut,
+    onAuthStateChanged,
+    collection,
+    getDoc,
+    getDocs,
+    doc,
+    setDoc,
+    query,
+    where
+} from './firebase.js';
+
 import { showModal } from './modal.js';
 import { loadUsers } from './admin.js';
 import { initMessages } from './messages.js';
@@ -17,15 +22,17 @@ import { initProblems } from './problems.js';
  * Inicializa os ouvintes de autenticação e monitora a sessão
  */
 export function initAuth() {
-    // Evento de clique no botão de login
+    // Login por usuário/senha
     el('btnLogin').addEventListener('click', doLogin);
 
-    // Atalho: apertar Enter no campo de senha dispara o login
     el('loginPass').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') doLogin();
     });
 
-    // Evento de Logout
+    // Login com Google
+    el('btnGoogleLogin').addEventListener('click', doGoogleLogin);
+
+    // Logout
     el('btnLogout').addEventListener('click', async () => {
         try {
             await signOut(auth);
@@ -36,47 +43,49 @@ export function initAuth() {
 
     /**
      * MONITOR DE ESTADO DA SESSÃO
-     * Dispara sempre que o usuário entra ou sai
      */
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
-                // 1. Busca os dados do perfil no Firestore
-                const snap = await getDocs(collection(db, 'users'));
-                const userDoc = snap.docs.find(d => d.id === user.uid);
-                const data = userDoc ? userDoc.data() : null;
+                const userDocRef = doc(db, 'users', user.uid);
+                const userDocSnap = await getDoc(userDocRef);
+                const data = userDocSnap.exists() ? userDocSnap.data() : null;
 
-                // 2. Verifica se o usuário existe ou se está bloqueado
-                if (!data || data.blocked) {
+                if (!data) {
                     await signOut(auth);
-                    showModal("Acesso negado: Conta inexistente ou bloqueada.");
+                    showModal("Acesso negado: Conta não encontrada. Aguarde a aprovação do administrador.");
                     return;
                 }
 
-                // 3. Gerencia a interface
+                if (data.blocked) {
+                    await signOut(auth);
+                    showModal("Sua conta ainda não foi aprovada pelo administrador. Aguarde a liberação.");
+                    return;
+                }
+
+                // Gerencia a interface
                 el('loginBox').classList.add('hidden');
                 el('app').classList.remove('hidden');
                 
                 const isAdmin = data.role === 'admin';
+                const displayName = data.username || data.email;
                 el('loggedUser').textContent = isAdmin 
-                    ? `Painel Admin: ${data.username}` 
-                    : `Usuário: ${data.username}`;
+                    ? `Painel Admin: ${displayName}` 
+                    : `Usuário: ${displayName}`;
 
                 if (isAdmin) {
-                    // Prepara Área Admin
                     el('adminArea').classList.remove('hidden');
                     el('adminArea').style.display = 'block';
                     el('userArea').classList.add('hidden');
                     el('userArea').style.display = 'none';
-                    loadUsers(); // Carrega lista de usuários
+                    loadUsers();
                 } else {
-                    // Prepara Área Usuário
                     el('adminArea').classList.add('hidden');
                     el('adminArea').style.display = 'none';
                     el('userArea').classList.remove('hidden');
                     el('userArea').style.display = 'block';
-                    initMessages(user.uid); // Carrega mensagens do usuário
-                    initProblems(user.uid); // Carrega problemas/soluções
+                    initMessages(user.uid);
+                    initProblems(user.uid);
                 }
 
             } catch (error) {
@@ -85,27 +94,23 @@ export function initAuth() {
             }
         } else {
             // --- LÓGICA DE SAÍDA (LOGOUT) ---
-            // 1. Esconde a aplicação
             el('app').classList.add('hidden');
             el('loginBox').classList.remove('hidden');
 
-            // 2. LIMPA OS CAMPOS DE LOGIN (Resolve o seu problema)
             el('loginUser').value = '';
             el('loginPass').value = '';
             
-            // 3. Limpa os containers de dados por segurança
             if (el('userList')) el('userList').innerHTML = '';
             if (el('msgList')) el('msgList').innerHTML = '';
             if (el('problemList')) el('problemList').innerHTML = '';
             
-            // 4. Coloca o foco de volta no campo usuário
             el('loginUser').focus();
         }
     });
 }
 
 /**
- * Lógica de processamento do Login
+ * Login por usuário/senha
  */
 async function doLogin() {
     const username = el('loginUser').value.trim().toLowerCase();
@@ -117,18 +122,15 @@ async function doLogin() {
     }
 
     try {
-        // Busca o e-mail real associado ao username no Firestore
-        const snap = await getDocs(collection(db, 'users'));
-        const userDoc = snap.docs.find(d => (d.data().username || '').toLowerCase() === username);
+        const q = query(collection(db, 'users'), where('username', '==', username));
+        const snap = await getDocs(q);
 
-        if (!userDoc) {
+        if (snap.empty) {
             showModal("Usuário não encontrado.");
             return;
         }
 
-        const email = userDoc.data().email;
-        
-        // Faz a autenticação oficial do Firebase
+        const email = snap.docs[0].data().email;
         await signInWithEmailAndPassword(auth, email, password);
 
     } catch (error) {
@@ -138,5 +140,57 @@ async function doLogin() {
         } else {
             showModal("Erro ao tentar entrar. Verifique sua conexão.");
         }
+    }
+}
+
+/**
+ * Login com Google
+ * - Se já existe doc no Firestore → entra normalmente (onAuthStateChanged cuida)
+ * - Se NÃO existe → cria doc como bloqueado e desloga
+ */
+async function doGoogleLogin() {
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+
+        // Verifica se já existe um doc no Firestore para este usuário
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (!userDocSnap.exists()) {
+            // Primeira vez: cria conta BLOQUEADA
+            const username = (user.displayName || user.email.split('@')[0])
+                .toLowerCase()
+                .replace(/\s+/g, '.');
+
+            await setDoc(userDocRef, {
+                username,
+                email: user.email.toLowerCase(),
+                role: 'user',
+                blocked: true,
+                provider: 'google',
+                photoURL: user.photoURL || null,
+                createdAt: new Date().toISOString()
+            });
+
+            // Desloga imediatamente
+            await signOut(auth);
+            showModal("Conta criada com sucesso! Aguarde o administrador liberar seu acesso.");
+            return;
+        }
+
+        // Se já existe, o onAuthStateChanged cuida do resto
+
+    } catch (error) {
+        console.error("Erro no login com Google:", error.code);
+        
+        if (error.code === 'auth/popup-closed-by-user') {
+            return; // Usuário fechou o popup
+        }
+        if (error.code === 'auth/popup-blocked') {
+            showModal("O popup foi bloqueado pelo navegador. Permita popups para este site.");
+            return;
+        }
+        showModal("Erro ao entrar com Google. Tente novamente.");
     }
 }
