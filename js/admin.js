@@ -60,28 +60,28 @@ export async function loadUsers() {
                     </button>
                     ` : ''}
 
-                    <button class="btn danger btnDelete"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn ghost btnDelete" style="color: var(--danger);"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
 
-            // Reset de senha (apenas para usuários com senha, não Google)
+            // Reset de senha
             const btnReset = row.querySelector('.btnReset');
             if (btnReset) {
                 btnReset.onclick = () => {
-                openConfirmModal(
-                    async () => {
-                        try {
-                            await sendPasswordResetEmail(auth, u.email);
-                            showToast("E-mail de redefinição enviado!");
-                        } catch (err) {
-                            console.error("Erro no reset:", err);
-                            showModal("Erro ao enviar e-mail de recuperação.");
-                        }
-                    },
-                    null,
-                    `Enviar e-mail de redefinição de senha para ${u.email}?`
-                );
-            };
+                    openConfirmModal(
+                        async () => {
+                            try {
+                                await sendPasswordResetEmail(auth, u.email);
+                                showToast("E-mail de redefinição enviado!");
+                            } catch (err) {
+                                console.error("Erro no reset:", err);
+                                showModal("Erro ao enviar e-mail de recuperação.");
+                            }
+                        },
+                        null,
+                        `Enviar e-mail de redefinição de senha para ${u.email}?`
+                    );
+                };
             }
 
             // Bloquear/Desbloquear
@@ -96,16 +96,11 @@ export async function loadUsers() {
                 }
             };
 
-            // ✅ MELHORIA: Usa openConfirmModal ao invés de confirm() nativo
-            // ⚠️ NOTA: deleteDoc remove apenas do Firestore. Para remover do Firebase Auth
-            //    seria necessário uma Cloud Function com admin.auth().deleteUser(uid).
-            //    O usuário não conseguirá mais logar pois não terá doc no Firestore,
-            //    mas o registro no Auth permanece.
+            // Excluir
             row.querySelector('.btnDelete').onclick = () => {
                 openConfirmModal(
                     async () => {
                         try {
-                            // Remove subcoleções de mensagens e problemas
                             const msgsSnap = await getDocs(collection(db, 'users', d.id, 'messages'));
                             const probsSnap = await getDocs(collection(db, 'users', d.id, 'problems'));
                             
@@ -115,7 +110,6 @@ export async function loadUsers() {
                             ];
                             await Promise.all(deletePromises);
                             
-                            // Remove o documento do usuário
                             await deleteDoc(doc(db, 'users', d.id));
                             showToast("Usuário excluído!");
                             loadUsers();
