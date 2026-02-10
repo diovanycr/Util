@@ -22,13 +22,13 @@ body {
   background: var(--bg);
   color: var(--text);
   line-height: 1.5;
-  display: block; /* Garante alinhamento ao topo */
+  display: block;
 }
 
 /* --- LAYOUT PRINCIPAL --- */
 .container {
   max-width: 900px;
-  margin: 0 auto; /* Alinhado ao topo */
+  margin: 0 auto;
   padding: 32px 20px;
 }
 
@@ -57,10 +57,53 @@ body {
 
 #loginBox h2 { margin-bottom: 20px; }
 
-/* --- BOTÃO LIXEIRA E BADGE (CORREÇÃO) --- */
+/* --- BOTÃO GOOGLE E DIVISOR --- */
+.login-divider {
+    display: flex;
+    align-items: center;
+    margin: 16px 0;
+    gap: 12px;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+}
+
+.login-divider span {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.btn-google {
+    width: 100%;
+    background: #fff;
+    color: #3c4043;
+    border: 1px solid var(--border);
+    font-weight: 500;
+    padding: 12px 20px;
+    gap: 10px;
+    transition: all 0.2s;
+}
+
+.btn-google:hover {
+    background: #f8f9fa;
+    border-color: #dadce0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.btn-google svg {
+    flex-shrink: 0;
+}
+
+/* --- BOTÃO LIXEIRA E BADGE --- */
 #btnTrashToggle {
-    position: relative; /* Mantém o badge preso ao botão */
-    box-shadow: 0 -4px 15px rgba(0,0,0,0.1); /* Sombra para destacar do fundo */
+    position: relative;
+    box-shadow: 0 -4px 15px rgba(0,0,0,0.1);
 }
 
 .badge {
@@ -76,7 +119,6 @@ body {
     z-index: 101;
 }
 
-/* Adicione um espaço no final da lista de mensagens para o botão não cobrir a última */
 #msgList {
     margin-bottom: 80px; 
 }
@@ -205,7 +247,10 @@ input:focus, textarea:focus {
 .grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
 .flex-end { display: flex; justify-content: flex-end; gap: 10px; }
 .center { text-align: center; }
+.mt-10 { margin-top: 10px; }
+.mt-12 { margin-top: 12px; }
 .mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
 .border-danger { border-color: #fecaca; }
 
 @media (max-width: 768px) {
@@ -219,21 +264,20 @@ input:focus, textarea:focus {
     left: 0;
     width: 100%;
     padding: 20px 0;
-    background: linear-gradient(to top, var(--bg) 70%, transparent); /* Efeito de degradê suave */
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
     display: flex;
     justify-content: center;
-    z-index: 100; /* Garante que fique acima das mensagens */
+    z-index: 100;
 }
 
 /* Container do usuário bloqueado */
 .user-row.blocked {
-    background-color: #fff5f5; /* Fundo levemente rosado */
-    border-color: #feb2b2;     /* Borda vermelha clara */
+    background-color: #fff5f5;
+    border-color: #feb2b2;
 }
 
-/* O Badge de "Bloqueado" */
 .status-badge-blocked {
-    background-color: #dc3545; /* Vermelho forte */
+    background-color: #dc3545;
     color: white;
     font-size: 10px;
     font-weight: bold;
@@ -245,19 +289,38 @@ input:focus, textarea:focus {
     vertical-align: middle;
 }
 
-/* Estilo para o texto do nome quando bloqueado */
+.status-badge-google {
+    background-color: #4285f4;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 6px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--border);
+    flex-shrink: 0;
+}
+
 .user-row.blocked .user-name {
     color: #c53030;
     font-weight: 600;
 }
 
-
 .btnReset:hover {
-    background: #fffbeb !important; /* Fundo amarelo clarinho no hover */
+    background: #fffbeb !important;
     border-color: #f59e0b !important;
 }
 
-/* Garante que os botões na linha de usuário fiquem alinhados */
 .user-row .actions {
     display: flex;
     gap: 8px;
