@@ -17,6 +17,7 @@ import { showModal } from './modal.js';
 import { loadUsers } from './admin.js';
 import { initMessages, resetMessages } from './messages.js';
 import { initProblems, resetProblems } from './problems.js';
+import { initSearch } from './search.js';
 
 let messagesInitialized = false;
 let problemsInitialized = false;
@@ -76,6 +77,8 @@ export function initAuth() {
                     el('adminArea').style.display = 'none';
                     el('userArea').classList.remove('hidden');
                     el('userArea').style.display = 'block';
+
+                    initSearch(user.uid);
 
                     if (!messagesInitialized) {
                         initMessages(user.uid);
