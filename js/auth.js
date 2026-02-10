@@ -15,8 +15,12 @@ import {
 
 import { showModal } from './modal.js';
 import { loadUsers } from './admin.js';
-import { initMessages } from './messages.js';
-import { initProblems } from './problems.js';
+import { initMessages, resetMessages } from './messages.js';
+import { initProblems, resetProblems } from './problems.js';
+
+// ? CORREÇÃO 1: Flags de sessão para evitar listeners duplicados
+let messagesInitialized = false;
+let problemsInitialized = false;
 
 /**
  * Inicializa os ouvintes de autenticação e monitora a sessão
@@ -84,8 +88,27 @@ export function initAuth() {
                     el('adminArea').style.display = 'none';
                     el('userArea').classList.remove('hidden');
                     el('userArea').style.display = 'block';
-                    initMessages(user.uid);
-                    initProblems(user.uid);
+
+                    // ? CORREÇÃO 1: Setup de listeners apenas uma vez por sessão
+                    // Chamadas subsequentes do onAuthStateChanged (ex: refresh de token)
+                    // apenas recarregam os dados, sem recriar os event listeners
+                    if (!messagesInitialized) {
+                        initMessages(user.uid);
+                        messagesInitialized = true;
+                    } else {
+                        // Re-carrega dados sem recriar listeners
+                        const { loadMessages, updateTrashCount } = await import('./messages.js');
+                        loadMessages(user.uid);
+                        updateTrashCount(user.uid);
+                    }
+
+                    if (!problemsInitialized) {
+                        initProblems(user.uid);
+                        problemsInitialized = true;
+                    } else {
+                        const { loadProblems } = await import('./problems.js');
+                        if (loadProblems) loadProblems(user.uid);
+                    }
                 }
 
             } catch (error) {
@@ -94,6 +117,13 @@ export function initAuth() {
             }
         } else {
             // --- LÓGICA DE SAÍDA (LOGOUT) ---
+
+            // ? CORREÇÃO 1: Reseta as flags ao deslogar
+            messagesInitialized = false;
+            problemsInitialized = false;
+            resetMessages();
+            resetProblems();
+
             el('app').classList.add('hidden');
             el('loginBox').classList.remove('hidden');
 
@@ -145,8 +175,8 @@ async function doLogin() {
 
 /**
  * Login com Google
- * - Se já existe doc no Firestore → entra normalmente (onAuthStateChanged cuida)
- * - Se NÃO existe → cria doc como bloqueado e desloga
+ * - Se já existe doc no Firestore ? entra normalmente (onAuthStateChanged cuida)
+ * - Se NÃO existe ? cria doc como bloqueado e desloga
  */
 async function doGoogleLogin() {
     try {
