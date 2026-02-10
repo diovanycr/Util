@@ -1,13 +1,15 @@
-import { db, el } from './firebase.js';
-import {
+import { 
+    db, el,
     collection,
     getDocs,
     addDoc,
     updateDoc,
     deleteDoc,
     doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+} from './firebase.js';
+
 import { showModal } from './modal.js';
+import { showToast } from './toast.js';
 
 let currentUserId = null;
 let allProblems = [];
@@ -119,63 +121,73 @@ async function loadProblems(userId) {
     const list = el('problemList');
     if (!list) return;
 
-    const snap = await getDocs(collection(db, 'users', userId, 'problems'));
-    list.innerHTML = '';
+    try {
+        const snap = await getDocs(collection(db, 'users', userId, 'problems'));
+        list.innerHTML = '';
 
-    allProblems = snap.docs
-        .map(d => ({ id: d.id, ...d.data() }))
-        .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        allProblems = snap.docs
+            .map(d => ({ id: d.id, ...d.data() }))
+            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
 
-    if (allProblems.length === 0) {
-        list.innerHTML = '<p class="sub center">Nenhum problema cadastrado.</p>';
-        return;
-    }
+        if (allProblems.length === 0) {
+            list.innerHTML = '<p class="sub center">Nenhum problema cadastrado.</p>';
+            return;
+        }
 
-    allProblems.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'problem-card card';
-        card.innerHTML = `
-            <div class="problem-header">
-                <h3 class="problem-title">${escapeHtml(item.title)}</h3>
-                <div class="problem-actions">
-                    <button class="btn ghost btn-edit-problem"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn ghost btn-del-problem"><i class="fa-solid fa-trash"></i></button>
+        allProblems.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'problem-card card';
+            card.innerHTML = `
+                <div class="problem-header">
+                    <h3 class="problem-title">${escapeHtml(item.title)}</h3>
+                    <div class="problem-actions">
+                        <button class="btn ghost btn-edit-problem"><i class="fa-solid fa-pen"></i></button>
+                        <button class="btn ghost btn-del-problem"><i class="fa-solid fa-trash"></i></button>
+                    </div>
                 </div>
-            </div>
-            ${item.description ? `<p class="problem-desc">${escapeHtml(item.description)}</p>` : ''}
-            <div class="problem-solution">
-                <span class="solution-label"><i class="fa-solid fa-lightbulb"></i> Solução</span>
-                <div class="solution-text">${sanitizeHtml(item.solution)}</div>
-            </div>
-        `;
+                ${item.description ? `<p class="problem-desc">${escapeHtml(item.description)}</p>` : ''}
+                <div class="problem-solution">
+                    <span class="solution-label"><i class="fa-solid fa-lightbulb"></i> Solução</span>
+                    <div class="solution-text">${sanitizeHtml(item.solution)}</div>
+                </div>
+            `;
 
-        // Copiar texto da solução ao clicar
-        card.querySelector('.solution-text').onclick = async () => {
-            const textOnly = item.solution.replace(/<[^>]*>/g, '').trim();
-            if (textOnly) {
-                await navigator.clipboard.writeText(textOnly);
-                showToast("Solução copiada!");
-            }
-        };
+            card.querySelector('.solution-text').onclick = async () => {
+                const textOnly = item.solution.replace(/<[^>]*>/g, '').trim();
+                if (textOnly) {
+                    try {
+                        await navigator.clipboard.writeText(textOnly);
+                        showToast("Solução copiada!");
+                    } catch (err) {
+                        console.error("Erro ao copiar:", err);
+                    }
+                }
+            };
 
-        // Editar
-        card.querySelector('.btn-edit-problem').onclick = () => {
-            enterEditMode(card, item, userId);
-        };
+            card.querySelector('.btn-edit-problem').onclick = () => {
+                enterEditMode(card, item, userId);
+            };
 
-        // Excluir
-        card.querySelector('.btn-del-problem').onclick = async () => {
-            await deleteDoc(doc(db, 'users', userId, 'problems', item.id));
-            showToast("Problema excluído!");
-            loadProblems(userId);
-        };
+            card.querySelector('.btn-del-problem').onclick = async () => {
+                try {
+                    await deleteDoc(doc(db, 'users', userId, 'problems', item.id));
+                    showToast("Problema excluído!");
+                    loadProblems(userId);
+                } catch (err) {
+                    console.error("Erro ao excluir problema:", err);
+                    showModal("Erro ao excluir o problema.");
+                }
+            };
 
-        list.appendChild(card);
-    });
+            list.appendChild(card);
+        });
 
-    // Re-aplicar filtro se houver pesquisa ativa
-    const query = el('problemSearch')?.value.trim().toLowerCase();
-    if (query) filterProblems(query);
+        // Re-aplicar filtro se houver pesquisa ativa
+        const searchQuery = el('problemSearch')?.value.trim().toLowerCase();
+        if (searchQuery) filterProblems(searchQuery);
+    } catch (err) {
+        console.error("Erro ao carregar problemas:", err);
+    }
 }
 
 function enterEditMode(card, item, userId) {
@@ -190,7 +202,6 @@ function enterEditMode(card, item, userId) {
         </div>
     `;
 
-    // Ativa paste de imagens no editor de edição
     setupRichEditor(card.querySelector('.edit-solution'));
     card.querySelector('.edit-title').focus();
 
@@ -202,11 +213,16 @@ function enterEditMode(card, item, userId) {
         if (!title) return showModal("O título do problema é obrigatório.");
         if (!solution || solution === '<br>') return showModal("A solução é obrigatória.");
 
-        await updateDoc(doc(db, 'users', userId, 'problems', item.id), {
-            title, description, solution
-        });
-        showToast("Problema atualizado!");
-        loadProblems(userId);
+        try {
+            await updateDoc(doc(db, 'users', userId, 'problems', item.id), {
+                title, description, solution
+            });
+            showToast("Problema atualizado!");
+            loadProblems(userId);
+        } catch (err) {
+            console.error("Erro ao atualizar problema:", err);
+            showModal("Erro ao atualizar o problema.");
+        }
     };
 
     card.querySelector('.btn-cancel-edit').onclick = () => loadProblems(userId);
@@ -215,17 +231,14 @@ function enterEditMode(card, item, userId) {
 function sanitizeHtml(html) {
     const temp = document.createElement('div');
     temp.innerHTML = html;
-    // Só permite: texto, <img>, <br>, <p>, <div>
     const allowed = new Set(['IMG', 'BR', 'P', 'DIV', '#text']);
     function clean(node) {
         [...node.childNodes].forEach(child => {
             if (child.nodeType === Node.ELEMENT_NODE) {
                 if (!allowed.has(child.tagName)) {
-                    // Substitui tag não permitida pelo seu conteúdo texto
                     const text = document.createTextNode(child.textContent);
                     node.replaceChild(text, child);
                 } else {
-                    // Limpa atributos exceto src em imagens
                     if (child.tagName === 'IMG') {
                         const src = child.getAttribute('src');
                         [...child.attributes].forEach(a => child.removeAttribute(a.name));
@@ -250,14 +263,4 @@ function escapeHtml(text) {
 
 function escapeAttr(text) {
     return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-}
-
-function showToast(message) {
-    const old = document.querySelector('.toast-success');
-    if (old) old.remove();
-    const t = document.createElement('div');
-    t.className = 'toast-success';
-    t.innerText = message;
-    document.body.appendChild(t);
-    setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 2000);
 }
