@@ -52,6 +52,7 @@
           <button id="btnCreateUser" class="btn primary">Criar usuário</button>
         </div>
       </div>
+      <!-- ? CORREÇÃO 5: success-text agora tem estilo definido no style.css -->
       <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso!</p>
 
       <h2 class="mt-16">Usuários Cadastrados</h2>
@@ -137,9 +138,10 @@
     </div>
   </div>
 
-  <!-- Modal de alerta (removidos onclick inline) -->
+  <!-- Modal de alerta -->
+  <!-- ? CORREÇÃO 6: Removido div.modal-backdrop redundante -->
+  <!-- O fechamento ao clicar fora agora é tratado em modal.js via e.target === overlay -->
   <div id="modalOverlay" class="modal-overlay hidden">
-    <div class="modal-backdrop"></div>
     <div class="modal-box card center">
       <h3>Aviso</h3>
       <p id="modalMessage" class="mt-10"></p>
