@@ -1,7 +1,8 @@
 import { 
     auth, db, el, googleProvider,
     signInWithEmailAndPassword,
-    signInWithPopup,
+    signInWithRedirect,
+    getRedirectResult,
     signOut,
     onAuthStateChanged,
     collection,
@@ -18,31 +19,67 @@ import { loadUsers } from './admin.js';
 import { initMessages, resetMessages } from './messages.js';
 import { initProblems, resetProblems } from './problems.js';
 
-// ? CORREÇÃO 1: Flags de sessão para evitar listeners duplicados
+// ✅ Flags de sessão para evitar listeners duplicados
 let messagesInitialized = false;
 let problemsInitialized = false;
 
-/**
- * Inicializa os ouvintes de autenticação e monitora a sessão
- */
 export function initAuth() {
-    // Login por usuário/senha
     el('btnLogin').addEventListener('click', doLogin);
-
     el('loginPass').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') doLogin();
     });
 
-    // Login com Google
-    el('btnGoogleLogin').addEventListener('click', doGoogleLogin);
+    // Login com Google — usa redirect para evitar erro COOP no Vercel
+    el('btnGoogleLogin').addEventListener('click', () => {
+        signInWithRedirect(auth, googleProvider).catch((error) => {
+            console.error("Erro ao iniciar redirect Google:", error.code);
+            showModal("Erro ao iniciar login com Google. Tente novamente.");
+        });
+    });
 
-    // Logout
     el('btnLogout').addEventListener('click', async () => {
         try {
             await signOut(auth);
         } catch (error) {
             console.error("Erro ao deslogar:", error);
         }
+    });
+
+    /**
+     * PROCESSA O RETORNO DO REDIRECT DO GOOGLE
+     * Executado uma vez ao carregar a página.
+     * result é null se o usuário não veio de um redirect — sem efeito.
+     */
+    getRedirectResult(auth).then(async (result) => {
+        if (!result) return;
+
+        const user = result.user;
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (!userDocSnap.exists()) {
+            const username = (user.displayName || user.email.split('@')[0])
+                .toLowerCase()
+                .replace(/\s+/g, '.');
+
+            await setDoc(userDocRef, {
+                username,
+                email: user.email.toLowerCase(),
+                role: 'user',
+                blocked: true,
+                provider: 'google',
+                photoURL: user.photoURL || null,
+                createdAt: new Date().toISOString()
+            });
+
+            await signOut(auth);
+            showModal("Conta criada com sucesso! Aguarde o administrador liberar seu acesso.");
+        }
+        // Se doc já existe, onAuthStateChanged cuida do resto
+
+    }).catch((error) => {
+        console.error("Erro no retorno do redirect Google:", error.code);
+        showModal("Erro ao entrar com Google. Tente novamente.");
     });
 
     /**
@@ -67,14 +104,13 @@ export function initAuth() {
                     return;
                 }
 
-                // Gerencia a interface
                 el('loginBox').classList.add('hidden');
                 el('app').classList.remove('hidden');
-                
+
                 const isAdmin = data.role === 'admin';
                 const displayName = data.username || data.email;
-                el('loggedUser').textContent = isAdmin 
-                    ? `Painel Admin: ${displayName}` 
+                el('loggedUser').textContent = isAdmin
+                    ? `Painel Admin: ${displayName}`
                     : `Usuário: ${displayName}`;
 
                 if (isAdmin) {
@@ -89,14 +125,10 @@ export function initAuth() {
                     el('userArea').classList.remove('hidden');
                     el('userArea').style.display = 'block';
 
-                    // ? CORREÇÃO 1: Setup de listeners apenas uma vez por sessão
-                    // Chamadas subsequentes do onAuthStateChanged (ex: refresh de token)
-                    // apenas recarregam os dados, sem recriar os event listeners
                     if (!messagesInitialized) {
                         initMessages(user.uid);
                         messagesInitialized = true;
                     } else {
-                        // Re-carrega dados sem recriar listeners
                         const { loadMessages, updateTrashCount } = await import('./messages.js');
                         loadMessages(user.uid);
                         updateTrashCount(user.uid);
@@ -116,9 +148,6 @@ export function initAuth() {
                 showModal("Erro ao carregar dados da conta.");
             }
         } else {
-            // --- LÓGICA DE SAÍDA (LOGOUT) ---
-
-            // ? CORREÇÃO 1: Reseta as flags ao deslogar
             messagesInitialized = false;
             problemsInitialized = false;
             resetMessages();
@@ -126,22 +155,18 @@ export function initAuth() {
 
             el('app').classList.add('hidden');
             el('loginBox').classList.remove('hidden');
-
             el('loginUser').value = '';
             el('loginPass').value = '';
-            
+
             if (el('userList')) el('userList').innerHTML = '';
             if (el('msgList')) el('msgList').innerHTML = '';
             if (el('problemList')) el('problemList').innerHTML = '';
-            
+
             el('loginUser').focus();
         }
     });
 }
 
-/**
- * Login por usuário/senha
- */
 async function doLogin() {
     const username = el('loginUser').value.trim().toLowerCase();
     const password = el('loginPass').value.trim();
@@ -170,57 +195,5 @@ async function doLogin() {
         } else {
             showModal("Erro ao tentar entrar. Verifique sua conexão.");
         }
-    }
-}
-
-/**
- * Login com Google
- * - Se já existe doc no Firestore ? entra normalmente (onAuthStateChanged cuida)
- * - Se NÃO existe ? cria doc como bloqueado e desloga
- */
-async function doGoogleLogin() {
-    try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-
-        // Verifica se já existe um doc no Firestore para este usuário
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (!userDocSnap.exists()) {
-            // Primeira vez: cria conta BLOQUEADA
-            const username = (user.displayName || user.email.split('@')[0])
-                .toLowerCase()
-                .replace(/\s+/g, '.');
-
-            await setDoc(userDocRef, {
-                username,
-                email: user.email.toLowerCase(),
-                role: 'user',
-                blocked: true,
-                provider: 'google',
-                photoURL: user.photoURL || null,
-                createdAt: new Date().toISOString()
-            });
-
-            // Desloga imediatamente
-            await signOut(auth);
-            showModal("Conta criada com sucesso! Aguarde o administrador liberar seu acesso.");
-            return;
-        }
-
-        // Se já existe, o onAuthStateChanged cuida do resto
-
-    } catch (error) {
-        console.error("Erro no login com Google:", error.code);
-        
-        if (error.code === 'auth/popup-closed-by-user') {
-            return; // Usuário fechou o popup
-        }
-        if (error.code === 'auth/popup-blocked') {
-            showModal("O popup foi bloqueado pelo navegador. Permita popups para este site.");
-            return;
-        }
-        showModal("Erro ao entrar com Google. Tente novamente.");
     }
 }
