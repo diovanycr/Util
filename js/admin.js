@@ -55,12 +55,12 @@ export async function loadUsers() {
                     <button class="btn ghost btnBlock">${isBlocked ? 'Desbloquear' : 'Bloquear'}</button>
                     
                     ${!isGoogle ? `
-                    <button class="btn ghost btnReset" title="Resetar Senha" style="color: #f59e0b;">
+                    <button class="btn ghost btnReset" title="Resetar Senha">
                         <i class="fa-solid fa-key"></i>
                     </button>
                     ` : ''}
 
-                    <button class="btn ghost btnDelete" style="color: var(--danger);"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn ghost btnDelete"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
 
