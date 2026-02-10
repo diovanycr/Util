@@ -1,8 +1,7 @@
 import { 
     auth, db, el, googleProvider,
     signInWithEmailAndPassword,
-    signInWithRedirect,
-    getRedirectResult,
+    signInWithPopup,
     signOut,
     onAuthStateChanged,
     collection,
@@ -19,7 +18,6 @@ import { loadUsers } from './admin.js';
 import { initMessages, resetMessages } from './messages.js';
 import { initProblems, resetProblems } from './problems.js';
 
-// ✅ Flags de sessão para evitar listeners duplicados
 let messagesInitialized = false;
 let problemsInitialized = false;
 
@@ -29,13 +27,7 @@ export function initAuth() {
         if (e.key === 'Enter') doLogin();
     });
 
-    // Login com Google — usa redirect para evitar erro COOP no Vercel
-    el('btnGoogleLogin').addEventListener('click', () => {
-        signInWithRedirect(auth, googleProvider).catch((error) => {
-            console.error("Erro ao iniciar redirect Google:", error.code);
-            showModal("Erro ao iniciar login com Google. Tente novamente.");
-        });
-    });
+    el('btnGoogleLogin').addEventListener('click', doGoogleLogin);
 
     el('btnLogout').addEventListener('click', async () => {
         try {
@@ -45,46 +37,6 @@ export function initAuth() {
         }
     });
 
-    /**
-     * PROCESSA O RETORNO DO REDIRECT DO GOOGLE
-     * Executado uma vez ao carregar a página.
-     * result é null se o usuário não veio de um redirect — sem efeito.
-     */
-    getRedirectResult(auth).then(async (result) => {
-        if (!result) return;
-
-        const user = result.user;
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (!userDocSnap.exists()) {
-            const username = (user.displayName || user.email.split('@')[0])
-                .toLowerCase()
-                .replace(/\s+/g, '.');
-
-            await setDoc(userDocRef, {
-                username,
-                email: user.email.toLowerCase(),
-                role: 'user',
-                blocked: true,
-                provider: 'google',
-                photoURL: user.photoURL || null,
-                createdAt: new Date().toISOString()
-            });
-
-            await signOut(auth);
-            showModal("Conta criada com sucesso! Aguarde o administrador liberar seu acesso.");
-        }
-        // Se doc já existe, onAuthStateChanged cuida do resto
-
-    }).catch((error) => {
-        console.error("Erro no retorno do redirect Google:", error.code);
-        showModal("Erro ao entrar com Google. Tente novamente.");
-    });
-
-    /**
-     * MONITOR DE ESTADO DA SESSÃO
-     */
     onAuthStateChanged(auth, async (user) => {
         if (user) {
             try {
@@ -195,5 +147,47 @@ async function doLogin() {
         } else {
             showModal("Erro ao tentar entrar. Verifique sua conexão.");
         }
+    }
+}
+
+async function doGoogleLogin() {
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (!userDocSnap.exists()) {
+            const username = (user.displayName || user.email.split('@')[0])
+                .toLowerCase()
+                .replace(/\s+/g, '.');
+
+            await setDoc(userDocRef, {
+                username,
+                email: user.email.toLowerCase(),
+                role: 'user',
+                blocked: true,
+                provider: 'google',
+                photoURL: user.photoURL || null,
+                createdAt: new Date().toISOString()
+            });
+
+            await signOut(auth);
+            showModal("Conta criada com sucesso! Aguarde o administrador liberar seu acesso.");
+            return;
+        }
+
+        // Se já existe, onAuthStateChanged cuida do resto
+
+    } catch (error) {
+        console.error("Erro no login com Google:", error.code);
+
+        if (error.code === 'auth/popup-closed-by-user') return;
+        if (error.code === 'auth/popup-blocked') {
+            showModal("O popup foi bloqueado pelo navegador. Permita popups para este site.");
+            return;
+        }
+        showModal("Erro ao entrar com Google. Tente novamente.");
     }
 }
