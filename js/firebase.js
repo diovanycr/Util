@@ -1,6 +1,30 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import { 
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    sendPasswordResetEmail,
+    GoogleAuthProvider,
+    signInWithPopup
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+import { 
+    getFirestore,
+    collection,
+    getDoc,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    setDoc,
+    query,
+    where,
+    writeBatch
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyB3nb-CDShDxKnN-naZdLWlyaXZfI6wvmY",
@@ -22,3 +46,31 @@ export const secondaryAuth = getAuth(secondaryApp);
 
 // Atalho útil
 export const el = id => document.getElementById(id);
+
+// Provider do Google
+export const googleProvider = new GoogleAuthProvider();
+
+// Re-exporta tudo do Auth
+export {
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    sendPasswordResetEmail,
+    signInWithPopup
+};
+
+// Re-exporta tudo do Firestore
+export {
+    collection,
+    getDoc,
+    getDocs,
+    addDoc,
+    updateDoc,
+    deleteDoc,
+    doc,
+    setDoc,
+    query,
+    where,
+    writeBatch
+};
