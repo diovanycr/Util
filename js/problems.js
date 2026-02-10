@@ -5,7 +5,8 @@ import {
     addDoc,
     updateDoc,
     deleteDoc,
-    doc
+    doc,
+    writeBatch
 } from './firebase.js';
 
 import { showModal } from './modal.js';
@@ -15,6 +16,7 @@ import { escapeHtml, escapeAttr } from './utils.js';
 let currentUserId = null;
 let allProblems = [];
 let uiInitialized = false;
+let dragSrcProblem = null;
 
 export function initProblems(uid) {
     currentUserId = uid;
@@ -258,6 +260,18 @@ async function loadProblems(userId) {
                 }
             };
 
+            // Drag-and-drop para reordenar problemas
+            card.draggable = true;
+            card.dataset.id = item.id;
+            card.ondragstart = () => { dragSrcProblem = card; card.classList.add('dragging'); };
+            card.ondragend  = () => { card.classList.remove('dragging'); saveProblemOrder(userId); };
+            card.ondragover = (e) => {
+                e.preventDefault();
+                const rect = card.getBoundingClientRect();
+                const after = e.clientY > rect.top + rect.height / 2;
+                list.insertBefore(dragSrcProblem, after ? card.nextSibling : card);
+            };
+
             list.appendChild(card);
         });
 
@@ -375,6 +389,22 @@ function setupRichEditor(editor) {
             }
         }
     });
+}
+
+async function saveProblemOrder(userId) {
+    const list = el('problemList');
+    if (!list) return;
+    const cards = [...list.querySelectorAll('.problem-card')];
+    try {
+        const batch = writeBatch(db);
+        cards.forEach((card, i) => {
+            const id = card.dataset.id;
+            if (id) batch.update(doc(db, 'users', userId, 'problems', id), { order: i + 1 });
+        });
+        await batch.commit();
+    } catch (err) {
+        console.error("Erro ao salvar ordem dos problemas:", err);
+    }
 }
 
 function sanitizeHtml(html) {
