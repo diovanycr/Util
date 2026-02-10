@@ -43,20 +43,42 @@ function setupProblemInterface() {
         el('newProblemBox').classList.add('hidden');
     };
 
-    // Renderiza o container de soluções do formulário de criação
-    renderSolutionEditors(el('solutionEditorsList'));
+    // Inicializa o editor único simples
+    setupRichEditor(el('problemSolution'));
 
+    // Botão "+ Adicionar solução": converte para modo múltiplo
     el('btnAddSolution').onclick = () => {
-        addSolutionEditor(el('solutionEditorsList'));
+        const simpleEditor = el('problemSolution');
+        const multiList = el('solutionEditorsList');
+        const isMulti = !multiList.classList.contains('hidden');
+
+        if (!isMulti) {
+            // Migra conteúdo do editor simples para o primeiro item do multi
+            const existingContent = simpleEditor.innerHTML.trim();
+            simpleEditor.classList.add('hidden');
+            multiList.classList.remove('hidden');
+            renderSolutionEditors(multiList, existingContent ? [{ label: 'Solução 1', text: existingContent }] : []);
+            addSolutionEditor(multiList);
+        } else {
+            addSolutionEditor(multiList);
+        }
     };
 
     el('btnAddProblem').onclick = async () => {
         const title = el('problemTitle').value.trim();
         const description = el('problemDesc').value.trim();
-        const solutions = collectSolutions(el('solutionEditorsList'));
+        const isMulti = !el('solutionEditorsList').classList.contains('hidden');
+
+        let solutions;
+        if (isMulti) {
+            solutions = collectSolutions(el('solutionEditorsList'));
+        } else {
+            const text = el('problemSolution').innerHTML.trim();
+            solutions = (text && text !== '<br>') ? [{ label: 'Solução 1', text }] : [];
+        }
 
         if (!title) return showModal("O título do problema é obrigatório.");
-        if (solutions.length === 0) return showModal("Adicione pelo menos uma solução.");
+        if (solutions.length === 0) return showModal("A solução é obrigatória.");
 
         try {
             await addDoc(collection(db, 'users', currentUserId, 'problems'), {
@@ -301,7 +323,11 @@ function enterEditMode(card, item, userId, solutions) {
 function clearProblemForm() {
     el('problemTitle').value = '';
     el('problemDesc').value = '';
-    renderSolutionEditors(el('solutionEditorsList'));
+    // Reseta para modo simples
+    el('problemSolution').innerHTML = '';
+    el('problemSolution').classList.remove('hidden');
+    el('solutionEditorsList').classList.add('hidden');
+    el('solutionEditorsList').innerHTML = '';
 }
 
 function filterProblems(query) {
