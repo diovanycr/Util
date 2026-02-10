@@ -10,14 +10,30 @@ import {
 
 import { showModal } from './modal.js';
 import { showToast } from './toast.js';
+// ✅ CORREÇÃO 2: funções utilitárias centralizadas em utils.js
+import { escapeHtml, escapeAttr } from './utils.js';
 
 let currentUserId = null;
 let allProblems = [];
 
+// ✅ CORREÇÃO 1: Flag para evitar listeners duplicados ao relogar
+let uiInitialized = false;
+
 export function initProblems(uid) {
     currentUserId = uid;
+
+    if (!uiInitialized) {
+        setupProblemInterface();
+        uiInitialized = true;
+    }
+
     loadProblems(uid);
-    setupProblemInterface();
+}
+
+// Chamada ao fazer logout para resetar o estado
+export function resetProblems() {
+    uiInitialized = false;
+    currentUserId = null;
 }
 
 function setupProblemInterface() {
@@ -253,14 +269,4 @@ function sanitizeHtml(html) {
     }
     clean(temp);
     return temp.innerHTML;
-}
-
-function escapeHtml(text) {
-    const div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-}
-
-function escapeAttr(text) {
-    return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
