@@ -1,21 +1,18 @@
-import { db, el, secondaryAuth, auth } from './firebase.js'; // Certifique-se de exportar 'auth' do firebase.js
-// Importação correta separada por módulos
 import { 
-    collection, 
-    getDocs, 
-    updateDoc, 
-    deleteDoc, 
-    doc, 
-    setDoc 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js"; 
-
-import { 
-    createUserWithEmailAndPassword, 
+    db, el, secondaryAuth, auth,
+    collection,
+    getDocs,
+    updateDoc,
+    deleteDoc,
+    doc,
+    setDoc,
+    createUserWithEmailAndPassword,
     signOut,
-    sendPasswordResetEmail // Nova importação para o Reset
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    sendPasswordResetEmail
+} from './firebase.js';
 
-import { showModal } from './modal.js';
+import { showModal, openConfirmModal } from './modal.js';
+import { showToast } from './toast.js';
 
 export async function loadUsers() {
     const userList = el('userList');
@@ -41,55 +38,102 @@ export async function loadUsers() {
             
             row.className = 'user-row' + (isBlocked ? ' blocked' : '');
             
+            const isGoogle = u.provider === 'google';
+            
             row.innerHTML = `
-                <div>
-                    <strong>${u.username}</strong> 
-                    ${isBlocked ? '<span class="status-badge-blocked">Bloqueado</span>' : ''}
-                    <br>
-                    <span class="sub">${u.email}</span>
+                <div style="display:flex;align-items:center;gap:12px;">
+                    ${isGoogle && u.photoURL ? `<img src="${u.photoURL}" class="user-avatar" referrerpolicy="no-referrer" />` : ''}
+                    <div>
+                        <strong>${u.username}</strong> 
+                        ${isBlocked ? '<span class="status-badge-blocked">Bloqueado</span>' : ''}
+                        ${isGoogle ? '<span class="status-badge-google"><i class="fa-brands fa-google"></i> Google</span>' : ''}
+                        <br>
+                        <span class="sub">${u.email}</span>
+                    </div>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;">
                     <button class="btn ghost btnBlock">${isBlocked ? 'Desbloquear' : 'Bloquear'}</button>
                     
+                    ${!isGoogle ? `
                     <button class="btn ghost btnReset" title="Resetar Senha" style="color: #f59e0b;">
                         <i class="fa-solid fa-key"></i>
                     </button>
+                    ` : ''}
 
                     <button class="btn danger btnDelete"><i class="fa-solid fa-trash"></i></button>
                 </div>
             `;
 
-            // Lógica do botão Reset de Senha
-            row.querySelector('.btnReset').onclick = async () => {
-                if (confirm(`Enviar e-mail de redefinição de senha para ${u.email}?`)) {
-                    try {
-                        await sendPasswordResetEmail(auth, u.email);
-                        showModal("E-mail de redefinição enviado com sucesso!");
-                    } catch (err) {
-                        console.error("Erro no reset:", err);
-                        showModal("Erro ao enviar e-mail de recuperação.");
-                    }
-                }
+            // Reset de senha (apenas para usuários com senha, não Google)
+            const btnReset = row.querySelector('.btnReset');
+            if (btnReset) {
+                btnReset.onclick = () => {
+                openConfirmModal(
+                    async () => {
+                        try {
+                            await sendPasswordResetEmail(auth, u.email);
+                            showToast("E-mail de redefinição enviado!");
+                        } catch (err) {
+                            console.error("Erro no reset:", err);
+                            showModal("Erro ao enviar e-mail de recuperação.");
+                        }
+                    },
+                    null,
+                    `Enviar e-mail de redefinição de senha para ${u.email}?`
+                );
             };
+            }
 
-            // Lógica do botão Bloquear/Desbloquear
+            // Bloquear/Desbloquear
             row.querySelector('.btnBlock').onclick = async () => {
-                await updateDoc(doc(db, 'users', d.id), { blocked: !isBlocked });
-                loadUsers();
+                try {
+                    await updateDoc(doc(db, 'users', d.id), { blocked: !isBlocked });
+                    showToast(isBlocked ? "Usuário desbloqueado!" : "Usuário bloqueado!");
+                    loadUsers();
+                } catch (err) {
+                    console.error("Erro ao alterar bloqueio:", err);
+                    showModal("Erro ao alterar status do usuário.");
+                }
             };
 
-            // Lógica do botão Excluir
-            row.querySelector('.btnDelete').onclick = async () => {
-                if (confirm(`Deseja realmente excluir ${u.username}?`)) {
-                    await deleteDoc(doc(db, 'users', d.id));
-                    loadUsers();
-                }
+            // ✅ MELHORIA: Usa openConfirmModal ao invés de confirm() nativo
+            // ⚠️ NOTA: deleteDoc remove apenas do Firestore. Para remover do Firebase Auth
+            //    seria necessário uma Cloud Function com admin.auth().deleteUser(uid).
+            //    O usuário não conseguirá mais logar pois não terá doc no Firestore,
+            //    mas o registro no Auth permanece.
+            row.querySelector('.btnDelete').onclick = () => {
+                openConfirmModal(
+                    async () => {
+                        try {
+                            // Remove subcoleções de mensagens e problemas
+                            const msgsSnap = await getDocs(collection(db, 'users', d.id, 'messages'));
+                            const probsSnap = await getDocs(collection(db, 'users', d.id, 'problems'));
+                            
+                            const deletePromises = [
+                                ...msgsSnap.docs.map(m => deleteDoc(doc(db, 'users', d.id, 'messages', m.id))),
+                                ...probsSnap.docs.map(p => deleteDoc(doc(db, 'users', d.id, 'problems', p.id)))
+                            ];
+                            await Promise.all(deletePromises);
+                            
+                            // Remove o documento do usuário
+                            await deleteDoc(doc(db, 'users', d.id));
+                            showToast("Usuário excluído!");
+                            loadUsers();
+                        } catch (err) {
+                            console.error("Erro ao excluir:", err);
+                            showModal("Erro ao excluir o usuário.");
+                        }
+                    },
+                    null,
+                    `Deseja realmente excluir "${u.username}"? Todas as mensagens e problemas serão perdidos.`
+                );
             };
 
             userList.appendChild(row);
         });
     } catch (e) {
         console.error("Erro ao carregar lista:", e);
+        userList.innerHTML = '<p class="sub">Erro ao carregar usuários.</p>';
     }
 }
 
