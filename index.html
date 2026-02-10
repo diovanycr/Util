@@ -47,6 +47,9 @@
         <button id="btnTheme" class="btn ghost" title="Modo escuro">
           <i class="fa-solid fa-moon"></i>
         </button>
+        <button id="btnHelp" class="btn ghost" title="Atalhos de teclado">
+          <i class="fa-solid fa-keyboard"></i>
+        </button>
         <button id="btnLogout" class="btn ghost">Sair</button>
       </div>
     </div>
@@ -164,6 +167,179 @@
       <h3>Aviso</h3>
       <p id="modalMessage" class="mt-10"></p>
       <button class="btn primary mt-16" style="width:100%">OK</button>
+    </div>
+  </div>
+
+  <!-- Modal de ajuda — atalhos de teclado -->
+  <div id="helpModal" class="modal-overlay hidden">
+    <div class="modal-box card help-modal">
+      <div class="help-header">
+        <h3><i class="fa-solid fa-keyboard"></i> Atalhos de Teclado</h3>
+        <button id="btnCloseHelp" class="btn ghost" style="padding:6px 10px;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="help-section">
+        <p class="help-section-title">Navegação</p>
+        <div class="help-row"><kbd>Ctrl</kbd><kbd>K</kbd><span>Abrir busca global</span></div>
+        <div class="help-row"><kbd>Esc</kbd><span>Fechar formulário / modal aberto</span></div>
+      </div>
+      <div class="help-section">
+        <p class="help-section-title">Aba Mensagens</p>
+        <div class="help-row"><kbd>N</kbd><span>Nova mensagem</span></div>
+      </div>
+      <div class="help-section">
+        <p class="help-section-title">Aba Problemas</p>
+        <div class="help-row"><kbd>P</kbd><span>Novo problema</span></div>
+      </div>
+      <div class="help-section">
+        <p class="help-section-title">Geral</p>
+        <div class="help-row"><span class="help-icon"><i class="fa-solid fa-copy"></i></span><span>Clique no texto da mensagem para copiar</span></div>
+        <div class="help-row"><span class="help-icon"><i class="fa-solid fa-grip-lines"></i></span><span>Arraste o ícone <b>≡</b> para reordenar</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de ajuda / atalhos -->
+  <div id="helpModal" class="modal-overlay hidden">
+    <div class="help-box card">
+      <div class="help-header">
+        <h3><i class="fa-solid fa-keyboard"></i> Atalhos de Teclado</h3>
+        <button id="btnCloseHelp" class="btn ghost"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="help-body">
+        <div class="help-section">
+          <p class="help-section-title">Navegação</p>
+          <div class="help-row"><kbd>Ctrl</kbd><kbd>K</kbd><span>Abrir busca global</span></div>
+          <div class="help-row"><kbd>Esc</kbd><span>Fechar formulário / janela aberta</span></div>
+        </div>
+        <div class="help-section">
+          <p class="help-section-title">Mensagens</p>
+          <div class="help-row"><kbd>N</kbd><span>Nova mensagem (na aba Mensagens)</span></div>
+        </div>
+        <div class="help-section">
+          <p class="help-section-title">Problemas / Soluções</p>
+          <div class="help-row"><kbd>P</kbd><span>Novo problema (na aba Problemas)</span></div>
+          <div class="help-row"><i class="fa-solid fa-up-down" style="color:var(--muted);margin-right:4px;"></i><span>Arraste os cards para reordenar</span></div>
+        </div>
+        <div class="help-section">
+          <p class="help-section-title">Geral</p>
+          <div class="help-row"><i class="fa-solid fa-copy" style="color:var(--muted);margin-right:4px;"></i><span>Clique em qualquer mensagem ou solução para copiar</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Ajuda -->
+  <div id="helpModal" class="modal-overlay hidden">
+    <div class="help-box card">
+      <div class="help-header">
+        <h3><i class="fa-solid fa-circle-question"></i> Ajuda</h3>
+        <button id="btnCloseHelp" class="btn ghost"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="help-tabs">
+        <button class="help-tab active" data-panel="shortcuts">
+          <i class="fa-solid fa-keyboard"></i> Atalhos
+        </button>
+        <button class="help-tab" data-panel="tutorial">
+          <i class="fa-solid fa-book-open"></i> Como usar
+        </button>
+        <button class="help-tab" data-panel="contact">
+          <i class="fa-solid fa-headset"></i> Suporte
+        </button>
+      </div>
+
+      <!-- Painel: Atalhos -->
+      <div id="help-shortcuts" class="help-panel">
+        <div class="help-shortcut-list">
+          <div class="help-shortcut-row">
+            <div class="help-shortcut-keys"><kbd>Ctrl</kbd><span>+</span><kbd>K</kbd></div>
+            <span>Abrir busca global</span>
+          </div>
+          <div class="help-shortcut-row">
+            <div class="help-shortcut-keys"><kbd>N</kbd></div>
+            <span>Nova mensagem (na aba Mensagens)</span>
+          </div>
+          <div class="help-shortcut-row">
+            <div class="help-shortcut-keys"><kbd>P</kbd></div>
+            <span>Novo problema (na aba Problemas/Soluções)</span>
+          </div>
+          <div class="help-shortcut-row">
+            <div class="help-shortcut-keys"><kbd>Esc</kbd></div>
+            <span>Fechar formulário ou modal aberto</span>
+          </div>
+        </div>
+        <p class="help-tip"><i class="fa-solid fa-lightbulb"></i> Os atalhos <kbd>N</kbd> e <kbd>P</kbd> só funcionam quando você não está digitando em nenhum campo.</p>
+      </div>
+
+      <!-- Painel: Tutorial -->
+      <div id="help-tutorial" class="help-panel hidden">
+        <div class="help-tutorial-list">
+          <div class="help-tutorial-item">
+            <div class="help-tutorial-icon"><i class="fa-solid fa-message"></i></div>
+            <div>
+              <strong>Mensagens</strong>
+              <p>Cadastre respostas prontas para usar no atendimento. Clique no texto para copiar instantaneamente. Arraste para reordenar.</p>
+            </div>
+          </div>
+          <div class="help-tutorial-item">
+            <div class="help-tutorial-icon"><i class="fa-solid fa-wrench"></i></div>
+            <div>
+              <strong>Problemas / Soluções</strong>
+              <p>Cadastre problemas recorrentes e suas soluções. Cada problema pode ter múltiplas soluções. Clique na solução para copiar. Arraste para reordenar.</p>
+            </div>
+          </div>
+          <div class="help-tutorial-item">
+            <div class="help-tutorial-icon"><i class="fa-solid fa-image"></i></div>
+            <div>
+              <strong>Imagens nas soluções</strong>
+              <p>Cole imagens diretamente no editor de solução com <kbd>Ctrl+V</kbd>. Útil para prints de tela.</p>
+            </div>
+          </div>
+          <div class="help-tutorial-item">
+            <div class="help-tutorial-icon"><i class="fa-solid fa-search"></i></div>
+            <div>
+              <strong>Busca global</strong>
+              <p>Use <kbd>Ctrl+K</kbd> para buscar em mensagens e problemas ao mesmo tempo. Clique no resultado para copiar ou navegar.</p>
+            </div>
+          </div>
+          <div class="help-tutorial-item">
+            <div class="help-tutorial-icon"><i class="fa-solid fa-trash"></i></div>
+            <div>
+              <strong>Lixeira</strong>
+              <p>Mensagens deletadas vão para a lixeira antes da exclusão definitiva. Acesse pelo botão na aba Mensagens.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel: Suporte -->
+      <div id="help-contact" class="help-panel hidden">
+        <div class="help-contact-list">
+          <div class="help-contact-item">
+            <i class="fa-brands fa-whatsapp"></i>
+            <div>
+              <strong>WhatsApp</strong>
+              <span class="sub">Atendimento rápido para dúvidas e problemas</span>
+            </div>
+          </div>
+          <div class="help-contact-item">
+            <i class="fa-solid fa-envelope"></i>
+            <div>
+              <strong>E-mail</strong>
+              <span class="sub">Para solicitações e sugestões</span>
+            </div>
+          </div>
+          <div class="help-contact-item">
+            <i class="fa-solid fa-clock"></i>
+            <div>
+              <strong>Horário de atendimento</strong>
+              <span class="sub">Segunda a sexta, das 8h às 18h</span>
+            </div>
+          </div>
+        </div>
+        <p class="help-tip"><i class="fa-solid fa-circle-info"></i> Para reportar bugs ou sugerir melhorias, entre em contato pelo WhatsApp.</p>
+      </div>
+
     </div>
   </div>
 
