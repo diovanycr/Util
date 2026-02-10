@@ -11,15 +11,31 @@ import {
 
 import { openConfirmModal, showModal } from './modal.js';
 import { showToast } from './toast.js';
+import { escapeHtml } from './utils.js';
 
 let currentUserId = null;
 let dragSrc = null;
 
+// ✅ CORREÇÃO 1: Flag para evitar listeners duplicados ao relogar
+let uiInitialized = false;
+
 export function initMessages(uid) {
     currentUserId = uid;
+
+    // Setup de eventos só na primeira inicialização da sessão
+    if (!uiInitialized) {
+        setupUserInterface();
+        uiInitialized = true;
+    }
+
     loadMessages(uid);
     updateTrashCount(uid);
-    setupUserInterface();
+}
+
+// Chamada ao fazer logout para resetar o estado
+export function resetMessages() {
+    uiInitialized = false;
+    currentUserId = null;
 }
 
 function setupUserInterface() {
@@ -153,20 +169,30 @@ export async function loadMessages(userId) {
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
         list.innerHTML = '';
-        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }))
-            .filter(d => !d.deleted).sort((a, b) => (a.order || 0) - (b.order || 0));
 
-        docs.forEach(item => {
+        const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // ✅ CORREÇÃO 3: Atualiza o badge reutilizando o snap já carregado (evita getDocs extra)
+        _updateTrashBadge(allDocs);
+
+        const activeDocs = allDocs
+            .filter(d => !d.deleted)
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        activeDocs.forEach(item => {
             const row = document.createElement('div');
             row.className = 'user-row';
             row.draggable = true;
             row.dataset.id = item.id;
             row.innerHTML = `
                 <span class="drag-handle">&#9776;</span>
-                <div class="msg-text" style="flex:1; cursor:pointer">${item.text}</div>
+                <div class="msg-text" style="flex:1; cursor:pointer">${escapeHtml(item.text)}</div>
                 <button class="btn ghost btn-edit"><i class="fa-solid fa-pen"></i></button>
                 <button class="btn ghost btn-del"><i class="fa-solid fa-trash"></i></button>
             `;
+
+            // ✅ CORREÇÃO 2: item.text escapado no innerHTML acima (XSS)
+
             row.querySelector('.msg-text').onclick = async () => {
                 try {
                     await navigator.clipboard.writeText(item.text);
@@ -175,6 +201,7 @@ export async function loadMessages(userId) {
                     console.error("Erro ao copiar:", err);
                 }
             };
+
             row.querySelector('.btn-edit').onclick = () => {
                 const msgDiv = row.querySelector('.msg-text');
                 const oldText = item.text;
@@ -212,10 +239,11 @@ export async function loadMessages(userId) {
                 };
                 cancelBtn.onclick = () => loadMessages(userId);
             };
+
             row.querySelector('.btn-del').onclick = async () => {
                 try {
                     await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: true });
-                    loadMessages(userId); 
+                    loadMessages(userId);
                     updateTrashCount(userId);
                 } catch (err) {
                     console.error("Erro ao deletar:", err);
@@ -248,7 +276,8 @@ async function loadTrash(userId) {
         docs.forEach(item => {
             const row = document.createElement('div');
             row.className = 'user-row';
-            row.innerHTML = `<div style="flex:1">${item.text}</div><button class="btn ghost btn-restore"><i class="fa-solid fa-undo"></i></button>`;
+            // ✅ CORREÇÃO 2: item.text escapado aqui também
+            row.innerHTML = `<div style="flex:1">${escapeHtml(item.text)}</div><button class="btn ghost btn-restore"><i class="fa-solid fa-undo"></i></button>`;
             row.querySelector('.btn-restore').onclick = async () => {
                 try {
                     await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: false });
@@ -266,7 +295,30 @@ async function loadTrash(userId) {
 }
 
 /**
- * ✅ MELHORIA: Usa writeBatch ao invés de N chamadas sequenciais
+ * ✅ CORREÇÃO 3: Função interna que recebe dados já em memória — sem getDocs extra
+ */
+function _updateTrashBadge(allDocs) {
+    const badge = el('trashCount');
+    if (!badge) return;
+    const count = allDocs.filter(d => d.deleted).length;
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'inline-block' : 'none';
+}
+
+/**
+ * Mantida para chamadas pontuais externas (ex: após restaurar item da lixeira isoladamente)
+ */
+export async function updateTrashCount(userId) {
+    try {
+        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
+        _updateTrashBadge(snap.docs.map(d => d.data()));
+    } catch (err) {
+        console.error("Erro ao atualizar contagem da lixeira:", err);
+    }
+}
+
+/**
+ * ✅ MELHORIA existente: Usa writeBatch ao invés de N chamadas sequenciais
  */
 async function saveOrder(userId) {
     const rows = [...el('msgList').children];
@@ -294,17 +346,5 @@ async function emptyTrash(userId) {
     } catch (err) {
         console.error("Erro ao esvaziar lixeira:", err);
         showModal("Erro ao esvaziar a lixeira.");
-    }
-}
-
-async function updateTrashCount(userId) {
-    try {
-        const badge = el('trashCount');
-        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-        const count = snap.docs.filter(d => d.data().deleted).length;
-        badge.textContent = count;
-        badge.style.display = count > 0 ? 'inline-block' : 'none';
-    } catch (err) {
-        console.error("Erro ao atualizar contagem da lixeira:", err);
     }
 }
