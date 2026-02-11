@@ -253,7 +253,7 @@ input:focus, textarea:focus {
 .mt-20 { margin-top: 20px; }
 .border-danger { border-color: #fecaca; }
 
-/* ✅ CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
+/* ? CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
 .success-text {
     color: var(--success);
     font-size: 14px;
@@ -1435,3 +1435,20 @@ kbd {
 [data-theme="dark"] .tag-teal   { background: #042f2e; color: #5eead4; }
 [data-theme="dark"] .tag-red    { background: #450a0a; color: #fca5a5; }
 [data-theme="dark"] .tag-indigo { background: #1e1b4b; color: #a5b4fc; }
+
+/* Edição inline de link */
+.link-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+.link-edit-btn {
+  flex-shrink: 0;
+  padding: 8px 10px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.link-card:hover .link-edit-btn { opacity: 1; }
