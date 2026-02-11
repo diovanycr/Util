@@ -195,16 +195,12 @@ function renderLinks(container, links) {
             card.ondragover = (e) => {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
-                const rect = card.getBoundingClientRect();
+                if (!dragSrcLink || dragSrcLink === card) return;
+                const rect  = card.getBoundingClientRect();
                 const after = e.clientY > rect.top + rect.height / 2;
-                const list = el('linkList');
-                // Insere no container flat (linkList) ignorando grupos
-                const allCards = [...list.querySelectorAll('.link-card')];
-                const targetIdx = allCards.indexOf(card);
-                const srcIdx = allCards.indexOf(dragSrcLink);
-                if (srcIdx !== targetIdx) {
-                    list.insertBefore(dragSrcLink, after ? card.nextSibling : card);
-                }
+                // Insere no pai direto do card de destino
+                const parent = card.parentNode;
+                parent.insertBefore(dragSrcLink, after ? card.nextSibling : card);
             };
 
             group.appendChild(card);
