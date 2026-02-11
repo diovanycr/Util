@@ -78,6 +78,7 @@ function setupProblemInterface() {
         if (!isMulti) {
             const existingContent = simpleEditor.innerHTML.trim();
             simpleEditor.classList.add('hidden');
+            el('problemSolutionStatus').classList.add('hidden');
             multiList.classList.remove('hidden');
             renderSolutionEditors(multiList, existingContent
                 ? [{ label: 'Solução 1', text: existingContent, status: 'confirmed' }]
@@ -98,8 +99,9 @@ function setupProblemInterface() {
         if (isMulti) {
             solutions = collectSolutions(el('solutionEditorsList'));
         } else {
-            const text = el('problemSolution').innerHTML.trim();
-            solutions  = (text && text !== '<br>') ? [{ label: 'Solução 1', text, status: 'confirmed' }] : [];
+            const text   = el('problemSolution').innerHTML.trim();
+            const status = el('problemSolutionStatus').value || 'confirmed';
+            solutions  = (text && text !== '<br>') ? [{ label: 'Solução 1', text, status }] : [];
         }
 
         if (!title) return showModal("O título do problema é obrigatório.");
@@ -497,6 +499,8 @@ function clearProblemForm() {
     el('tagPillsCreate').innerHTML = '';
     el('problemSolution').innerHTML = '';
     el('problemSolution').classList.remove('hidden');
+    el('problemSolutionStatus').value = 'confirmed';
+    el('problemSolutionStatus').classList.remove('hidden');
     el('solutionEditorsList').classList.add('hidden');
     el('solutionEditorsList').innerHTML = '';
 }
