@@ -19,6 +19,7 @@ import { initMessages, resetMessages } from './messages.js';
 import { initProblems, resetProblems } from './problems.js';
 import { initSearch } from './search.js';
 import { initLinks, resetLinks } from './links.js';
+import { initEnhancements } from './enhancements.js';
 
 let messagesInitialized = false;
 let problemsInitialized = false;
