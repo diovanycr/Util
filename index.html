@@ -86,7 +86,14 @@
           <button id="btnNewMsg" class="btn primary"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
         </div>
 
+        <!-- Chips de filtro por categoria -->
+        <div id="msgCategoryFilterBar" class="tag-filter-bar hidden"></div>
+
         <div id="newMsgBox" class="card hidden mt-16">
+          <div class="msg-meta-fields">
+            <input id="msgTitle" type="text" placeholder="Título (opcional)..." />
+            <input id="msgCategory" type="text" placeholder="Categoria (ex: Saudação, Suporte, Cobrança...)..." />
+          </div>
           <textarea id="msgText" rows="4" placeholder="Digite sua resposta automática aqui..."></textarea>
           <div class="flex-end mt-10">
             <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
