@@ -108,8 +108,10 @@ function setupProblemInterface() {
             const text      = el('problemSolution').innerHTML.trim();
             const status    = el('problemSolutionStatus').value || 'confirmed';
             const label     = el('problemSolutionLabel').value.trim() || 'Solução 1';
-            const copyTexts = [...el('simpleCopyTextsList').querySelectorAll('.copy-text-editor')]
-                                .map(t => t.value.trim()).filter(Boolean);
+            const copyTexts = [...el('simpleCopyTextsList').querySelectorAll('.copy-text-row')].map(row => ({
+                label: row.querySelector('.copy-text-label-input')?.value.trim() || '',
+                text:  row.querySelector('.copy-text-editor')?.value.trim() || ''
+            })).filter(ct => ct.text);
             solutions  = (text && text !== '<br>') ? [{ label, text, status, copyTexts }] : [];
         }
 
@@ -209,18 +211,29 @@ function collectSolutions(container) {
         const label      = item.querySelector('.solution-label-input')?.value.trim() || `Solução ${i + 1}`;
         const text       = item.querySelector('.rich-editor')?.innerHTML.trim();
         const status     = item.querySelector('.solution-status-select')?.value || 'confirmed';
-        const copyTexts  = [...item.querySelectorAll('.copy-text-editor')]
-                            .map(t => t.value.trim()).filter(Boolean);
+        const copyTexts = [...item.querySelectorAll('.copy-text-row')].map(row => ({
+            label: row.querySelector('.copy-text-label-input')?.value.trim() || '',
+            text:  row.querySelector('.copy-text-editor')?.value.trim() || ''
+        })).filter(ct => ct.text);
         if (text && text !== '<br>') solutions.push({ label, text, status, copyTexts });
     });
     return solutions;
 }
 
-function addCopyTextField(container, value = '') {
+function addCopyTextField(container, entry = null) {
+    // entry pode ser string (legado) ou { label, text }
+    const existingLabel = typeof entry === 'object' ? (entry?.label || '') : '';
+    const existingText  = typeof entry === 'string'  ? entry : (entry?.text || '');
+
     const row = document.createElement('div');
     row.className = 'copy-text-row';
     row.innerHTML = `
-        <textarea class="copy-text-editor" placeholder="Texto que será copiado ao clicar...">${escapeHtml(value)}</textarea>
+        <div class="copy-text-row-fields">
+            <input class="copy-text-label-input" type="text"
+                   placeholder="Título (ex: Comando, Link, Script...)"
+                   value="${escapeAttr(existingLabel)}" />
+            <textarea class="copy-text-editor" placeholder="Texto que será copiado ao clicar...">${escapeHtml(existingText)}</textarea>
+        </div>
         <button class="btn ghost btn-remove-copy-text" title="Remover">
             <i class="fa-solid fa-xmark"></i>
         </button>
@@ -269,7 +282,7 @@ function addSolutionEditor(container, solution = null) {
 
     // Popula copyTexts existentes ou adiciona campo vazio
     const copyList = item.querySelector('.copy-texts-list');
-    const existingCopyTexts = solution?.copyTexts || (solution?.copyText ? [solution.copyText] : []);
+    const existingCopyTexts = solution?.copyTexts || (solution?.copyText ? [{ label: '', text: solution.copyText }] : []);
     if (existingCopyTexts.length > 0) {
         existingCopyTexts.forEach(ct => addCopyTextField(copyList, ct));
     }
@@ -286,8 +299,16 @@ function addSolutionEditor(container, solution = null) {
 // --- NORMALIZAÇÃO ---
 
 function normalizeSolutions(item) {
-    if (item.solutions && Array.isArray(item.solutions)) return item.solutions;
-    if (item.solution) return [{ label: 'Solução 1', text: item.solution, status: 'confirmed' }];
+    if (item.solutions && Array.isArray(item.solutions)) {
+        // Normaliza copyTexts: converte strings legadas para {label, text}
+        return item.solutions.map(s => ({
+            ...s,
+            copyTexts: (s.copyTexts || (s.copyText ? [s.copyText] : [])).map(ct =>
+                typeof ct === 'string' ? { label: '', text: ct } : ct
+            )
+        }));
+    }
+    if (item.solution) return [{ label: 'Solução 1', text: item.solution, status: 'confirmed', copyTexts: [] }];
     return [];
 }
 
@@ -414,7 +435,10 @@ function renderProblems(problems) {
                             return cts.map((ct, ci) => `
                                 <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="${ci}">
                                     <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
-                                    <span class="solution-copy-field-text">${escapeHtml(ct)}</span>
+                                    <div class="solution-copy-field-info">
+                                        ${ct.label ? `<span class="solution-copy-field-label">${escapeHtml(ct.label)}</span>` : ''}
+                                        <span class="solution-copy-field-text">${escapeHtml(ct.text)}</span>
+                                    </div>
                                     <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i> Copiar</span>
                                 </div>`).join('');
                         })()}
@@ -456,10 +480,10 @@ function renderProblems(problems) {
                 const si  = parseInt(field.dataset.solIndex ?? 0);
                 const ci  = parseInt(field.dataset.ctIndex  ?? 0);
                 const s   = solutions[si];
-                const cts = s?.copyTexts?.length ? s.copyTexts
-                          : s?.copyText          ? [s.copyText]
-                          : [];
-                const textToCopy = cts[ci] ?? s?.text.replace(/<[^>]*>/g, '').trim() ?? '';
+                const cts = s?.copyTexts?.length ? s.copyTexts : [];
+                const textToCopy = (typeof cts[ci] === 'object' ? cts[ci]?.text : cts[ci])
+                                 ?? s?.text.replace(/<[^>]*>/g, '').trim()
+                                 ?? '';
                 if (textToCopy) {
                     try { await navigator.clipboard.writeText(textToCopy); showToast("Copiado!"); }
                     catch (err) { console.error(err); }
