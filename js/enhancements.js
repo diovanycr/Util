@@ -1,38 +1,37 @@
 /**
- * enhancements.js — Melhorias: busca global, contadores, atalhos
+ * enhancements.js — Melhorias: busca global, contadores, modo compacto, favoritos, atalhos
  */
 
 import { el } from './firebase.js';
 import { showToast } from './toast.js';
 
 let counts = { msg: 0, problem: 0, link: 0 };
+let compactMode = false;
+let favorites = new Set();
 
 export function initEnhancements() {
-    console.log('🚀 initEnhancements chamado');
     setupGlobalSearch();
     setupNumericShortcuts();
     setupCounterListeners();
+    setupCompactMode();
+    setupFavorites();
+    loadFavoritesFromStorage();
 }
 
 // --- CONTADORES ---
 
 function setupCounterListeners() {
-    console.log('📊 Configurando listeners de contadores');
-    
     document.addEventListener('updateMsgCount', (e) => {
-        console.log('📨 updateMsgCount:', e.detail);
         counts.msg = e.detail;
         updateBadge('msgCount', counts.msg);
     });
     
     document.addEventListener('updateProblemCount', (e) => {
-        console.log('🔧 updateProblemCount:', e.detail);
         counts.problem = e.detail;
         updateBadge('problemCount', counts.problem);
     });
     
     document.addEventListener('updateLinkCount', (e) => {
-        console.log('🔗 updateLinkCount:', e.detail);
         counts.link = e.detail;
         updateBadge('linkCount', counts.link);
     });
@@ -40,31 +39,16 @@ function setupCounterListeners() {
 
 function updateBadge(id, count) {
     const badge = el(id);
-    console.log(`🏷️ Atualizando badge ${id} com ${count}`);
-    if (badge) {
-        badge.textContent = count;
-    } else {
-        console.error(`❌ Badge ${id} não encontrado`);
-    }
+    if (badge) badge.textContent = count;
 }
 
 // --- BUSCA GLOBAL ---
 
 function setupGlobalSearch() {
-    console.log('🔍 Configurando busca global');
     const input = el('globalSearch');
     const clearBtn = el('btnClearGlobalSearch');
     
-    if (!input) {
-        console.error('❌ globalSearch input não encontrado');
-        return;
-    }
-    if (!clearBtn) {
-        console.error('❌ btnClearGlobalSearch não encontrado');
-        return;
-    }
-
-    console.log('✅ Elementos de busca encontrados');
+    if (!input || !clearBtn) return;
 
     input.oninput = () => {
         const query = input.value.trim().toLowerCase();
@@ -90,7 +74,6 @@ function setupGlobalSearch() {
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'f') {
             e.preventDefault();
-            console.log('⌨️ Ctrl+F pressionado');
             input.focus();
             input.select();
         }
@@ -98,8 +81,6 @@ function setupGlobalSearch() {
 }
 
 function applyGlobalSearch(query) {
-    console.log('🔎 Aplicando busca global:', query);
-    
     let msgVisible = 0, problemVisible = 0, linkVisible = 0;
     
     // Filtra mensagens
@@ -146,9 +127,7 @@ function applyGlobalSearch(query) {
         updateBadge('msgCount', msgVisible);
         updateBadge('problemCount', problemVisible);
         updateBadge('linkCount', linkVisible);
-        console.log(`📊 Resultados: ${msgVisible} msgs, ${problemVisible} problemas, ${linkVisible} links`);
     } else {
-        // Restaura contadores originais
         updateBadge('msgCount', counts.msg);
         updateBadge('problemCount', counts.problem);
         updateBadge('linkCount', counts.link);
@@ -156,9 +135,7 @@ function applyGlobalSearch(query) {
 }
 
 function copyFirstResult() {
-    console.log('📋 Copiando primeiro resultado');
     const activeTab = document.querySelector('.tab.active')?.dataset.tab;
-    console.log('Aba ativa:', activeTab);
     
     if (activeTab === 'tabMessages') {
         const firstMsg = [...document.querySelectorAll('#msgList .user-row')]
@@ -190,12 +167,136 @@ function copyFirstResult() {
     }
 }
 
+// --- MODO COMPACTO ---
+
+function setupCompactMode() {
+    const btn = el('btnCompactMode');
+    if (!btn) return;
+
+    // Carrega estado do localStorage
+    const savedMode = localStorage.getItem('compactMode') === 'true';
+    if (savedMode) {
+        compactMode = true;
+        document.body.classList.add('compact-mode');
+        btn.querySelector('i').className = 'fa-solid fa-expand';
+        btn.title = 'Modo normal';
+    }
+
+    btn.onclick = () => {
+        compactMode = !compactMode;
+        document.body.classList.toggle('compact-mode', compactMode);
+        
+        const icon = btn.querySelector('i');
+        if (compactMode) {
+            icon.className = 'fa-solid fa-expand';
+            btn.title = 'Modo normal';
+            showToast('Modo compacto ativado');
+        } else {
+            icon.className = 'fa-solid fa-compress';
+            btn.title = 'Modo compacto';
+            showToast('Modo normal ativado');
+        }
+        
+        localStorage.setItem('compactMode', compactMode);
+    };
+}
+
+// --- FAVORITOS ---
+
+function setupFavorites() {
+    // Escuta eventos de renderização para adicionar estrelas
+    document.addEventListener('itemsRendered', addFavoriteStars);
+}
+
+function addFavoriteStars() {
+    // Adiciona estrelas nas mensagens
+    document.querySelectorAll('#msgList .user-row').forEach(row => {
+        if (row.querySelector('.btn-favorite')) return; // Já tem estrela
+        const id = row.dataset.id;
+        if (!id) return;
+        
+        const star = document.createElement('button');
+        star.className = `btn ghost btn-favorite ${isFavorite(id) ? 'active' : ''}`;
+        star.innerHTML = '<i class="fa-solid fa-star"></i>';
+        star.title = 'Favoritar';
+        star.onclick = (e) => {
+            e.stopPropagation();
+            toggleFavorite(id);
+            star.classList.toggle('active');
+            showToast(isFavorite(id) ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+        };
+        
+        // Insere antes do botão editar
+        const editBtn = row.querySelector('.btn-edit');
+        if (editBtn) editBtn.before(star);
+    });
+
+    // Adiciona estrelas nos problemas
+    document.querySelectorAll('#problemList .problem-card').forEach(card => {
+        if (card.querySelector('.btn-favorite')) return;
+        const id = card.dataset.id;
+        if (!id) return;
+        
+        const star = document.createElement('button');
+        star.className = `btn ghost btn-favorite ${isFavorite(id) ? 'active' : ''}`;
+        star.innerHTML = '<i class="fa-solid fa-star"></i>';
+        star.title = 'Favoritar';
+        star.onclick = (e) => {
+            e.stopPropagation();
+            toggleFavorite(id);
+            star.classList.toggle('active');
+            showToast(isFavorite(id) ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+        };
+        
+        const actions = card.querySelector('.problem-actions');
+        if (actions) actions.prepend(star);
+    });
+
+    // Adiciona estrelas nos links
+    document.querySelectorAll('#linkList .link-card').forEach(card => {
+        if (card.querySelector('.btn-favorite')) return;
+        const id = card.dataset.id;
+        if (!id) return;
+        
+        const star = document.createElement('button');
+        star.className = `btn ghost btn-favorite ${isFavorite(id) ? 'active' : ''}`;
+        star.innerHTML = '<i class="fa-solid fa-star"></i>';
+        star.title = 'Favoritar';
+        star.onclick = (e) => {
+            e.stopPropagation();
+            toggleFavorite(id);
+            star.classList.toggle('active');
+            showToast(isFavorite(id) ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+        };
+        
+        const editBtn = card.querySelector('.link-edit-btn');
+        if (editBtn) editBtn.before(star);
+    });
+}
+
+function loadFavoritesFromStorage() {
+    const stored = localStorage.getItem('favorites');
+    if (stored) favorites = new Set(JSON.parse(stored));
+}
+
+function saveFavoritesToStorage() {
+    localStorage.setItem('favorites', JSON.stringify([...favorites]));
+}
+
+function toggleFavorite(id) {
+    if (favorites.has(id)) favorites.delete(id);
+    else favorites.add(id);
+    saveFavoritesToStorage();
+}
+
+function isFavorite(id) {
+    return favorites.has(id);
+}
+
 // --- ATALHOS NUMÉRICOS ---
 
 function setupNumericShortcuts() {
-    console.log('⌨️ Configurando atalhos numéricos');
     document.addEventListener('keydown', (e) => {
-        // Ignora se está digitando
         if (e.target.matches('input, textarea, [contenteditable="true"]')) return;
 
         const tabMap = {
@@ -206,13 +307,8 @@ function setupNumericShortcuts() {
 
         if (tabMap[e.key]) {
             e.preventDefault();
-            console.log(`⌨️ Tecla ${e.key} pressionada - mudando para ${tabMap[e.key]}`);
             const btn = document.querySelector(`button[data-tab="${tabMap[e.key]}"]`);
-            if (btn) {
-                btn.click();
-            } else {
-                console.error(`❌ Botão para ${tabMap[e.key]} não encontrado`);
-            }
+            if (btn) btn.click();
         }
     });
 }
