@@ -253,7 +253,7 @@ input:focus, textarea:focus {
 .mt-20 { margin-top: 20px; }
 .border-danger { border-color: #fecaca; }
 
-/* ✅ CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
+/* ? CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
 .success-text {
     color: var(--success);
     font-size: 14px;
@@ -1708,6 +1708,19 @@ kbd {
 .compact-mode .solution-text {
   font-size: 12px;
   line-height: 1.3;
+}
+
+/* Mensagens em uma linha no modo compacto */
+.compact-mode .msg-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.compact-mode .msg-content {
+  min-width: 0;
+  overflow: hidden;
 }
 
 .compact-mode .msg-title {
