@@ -79,6 +79,7 @@ function setupProblemInterface() {
             const existingContent = simpleEditor.innerHTML.trim();
             simpleEditor.classList.add('hidden');
             el('problemSolutionHeader').classList.add('hidden');
+            el('problemCopyText').classList.add('hidden');
             multiList.classList.remove('hidden');
             renderSolutionEditors(multiList, existingContent
                 ? [{ label: 'Solução 1', text: existingContent, status: 'confirmed' }]
@@ -99,10 +100,11 @@ function setupProblemInterface() {
         if (isMulti) {
             solutions = collectSolutions(el('solutionEditorsList'));
         } else {
-            const text   = el('problemSolution').innerHTML.trim();
-            const status = el('problemSolutionStatus').value || 'confirmed';
-            const label  = el('problemSolutionLabel').value.trim() || 'Solução 1';
-            solutions  = (text && text !== '<br>') ? [{ label, text, status }] : [];
+            const text     = el('problemSolution').innerHTML.trim();
+            const status   = el('problemSolutionStatus').value || 'confirmed';
+            const label    = el('problemSolutionLabel').value.trim() || 'Solução 1';
+            const copyText = el('problemCopyText')?.value.trim() || '';
+            solutions  = (text && text !== '<br>') ? [{ label, text, status, copyText }] : [];
         }
 
         if (!title) return showModal("O título do problema é obrigatório.");
@@ -198,10 +200,11 @@ function collectSolutions(container) {
     const items = container.querySelectorAll('.solution-editor-item');
     const solutions = [];
     items.forEach((item, i) => {
-        const label  = item.querySelector('.solution-label-input')?.value.trim() || `Solução ${i + 1}`;
-        const text   = item.querySelector('.rich-editor')?.innerHTML.trim();
-        const status = item.querySelector('.solution-status-select')?.value || 'confirmed';
-        if (text && text !== '<br>') solutions.push({ label, text, status });
+        const label    = item.querySelector('.solution-label-input')?.value.trim() || `Solução ${i + 1}`;
+        const text     = item.querySelector('.rich-editor')?.innerHTML.trim();
+        const status   = item.querySelector('.solution-status-select')?.value || 'confirmed';
+        const copyText = item.querySelector('.copy-text-editor')?.value.trim() || '';
+        if (text && text !== '<br>') solutions.push({ label, text, status, copyText });
     });
     return solutions;
 }
@@ -232,6 +235,10 @@ function addSolutionEditor(container, solution = null) {
         </div>
         <div class="rich-editor solution-rich-editor" contenteditable="true"
              data-placeholder="Digite a solução... Cole imagens aqui">${solution ? sanitizeHtml(solution.text) : ''}</div>
+        <label class="field-label" style="margin-top:8px;">
+            Texto para copiar <span class="sub">(deixe vazio para copiar o texto completo)</span>
+        </label>
+        <textarea class="copy-text-editor" placeholder="Cole aqui o trecho exato que será copiado ao clicar na solução...">${solution?.copyText ? escapeHtml(solution.copyText) : ''}</textarea>
     `;
     setupRichEditor(item.querySelector('.rich-editor'));
     item.querySelector('.btn-remove-solution').onclick = () => {
@@ -358,7 +365,18 @@ function renderProblems(problems) {
                         <i class="fa-solid fa-chevron-down accordion-icon"></i>
                     </button>
                     <div class="accordion-body">
-                        <div class="solution-text" data-solution-index="${i}">${sanitizeHtml(s.text)}</div>
+                        <div class="solution-text">${sanitizeHtml(s.text)}</div>
+                        ${s.copyText ? `
+                        <div class="solution-copy-field" data-copy-index="${i}">
+                            <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
+                            <span class="solution-copy-field-text">${escapeHtml(s.copyText)}</span>
+                            <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i> Clique para copiar</span>
+                        </div>` : `
+                        <div class="solution-copy-field" data-copy-index="${i}">
+                            <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
+                            <span class="solution-copy-field-text" style="color:var(--muted);font-style:italic;">Clique para copiar o texto completo</span>
+                            <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i></span>
+                        </div>`}
                     </div>
                 </div>
             `;
@@ -391,11 +409,12 @@ function renderProblems(problems) {
             };
         });
 
-        card.querySelectorAll('.solution-text').forEach((elSol, i) => {
-            elSol.onclick = async () => {
-                const textOnly = solutions[i]?.text.replace(/<[^>]*>/g, '').trim();
-                if (textOnly) {
-                    try { await navigator.clipboard.writeText(textOnly); showToast("Solução copiada!"); }
+        card.querySelectorAll('.solution-copy-field').forEach((field, i) => {
+            field.onclick = async () => {
+                const s = solutions[i];
+                const textToCopy = s?.copyText || s?.text.replace(/<[^>]*>/g, '').trim() || '';
+                if (textToCopy) {
+                    try { await navigator.clipboard.writeText(textToCopy); showToast("Copiado!"); }
                     catch (err) { console.error(err); }
                 }
             };
@@ -500,6 +519,8 @@ function clearProblemForm() {
     el('tagPillsCreate').innerHTML = '';
     el('problemSolution').innerHTML = '';
     el('problemSolution').classList.remove('hidden');
+    el('problemCopyText').value = '';
+    el('problemCopyText').classList.remove('hidden');
     el('problemSolutionStatus').value = 'confirmed';
     el('problemSolutionLabel').value = 'Solução 1';
     el('problemSolutionHeader').classList.remove('hidden');
