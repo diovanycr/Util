@@ -100,12 +100,15 @@ function setupGlobalSearch() {
 function applyGlobalSearch(query) {
     console.log('🔎 Aplicando busca global:', query);
     
+    let msgVisible = 0, problemVisible = 0, linkVisible = 0;
+    
     // Filtra mensagens
     const msgRows = document.querySelectorAll('#msgList .user-row');
-    console.log(`📝 ${msgRows.length} mensagens encontradas`);
     msgRows.forEach(row => {
         const text = row.textContent.toLowerCase();
-        row.style.display = !query || text.includes(query) ? '' : 'none';
+        const visible = !query || text.includes(query);
+        row.style.display = visible ? '' : 'none';
+        if (visible) msgVisible++;
     });
     
     // Oculta grupos de mensagens vazios
@@ -116,18 +119,20 @@ function applyGlobalSearch(query) {
 
     // Filtra problemas
     const problemCards = document.querySelectorAll('#problemList .problem-card');
-    console.log(`🔧 ${problemCards.length} problemas encontrados`);
     problemCards.forEach(card => {
         const text = card.textContent.toLowerCase();
-        card.style.display = !query || text.includes(query) ? '' : 'none';
+        const visible = !query || text.includes(query);
+        card.style.display = visible ? '' : 'none';
+        if (visible) problemVisible++;
     });
 
     // Filtra links
     const linkCards = document.querySelectorAll('#linkList .link-card');
-    console.log(`🔗 ${linkCards.length} links encontrados`);
     linkCards.forEach(card => {
         const text = card.textContent.toLowerCase();
-        card.style.display = !query || text.includes(query) ? '' : 'none';
+        const visible = !query || text.includes(query);
+        card.style.display = visible ? '' : 'none';
+        if (visible) linkVisible++;
     });
     
     // Oculta grupos de links vazios
@@ -135,6 +140,19 @@ function applyGlobalSearch(query) {
         const hasVisible = [...group.querySelectorAll('.link-card')].some(c => c.style.display !== 'none');
         group.style.display = hasVisible ? '' : 'none';
     });
+    
+    // Atualiza badges com contador de resultados
+    if (query) {
+        updateBadge('msgCount', msgVisible);
+        updateBadge('problemCount', problemVisible);
+        updateBadge('linkCount', linkVisible);
+        console.log(`📊 Resultados: ${msgVisible} msgs, ${problemVisible} problemas, ${linkVisible} links`);
+    } else {
+        // Restaura contadores originais
+        updateBadge('msgCount', counts.msg);
+        updateBadge('problemCount', counts.problem);
+        updateBadge('linkCount', counts.link);
+    }
 }
 
 function copyFirstResult() {
