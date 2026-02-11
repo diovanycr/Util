@@ -12,7 +12,6 @@ import {
 import { openConfirmModal, showModal } from './modal.js';
 import { showToast } from './toast.js';
 import { escapeHtml, escapeAttr } from './utils.js';
-import { updateTabCounts } from './enhancements.js';
 
 let currentUserId = null;
 let dragSrc = null;
@@ -145,9 +144,8 @@ export async function loadMessages(userId) {
         renderMessages();
         
         // Atualiza contador na aba
-        if (typeof updateTabCounts === 'function') {
-            updateTabCounts(allMessages.length);
-        }
+        const event = new CustomEvent('updateMsgCount', { detail: allMessages.length });
+        document.dispatchEvent(event);
     } catch (err) {
         console.error("Erro ao carregar mensagens:", err);
     }
