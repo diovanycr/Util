@@ -69,6 +69,11 @@ function setupProblemInterface() {
     };
 
     setupRichEditor(el('problemSolution'));
+
+    // Botão adicionar texto para copiar no modo simples
+    el('btnAddSimpleCopyText').onclick = () => {
+        addCopyTextField(el('simpleCopyTextsList'));
+    };
     setupTagInput(el('problemTagInput'), el('tagPillsCreate'));
 
     el('btnAddSolution').onclick = () => {
@@ -79,7 +84,7 @@ function setupProblemInterface() {
             const existingContent = simpleEditor.innerHTML.trim();
             simpleEditor.classList.add('hidden');
             el('problemSolutionHeader').classList.add('hidden');
-            el('problemCopyText').classList.add('hidden');
+            el('simpleCopyTextsSection').classList.add('hidden');
             multiList.classList.remove('hidden');
             renderSolutionEditors(multiList, existingContent
                 ? [{ label: 'Solução 1', text: existingContent, status: 'confirmed' }]
@@ -100,11 +105,12 @@ function setupProblemInterface() {
         if (isMulti) {
             solutions = collectSolutions(el('solutionEditorsList'));
         } else {
-            const text     = el('problemSolution').innerHTML.trim();
-            const status   = el('problemSolutionStatus').value || 'confirmed';
-            const label    = el('problemSolutionLabel').value.trim() || 'Solução 1';
-            const copyText = el('problemCopyText')?.value.trim() || '';
-            solutions  = (text && text !== '<br>') ? [{ label, text, status, copyText }] : [];
+            const text      = el('problemSolution').innerHTML.trim();
+            const status    = el('problemSolutionStatus').value || 'confirmed';
+            const label     = el('problemSolutionLabel').value.trim() || 'Solução 1';
+            const copyTexts = [...el('simpleCopyTextsList').querySelectorAll('.copy-text-editor')]
+                                .map(t => t.value.trim()).filter(Boolean);
+            solutions  = (text && text !== '<br>') ? [{ label, text, status, copyTexts }] : [];
         }
 
         if (!title) return showModal("O título do problema é obrigatório.");
@@ -200,13 +206,27 @@ function collectSolutions(container) {
     const items = container.querySelectorAll('.solution-editor-item');
     const solutions = [];
     items.forEach((item, i) => {
-        const label    = item.querySelector('.solution-label-input')?.value.trim() || `Solução ${i + 1}`;
-        const text     = item.querySelector('.rich-editor')?.innerHTML.trim();
-        const status   = item.querySelector('.solution-status-select')?.value || 'confirmed';
-        const copyText = item.querySelector('.copy-text-editor')?.value.trim() || '';
-        if (text && text !== '<br>') solutions.push({ label, text, status, copyText });
+        const label      = item.querySelector('.solution-label-input')?.value.trim() || `Solução ${i + 1}`;
+        const text       = item.querySelector('.rich-editor')?.innerHTML.trim();
+        const status     = item.querySelector('.solution-status-select')?.value || 'confirmed';
+        const copyTexts  = [...item.querySelectorAll('.copy-text-editor')]
+                            .map(t => t.value.trim()).filter(Boolean);
+        if (text && text !== '<br>') solutions.push({ label, text, status, copyTexts });
     });
     return solutions;
+}
+
+function addCopyTextField(container, value = '') {
+    const row = document.createElement('div');
+    row.className = 'copy-text-row';
+    row.innerHTML = `
+        <textarea class="copy-text-editor" placeholder="Texto que será copiado ao clicar...">${escapeHtml(value)}</textarea>
+        <button class="btn ghost btn-remove-copy-text" title="Remover">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    `;
+    row.querySelector('.btn-remove-copy-text').onclick = () => row.remove();
+    container.appendChild(row);
 }
 
 function renderSolutionEditors(container, solutions = []) {
@@ -235,12 +255,26 @@ function addSolutionEditor(container, solution = null) {
         </div>
         <div class="rich-editor solution-rich-editor" contenteditable="true"
              data-placeholder="Digite a solução... Cole imagens aqui">${solution ? sanitizeHtml(solution.text) : ''}</div>
-        <label class="field-label" style="margin-top:8px;">
-            Texto para copiar <span class="sub">(deixe vazio para copiar o texto completo)</span>
-        </label>
-        <textarea class="copy-text-editor" placeholder="Cole aqui o trecho exato que será copiado ao clicar na solução...">${solution?.copyText ? escapeHtml(solution.copyText) : ''}</textarea>
+        <div class="copy-texts-section">
+            <label class="field-label" style="margin-top:8px;">
+                Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
+            </label>
+            <div class="copy-texts-list"></div>
+            <button class="btn ghost btn-add-copy-text" style="align-self:flex-start;margin-top:6px;">
+                <i class="fa-solid fa-plus"></i> Adicionar texto para copiar
+            </button>
+        </div>
     `;
     setupRichEditor(item.querySelector('.rich-editor'));
+
+    // Popula copyTexts existentes ou adiciona campo vazio
+    const copyList = item.querySelector('.copy-texts-list');
+    const existingCopyTexts = solution?.copyTexts || (solution?.copyText ? [solution.copyText] : []);
+    if (existingCopyTexts.length > 0) {
+        existingCopyTexts.forEach(ct => addCopyTextField(copyList, ct));
+    }
+    item.querySelector('.btn-add-copy-text').onclick = () => addCopyTextField(copyList);
+
     item.querySelector('.btn-remove-solution').onclick = () => {
         if (container.querySelectorAll('.solution-editor-item').length === 1)
             return showModal("O problema deve ter pelo menos uma solução.");
@@ -366,17 +400,25 @@ function renderProblems(problems) {
                     </button>
                     <div class="accordion-body">
                         <div class="solution-text">${sanitizeHtml(s.text)}</div>
-                        ${s.copyText ? `
-                        <div class="solution-copy-field" data-copy-index="${i}">
-                            <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
-                            <span class="solution-copy-field-text">${escapeHtml(s.copyText)}</span>
-                            <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i> Clique para copiar</span>
-                        </div>` : `
-                        <div class="solution-copy-field" data-copy-index="${i}">
-                            <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
-                            <span class="solution-copy-field-text" style="color:var(--muted);font-style:italic;">Clique para copiar o texto completo</span>
-                            <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i></span>
-                        </div>`}
+                        <div class="solution-copy-fields">
+                        ${(() => {
+                            const cts = s.copyTexts?.length ? s.copyTexts
+                                      : s.copyText          ? [s.copyText]
+                                      : [];
+                            if (cts.length === 0) return `
+                                <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="0">
+                                    <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
+                                    <span class="solution-copy-field-text" style="color:var(--muted);font-style:italic;">Clique para copiar o texto completo</span>
+                                    <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i></span>
+                                </div>`;
+                            return cts.map((ct, ci) => `
+                                <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="${ci}">
+                                    <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
+                                    <span class="solution-copy-field-text">${escapeHtml(ct)}</span>
+                                    <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i> Copiar</span>
+                                </div>`).join('');
+                        })()}
+                        </div>
                     </div>
                 </div>
             `;
@@ -409,10 +451,15 @@ function renderProblems(problems) {
             };
         });
 
-        card.querySelectorAll('.solution-copy-field').forEach((field, i) => {
+        card.querySelectorAll('.solution-copy-field').forEach((field) => {
             field.onclick = async () => {
-                const s = solutions[i];
-                const textToCopy = s?.copyText || s?.text.replace(/<[^>]*>/g, '').trim() || '';
+                const si  = parseInt(field.dataset.solIndex ?? 0);
+                const ci  = parseInt(field.dataset.ctIndex  ?? 0);
+                const s   = solutions[si];
+                const cts = s?.copyTexts?.length ? s.copyTexts
+                          : s?.copyText          ? [s.copyText]
+                          : [];
+                const textToCopy = cts[ci] ?? s?.text.replace(/<[^>]*>/g, '').trim() ?? '';
                 if (textToCopy) {
                     try { await navigator.clipboard.writeText(textToCopy); showToast("Copiado!"); }
                     catch (err) { console.error(err); }
@@ -519,8 +566,8 @@ function clearProblemForm() {
     el('tagPillsCreate').innerHTML = '';
     el('problemSolution').innerHTML = '';
     el('problemSolution').classList.remove('hidden');
-    el('problemCopyText').value = '';
-    el('problemCopyText').classList.remove('hidden');
+    el('simpleCopyTextsList').innerHTML = '';
+    el('simpleCopyTextsSection').classList.remove('hidden');
     el('problemSolutionStatus').value = 'confirmed';
     el('problemSolutionLabel').value = 'Solução 1';
     el('problemSolutionHeader').classList.remove('hidden');
