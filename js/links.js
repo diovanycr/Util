@@ -9,7 +9,9 @@ import {
     getDocs,
     addDoc,
     deleteDoc,
-    doc
+    doc,
+    writeBatch,
+    updateDoc
 } from './firebase.js';
 
 import { showModal } from './modal.js';
@@ -19,6 +21,7 @@ import { escapeHtml, escapeAttr } from './utils.js';
 let currentUserId = null;
 let allLinks = [];
 let uiInitialized = false;
+let dragSrcLink = null;
 
 export function initLinks(uid) {
     currentUserId = uid;
@@ -109,7 +112,7 @@ async function loadLinks(userId) {
 
         allLinks = snap.docs
             .map(d => ({ id: d.id, ...d.data() }))
-            .sort((a, b) => (a.category || '').localeCompare(b.category || '') || (a.createdAt || 0) - (b.createdAt || 0));
+            .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999) || (a.createdAt || 0) - (b.createdAt || 0));
 
         if (allLinks.length === 0) {
             list.innerHTML = '<p class="sub center">Nenhum link cadastrado.</p>';
@@ -169,11 +172,58 @@ function renderLinks(container, links) {
                 }
             };
 
+            // Drag-and-drop
+            card.draggable = true;
+            card.dataset.id = item.id;
+            card.ondragstart = (e) => {
+                dragSrcLink = card;
+                card.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+            };
+            card.ondragend = () => {
+                card.classList.remove('dragging');
+                saveLinkOrder(currentUserId);
+            };
+            card.ondragover = (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                const rect = card.getBoundingClientRect();
+                const after = e.clientY > rect.top + rect.height / 2;
+                const list = el('linkList');
+                // Insere no container flat (linkList) ignorando grupos
+                const allCards = [...list.querySelectorAll('.link-card')];
+                const targetIdx = allCards.indexOf(card);
+                const srcIdx = allCards.indexOf(dragSrcLink);
+                if (srcIdx !== targetIdx) {
+                    list.insertBefore(dragSrcLink, after ? card.nextSibling : card);
+                }
+            };
+
             group.appendChild(card);
         });
 
         container.appendChild(group);
     });
+}
+
+async function saveLinkOrder(userId) {
+    const list = el('linkList');
+    if (!list) return;
+    const cards = [...list.querySelectorAll('.link-card')];
+    try {
+        const batch = writeBatch(db);
+        cards.forEach((card, i) => {
+            const id = card.dataset.id;
+            if (id) batch.update(doc(db, 'users', userId, 'links', id), { order: i + 1 });
+        });
+        await batch.commit();
+        // Atualiza allLinks com nova ordem para manter consistência
+        const newOrder = {};
+        cards.forEach((card, i) => { if (card.dataset.id) newOrder[card.dataset.id] = i + 1; });
+        allLinks.forEach(l => { if (newOrder[l.id] !== undefined) l.order = newOrder[l.id]; });
+    } catch (err) {
+        console.error("Erro ao salvar ordem dos links:", err);
+    }
 }
 
 function filterLinks(query) {
