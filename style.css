@@ -1607,3 +1607,87 @@ kbd {
 
 /* Modo escuro */
 [data-theme="dark"] .msg-group-label { color: var(--muted); }
+
+/* ============================================
+   MELHORIAS — BUSCA GLOBAL, BADGES, FAVORITOS
+   ============================================ */
+
+/* Barra de busca global no header */
+.global-search-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  gap: 6px;
+  max-width: 280px;
+  transition: border-color 0.15s;
+}
+
+.global-search-box:focus-within {
+  border-color: var(--primary);
+}
+
+.global-search-box i {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.global-search-box input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+}
+
+.btn-clear-search {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  transition: color 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+.btn-clear-search:hover { color: var(--danger); }
+
+/* Badges de contador nas tabs */
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--muted);
+  color: #fff;
+  border-radius: 10px;
+  margin-left: 6px;
+}
+
+.tab.active .tab-badge {
+  background: var(--primary);
+}
+
+/* Modo escuro */
+[data-theme="dark"] .global-search-box {
+  background: #1e293b;
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .global-search-box input {
+  color: var(--text);
+}
