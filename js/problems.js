@@ -151,6 +151,7 @@ function setupTagInput(input, pillsContainer) {
 }
 
 function addTagPill(text, container) {
+    if (!container) return;
     const tag = text.trim().replace(/,/g, '').toLowerCase();
     if (!tag) return;
     // Evita duplicata
@@ -166,7 +167,10 @@ function addTagPill(text, container) {
 }
 
 function getTagsFromPills(container) {
-    return [...container.querySelectorAll('.tag-pill')].map(p => p.dataset.tag);
+    if (!container) return [];
+    // Busca pills no próprio container e também no wrapper pai (por causa do display:contents)
+    const el = container.closest('.tag-input-wrapper') || container;
+    return [...el.querySelectorAll('.tag-pill')].map(p => p.dataset.tag).filter(Boolean);
 }
 
 function renderTagPills(container, tags = [], removable = true) {
