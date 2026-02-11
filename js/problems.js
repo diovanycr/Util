@@ -18,6 +18,13 @@ let allProblems = [];
 let uiInitialized = false;
 let dragSrcProblem = null;
 
+// Status possíveis para soluções
+const STATUS_LABELS = {
+    confirmed: { label: 'Confirmada', icon: 'fa-circle-check', cls: 'status-confirmed' },
+    testing:   { label: 'Em teste',   icon: 'fa-flask',        cls: 'status-testing'   },
+    obsolete:  { label: 'Obsoleta',   icon: 'fa-circle-xmark', cls: 'status-obsolete'  }
+};
+
 export function initProblems(uid) {
     currentUserId = uid;
     if (!uiInitialized) {
@@ -45,21 +52,17 @@ function setupProblemInterface() {
         el('newProblemBox').classList.add('hidden');
     };
 
-    // Inicializa o editor único simples
     setupRichEditor(el('problemSolution'));
 
-    // Botão "+ Adicionar solução": converte para modo múltiplo
     el('btnAddSolution').onclick = () => {
         const simpleEditor = el('problemSolution');
         const multiList = el('solutionEditorsList');
         const isMulti = !multiList.classList.contains('hidden');
-
         if (!isMulti) {
-            // Migra conteúdo do editor simples para o primeiro item do multi
             const existingContent = simpleEditor.innerHTML.trim();
             simpleEditor.classList.add('hidden');
             multiList.classList.remove('hidden');
-            renderSolutionEditors(multiList, existingContent ? [{ label: 'Solução 1', text: existingContent }] : []);
+            renderSolutionEditors(multiList, existingContent ? [{ label: 'Solução 1', text: existingContent, status: 'confirmed' }] : []);
             addSolutionEditor(multiList);
         } else {
             addSolutionEditor(multiList);
@@ -67,16 +70,17 @@ function setupProblemInterface() {
     };
 
     el('btnAddProblem').onclick = async () => {
-        const title = el('problemTitle').value.trim();
+        const title       = el('problemTitle').value.trim();
         const description = el('problemDesc').value.trim();
-        const isMulti = !el('solutionEditorsList').classList.contains('hidden');
+        const category    = el('problemCategory').value.trim();
+        const isMulti     = !el('solutionEditorsList').classList.contains('hidden');
 
         let solutions;
         if (isMulti) {
             solutions = collectSolutions(el('solutionEditorsList'));
         } else {
             const text = el('problemSolution').innerHTML.trim();
-            solutions = (text && text !== '<br>') ? [{ label: 'Solução 1', text }] : [];
+            solutions = (text && text !== '<br>') ? [{ label: 'Solução 1', text, status: 'confirmed' }] : [];
         }
 
         if (!title) return showModal("O título do problema é obrigatório.");
@@ -84,9 +88,8 @@ function setupProblemInterface() {
 
         try {
             await addDoc(collection(db, 'users', currentUserId, 'problems'), {
-                title,
-                description,
-                solutions,
+                title, description, solutions,
+                category: category || 'Geral',
                 createdAt: Date.now()
             });
             clearProblemForm();
@@ -99,82 +102,74 @@ function setupProblemInterface() {
         }
     };
 
-    el('problemSearch').oninput = () => {
-        filterProblems(el('problemSearch').value.trim().toLowerCase());
-    };
+    el('problemSearch').oninput = () => applyFilters();
+
+    // Filtro de categoria
+    el('problemCategoryFilter').onchange = () => applyFilters();
+
+    // Exportar
+    el('btnExportProblems').onclick = () => exportProblems();
 }
 
-// --- GERENCIAMENTO DE EDITORES DE SOLUÇÃO ---
+// --- EDITORES DE SOLUÇÃO ---
 
-/**
- * Retorna as soluções preenchidas como array de objetos {label, text}
- */
 function collectSolutions(container) {
     const items = container.querySelectorAll('.solution-editor-item');
     const solutions = [];
     items.forEach((item, i) => {
-        const label = item.querySelector('.solution-label-input')?.value.trim() || `Solução ${i + 1}`;
-        const text = item.querySelector('.rich-editor')?.innerHTML.trim();
-        if (text && text !== '<br>') {
-            solutions.push({ label, text });
-        }
+        const label  = item.querySelector('.solution-label-input')?.value.trim() || `Solução ${i + 1}`;
+        const text   = item.querySelector('.rich-editor')?.innerHTML.trim();
+        const status = item.querySelector('.solution-status-select')?.value || 'confirmed';
+        if (text && text !== '<br>') solutions.push({ label, text, status });
     });
     return solutions;
 }
 
-/**
- * Renderiza o container inicial com um editor de solução
- */
 function renderSolutionEditors(container, solutions = []) {
     container.innerHTML = '';
-    if (solutions.length === 0) {
-        addSolutionEditor(container);
-    } else {
-        solutions.forEach(s => addSolutionEditor(container, s));
-    }
+    if (solutions.length === 0) addSolutionEditor(container);
+    else solutions.forEach(s => addSolutionEditor(container, s));
 }
 
-/**
- * Adiciona um novo editor de solução ao container
- */
 function addSolutionEditor(container, solution = null) {
     const index = container.querySelectorAll('.solution-editor-item').length + 1;
     const item = document.createElement('div');
     item.className = 'solution-editor-item';
     item.innerHTML = `
         <div class="solution-editor-header">
-            <input class="solution-label-input" type="text" placeholder="Título da solução (ex: Solução ${index})" value="${solution ? escapeAttr(solution.label) : ''}" />
+            <input class="solution-label-input" type="text"
+                   placeholder="Título da solução (ex: Solução ${index})"
+                   value="${solution ? escapeAttr(solution.label) : ''}" />
+            <select class="solution-status-select">
+                <option value="confirmed" ${(!solution || solution.status === 'confirmed') ? 'selected' : ''}>✅ Confirmada</option>
+                <option value="testing"   ${solution?.status === 'testing'  ? 'selected' : ''}>🧪 Em teste</option>
+                <option value="obsolete"  ${solution?.status === 'obsolete' ? 'selected' : ''}>❌ Obsoleta</option>
+            </select>
             <button class="btn ghost btn-remove-solution" title="Remover solução">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="rich-editor solution-rich-editor" contenteditable="true" data-placeholder="Digite a solução... Cole imagens aqui">${solution ? sanitizeHtml(solution.text) : ''}</div>
+        <div class="rich-editor solution-rich-editor" contenteditable="true"
+             data-placeholder="Digite a solução... Cole imagens aqui">${solution ? sanitizeHtml(solution.text) : ''}</div>
     `;
-
     setupRichEditor(item.querySelector('.rich-editor'));
-
     item.querySelector('.btn-remove-solution').onclick = () => {
-        const items = container.querySelectorAll('.solution-editor-item');
-        if (items.length === 1) return showModal("O problema deve ter pelo menos uma solução.");
+        if (container.querySelectorAll('.solution-editor-item').length === 1)
+            return showModal("O problema deve ter pelo menos uma solução.");
         item.remove();
     };
-
     container.appendChild(item);
 }
 
-// --- COMPATIBILIDADE COM DADOS ANTIGOS ---
+// --- COMPATIBILIDADE ---
 
-/**
- * Normaliza um item do Firestore para sempre ter o campo `solutions` como array.
- * Dados antigos tinham `solution: string` — converte automaticamente.
- */
 function normalizeSolutions(item) {
     if (item.solutions && Array.isArray(item.solutions)) return item.solutions;
-    if (item.solution) return [{ label: 'Solução 1', text: item.solution }];
+    if (item.solution) return [{ label: 'Solução 1', text: item.solution, status: 'confirmed' }];
     return [];
 }
 
-// --- CARREGAMENTO E RENDERIZAÇÃO ---
+// --- CARREGAMENTO ---
 
 async function loadProblems(userId) {
     const list = el('problemList');
@@ -182,33 +177,93 @@ async function loadProblems(userId) {
 
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'problems'));
-        list.innerHTML = '';
 
         allProblems = snap.docs
             .map(d => ({ id: d.id, ...d.data() }))
-            .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999) || (b.createdAt || 0) - (a.createdAt || 0));
 
-        if (allProblems.length === 0) {
-            list.innerHTML = '<p class="sub center">Nenhum problema cadastrado.</p>';
-            return;
-        }
+        // Popula o select de filtro de categorias
+        populateCategoryFilter();
 
-        allProblems.forEach(item => {
+        applyFilters();
+    } catch (err) {
+        console.error("Erro ao carregar problemas:", err);
+    }
+}
+
+function populateCategoryFilter() {
+    const select = el('problemCategoryFilter');
+    if (!select) return;
+    const current = select.value;
+    const cats = ['Todas', ...new Set(allProblems.map(p => p.category || 'Geral').sort())];
+    select.innerHTML = cats.map(c => `<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('');
+    select.value = cats.includes(current) ? current : 'Todas';
+}
+
+function applyFilters() {
+    const query    = el('problemSearch')?.value.trim().toLowerCase() || '';
+    const category = el('problemCategoryFilter')?.value || 'Todas';
+
+    const filtered = allProblems.filter(item => {
+        const solutions = normalizeSolutions(item);
+        const solText   = solutions.map(s => s.text.replace(/<[^>]*>/g, '')).join(' ');
+        const matchText = !query || `${item.title} ${item.description || ''} ${solText}`.toLowerCase().includes(query);
+        const matchCat  = category === 'Todas' || (item.category || 'Geral') === category;
+        return matchText && matchCat;
+    });
+
+    renderProblems(filtered);
+}
+
+function renderProblems(problems) {
+    const list = el('problemList');
+    list.innerHTML = '';
+
+    if (problems.length === 0) {
+        list.innerHTML = '<p class="sub center">Nenhum problema encontrado.</p>';
+        return;
+    }
+
+    // Agrupar por categoria
+    const groups = {};
+    problems.forEach(item => {
+        const cat = item.category || 'Geral';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(item);
+    });
+
+    Object.entries(groups).forEach(([category, items]) => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'problem-group';
+        groupEl.innerHTML = `<div class="problem-group-label">${escapeHtml(category)}</div>`;
+
+        items.forEach(item => {
             const solutions = normalizeSolutions(item);
             const card = document.createElement('div');
             card.className = 'problem-card card';
+            card.draggable = true;
+            card.dataset.id = item.id;
 
-            const solutionsHtml = solutions.map((s, i) => `
-                <div class="accordion-item">
-                    <button class="accordion-trigger" data-index="${i}">
-                        <span><i class="fa-solid fa-lightbulb"></i> ${escapeHtml(s.label || `Solução ${i + 1}`)}</span>
-                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
-                    </button>
-                    <div class="accordion-body">
-                        <div class="solution-text" data-solution-index="${i}">${sanitizeHtml(s.text)}</div>
+            const solutionsHtml = solutions.map((s, i) => {
+                const st = STATUS_LABELS[s.status] || STATUS_LABELS.confirmed;
+                return `
+                    <div class="accordion-item">
+                        <button class="accordion-trigger" data-index="${i}">
+                            <span>
+                                <i class="fa-solid fa-lightbulb"></i>
+                                ${escapeHtml(s.label || `Solução ${i + 1}`)}
+                                <span class="solution-status-badge ${st.cls}">
+                                    <i class="fa-solid ${st.icon}"></i> ${st.label}
+                                </span>
+                            </span>
+                            <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        </button>
+                        <div class="accordion-body">
+                            <div class="solution-text" data-solution-index="${i}">${sanitizeHtml(s.text)}</div>
+                        </div>
                     </div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
 
             card.innerHTML = `
                 <div class="problem-header">
@@ -222,7 +277,6 @@ async function loadProblems(userId) {
                 <div class="accordion">${solutionsHtml}</div>
             `;
 
-            // Acordeão
             card.querySelectorAll('.accordion-trigger').forEach(trigger => {
                 trigger.onclick = () => {
                     const body = trigger.nextElementSibling;
@@ -233,53 +287,43 @@ async function loadProblems(userId) {
                 };
             });
 
-            // Copiar solução ao clicar no texto
-            card.querySelectorAll('.solution-text').forEach((el, i) => {
-                el.onclick = async () => {
+            card.querySelectorAll('.solution-text').forEach((elSol, i) => {
+                elSol.onclick = async () => {
                     const textOnly = solutions[i]?.text.replace(/<[^>]*>/g, '').trim();
                     if (textOnly) {
                         try {
                             await navigator.clipboard.writeText(textOnly);
                             showToast("Solução copiada!");
-                        } catch (err) {
-                            console.error("Erro ao copiar:", err);
-                        }
+                        } catch (err) { console.error(err); }
                     }
                 };
             });
 
-            card.querySelector('.btn-edit-problem').onclick = () => enterEditMode(card, item, userId, solutions);
+            card.querySelector('.btn-edit-problem').onclick = () => enterEditMode(card, item, currentUserId, solutions);
             card.querySelector('.btn-del-problem').onclick = async () => {
                 try {
-                    await deleteDoc(doc(db, 'users', userId, 'problems', item.id));
+                    await deleteDoc(doc(db, 'users', currentUserId, 'problems', item.id));
                     showToast("Problema excluído!");
-                    loadProblems(userId);
+                    loadProblems(currentUserId);
                 } catch (err) {
-                    console.error("Erro ao excluir problema:", err);
                     showModal("Erro ao excluir o problema.");
                 }
             };
 
-            // Drag-and-drop para reordenar problemas
-            card.draggable = true;
-            card.dataset.id = item.id;
             card.ondragstart = () => { dragSrcProblem = card; card.classList.add('dragging'); };
-            card.ondragend  = () => { card.classList.remove('dragging'); saveProblemOrder(userId); };
-            card.ondragover = (e) => {
+            card.ondragend   = () => { card.classList.remove('dragging'); saveProblemOrder(currentUserId); };
+            card.ondragover  = (e) => {
                 e.preventDefault();
-                const rect = card.getBoundingClientRect();
+                const rect  = card.getBoundingClientRect();
                 const after = e.clientY > rect.top + rect.height / 2;
                 list.insertBefore(dragSrcProblem, after ? card.nextSibling : card);
             };
 
-            list.appendChild(card);
+            groupEl.appendChild(card);
         });
 
-        const searchQuery = el('problemSearch')?.value.trim().toLowerCase();
-        if (searchQuery) filterProblems(searchQuery);
-    } catch (err) {
-        console.error("Erro ao carregar problemas:", err);
-    }
+        list.appendChild(groupEl);
+    });
 }
 
 // --- MODO DE EDIÇÃO ---
@@ -288,6 +332,7 @@ function enterEditMode(card, item, userId, solutions) {
     card.innerHTML = `
         <input class="edit-title" type="text" value="${escapeAttr(item.title)}" placeholder="Título do problema..." />
         <textarea class="edit-desc" rows="3" placeholder="Descreva o problema...">${escapeHtml(item.description || '')}</textarea>
+        <input class="edit-category" type="text" value="${escapeAttr(item.category || 'Geral')}" placeholder="Categoria..." />
         <div class="solution-editors-list edit-solutions-list"></div>
         <button class="btn ghost btn-add-solution-edit mt-10">
             <i class="fa-solid fa-plus"></i> Adicionar solução
@@ -300,16 +345,13 @@ function enterEditMode(card, item, userId, solutions) {
 
     const editContainer = card.querySelector('.edit-solutions-list');
     renderSolutionEditors(editContainer, solutions);
-
-    card.querySelector('.btn-add-solution-edit').onclick = () => {
-        addSolutionEditor(editContainer);
-    };
-
+    card.querySelector('.btn-add-solution-edit').onclick = () => addSolutionEditor(editContainer);
     card.querySelector('.edit-title').focus();
 
     card.querySelector('.btn-save-edit').onclick = async () => {
-        const title = card.querySelector('.edit-title').value.trim();
+        const title       = card.querySelector('.edit-title').value.trim();
         const description = card.querySelector('.edit-desc').value.trim();
+        const category    = card.querySelector('.edit-category').value.trim() || 'Geral';
         const newSolutions = collectSolutions(editContainer);
 
         if (!title) return showModal("O título do problema é obrigatório.");
@@ -317,14 +359,11 @@ function enterEditMode(card, item, userId, solutions) {
 
         try {
             await updateDoc(doc(db, 'users', userId, 'problems', item.id), {
-                title, description, solutions: newSolutions,
-                // Remove campo legado se existia
-                solution: null
+                title, description, category, solutions: newSolutions, solution: null
             });
             showToast("Problema atualizado!");
             loadProblems(userId);
         } catch (err) {
-            console.error("Erro ao atualizar problema:", err);
             showModal("Erro ao atualizar o problema.");
         }
     };
@@ -332,35 +371,31 @@ function enterEditMode(card, item, userId, solutions) {
     card.querySelector('.btn-cancel-edit').onclick = () => loadProblems(userId);
 }
 
+// --- EXPORTAR ---
+
+export function exportProblems() {
+    if (allProblems.length === 0) return showModal("Nenhum problema para exportar.");
+    const data = allProblems.map(({ id, ...rest }) => rest);
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url;
+    a.download = `problemas_${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast("Problemas exportados!");
+}
+
 // --- UTILITÁRIOS ---
 
 function clearProblemForm() {
     el('problemTitle').value = '';
-    el('problemDesc').value = '';
-    // Reseta para modo simples
+    el('problemDesc').value  = '';
+    el('problemCategory').value = '';
     el('problemSolution').innerHTML = '';
     el('problemSolution').classList.remove('hidden');
     el('solutionEditorsList').classList.add('hidden');
     el('solutionEditorsList').innerHTML = '';
-}
-
-function filterProblems(query) {
-    const list = el('problemList');
-    const cards = list.querySelectorAll('.problem-card');
-
-    if (!query) {
-        cards.forEach(c => c.style.display = '');
-        return;
-    }
-
-    cards.forEach((card, i) => {
-        const item = allProblems[i];
-        if (!item) return;
-        const solutions = normalizeSolutions(item);
-        const solutionText = solutions.map(s => s.text.replace(/<[^>]*>/g, '')).join(' ');
-        const text = `${item.title} ${item.description || ''} ${solutionText}`.toLowerCase();
-        card.style.display = text.includes(query) ? '' : 'none';
-    });
 }
 
 function setupRichEditor(editor) {
@@ -403,7 +438,7 @@ async function saveProblemOrder(userId) {
         });
         await batch.commit();
     } catch (err) {
-        console.error("Erro ao salvar ordem dos problemas:", err);
+        console.error("Erro ao salvar ordem:", err);
     }
 }
 
@@ -415,8 +450,7 @@ function sanitizeHtml(html) {
         [...node.childNodes].forEach(child => {
             if (child.nodeType === Node.ELEMENT_NODE) {
                 if (!allowed.has(child.tagName)) {
-                    const text = document.createTextNode(child.textContent);
-                    node.replaceChild(text, child);
+                    node.replaceChild(document.createTextNode(child.textContent), child);
                 } else {
                     if (child.tagName === 'IMG') {
                         const src = child.getAttribute('src');
