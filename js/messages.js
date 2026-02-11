@@ -11,48 +11,56 @@ import {
 
 import { openConfirmModal, showModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml } from './utils.js';
+import { escapeHtml, escapeAttr } from './utils.js';
 
 let currentUserId = null;
 let dragSrc = null;
-
-// ✅ CORREÇÃO 1: Flag para evitar listeners duplicados ao relogar
 let uiInitialized = false;
+let allMessages = [];
+let activeCategoryFilter = null;
 
 export function initMessages(uid) {
     currentUserId = uid;
-
-    // Setup de eventos só na primeira inicialização da sessão
     if (!uiInitialized) {
         setupUserInterface();
         uiInitialized = true;
     }
-
     loadMessages(uid);
     updateTrashCount(uid);
 }
 
-// Chamada ao fazer logout para resetar o estado
 export function resetMessages() {
     uiInitialized = false;
     currentUserId = null;
+    activeCategoryFilter = null;
 }
 
 function setupUserInterface() {
-    // Nova Mensagem
-    el('btnNewMsg').onclick = () => { el('newMsgBox').classList.remove('hidden'); el('msgText').focus(); };
-    el('btnCancelMsg').onclick = () => { el('msgText').value = ''; el('newMsgBox').classList.add('hidden'); };
+    // Nova mensagem
+    el('btnNewMsg').onclick = () => {
+        el('newMsgBox').classList.remove('hidden');
+        el('msgTitle').focus();
+    };
+
+    el('btnCancelMsg').onclick = () => {
+        clearMsgForm();
+        el('newMsgBox').classList.add('hidden');
+    };
 
     el('btnAddMsg').onclick = async () => {
-        const text = el('msgText').value.trim();
+        const text     = el('msgText').value.trim();
+        const title    = el('msgTitle').value.trim();
+        const category = el('msgCategory').value.trim() || 'Geral';
         if (!text) return showModal("A mensagem não pode estar vazia.");
         try {
             const snap = await getDocs(collection(db, 'users', currentUserId, 'messages'));
             const maxOrder = snap.docs.reduce((m, d) => Math.max(m, d.data().order || 0), 0);
             await addDoc(collection(db, 'users', currentUserId, 'messages'), {
-                text, order: maxOrder + 1, deleted: false, createdAt: Date.now()
+                text, title, category,
+                order: maxOrder + 1, deleted: false, createdAt: Date.now()
             });
-            el('msgText').value = ''; el('newMsgBox').classList.add('hidden');
+            clearMsgForm();
+            el('newMsgBox').classList.add('hidden');
             loadMessages(currentUserId);
         } catch (e) {
             console.error("Erro ao adicionar mensagem:", e);
@@ -64,8 +72,7 @@ function setupUserInterface() {
     el('btnExport').onclick = () => exportToTxt(currentUserId);
     el('btnImport').onclick = () => {
         const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.txt';
+        input.type = 'file'; input.accept = '.txt';
         input.onchange = (e) => importFromTxt(e, currentUserId);
         input.click();
     };
@@ -77,68 +84,229 @@ function setupUserInterface() {
     };
     el('btnCancelTrash').onclick = () => el('trashBox').classList.add('hidden');
     el('btnEmptyTrash').onclick = () => openConfirmModal(
-        () => emptyTrash(currentUserId),
-        null,
+        () => emptyTrash(currentUserId), null,
         "Todas as mensagens da lixeira serão excluídas permanentemente."
     );
 }
 
-// --- LOGICA DE IMPORTAÇÃO COM VERIFICAÇÃO DE DUPLICATAS ---
+function clearMsgForm() {
+    el('msgText').value     = '';
+    el('msgTitle').value    = '';
+    el('msgCategory').value = '';
+}
+
+// --- FILTRO DE CATEGORIAS ---
+
+function updateCategoryFilterBar() {
+    const bar = el('msgCategoryFilterBar');
+    if (!bar) return;
+
+    const cats = [...new Set(allMessages.map(m => m.category || 'Geral'))].sort();
+    if (cats.length <= 1) { bar.classList.add('hidden'); return; }
+
+    bar.classList.remove('hidden');
+    bar.innerHTML = '<span class="tag-filter-label">Filtrar:</span>';
+
+    const allChip = document.createElement('button');
+    allChip.className = `tag-filter-chip ${!activeCategoryFilter ? 'active' : ''}`;
+    allChip.textContent = 'Todas';
+    allChip.onclick = () => { activeCategoryFilter = null; updateCategoryFilterBar(); renderMessages(); };
+    bar.appendChild(allChip);
+
+    cats.forEach(cat => {
+        const chip = document.createElement('button');
+        chip.className = `tag-filter-chip ${activeCategoryFilter === cat ? 'active' : ''}`;
+        chip.textContent = cat;
+        chip.onclick = () => {
+            activeCategoryFilter = activeCategoryFilter === cat ? null : cat;
+            updateCategoryFilterBar();
+            renderMessages();
+        };
+        bar.appendChild(chip);
+    });
+}
+
+// --- CARREGAMENTO E RENDERIZAÇÃO ---
+
+export async function loadMessages(userId) {
+    const list = el('msgList');
+    if (!list) return;
+    try {
+        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
+        const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        _updateTrashBadge(allDocs);
+
+        allMessages = allDocs
+            .filter(d => !d.deleted)
+            .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        updateCategoryFilterBar();
+        renderMessages();
+    } catch (err) {
+        console.error("Erro ao carregar mensagens:", err);
+    }
+}
+
+function renderMessages() {
+    const list = el('msgList');
+    list.innerHTML = '';
+
+    const filtered = activeCategoryFilter
+        ? allMessages.filter(m => (m.category || 'Geral') === activeCategoryFilter)
+        : allMessages;
+
+    if (filtered.length === 0) {
+        list.innerHTML = '<p class="sub center">Nenhuma mensagem encontrada.</p>';
+        return;
+    }
+
+    // Agrupar por categoria
+    const groups = {};
+    filtered.forEach(item => {
+        const cat = item.category || 'Geral';
+        if (!groups[cat]) groups[cat] = [];
+        groups[cat].push(item);
+    });
+
+    Object.entries(groups).forEach(([category, items]) => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'msg-group';
+        groupEl.innerHTML = `<div class="msg-group-label">${escapeHtml(category)}</div>`;
+
+        items.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'user-row';
+            row.draggable = true;
+            row.dataset.id = item.id;
+
+            const titleHtml = item.title
+                ? `<span class="msg-title">${escapeHtml(item.title)}</span>`
+                : '';
+
+            row.innerHTML = `
+                <span class="drag-handle">&#9776;</span>
+                <div class="msg-content" style="flex:1; cursor:pointer; min-width:0;">
+                    ${titleHtml}
+                    <div class="msg-text">${escapeHtml(item.text)}</div>
+                </div>
+                <button class="btn ghost btn-edit"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn ghost btn-del"><i class="fa-solid fa-trash"></i></button>
+            `;
+
+            // Copiar ao clicar
+            row.querySelector('.msg-content').onclick = async () => {
+                try {
+                    await navigator.clipboard.writeText(item.text);
+                    showToast("Copiado!");
+                } catch (err) { console.error(err); }
+            };
+
+            // Editar
+            row.querySelector('.btn-edit').onclick = () => enterEditMode(row, item, currentUserId);
+
+            // Deletar
+            row.querySelector('.btn-del').onclick = async () => {
+                try {
+                    await updateDoc(doc(db, 'users', currentUserId, 'messages', item.id), { deleted: true });
+                    loadMessages(currentUserId);
+                    updateTrashCount(currentUserId);
+                } catch (err) { showModal("Erro ao mover para a lixeira."); }
+            };
+
+            // Drag
+            row.ondragstart = () => { dragSrc = row; row.classList.add('dragging'); };
+            row.ondragend   = () => { row.classList.remove('dragging'); saveOrder(currentUserId); };
+            row.ondragover  = (e) => {
+                e.preventDefault();
+                const rect = row.getBoundingClientRect();
+                const after = e.clientY > rect.top + rect.height / 2;
+                row.parentNode.insertBefore(dragSrc, after ? row.nextSibling : row);
+            };
+
+            groupEl.appendChild(row);
+        });
+
+        list.appendChild(groupEl);
+    });
+}
+
+function enterEditMode(row, item, userId) {
+    const actionsHtml = `
+        <button class="btn ghost btn-cancel-edit"><i class="fa-solid fa-xmark"></i></button>
+        <button class="btn primary btn-save-edit"><i class="fa-solid fa-check"></i></button>
+    `;
+    row.innerHTML = `
+        <span class="drag-handle">&#9776;</span>
+        <div class="msg-edit-fields" style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
+            <input class="edit-msg-title"    type="text" value="${escapeAttr(item.title || '')}"    placeholder="Título (opcional)..." />
+            <input class="edit-msg-category" type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." />
+            <textarea class="edit-msg-text" rows="3">${escapeHtml(item.text)}</textarea>
+        </div>
+        ${actionsHtml}
+    `;
+
+    row.querySelector('.edit-msg-text').focus();
+
+    row.querySelector('.btn-cancel-edit').onclick = () => loadMessages(userId);
+
+    row.querySelector('.btn-save-edit').onclick = async () => {
+        const newText     = row.querySelector('.edit-msg-text').value.trim();
+        const newTitle    = row.querySelector('.edit-msg-title').value.trim();
+        const newCategory = row.querySelector('.edit-msg-category').value.trim() || 'Geral';
+        if (!newText) return showModal("A mensagem não pode estar vazia.");
+        try {
+            await updateDoc(doc(db, 'users', userId, 'messages', item.id), {
+                text: newText, title: newTitle, category: newCategory
+            });
+            showToast("Mensagem atualizada!");
+            loadMessages(userId);
+        } catch (err) { showModal("Erro ao atualizar a mensagem."); }
+    };
+}
+
+// --- IMPORTAR / EXPORTAR ---
 
 async function importFromTxt(event, userId) {
     const file = event.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
-            const content = e.target.result;
-            const newLines = content.split('\n').map(l => l.trim()).filter(l => l !== "");
+            const newLines = e.target.result.split('\n').map(l => l.trim()).filter(Boolean);
             if (newLines.length === 0) return showModal("O arquivo está vazio.");
 
             const snap = await getDocs(collection(db, 'users', userId, 'messages'));
             const existingItems = snap.docs.map(d => ({ id: d.id, text: d.data().text }));
-            
             const duplicates = newLines.filter(line => existingItems.some(ext => ext.text === line));
 
             const processImport = async (replaceDuplicates) => {
                 let added = 0;
                 for (const line of newLines) {
                     const existing = existingItems.find(ext => ext.text === line);
-                    
                     if (existing) {
                         if (replaceDuplicates) {
-                            await updateDoc(doc(db, 'users', userId, 'messages', existing.id), {
-                                deleted: false,
-                                updatedAt: Date.now()
-                            });
+                            await updateDoc(doc(db, 'users', userId, 'messages', existing.id), { deleted: false, updatedAt: Date.now() });
                             added++;
                         }
                     } else {
                         await addDoc(collection(db, 'users', userId, 'messages'), {
-                            text: line, order: 999, deleted: false, createdAt: Date.now()
+                            text: line, title: '', category: 'Geral',
+                            order: 999, deleted: false, createdAt: Date.now()
                         });
                         added++;
                     }
                 }
                 showToast(`${added} mensagens processadas!`);
-                loadMessages(userId);
-                updateTrashCount(userId);
+                loadMessages(userId); updateTrashCount(userId);
             };
 
             if (duplicates.length > 0) {
                 openConfirmModal(
-                    () => processImport(true),
-                    () => processImport(false),
-                    `Encontramos ${duplicates.length} mensagens repetidas. Deseja substituir as existentes? (Se cancelar, apenas as novas serão adicionadas)`
+                    () => processImport(true), () => processImport(false),
+                    `Encontramos ${duplicates.length} mensagens repetidas. Deseja substituir as existentes?`
                 );
-            } else {
-                processImport(false);
-            }
-        } catch (err) {
-            console.error("Erro na importação:", err);
-            showModal("Erro ao ler o arquivo .txt");
-        }
+            } else { processImport(false); }
+        } catch (err) { showModal("Erro ao ler o arquivo .txt"); }
     };
     reader.readAsText(file);
 }
@@ -150,122 +318,12 @@ async function exportToTxt(userId) {
         if (lines.length === 0) return showModal("Não há mensagens para exportar.");
         const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `backup_mensagens.txt`;
-        a.click();
+        a.href = URL.createObjectURL(blob); a.download = 'backup_mensagens.txt'; a.click();
         showToast("Exportado com sucesso!");
-    } catch (e) {
-        console.error("Erro ao exportar:", e);
-        showModal("Erro ao exportar.");
-    }
+    } catch (e) { showModal("Erro ao exportar."); }
 }
 
-// --- FUNÇÕES DE CARREGAMENTO E UI ---
-
-export async function loadMessages(userId) {
-    const list = el('msgList');
-    if (!list) return;
-    
-    try {
-        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-        list.innerHTML = '';
-
-        const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-        // ✅ CORREÇÃO 3: Atualiza o badge reutilizando o snap já carregado (evita getDocs extra)
-        _updateTrashBadge(allDocs);
-
-        const activeDocs = allDocs
-            .filter(d => !d.deleted)
-            .sort((a, b) => (a.order || 0) - (b.order || 0));
-
-        activeDocs.forEach(item => {
-            const row = document.createElement('div');
-            row.className = 'user-row';
-            row.draggable = true;
-            row.dataset.id = item.id;
-            row.innerHTML = `
-                <span class="drag-handle">&#9776;</span>
-                <div class="msg-text" style="flex:1; cursor:pointer">${escapeHtml(item.text)}</div>
-                <button class="btn ghost btn-edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn ghost btn-del"><i class="fa-solid fa-trash"></i></button>
-            `;
-
-            // ✅ CORREÇÃO 2: item.text escapado no innerHTML acima (XSS)
-
-            row.querySelector('.msg-text').onclick = async () => {
-                try {
-                    await navigator.clipboard.writeText(item.text);
-                    showToast("Copiado!");
-                } catch (err) {
-                    console.error("Erro ao copiar:", err);
-                }
-            };
-
-            row.querySelector('.btn-edit').onclick = () => {
-                const msgDiv = row.querySelector('.msg-text');
-                const oldText = item.text;
-                const textarea = document.createElement('textarea');
-                textarea.value = oldText;
-                textarea.rows = 3;
-                textarea.style.flex = '1';
-                msgDiv.replaceWith(textarea);
-                textarea.focus();
-
-                row.querySelector('.btn-edit').classList.add('hidden');
-                row.querySelector('.btn-del').classList.add('hidden');
-                const saveBtn = document.createElement('button');
-                saveBtn.className = 'btn primary btn-save';
-                saveBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-                const cancelBtn = document.createElement('button');
-                cancelBtn.className = 'btn ghost btn-cancel-edit';
-                cancelBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-                row.appendChild(cancelBtn);
-                row.appendChild(saveBtn);
-
-                saveBtn.onclick = async () => {
-                    const newText = textarea.value.trim();
-                    if (!newText) return showModal("A mensagem não pode estar vazia.");
-                    if (newText !== oldText) {
-                        try {
-                            await updateDoc(doc(db, 'users', userId, 'messages', item.id), { text: newText });
-                            showToast("Mensagem atualizada!");
-                        } catch (err) {
-                            console.error("Erro ao atualizar:", err);
-                            showModal("Erro ao atualizar a mensagem.");
-                        }
-                    }
-                    loadMessages(userId);
-                };
-                cancelBtn.onclick = () => loadMessages(userId);
-            };
-
-            row.querySelector('.btn-del').onclick = async () => {
-                try {
-                    await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: true });
-                    loadMessages(userId);
-                    updateTrashCount(userId);
-                } catch (err) {
-                    console.error("Erro ao deletar:", err);
-                    showModal("Erro ao mover para a lixeira.");
-                }
-            };
-            
-            // Drag events
-            row.ondragstart = () => { dragSrc = row; row.classList.add('dragging'); };
-            row.ondragend = () => { row.classList.remove('dragging'); saveOrder(userId); };
-            row.ondragover = (e) => {
-                e.preventDefault();
-                const rect = row.getBoundingClientRect();
-                const next = (e.clientY > rect.top + rect.height / 2);
-                list.insertBefore(dragSrc, next ? row.nextSibling : row);
-            };
-            list.appendChild(row);
-        });
-    } catch (err) {
-        console.error("Erro ao carregar mensagens:", err);
-    }
-}
+// --- LIXEIRA ---
 
 async function loadTrash(userId) {
     const list = el('trashList');
@@ -276,27 +334,24 @@ async function loadTrash(userId) {
         docs.forEach(item => {
             const row = document.createElement('div');
             row.className = 'user-row';
-            // ✅ CORREÇÃO 2: item.text escapado aqui também
-            row.innerHTML = `<div style="flex:1">${escapeHtml(item.text)}</div><button class="btn ghost btn-restore"><i class="fa-solid fa-undo"></i></button>`;
+            row.innerHTML = `
+                <div style="flex:1; min-width:0;">
+                    ${item.title ? `<span class="msg-title">${escapeHtml(item.title)}</span>` : ''}
+                    <div>${escapeHtml(item.text)}</div>
+                </div>
+                <button class="btn ghost btn-restore"><i class="fa-solid fa-undo"></i></button>
+            `;
             row.querySelector('.btn-restore').onclick = async () => {
                 try {
                     await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: false });
                     loadMessages(userId); loadTrash(userId); updateTrashCount(userId);
-                } catch (err) {
-                    console.error("Erro ao restaurar:", err);
-                    showModal("Erro ao restaurar a mensagem.");
-                }
+                } catch (err) { showModal("Erro ao restaurar a mensagem."); }
             };
             list.appendChild(row);
         });
-    } catch (err) {
-        console.error("Erro ao carregar lixeira:", err);
-    }
+    } catch (err) { console.error("Erro ao carregar lixeira:", err); }
 }
 
-/**
- * ✅ CORREÇÃO 3: Função interna que recebe dados já em memória — sem getDocs extra
- */
 function _updateTrashBadge(allDocs) {
     const badge = el('trashCount');
     if (!badge) return;
@@ -305,35 +360,24 @@ function _updateTrashBadge(allDocs) {
     badge.style.display = count > 0 ? 'inline-block' : 'none';
 }
 
-/**
- * Mantida para chamadas pontuais externas (ex: após restaurar item da lixeira isoladamente)
- */
 export async function updateTrashCount(userId) {
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
         _updateTrashBadge(snap.docs.map(d => d.data()));
-    } catch (err) {
-        console.error("Erro ao atualizar contagem da lixeira:", err);
-    }
+    } catch (err) { console.error("Erro ao atualizar contagem da lixeira:", err); }
 }
 
-/**
- * ✅ MELHORIA existente: Usa writeBatch ao invés de N chamadas sequenciais
- */
 async function saveOrder(userId) {
-    const rows = [...el('msgList').children];
+    const list = el('msgList');
+    const rows = [...list.querySelectorAll('.user-row')];
     try {
         const batch = writeBatch(db);
         rows.forEach((row, i) => {
             const id = row.dataset.id;
-            if (id) {
-                batch.update(doc(db, 'users', userId, 'messages', id), { order: i + 1 });
-            }
+            if (id) batch.update(doc(db, 'users', userId, 'messages', id), { order: i + 1 });
         });
         await batch.commit();
-    } catch (err) {
-        console.error("Erro ao salvar ordem:", err);
-    }
+    } catch (err) { console.error("Erro ao salvar ordem:", err); }
 }
 
 async function emptyTrash(userId) {
@@ -343,8 +387,5 @@ async function emptyTrash(userId) {
         await Promise.all(toDelete.map(d => deleteDoc(doc(db, 'users', userId, 'messages', d.id))));
         showToast("Lixeira limpa!");
         updateTrashCount(userId); loadTrash(userId);
-    } catch (err) {
-        console.error("Erro ao esvaziar lixeira:", err);
-        showModal("Erro ao esvaziar a lixeira.");
-    }
+    } catch (err) { showModal("Erro ao esvaziar a lixeira."); }
 }
