@@ -8,6 +8,7 @@ import { showToast } from './toast.js';
 let counts = { msg: 0, problem: 0, link: 0 };
 
 export function initEnhancements() {
+    console.log('🚀 initEnhancements chamado');
     setupGlobalSearch();
     setupNumericShortcuts();
     setupCounterListeners();
@@ -16,17 +17,22 @@ export function initEnhancements() {
 // --- CONTADORES ---
 
 function setupCounterListeners() {
+    console.log('📊 Configurando listeners de contadores');
+    
     document.addEventListener('updateMsgCount', (e) => {
+        console.log('📨 updateMsgCount:', e.detail);
         counts.msg = e.detail;
         updateBadge('msgCount', counts.msg);
     });
     
     document.addEventListener('updateProblemCount', (e) => {
+        console.log('🔧 updateProblemCount:', e.detail);
         counts.problem = e.detail;
         updateBadge('problemCount', counts.problem);
     });
     
     document.addEventListener('updateLinkCount', (e) => {
+        console.log('🔗 updateLinkCount:', e.detail);
         counts.link = e.detail;
         updateBadge('linkCount', counts.link);
     });
@@ -34,16 +40,31 @@ function setupCounterListeners() {
 
 function updateBadge(id, count) {
     const badge = el(id);
-    if (badge) badge.textContent = count;
+    console.log(`🏷️ Atualizando badge ${id} com ${count}`);
+    if (badge) {
+        badge.textContent = count;
+    } else {
+        console.error(`❌ Badge ${id} não encontrado`);
+    }
 }
 
 // --- BUSCA GLOBAL ---
 
 function setupGlobalSearch() {
+    console.log('🔍 Configurando busca global');
     const input = el('globalSearch');
     const clearBtn = el('btnClearGlobalSearch');
     
-    if (!input || !clearBtn) return;
+    if (!input) {
+        console.error('❌ globalSearch input não encontrado');
+        return;
+    }
+    if (!clearBtn) {
+        console.error('❌ btnClearGlobalSearch não encontrado');
+        return;
+    }
+
+    console.log('✅ Elementos de busca encontrados');
 
     input.oninput = () => {
         const query = input.value.trim().toLowerCase();
@@ -69,6 +90,7 @@ function setupGlobalSearch() {
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'f') {
             e.preventDefault();
+            console.log('⌨️ Ctrl+F pressionado');
             input.focus();
             input.select();
         }
@@ -76,8 +98,11 @@ function setupGlobalSearch() {
 }
 
 function applyGlobalSearch(query) {
+    console.log('🔎 Aplicando busca global:', query);
+    
     // Filtra mensagens
     const msgRows = document.querySelectorAll('#msgList .user-row');
+    console.log(`📝 ${msgRows.length} mensagens encontradas`);
     msgRows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = !query || text.includes(query) ? '' : 'none';
@@ -91,6 +116,7 @@ function applyGlobalSearch(query) {
 
     // Filtra problemas
     const problemCards = document.querySelectorAll('#problemList .problem-card');
+    console.log(`🔧 ${problemCards.length} problemas encontrados`);
     problemCards.forEach(card => {
         const text = card.textContent.toLowerCase();
         card.style.display = !query || text.includes(query) ? '' : 'none';
@@ -98,6 +124,7 @@ function applyGlobalSearch(query) {
 
     // Filtra links
     const linkCards = document.querySelectorAll('#linkList .link-card');
+    console.log(`🔗 ${linkCards.length} links encontrados`);
     linkCards.forEach(card => {
         const text = card.textContent.toLowerCase();
         card.style.display = !query || text.includes(query) ? '' : 'none';
@@ -111,7 +138,9 @@ function applyGlobalSearch(query) {
 }
 
 function copyFirstResult() {
+    console.log('📋 Copiando primeiro resultado');
     const activeTab = document.querySelector('.tab.active')?.dataset.tab;
+    console.log('Aba ativa:', activeTab);
     
     if (activeTab === 'tabMessages') {
         const firstMsg = [...document.querySelectorAll('#msgList .user-row')]
@@ -146,6 +175,7 @@ function copyFirstResult() {
 // --- ATALHOS NUMÉRICOS ---
 
 function setupNumericShortcuts() {
+    console.log('⌨️ Configurando atalhos numéricos');
     document.addEventListener('keydown', (e) => {
         // Ignora se está digitando
         if (e.target.matches('input, textarea, [contenteditable="true"]')) return;
@@ -158,8 +188,13 @@ function setupNumericShortcuts() {
 
         if (tabMap[e.key]) {
             e.preventDefault();
+            console.log(`⌨️ Tecla ${e.key} pressionada - mudando para ${tabMap[e.key]}`);
             const btn = document.querySelector(`button[data-tab="${tabMap[e.key]}"]`);
-            if (btn) btn.click();
+            if (btn) {
+                btn.click();
+            } else {
+                console.error(`❌ Botão para ${tabMap[e.key]} não encontrado`);
+            }
         }
     });
 }
