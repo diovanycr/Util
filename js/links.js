@@ -17,7 +17,6 @@ import {
 import { showModal } from './modal.js';
 import { showToast } from './toast.js';
 import { escapeHtml, escapeAttr } from './utils.js';
-import { updateTabCounts } from './enhancements.js';
 
 let currentUserId = null;
 let allLinks = [];
@@ -115,10 +114,9 @@ async function loadLinks(userId) {
             .map(d => ({ id: d.id, ...d.data() }))
             .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999) || (a.createdAt || 0) - (b.createdAt || 0));
 
-        // Atualiza contador na aba (terceiro parâmetro)
-        if (typeof updateTabCounts === 'function') {
-            updateTabCounts(undefined, undefined, allLinks.length);
-        }
+        // Atualiza contador na aba
+        const event = new CustomEvent('updateLinkCount', { detail: allLinks.length });
+        document.dispatchEvent(event);
 
         if (allLinks.length === 0) {
             list.innerHTML = '<p class="sub center">Nenhum link cadastrado.</p>';
