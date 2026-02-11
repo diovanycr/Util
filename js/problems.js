@@ -12,7 +12,6 @@ import {
 import { showModal } from './modal.js';
 import { showToast } from './toast.js';
 import { escapeHtml, escapeAttr } from './utils.js';
-import { updateTabCounts } from './enhancements.js';
 
 let currentUserId = null;
 let allProblems   = [];
@@ -333,10 +332,9 @@ async function loadProblems(userId) {
         updateTagFilterBar();
         applyFilters();
         
-        // Atualiza contador na aba (segundo parâmetro)
-        if (typeof updateTabCounts === 'function') {
-            updateTabCounts(undefined, allProblems.length);
-        }
+        // Atualiza contador na aba
+        const event = new CustomEvent('updateProblemCount', { detail: allProblems.length });
+        document.dispatchEvent(event);
     } catch (err) {
         console.error("Erro ao carregar problemas:", err);
     }
