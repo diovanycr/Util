@@ -1253,3 +1253,110 @@ kbd {
 /* Modo escuro */
 [data-theme="dark"] .link-card:hover { background: #1e293b; }
 [data-theme="dark"] .link-main:hover { background: var(--primary); }
+
+/* ============================================
+   FASE 2 — CATEGORIAS, STATUS, EXPORT
+   ============================================ */
+
+/* Select de filtro na toolbar */
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  height: 38px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Select de status dentro do editor de solução */
+.solution-status-select {
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Badges de status no acordeão */
+.solution-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 2px 7px;
+  border-radius: 20px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
+.status-confirmed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-testing {
+  background: #fef9c3;
+  color: #a16207;
+}
+
+.status-obsolete {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Grupos de categoria na lista de problemas */
+.problem-group {
+  margin-bottom: 24px;
+}
+
+.problem-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  padding: 0 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.problem-group-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Campo categoria no formulário */
+#problemCategory,
+.edit-category {
+  width: 100%;
+}
+
+/* Modo escuro */
+[data-theme="dark"] .filter-select,
+[data-theme="dark"] .solution-status-select {
+  background: #1e293b;
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .status-confirmed { background: #052e16; color: #4ade80; }
+[data-theme="dark"] .status-testing   { background: #422006; color: #fbbf24; }
+[data-theme="dark"] .status-obsolete  { background: #450a0a; color: #f87171; }
