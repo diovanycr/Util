@@ -138,11 +138,14 @@
           <label class="field-label">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
 
           <!-- Modo simples: editor único (padrão) -->
-          <select id="problemSolutionStatus" class="solution-status-select" style="align-self:flex-start;">
-            <option value="confirmed">✅ Confirmada</option>
-            <option value="testing">🧪 Em teste</option>
-            <option value="obsolete">❌ Obsoleta</option>
-          </select>
+          <div class="solution-editor-header" id="problemSolutionHeader">
+            <input type="text" value="Solução 1" id="problemSolutionLabel" placeholder="Título da solução..." />
+            <select id="problemSolutionStatus" class="solution-status-select">
+              <option value="confirmed">✅ Confirmada</option>
+              <option value="testing">🧪 Em teste</option>
+              <option value="obsolete">❌ Obsoleta</option>
+            </select>
+          </div>
           <div id="problemSolution" class="rich-editor" contenteditable="true" data-placeholder="Digite a solução... Cole imagens aqui"></div>
 
           <!-- Modo múltiplo: aparece ao clicar em + Adicionar solução -->
