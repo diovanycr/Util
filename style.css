@@ -1547,3 +1547,63 @@ kbd {
   flex-direction: column;
   gap: 4px;
 }
+
+/* ============================================
+   MENSAGENS — TÍTULO, CATEGORIA, GRUPOS
+   ============================================ */
+
+/* Campos título + categoria no formulário */
+.msg-meta-fields {
+  display: flex;
+  gap: 10px;
+}
+
+.msg-meta-fields input { flex: 1; }
+
+/* Grupos de categoria */
+.msg-group { margin-bottom: 24px; }
+
+.msg-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  padding: 0 4px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.msg-group-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Título da mensagem no card */
+.msg-title {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--primary);
+  margin-bottom: 3px;
+}
+
+/* Texto da mensagem */
+.msg-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Conteúdo clicável */
+.msg-content { padding: 2px 0; }
+
+/* Modo escuro */
+[data-theme="dark"] .msg-group-label { color: var(--muted); }
