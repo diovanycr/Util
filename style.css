@@ -1321,7 +1321,10 @@ kbd {
 }
 
 .tag-pills-inline {
-  display: contents;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
 }
 
 /* --- TAG PILLS --- */
