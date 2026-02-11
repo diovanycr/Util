@@ -1696,45 +1696,103 @@ kbd {
    MODO COMPACTO E FAVORITOS
    ============================================ */
 
-/* Modo compacto — cards menores, padding reduzido */
+/* Modo compacto — cards menores, padding reduzido, texto menor */
 .compact-mode .user-row,
 .compact-mode .problem-card,
 .compact-mode .link-card {
-  padding: 8px 12px;
+  padding: 6px 10px;
 }
 
 .compact-mode .msg-text,
 .compact-mode .problem-desc,
-.compact-mode .link-title {
-  font-size: 13px;
-  line-height: 1.4;
+.compact-mode .solution-text {
+  font-size: 12px;
+  line-height: 1.3;
 }
 
 .compact-mode .msg-title {
-  font-size: 10px;
+  font-size: 9px;
+  margin-bottom: 2px;
 }
 
 .compact-mode .problem-title {
-  font-size: 15px;
+  font-size: 14px;
 }
 
-.compact-mode .accordion-trigger {
-  padding: 8px 12px;
+.compact-mode .link-title {
   font-size: 12px;
 }
 
+.compact-mode .link-url {
+  font-size: 10px;
+}
+
+.compact-mode .accordion-trigger {
+  padding: 6px 10px;
+  font-size: 11px;
+}
+
 .compact-mode .accordion-body {
-  padding: 0 12px 12px;
+  padding: 0 10px 8px;
+}
+
+.compact-mode .accordion-icon {
+  font-size: 9px;
 }
 
 .compact-mode .tag-pill,
 .compact-mode .solution-status-badge {
-  font-size: 9px;
-  padding: 2px 6px;
+  font-size: 8px;
+  padding: 1px 5px;
+}
+
+.compact-mode .tab-badge {
+  font-size: 10px;
+  min-width: 18px;
+  height: 16px;
+  padding: 0 4px;
 }
 
 .compact-mode .card {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+  padding: 10px 12px;
+}
+
+.compact-mode .toolbar {
+  padding: 8px 12px;
+}
+
+.compact-mode .btn {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.compact-mode .btn i {
+  font-size: 11px;
+}
+
+.compact-mode .msg-group-label,
+.compact-mode .problem-group-label,
+.compact-mode .link-group-label {
+  font-size: 10px;
+  padding: 0 4px 6px;
+}
+
+.compact-mode .solution-copy-field {
+  padding: 6px 10px;
+  margin-top: 4px;
+}
+
+.compact-mode .solution-copy-field-text {
+  font-size: 11px;
+}
+
+.compact-mode .solution-copy-field-label {
+  font-size: 9px;
+}
+
+.compact-mode .solution-copy-field-hint {
+  font-size: 10px;
 }
 
 /* Botão de favorito (estrela) */
@@ -1758,6 +1816,23 @@ kbd {
 
 .btn-favorite.active {
   opacity: 1 !important;
+}
+
+/* Botão de filtrar favoritos ativo */
+#btnFilterFavorites.active,
+#btnFilterFavoriteProblems.active,
+#btnFilterFavoriteLinks.active {
+  background: #fef3c7;
+  color: #d97706;
+  border-color: #fbbf24;
+}
+
+[data-theme="dark"] #btnFilterFavorites.active,
+[data-theme="dark"] #btnFilterFavoriteProblems.active,
+[data-theme="dark"] #btnFilterFavoriteLinks.active {
+  background: #422006;
+  color: #fbbf24;
+  border-color: #d97706;
 }
 
 /* Modo escuro */
