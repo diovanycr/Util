@@ -156,10 +156,18 @@ function renderLinks(container, links) {
                     </div>
                     <i class="fa-solid fa-arrow-up-right-from-square link-open-icon"></i>
                 </a>
+                <button class="btn ghost link-edit-btn" title="Editar link">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
                 <button class="btn ghost link-del-btn" title="Remover link">
                     <i class="fa-solid fa-trash"></i>
                 </button>
             `;
+
+            card.querySelector('.link-edit-btn').onclick = (e) => {
+                e.stopPropagation();
+                enterEditMode(card, item);
+            };
 
             card.querySelector('.link-del-btn').onclick = async (e) => {
                 e.stopPropagation();
@@ -204,6 +212,46 @@ function renderLinks(container, links) {
 
         container.appendChild(group);
     });
+}
+
+function enterEditMode(card, item) {
+    card.innerHTML = `
+        <div class="link-edit-form">
+            <input class="edit-link-url"   type="url"  value="${escapeAttr(item.url)}"   placeholder="URL..." />
+            <input class="edit-link-title" type="text" value="${escapeAttr(item.title)}" placeholder="Título..." />
+            <input class="edit-link-cat"   type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." />
+            <div class="flex-end mt-10">
+                <button class="btn ghost btn-cancel-link-edit">Cancelar</button>
+                <button class="btn primary btn-save-link-edit">Salvar</button>
+            </div>
+        </div>
+    `;
+
+    card.querySelector('.edit-link-url').focus();
+
+    card.querySelector('.btn-cancel-link-edit').onclick = () => loadLinks(currentUserId);
+
+    card.querySelector('.btn-save-link-edit').onclick = async () => {
+        let url   = card.querySelector('.edit-link-url').value.trim();
+        const title    = card.querySelector('.edit-link-title').value.trim();
+        const category = card.querySelector('.edit-link-cat').value.trim();
+
+        if (!url) return showModal("A URL é obrigatória.");
+        if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+        try { new URL(url); } catch { return showModal("URL inválida."); }
+
+        try {
+            await updateDoc(doc(db, 'users', currentUserId, 'links', item.id), {
+                url,
+                title: title || extractDomain(url),
+                category: category || 'Geral'
+            });
+            showToast("Link atualizado!");
+            loadLinks(currentUserId);
+        } catch (err) {
+            showModal("Erro ao atualizar o link.");
+        }
+    };
 }
 
 async function saveLinkOrder(userId) {
