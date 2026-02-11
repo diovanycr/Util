@@ -1255,26 +1255,8 @@ kbd {
 [data-theme="dark"] .link-main:hover { background: var(--primary); }
 
 /* ============================================
-   FASE 2 — CATEGORIAS, STATUS, EXPORT
+   FASE 2 — TAGS, STATUS, EXPORT
    ============================================ */
-
-/* Select de filtro na toolbar */
-.filter-select {
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 13px;
-  font-family: inherit;
-  background: var(--card);
-  color: var(--text);
-  cursor: pointer;
-  height: 38px;
-}
-
-.filter-select:focus {
-  outline: none;
-  border-color: var(--primary);
-}
 
 /* Select de status dentro do editor de solução */
 .solution-status-select {
@@ -1304,59 +1286,154 @@ kbd {
   vertical-align: middle;
 }
 
-.status-confirmed {
-  background: #dcfce7;
-  color: #15803d;
-}
+.status-confirmed { background: #dcfce7; color: #15803d; }
+.status-testing   { background: #fef9c3; color: #a16207; }
+.status-obsolete  { background: #fee2e2; color: #b91c1c; }
 
-.status-testing {
-  background: #fef9c3;
-  color: #a16207;
-}
-
-.status-obsolete {
-  background: #fee2e2;
-  color: #b91c1c;
-}
-
-/* Grupos de categoria na lista de problemas */
-.problem-group {
-  margin-bottom: 24px;
-}
-
-.problem-group-label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: var(--muted);
-  padding: 0 4px 10px;
+/* --- TAG INPUT WRAPPER --- */
+.tag-input-wrapper {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  cursor: text;
+  min-height: 42px;
+  transition: border-color 0.15s;
 }
 
-.problem-group-label::after {
-  content: '';
+.tag-input-wrapper:focus-within { border-color: var(--primary); }
+
+.tag-input-wrapper input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  min-width: 160px;
   flex: 1;
-  height: 1px;
-  background: var(--border);
+  padding: 0;
+  margin: 0;
 }
 
-/* Campo categoria no formulário */
-#problemCategory,
-.edit-category {
-  width: 100%;
+.tag-pills-inline {
+  display: contents;
 }
+
+/* --- TAG PILLS --- */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 20px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.tag-pill-sm {
+  font-size: 11px;
+  padding: 2px 8px;
+}
+
+.tag-pill-remove {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 0 0 0 2px;
+  opacity: 0.6;
+  transition: opacity 0.1s;
+  color: inherit;
+  font-family: inherit;
+}
+.tag-pill-remove:hover { opacity: 1; }
+
+/* Paleta de cores das tags */
+.tag-blue   { background: #dbeafe; color: #1d4ed8; }
+.tag-green  { background: #dcfce7; color: #15803d; }
+.tag-purple { background: #f3e8ff; color: #7e22ce; }
+.tag-orange { background: #ffedd5; color: #c2410c; }
+.tag-pink   { background: #fce7f3; color: #be185d; }
+.tag-teal   { background: #ccfbf1; color: #0f766e; }
+.tag-red    { background: #fee2e2; color: #b91c1c; }
+.tag-indigo { background: #e0e7ff; color: #4338ca; }
+
+/* Tags no card do problema */
+.problem-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 6px 0 4px;
+}
+
+/* --- FILTRO DE TAGS (chips na toolbar) --- */
+.tag-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 0 4px;
+}
+
+.tag-filter-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-right: 2px;
+}
+
+.tag-filter-chip {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+
+.tag-filter-chip:hover { border-color: var(--primary); color: var(--primary); }
+
+.tag-filter-chip.active {
+  border-color: transparent;
+  color: #fff !important;
+  background: var(--primary) !important;
+}
+
+/* Chips coloridos herdam a cor da tag mas ficam ativos em azul */
+.tag-filter-chip.tag-blue   { background: #dbeafe; color: #1d4ed8; border-color: #bfdbfe; }
+.tag-filter-chip.tag-green  { background: #dcfce7; color: #15803d; border-color: #bbf7d0; }
+.tag-filter-chip.tag-purple { background: #f3e8ff; color: #7e22ce; border-color: #e9d5ff; }
+.tag-filter-chip.tag-orange { background: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+.tag-filter-chip.tag-pink   { background: #fce7f3; color: #be185d; border-color: #fbcfe8; }
+.tag-filter-chip.tag-teal   { background: #ccfbf1; color: #0f766e; border-color: #99f6e4; }
+.tag-filter-chip.tag-red    { background: #fee2e2; color: #b91c1c; border-color: #fecaca; }
+.tag-filter-chip.tag-indigo { background: #e0e7ff; color: #4338ca; border-color: #c7d2fe; }
 
 /* Modo escuro */
-[data-theme="dark"] .filter-select,
-[data-theme="dark"] .solution-status-select {
-  background: #1e293b;
-  border-color: var(--border);
-  color: var(--text);
-}
-
+[data-theme="dark"] .solution-status-select { background: #1e293b; border-color: var(--border); color: var(--text); }
 [data-theme="dark"] .status-confirmed { background: #052e16; color: #4ade80; }
 [data-theme="dark"] .status-testing   { background: #422006; color: #fbbf24; }
 [data-theme="dark"] .status-obsolete  { background: #450a0a; color: #f87171; }
+[data-theme="dark"] .tag-input-wrapper { background: #1e293b; }
+[data-theme="dark"] .tag-input-wrapper input { color: var(--text); }
+[data-theme="dark"] .tag-filter-chip  { background: #1e293b; border-color: var(--border); }
+[data-theme="dark"] .tag-blue   { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .tag-green  { background: #052e16; color: #86efac; }
+[data-theme="dark"] .tag-purple { background: #3b0764; color: #d8b4fe; }
+[data-theme="dark"] .tag-orange { background: #431407; color: #fdba74; }
+[data-theme="dark"] .tag-pink   { background: #500724; color: #f9a8d4; }
+[data-theme="dark"] .tag-teal   { background: #042f2e; color: #5eead4; }
+[data-theme="dark"] .tag-red    { background: #450a0a; color: #fca5a5; }
+[data-theme="dark"] .tag-indigo { background: #1e1b4b; color: #a5b4fc; }
