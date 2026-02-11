@@ -1484,3 +1484,38 @@ kbd {
 }
 
 .link-card:hover .link-edit-btn { opacity: 1; }
+
+/* Lista de textos para copiar no editor */
+.copy-texts-section { display: flex; flex-direction: column; }
+
+.copy-texts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.copy-text-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.copy-text-row .copy-text-editor {
+  flex: 1;
+  min-height: 48px;
+  resize: vertical;
+}
+
+.btn-remove-copy-text {
+  flex-shrink: 0;
+  padding: 8px 10px;
+  color: var(--danger) !important;
+  margin-top: 2px;
+}
+
+/* Múltiplos botões de cópia no card */
+.solution-copy-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
