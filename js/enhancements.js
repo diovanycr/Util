@@ -8,6 +8,7 @@ import { showToast } from './toast.js';
 let counts = { msg: 0, problem: 0, link: 0 };
 let compactMode = false;
 let favorites = new Set();
+let filteringFavorites = { msg: false, problem: false, link: false };
 
 export function initEnhancements() {
     setupGlobalSearch();
@@ -15,6 +16,7 @@ export function initEnhancements() {
     setupCounterListeners();
     setupCompactMode();
     setupFavorites();
+    setupFavoriteFilters();
     loadFavoritesFromStorage();
 }
 
@@ -23,17 +25,17 @@ export function initEnhancements() {
 function setupCounterListeners() {
     document.addEventListener('updateMsgCount', (e) => {
         counts.msg = e.detail;
-        updateBadge('msgCount', counts.msg);
+        if (!filteringFavorites.msg) updateBadge('msgCount', counts.msg);
     });
     
     document.addEventListener('updateProblemCount', (e) => {
         counts.problem = e.detail;
-        updateBadge('problemCount', counts.problem);
+        if (!filteringFavorites.problem) updateBadge('problemCount', counts.problem);
     });
     
     document.addEventListener('updateLinkCount', (e) => {
         counts.link = e.detail;
-        updateBadge('linkCount', counts.link);
+        if (!filteringFavorites.link) updateBadge('linkCount', counts.link);
     });
 }
 
@@ -92,7 +94,6 @@ function applyGlobalSearch(query) {
         if (visible) msgVisible++;
     });
     
-    // Oculta grupos de mensagens vazios
     document.querySelectorAll('#msgList .msg-group').forEach(group => {
         const hasVisible = [...group.querySelectorAll('.user-row')].some(r => r.style.display !== 'none');
         group.style.display = hasVisible ? '' : 'none';
@@ -116,13 +117,12 @@ function applyGlobalSearch(query) {
         if (visible) linkVisible++;
     });
     
-    // Oculta grupos de links vazios
     document.querySelectorAll('#linkList .link-group').forEach(group => {
         const hasVisible = [...group.querySelectorAll('.link-card')].some(c => c.style.display !== 'none');
         group.style.display = hasVisible ? '' : 'none';
     });
     
-    // Atualiza badges com contador de resultados
+    // Atualiza badges
     if (query) {
         updateBadge('msgCount', msgVisible);
         updateBadge('problemCount', problemVisible);
@@ -173,7 +173,6 @@ function setupCompactMode() {
     const btn = el('btnCompactMode');
     if (!btn) return;
 
-    // Carrega estado do localStorage
     const savedMode = localStorage.getItem('compactMode') === 'true';
     if (savedMode) {
         compactMode = true;
@@ -201,17 +200,80 @@ function setupCompactMode() {
     };
 }
 
+// --- FILTRO DE FAVORITOS ---
+
+function setupFavoriteFilters() {
+    // Filtro de mensagens
+    const btnMsg = el('btnFilterFavorites');
+    if (btnMsg) {
+        btnMsg.onclick = () => {
+            filteringFavorites.msg = !filteringFavorites.msg;
+            btnMsg.classList.toggle('active', filteringFavorites.msg);
+            applyFavoriteFilter('msg', '#msgList .user-row', '#msgList .msg-group');
+        };
+    }
+
+    // Filtro de problemas
+    const btnProb = el('btnFilterFavoriteProblems');
+    if (btnProb) {
+        btnProb.onclick = () => {
+            filteringFavorites.problem = !filteringFavorites.problem;
+            btnProb.classList.toggle('active', filteringFavorites.problem);
+            applyFavoriteFilter('problem', '#problemList .problem-card');
+        };
+    }
+
+    // Filtro de links
+    const btnLink = el('btnFilterFavoriteLinks');
+    if (btnLink) {
+        btnLink.onclick = () => {
+            filteringFavorites.link = !filteringFavorites.link;
+            btnLink.classList.toggle('active', filteringFavorites.link);
+            applyFavoriteFilter('link', '#linkList .link-card', '#linkList .link-group');
+        };
+    }
+}
+
+function applyFavoriteFilter(type, itemSelector, groupSelector) {
+    const filtering = filteringFavorites[type];
+    const items = document.querySelectorAll(itemSelector);
+    let visibleCount = 0;
+
+    items.forEach(item => {
+        const id = item.dataset.id;
+        const visible = !filtering || isFavorite(id);
+        item.style.display = visible ? '' : 'none';
+        if (visible) visibleCount++;
+    });
+
+    // Oculta grupos vazios se existir
+    if (groupSelector) {
+        document.querySelectorAll(groupSelector).forEach(group => {
+            const hasVisible = [...group.querySelectorAll(itemSelector)].some(i => i.style.display !== 'none');
+            group.style.display = hasVisible ? '' : 'none';
+        });
+    }
+
+    // Atualiza badge
+    const badgeMap = { msg: 'msgCount', problem: 'problemCount', link: 'linkCount' };
+    if (filtering) {
+        updateBadge(badgeMap[type], visibleCount);
+        showToast(`Mostrando ${visibleCount} favorito(s)`);
+    } else {
+        updateBadge(badgeMap[type], counts[type]);
+    }
+}
+
 // --- FAVORITOS ---
 
 function setupFavorites() {
-    // Escuta eventos de renderização para adicionar estrelas
     document.addEventListener('itemsRendered', addFavoriteStars);
 }
 
 function addFavoriteStars() {
-    // Adiciona estrelas nas mensagens
+    // Mensagens
     document.querySelectorAll('#msgList .user-row').forEach(row => {
-        if (row.querySelector('.btn-favorite')) return; // Já tem estrela
+        if (row.querySelector('.btn-favorite')) return;
         const id = row.dataset.id;
         if (!id) return;
         
@@ -223,15 +285,18 @@ function addFavoriteStars() {
             e.stopPropagation();
             toggleFavorite(id);
             star.classList.toggle('active');
-            showToast(isFavorite(id) ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+            
+            // Reaplica filtro se estiver ativo
+            if (filteringFavorites.msg) {
+                applyFavoriteFilter('msg', '#msgList .user-row', '#msgList .msg-group');
+            }
         };
         
-        // Insere antes do botão editar
         const editBtn = row.querySelector('.btn-edit');
         if (editBtn) editBtn.before(star);
     });
 
-    // Adiciona estrelas nos problemas
+    // Problemas
     document.querySelectorAll('#problemList .problem-card').forEach(card => {
         if (card.querySelector('.btn-favorite')) return;
         const id = card.dataset.id;
@@ -245,14 +310,17 @@ function addFavoriteStars() {
             e.stopPropagation();
             toggleFavorite(id);
             star.classList.toggle('active');
-            showToast(isFavorite(id) ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+            
+            if (filteringFavorites.problem) {
+                applyFavoriteFilter('problem', '#problemList .problem-card');
+            }
         };
         
         const actions = card.querySelector('.problem-actions');
         if (actions) actions.prepend(star);
     });
 
-    // Adiciona estrelas nos links
+    // Links
     document.querySelectorAll('#linkList .link-card').forEach(card => {
         if (card.querySelector('.btn-favorite')) return;
         const id = card.dataset.id;
@@ -266,7 +334,10 @@ function addFavoriteStars() {
             e.stopPropagation();
             toggleFavorite(id);
             star.classList.toggle('active');
-            showToast(isFavorite(id) ? 'Adicionado aos favoritos' : 'Removido dos favoritos');
+            
+            if (filteringFavorites.link) {
+                applyFavoriteFilter('link', '#linkList .link-card', '#linkList .link-group');
+            }
         };
         
         const editBtn = card.querySelector('.link-edit-btn');
@@ -284,8 +355,13 @@ function saveFavoritesToStorage() {
 }
 
 function toggleFavorite(id) {
-    if (favorites.has(id)) favorites.delete(id);
-    else favorites.add(id);
+    if (favorites.has(id)) {
+        favorites.delete(id);
+        showToast('Removido dos favoritos');
+    } else {
+        favorites.add(id);
+        showToast('Adicionado aos favoritos');
+    }
     saveFavoritesToStorage();
 }
 
