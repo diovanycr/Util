@@ -1,29 +1,49 @@
 /**
- * enhancements.js — Melhorias: busca global, contadores, favoritos, modo compacto, atalhos
+ * enhancements.js — Melhorias: busca global, contadores, atalhos
  */
 
 import { el } from './firebase.js';
 import { showToast } from './toast.js';
 
-let globalSearchActive = false;
-let compactMode = false;
-let favorites = new Set(); // IDs de itens favoritados
-
-// --- INIT ---
+let counts = { msg: 0, problem: 0, link: 0 };
 
 export function initEnhancements() {
     setupGlobalSearch();
-    setupCompactMode();
-    setupFavorites();
     setupNumericShortcuts();
-    loadFavoritesFromStorage();
+    setupCounterListeners();
 }
 
-// --- BUSCA GLOBAL (Ctrl+F) ---
+// --- CONTADORES ---
+
+function setupCounterListeners() {
+    document.addEventListener('updateMsgCount', (e) => {
+        counts.msg = e.detail;
+        updateBadge('msgCount', counts.msg);
+    });
+    
+    document.addEventListener('updateProblemCount', (e) => {
+        counts.problem = e.detail;
+        updateBadge('problemCount', counts.problem);
+    });
+    
+    document.addEventListener('updateLinkCount', (e) => {
+        counts.link = e.detail;
+        updateBadge('linkCount', counts.link);
+    });
+}
+
+function updateBadge(id, count) {
+    const badge = el(id);
+    if (badge) badge.textContent = count;
+}
+
+// --- BUSCA GLOBAL ---
 
 function setupGlobalSearch() {
     const input = el('globalSearch');
     const clearBtn = el('btnClearGlobalSearch');
+    
+    if (!input || !clearBtn) return;
 
     input.oninput = () => {
         const query = input.value.trim().toLowerCase();
@@ -31,7 +51,6 @@ function setupGlobalSearch() {
         applyGlobalSearch(query);
     };
 
-    // Enter copia o primeiro resultado visível
     input.onkeydown = (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
@@ -46,7 +65,7 @@ function setupGlobalSearch() {
         input.focus();
     };
 
-    // Ctrl+F foca na busca global
+    // Ctrl+F
     document.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 'f') {
             e.preventDefault();
@@ -57,45 +76,37 @@ function setupGlobalSearch() {
 }
 
 function applyGlobalSearch(query) {
-    globalSearchActive = !!query;
-
-    // Filtra em todas as abas
-    filterMessages(query);
-    filterProblems(query);
-    filterLinks(query);
-}
-
-function filterMessages(query) {
-    const rows = document.querySelectorAll('#msgList .user-row');
-    rows.forEach(row => {
+    // Filtra mensagens
+    const msgRows = document.querySelectorAll('#msgList .user-row');
+    msgRows.forEach(row => {
         const text = row.textContent.toLowerCase();
         row.style.display = !query || text.includes(query) ? '' : 'none';
     });
-    // Oculta grupos vazios
+    
+    // Oculta grupos de mensagens vazios
     document.querySelectorAll('#msgList .msg-group').forEach(group => {
-        const visible = [...group.querySelectorAll('.user-row')].some(r => r.style.display !== 'none');
-        group.style.display = visible ? '' : 'none';
+        const hasVisible = [...group.querySelectorAll('.user-row')].some(r => r.style.display !== 'none');
+        group.style.display = hasVisible ? '' : 'none';
     });
-}
 
-function filterProblems(query) {
-    const cards = document.querySelectorAll('#problemList .problem-card');
-    cards.forEach(card => {
+    // Filtra problemas
+    const problemCards = document.querySelectorAll('#problemList .problem-card');
+    problemCards.forEach(card => {
         const text = card.textContent.toLowerCase();
         card.style.display = !query || text.includes(query) ? '' : 'none';
     });
-}
 
-function filterLinks(query) {
-    const cards = document.querySelectorAll('#linkList .link-card');
-    cards.forEach(card => {
+    // Filtra links
+    const linkCards = document.querySelectorAll('#linkList .link-card');
+    linkCards.forEach(card => {
         const text = card.textContent.toLowerCase();
         card.style.display = !query || text.includes(query) ? '' : 'none';
     });
-    // Oculta grupos vazios
+    
+    // Oculta grupos de links vazios
     document.querySelectorAll('#linkList .link-group').forEach(group => {
-        const visible = [...group.querySelectorAll('.link-card')].some(c => c.style.display !== 'none');
-        group.style.display = visible ? '' : 'none';
+        const hasVisible = [...group.querySelectorAll('.link-card')].some(c => c.style.display !== 'none');
+        group.style.display = hasVisible ? '' : 'none';
     });
 }
 
@@ -106,9 +117,9 @@ function copyFirstResult() {
         const firstMsg = [...document.querySelectorAll('#msgList .user-row')]
             .find(r => r.style.display !== 'none');
         if (firstMsg) {
-            const text = firstMsg.querySelector('.msg-text')?.textContent.trim();
-            if (text) {
-                navigator.clipboard.writeText(text);
+            const textEl = firstMsg.querySelector('.msg-text');
+            if (textEl) {
+                navigator.clipboard.writeText(textEl.textContent.trim());
                 showToast('Primeira mensagem copiada!');
             }
         }
@@ -123,63 +134,20 @@ function copyFirstResult() {
         const firstLink = [...document.querySelectorAll('#linkList .link-card')]
             .find(c => c.style.display !== 'none');
         if (firstLink) {
-            const url = firstLink.querySelector('.link-main')?.href;
-            if (url) window.open(url, '_blank');
+            const link = firstLink.querySelector('.link-main');
+            if (link?.href) {
+                window.open(link.href, '_blank');
+                showToast('Link aberto!');
+            }
         }
     }
 }
 
-// --- CONTADORES NAS ABAS ---
-
-export function updateTabCounts(msgCount = 0, problemCount = 0, linkCount = 0) {
-    const msgBadge = el('msgCount');
-    const probBadge = el('problemCount');
-    const linkBadge = el('linkCount');
-
-    if (msgBadge) msgBadge.textContent = msgCount;
-    if (probBadge) probBadge.textContent = problemCount;
-    if (linkBadge) linkBadge.textContent = linkCount;
-}
-
-// --- MODO COMPACTO (não implementado visualmente ainda, placeholder) ---
-
-function setupCompactMode() {
-    // Placeholder para modo compacto — pode adicionar botão no header depois
-    // compactMode toggle reduziria padding dos cards, font-size, etc
-}
-
-// --- FAVORITOS (estrela nos cards) ---
-
-function setupFavorites() {
-    // Adiciona estrelas dinamicamente aos cards quando renderizados
-    // Será chamado via MutationObserver ou diretamente nas funções de render
-}
-
-function loadFavoritesFromStorage() {
-    const stored = localStorage.getItem('favorites');
-    if (stored) favorites = new Set(JSON.parse(stored));
-}
-
-function saveFavoritesToStorage() {
-    localStorage.setItem('favorites', JSON.stringify([...favorites]));
-}
-
-export function toggleFavorite(id) {
-    if (favorites.has(id)) favorites.delete(id);
-    else favorites.add(id);
-    saveFavoritesToStorage();
-    return favorites.has(id);
-}
-
-export function isFavorite(id) {
-    return favorites.has(id);
-}
-
-// --- ATALHOS NUMÉRICOS (1-5 para alternar abas) ---
+// --- ATALHOS NUMÉRICOS ---
 
 function setupNumericShortcuts() {
     document.addEventListener('keydown', (e) => {
-        // Ignora se está digitando em input/textarea
+        // Ignora se está digitando
         if (e.target.matches('input, textarea, [contenteditable="true"]')) return;
 
         const tabMap = {
