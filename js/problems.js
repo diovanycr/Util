@@ -515,6 +515,9 @@ function renderProblems(problems) {
 
         list.appendChild(card);
     });
+    
+    // Dispara evento para adicionar estrelas de favoritos
+    document.dispatchEvent(new Event('itemsRendered'));
 }
 
 // --- MODO DE EDIÇÃO ---
