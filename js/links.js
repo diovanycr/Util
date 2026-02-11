@@ -212,6 +212,9 @@ function renderLinks(container, links) {
 
         container.appendChild(group);
     });
+    
+    // Dispara evento para adicionar estrelas de favoritos
+    document.dispatchEvent(new Event('itemsRendered'));
 }
 
 function enterEditMode(card, item) {
