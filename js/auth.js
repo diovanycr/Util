@@ -82,6 +82,7 @@ export function initAuth() {
 
                     initSearch(user.uid);
                     initLinks(user.uid);
+                    initEnhancements();
 
                     if (!messagesInitialized) {
                         initMessages(user.uid);
