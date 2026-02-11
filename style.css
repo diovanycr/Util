@@ -253,7 +253,7 @@ input:focus, textarea:focus {
 .mt-20 { margin-top: 20px; }
 .border-danger { border-color: #fecaca; }
 
-/* ? CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
+/* ✅ CORREÇÃO 5: Estilo para feedback de criação de usuário — estava faltando */
 .success-text {
     color: var(--success);
     font-size: 14px;
@@ -563,10 +563,10 @@ input:focus, textarea:focus {
 }
 
 .accordion-item {
-    border: 1px solid #bbf7d0;
+    border: 1px solid var(--border);
     border-radius: 8px;
     overflow: hidden;
-    background: #f0fdf4;
+    background: var(--card);
 }
 
 .accordion-trigger {
@@ -579,19 +579,16 @@ input:focus, textarea:focus {
     border: none;
     cursor: pointer;
     font-size: 13px;
-    font-weight: 700;
+    font-weight: 600;
     font-family: inherit;
-    color: var(--success);
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
+    color: var(--text);
+    letter-spacing: 0.2px;
     gap: 8px;
     text-align: left;
     transition: background 0.15s;
 }
 
-.accordion-trigger:hover {
-    background: #dcfce7;
-}
+.accordion-trigger:hover { background: var(--bg); }
 
 .accordion-trigger span {
     display: flex;
@@ -603,40 +600,79 @@ input:focus, textarea:focus {
     font-size: 11px;
     transition: transform 0.2s ease;
     flex-shrink: 0;
+    color: var(--muted);
 }
 
-.accordion-icon.rotated {
-    transform: rotate(180deg);
-}
+.accordion-icon.rotated { transform: rotate(180deg); }
 
 .accordion-body {
     display: none;
     padding: 0 14px 14px;
 }
 
-.accordion-body.open {
-    display: block;
-}
+.accordion-body.open { display: block; }
 
 .accordion-body .solution-text {
     font-size: 14px;
-    color: #166534;
+    color: var(--text);
     line-height: 1.6;
     white-space: pre-wrap;
-    cursor: pointer;
-    border-radius: 4px;
-    padding: 4px;
-}
-
-.accordion-body .solution-text:hover {
-    background: #dcfce7;
+    border-radius: 6px;
+    padding: 8px;
+    background: var(--bg);
+    margin-bottom: 8px;
 }
 
 .accordion-body .solution-text img {
     max-width: 100%;
     border-radius: 6px;
     margin: 8px 0;
-    cursor: default;
+}
+
+/* Campo de cópia rápida */
+.solution-copy-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-top: 4px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.solution-copy-field:hover {
+    border-color: var(--primary);
+    background: #eff6ff;
+}
+
+.solution-copy-field-text {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.solution-copy-field-hint {
+    font-size: 11px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+/* Editor do campo de cópia no formulário */
+.copy-text-editor {
+    width: 100%;
+    font-family: inherit;
+    font-size: 13px;
+    resize: vertical;
+    min-height: 60px;
 }
 
 /* ============================================
@@ -688,15 +724,11 @@ input:focus, textarea:focus {
 [data-theme="dark"] .solution-text { color: #86efac; }
 [data-theme="dark"] .solution-text:hover { background: #14532d; }
 
-[data-theme="dark"] .accordion-item {
-  background: #052e16;
-  border-color: #166534;
-}
-
-[data-theme="dark"] .accordion-trigger { color: #4ade80; }
-[data-theme="dark"] .accordion-trigger:hover { background: #14532d; }
-[data-theme="dark"] .accordion-body .solution-text { color: #86efac; }
-[data-theme="dark"] .accordion-body .solution-text:hover { background: #14532d; }
+[data-theme="dark"] .accordion-item { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .accordion-trigger:hover { background: #0f172a; }
+[data-theme="dark"] .accordion-body .solution-text { background: #0f172a; color: var(--text); }
+[data-theme="dark"] .solution-copy-field { background: #0f172a; border-color: var(--border); }
+[data-theme="dark"] .solution-copy-field:hover { background: #1e3a5f; border-color: var(--primary); }
 
 [data-theme="dark"] .solution-editor-item { background: #1e293b; }
 [data-theme="dark"] .solution-label-input { background: #0f172a; }
