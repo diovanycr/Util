@@ -232,6 +232,9 @@ function renderMessages() {
 
         list.appendChild(groupEl);
     });
+    
+    // Dispara evento para adicionar estrelas de favoritos
+    document.dispatchEvent(new Event('itemsRendered'));
 }
 
 function enterEditMode(row, item, userId) {
