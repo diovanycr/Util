@@ -1691,3 +1691,77 @@ kbd {
 [data-theme="dark"] .global-search-box input {
   color: var(--text);
 }
+
+/* ============================================
+   MODO COMPACTO E FAVORITOS
+   ============================================ */
+
+/* Modo compacto — cards menores, padding reduzido */
+.compact-mode .user-row,
+.compact-mode .problem-card,
+.compact-mode .link-card {
+  padding: 8px 12px;
+}
+
+.compact-mode .msg-text,
+.compact-mode .problem-desc,
+.compact-mode .link-title {
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.compact-mode .msg-title {
+  font-size: 10px;
+}
+
+.compact-mode .problem-title {
+  font-size: 15px;
+}
+
+.compact-mode .accordion-trigger {
+  padding: 8px 12px;
+  font-size: 12px;
+}
+
+.compact-mode .accordion-body {
+  padding: 0 12px 12px;
+}
+
+.compact-mode .tag-pill,
+.compact-mode .solution-status-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+}
+
+.compact-mode .card {
+  margin-bottom: 8px;
+}
+
+/* Botão de favorito (estrela) */
+.btn-favorite {
+  color: var(--muted);
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.btn-favorite.active,
+.btn-favorite:hover {
+  color: #fbbf24;
+  opacity: 1;
+}
+
+.user-row:hover .btn-favorite,
+.problem-card:hover .btn-favorite,
+.link-card:hover .btn-favorite {
+  opacity: 1;
+}
+
+.btn-favorite.active {
+  opacity: 1 !important;
+}
+
+/* Modo escuro */
+[data-theme="dark"] .btn-favorite.active,
+[data-theme="dark"] .btn-favorite:hover {
+  color: #fbbf24;
+}
