@@ -2,7 +2,8 @@
    base.css — Variáveis, reset e layout principal
    ============================================================ */
 
-:root {
+:root,
+[data-theme="light"] {
   --bg: #f3f4f6;
   --card: #ffffff;
   --border: #e5e7eb;
@@ -12,6 +13,18 @@
   --primary-hover: #1d4ed8;
   --danger: #dc2626;
   --success: #16a34a;
+}
+
+[data-theme="dark"] {
+  --bg: #0f172a;
+  --card: #1e293b;
+  --border: #334155;
+  --text: #f1f5f9;
+  --muted: #94a3b8;
+  --primary: #3b82f6;
+  --primary-hover: #2563eb;
+  --danger: #ef4444;
+  --success: #22c55e;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
