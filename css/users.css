@@ -1,0 +1,45 @@
+/* ============================================================
+   users.css — Lista de usuários e gerenciamento admin
+   ============================================================ */
+
+.list { display: flex; flex-direction: column; gap: 12px; }
+
+.user-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-radius: 10px;
+  border: 1px solid var(--border); background: #fff;
+  gap: 12px; transition: transform 0.1s;
+}
+.user-row:hover { border-color: #cbd5e1; }
+.user-row.dragging { opacity: 0.5; background: #f8fafc; border: 2px dashed var(--primary); }
+.user-row.blocked { background-color: #fff5f5; border-color: #feb2b2; }
+.user-row.blocked .user-name { color: #c53030; font-weight: 600; }
+.user-row .actions { display: flex; gap: 8px; }
+
+.drag-handle { cursor: grab; color: var(--muted); font-size: 1.2rem; }
+
+.user-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  object-fit: cover; border: 2px solid var(--border); flex-shrink: 0;
+}
+
+.status-badge-blocked {
+  background-color: #dc3545; color: white; font-size: 10px; font-weight: bold;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  margin-left: 10px; display: inline-block; vertical-align: middle;
+}
+
+.status-badge-google {
+  background-color: #4285f4; color: white; font-size: 10px; font-weight: bold;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 4px;
+  margin-left: 6px; display: inline-block; vertical-align: middle;
+}
+
+#btnTrashToggle { position: relative; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); }
+#msgList { margin-bottom: 80px; }
+
+.btnReset:hover { background: #fffbeb !important; border-color: #f59e0b !important; }
+
+[data-theme="dark"] .user-row { background: #1e293b; border-color: var(--border); }
+[data-theme="dark"] .user-row:hover { border-color: #475569; }
+[data-theme="dark"] .user-row.blocked { background: #1c0a0a; border-color: #7f1d1d; }
