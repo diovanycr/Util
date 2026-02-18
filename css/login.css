@@ -1,0 +1,19 @@
+/* ============================================================
+   login.css — Tela de login e autenticação
+   ============================================================ */
+
+#loginBox { max-width: 400px; margin: 80px auto; text-align: center; }
+#loginBox h2 { margin-bottom: 20px; }
+
+.login-divider { display: flex; align-items: center; margin: 16px 0; gap: 12px; }
+.login-divider::before,
+.login-divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.login-divider span { color: var(--muted); font-size: 13px; font-weight: 500; }
+
+.btn-google {
+  width: 100%; background: #fff; color: #3c4043;
+  border: 1px solid var(--border); font-weight: 500;
+  padding: 12px 20px; gap: 10px; transition: all 0.2s;
+}
+.btn-google:hover { background: #f8f9fa; border-color: #dadce0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
+.btn-google svg { flex-shrink: 0; }
