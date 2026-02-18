@@ -12,6 +12,7 @@ import {
 import { openConfirmModal, showModal } from './modal.js';
 import { showToast } from './toast.js';
 import { escapeHtml, escapeAttr } from './utils.js';
+import { addToHistory, initHistory, renderHistoryPanel } from './history.js';
 
 let currentUserId = null;
 let dragSrc = null;
@@ -27,6 +28,7 @@ export function initMessages(uid) {
     }
     loadMessages(uid);
     updateTrashCount(uid);
+    initHistory();
 }
 
 export function resetMessages() {
@@ -143,7 +145,6 @@ export async function loadMessages(userId) {
         updateCategoryFilterBar();
         renderMessages();
         
-        // Atualiza contador na aba
         const event = new CustomEvent('updateMsgCount', { detail: allMessages.length });
         document.dispatchEvent(event);
     } catch (err) {
@@ -164,7 +165,6 @@ function renderMessages() {
         return;
     }
 
-    // Agrupar por categoria
     const groups = {};
     filtered.forEach(item => {
         const cat = item.category || 'Geral';
@@ -197,10 +197,12 @@ function renderMessages() {
                 <button class="btn ghost btn-del"><i class="fa-solid fa-trash"></i></button>
             `;
 
-            // Copiar ao clicar
+            // Copiar ao clicar + registrar no histórico
             row.querySelector('.msg-content').onclick = async () => {
                 try {
                     await navigator.clipboard.writeText(item.text);
+                    addToHistory(item.text, item.title || '', item.category || 'Geral');
+                    renderHistoryPanel();
                     showToast("Copiado!");
                 } catch (err) { console.error(err); }
             };
@@ -233,7 +235,6 @@ function renderMessages() {
         list.appendChild(groupEl);
     });
     
-    // Dispara evento para adicionar estrelas de favoritos
     document.dispatchEvent(new Event('itemsRendered'));
 }
 
