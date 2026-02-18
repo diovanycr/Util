@@ -7,7 +7,19 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/forms.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="css/users.css">
+  <link rel="stylesheet" href="css/messages.css">
+  <link rel="stylesheet" href="css/problems.css">
+  <link rel="stylesheet" href="css/links.css">
+  <link rel="stylesheet" href="css/tags.css">
+  <link rel="stylesheet" href="css/search.css">
+  <link rel="stylesheet" href="css/help.css">
+  <link rel="stylesheet" href="css/compact-favorites.css">
+  <link rel="stylesheet" href="css/portOpener.css">
 
 </head>
 <body>
@@ -95,7 +107,7 @@
           <i class="fa-solid fa-link"></i> Links Úteis
           <span id="linkCount" class="tab-badge">0</span>
         </button>
-        <!-- ✅ NOVA ABA: Sistemas -->
+        <!-- ? NOVA ABA: Sistemas -->
         <button class="tab" data-tab="tabSistemas">
           <i class="fa-solid fa-screwdriver-wrench"></i> Sistemas
         </button>
@@ -173,9 +185,9 @@
           <div class="solution-editor-header" id="problemSolutionHeader">
             <input type="text" value="Solução 1" id="problemSolutionLabel" placeholder="Título da solução..." />
             <select id="problemSolutionStatus" class="solution-status-select">
-              <option value="confirmed">✅ Confirmada</option>
-              <option value="testing">🧪 Em teste</option>
-              <option value="obsolete">❌ Obsoleta</option>
+              <option value="confirmed">? Confirmada</option>
+              <option value="testing">?? Em teste</option>
+              <option value="obsolete">? Obsoleta</option>
             </select>
           </div>
           <div id="problemSolution" class="rich-editor" contenteditable="true" data-placeholder="Digite a solução... Cole imagens aqui"></div>
@@ -229,7 +241,7 @@
         <div class="list mt-16" id="linkList"></div>
       </div>
 
-      <!-- ✅ ABA: Sistemas -->
+      <!-- ? ABA: Sistemas -->
       <div id="tabSistemas" class="tab-content hidden">
         <!-- O conteúdo é injetado pelo portOpener.js via renderSistemasTab() -->
       </div>
