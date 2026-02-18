@@ -1,0 +1,63 @@
+/* ============================================================
+   base.css — Variáveis, reset e layout principal
+   ============================================================ */
+
+:root {
+  --bg: #f3f4f6;
+  --card: #ffffff;
+  --border: #e5e7eb;
+  --text: #111827;
+  --muted: #6b7280;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --danger: #dc2626;
+  --success: #16a34a;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  display: block;
+}
+
+.container { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+
+.card {
+  background: var(--card);
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+
+/* Utilitários */
+.hidden { display: none !important; }
+.sub { color: var(--muted); font-size: 14px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
+.flex-end { display: flex; justify-content: flex-end; gap: 10px; }
+.center { text-align: center; }
+.mt-10 { margin-top: 10px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.border-danger { border-color: #fecaca; }
+
+.success-text { color: var(--success); font-size: 14px; font-weight: 600; text-align: center; padding: 8px 0; }
+
+.center.mt-12 {
+  position: fixed; bottom: 0; left: 0; width: 100%; padding: 20px 0;
+  background: linear-gradient(to top, var(--bg) 70%, transparent);
+  display: flex; justify-content: center; z-index: 100;
+}
+
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+  .header { flex-direction: column; align-items: flex-start; gap: 15px; }
+}
