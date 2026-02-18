@@ -122,7 +122,8 @@ export function renderHistoryPanel() {
 
         row.innerHTML = `
             <div class="history-item-meta">
-                ${titleHtml}${catHtml}
+                ${titleHtml}
+                ${catHtml}
                 <span class="history-item-time"><i class="fa-regular fa-clock"></i> ${time}</span>
             </div>
             <div class="history-item-text">${_esc(item.text)}</div>
