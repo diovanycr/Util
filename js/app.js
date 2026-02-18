@@ -5,7 +5,7 @@ import { initTabs } from './tabs.js';
 import { initTheme } from './theme.js';
 import { initHelp } from './help.js';
 import { initShortcuts } from './shortcuts.js';
-import { initSistemas } from './sistemasTab.js';
+import { renderSistemasTab } from './portOpener.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
@@ -15,5 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initAdminActions();
     initTabs();
     initHelp();
-    initSistemas();
+
+    const tabSistemas = document.getElementById('tabSistemas');
+    if (tabSistemas) renderSistemasTab(tabSistemas);
 });
