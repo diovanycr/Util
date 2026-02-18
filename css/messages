@@ -1,0 +1,26 @@
+/* ============================================================
+   messages.css — Aba de mensagens
+   ============================================================ */
+
+.msg-meta-fields { display: flex; gap: 10px; }
+.msg-meta-fields input { flex: 1; }
+
+.msg-group { margin-bottom: 24px; }
+
+.msg-group-label {
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.6px; color: var(--muted); padding: 0 4px 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.msg-group-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.msg-title {
+  display: block; font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  color: var(--primary); margin-bottom: 3px;
+}
+
+.msg-text { font-size: 14px; color: var(--text); line-height: 1.5; white-space: pre-wrap; word-break: break-word; }
+.msg-content { padding: 2px 0; }
+
+[data-theme="dark"] .msg-group-label { color: var(--muted); }
