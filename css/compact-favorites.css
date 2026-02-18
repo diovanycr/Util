@@ -24,8 +24,12 @@
 .compact-mode .tab-badge { font-size: 10px; min-width: 18px; height: 16px; padding: 0 4px; }
 .compact-mode .card { margin-bottom: 6px; padding: 10px 12px; }
 .compact-mode .toolbar { padding: 8px 12px; }
-.compact-mode .btn { padding: 6px 10px; font-size: 12px; }
-.compact-mode .btn i { font-size: 11px; }
+.compact-mode .card .btn,
+.compact-mode .list .btn,
+.compact-mode .toolbar .btn { padding: 6px 10px; font-size: 12px; }
+.compact-mode .card .btn i,
+.compact-mode .list .btn i,
+.compact-mode .toolbar .btn i { font-size: 11px; }
 .compact-mode .msg-group-label,
 .compact-mode .problem-group-label,
 .compact-mode .link-group-label { font-size: 10px; padding: 0 4px 6px; }
