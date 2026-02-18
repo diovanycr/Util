@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="css/search.css">
   <link rel="stylesheet" href="css/help.css">
   <link rel="stylesheet" href="css/compact-favorites.css">
-  <link rel="stylesheet" href="css/portopener.css">
+  <link rel="stylesheet" href="css/portOpener.css">
 
 </head>
 <body>
@@ -53,7 +53,7 @@
         <div id="loggedUser" class="sub"></div>
       </div>
       <div style="display:flex;gap:8px;align-items:center;">
-        <div class="global-search-box">
+        <div class="global-search-box inline">
           <i class="fa-solid fa-search"></i>
           <input id="globalSearch" type="text" placeholder="Buscar em tudo (Ctrl+F)..." />
           <button id="btnClearGlobalSearch" class="btn-clear-search hidden" title="Limpar">
@@ -107,7 +107,7 @@
           <i class="fa-solid fa-link"></i> Links Úteis
           <span id="linkCount" class="tab-badge">0</span>
         </button>
-        <!-- ? NOVA ABA: Sistemas -->
+        <!-- ✅ NOVA ABA: Sistemas -->
         <button class="tab" data-tab="tabSistemas">
           <i class="fa-solid fa-screwdriver-wrench"></i> Sistemas
         </button>
@@ -185,9 +185,9 @@
           <div class="solution-editor-header" id="problemSolutionHeader">
             <input type="text" value="Solução 1" id="problemSolutionLabel" placeholder="Título da solução..." />
             <select id="problemSolutionStatus" class="solution-status-select">
-              <option value="confirmed">? Confirmada</option>
-              <option value="testing">?? Em teste</option>
-              <option value="obsolete">? Obsoleta</option>
+              <option value="confirmed">✅ Confirmada</option>
+              <option value="testing">🧪 Em teste</option>
+              <option value="obsolete">❌ Obsoleta</option>
             </select>
           </div>
           <div id="problemSolution" class="rich-editor" contenteditable="true" data-placeholder="Digite a solução... Cole imagens aqui"></div>
@@ -241,7 +241,7 @@
         <div class="list mt-16" id="linkList"></div>
       </div>
 
-      <!-- ? ABA: Sistemas -->
+      <!-- ✅ ABA: Sistemas -->
       <div id="tabSistemas" class="tab-content hidden">
         <!-- O conteúdo é injetado pelo portOpener.js via renderSistemasTab() -->
       </div>
