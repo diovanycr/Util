@@ -121,12 +121,14 @@ export function renderHistoryPanel() {
             : '';
 
         row.innerHTML = `
-            <div class="history-item-meta">
-                ${titleHtml}
-                ${catHtml}
-                <span class="history-item-time"><i class="fa-regular fa-clock"></i> ${time}</span>
+            <div class="history-item-body">
+                <div class="history-item-meta">
+                    ${titleHtml}
+                    ${catHtml}
+                    <span class="history-item-time"><i class="fa-regular fa-clock"></i> ${time}</span>
+                </div>
+                <div class="history-item-text">${_esc(item.text)}</div>
             </div>
-            <div class="history-item-text">${_esc(item.text)}</div>
             <button class="btn ghost history-copy-btn" title="Copiar novamente">
                 <i class="fa-solid fa-copy"></i>
             </button>
