@@ -1,8 +1,15 @@
 // ============================================================
 //  terminalFutura.js — Ferramenta Terminal FUTURA
-//  Gera script .bat para gerenciamento de terminais FUTURA
-//  Compatible com Windows 7/8/10/11
+//  Gera .zip com .bat + .ps1 em um clique
 // ============================================================
+
+const PS1_URL      = './scripts/Terminal-Futura.ps1';
+const PS1_FILENAME = 'Terminal-Futura.ps1';
+const BAT_FILENAME = 'Terminal-Futura.bat';
+const ZIP_FILENAME = 'Terminal-Futura.zip';
+
+// JSZip via CDN
+const JSZIP_CDN = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
 
 // ── HTML do painel ────────────────────────────────────────────────────────
 export function renderTerminalFutura(container) {
@@ -16,7 +23,7 @@ export function renderTerminalFutura(container) {
         <span class="po-card-icon">💻</span>
         <div>
           <h3 class="po-card-title">Gerenciamento de Terminais FUTURA</h3>
-          <p class="sub">Gera o script <strong>.bat</strong> para executar no CMD — compatível com Windows 7/8/10/11</p>
+          <p class="sub">Gera um <strong>.zip</strong> com o <strong>.bat</strong> e o <strong>.ps1</strong> prontos para usar — extraia e execute o .bat como Administrador</p>
         </div>
       </div>
     </div>
@@ -68,34 +75,23 @@ export function renderTerminalFutura(container) {
     <!-- Botão gerar -->
     <div class="card" style="padding:16px 24px;">
       <button id="ftBtnGerar" class="btn primary" style="width:100%;padding:13px;font-size:15px;justify-content:center;">
-        <i class="fa-solid fa-terminal"></i> Gerar Script .BAT
+        <i class="fa-solid fa-file-zipper"></i> Gerar e Baixar .ZIP
       </button>
     </div>
 
-    <!-- Output -->
+    <!-- Output / preview do .bat -->
     <div id="ftOutput" class="hidden">
-
       <div class="po-notice">
-        <span>⚠️</span>
-        <span>Coloque o <strong>.bat gerado</strong> e o <strong>Terminal-Futura.ps1</strong> (script original) na mesma pasta e execute o <strong>.bat</strong> como <strong>Administrador</strong></span>
+        <span>📦</span>
+        <span>Extraia o <strong>.zip</strong>, coloque os dois arquivos na mesma pasta e execute o <strong>Terminal-Futura.bat</strong> como <strong>Administrador</strong></span>
       </div>
-
-      <div class="card" style="padding:0;overflow:hidden;">
+      <div class="card" style="padding:0;overflow:hidden;margin-top:4px;">
         <div class="po-code-header">
-          <span class="po-code-title">Script executável <span class="po-badge po-badge-blue">.bat</span></span>
-          <div style="display:flex;gap:6px;">
-            <button class="btn ghost" id="ftBtnDl"><i class="fa-solid fa-download"></i> Baixar</button>
-            <button class="btn ghost" id="ftBtnCopy"><i class="fa-solid fa-copy"></i> Copiar</button>
-          </div>
+          <span class="po-code-title">Conteúdo do <span class="po-badge po-badge-blue">.bat</span></span>
+          <button class="btn ghost" id="ftBtnCopy"><i class="fa-solid fa-copy"></i> Copiar</button>
         </div>
         <pre id="ftRawBat" class="po-pre"></pre>
       </div>
-
-      <div class="po-notice" style="background:var(--bg);border-color:var(--border);margin-top:12px;">
-        <span>📁</span>
-        <span>O arquivo <strong>Terminal-Futura.ps1</strong> deve estar na <strong>mesma pasta</strong> que o <strong>.bat</strong> gerado acima</span>
-      </div>
-
     </div>
   `;
 
@@ -105,7 +101,6 @@ export function renderTerminalFutura(container) {
 
 // ── Eventos ───────────────────────────────────────────────────────────────
 function _bindEvents() {
-  // Seleção de operação
   document.getElementById('ftOpsGrid')?.querySelectorAll('.ft-op-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.ft-op-btn').forEach(b => b.classList.remove('active'));
@@ -113,20 +108,16 @@ function _bindEvents() {
     });
   });
 
-  // Toggle pasta custom
   document.querySelectorAll('input[name="ftPasta"]').forEach(radio => {
     radio.addEventListener('change', () => {
-      const box = document.getElementById('ftPastaCustomBox');
       const isCustom = document.getElementById('ftPastaRadioCustom').checked;
-      box.classList.toggle('hidden', !isCustom);
+      document.getElementById('ftPastaCustomBox').classList.toggle('hidden', !isCustom);
       if (isCustom) document.getElementById('ftPastaCustomInput').focus();
     });
   });
 
-  // Gerar
   document.getElementById('ftBtnGerar')?.addEventListener('click', _generate);
 
-  // Copiar
   document.getElementById('ftBtnCopy')?.addEventListener('click', () => {
     const el = document.getElementById('ftRawBat');
     navigator.clipboard.writeText(el._raw || el.textContent).then(() => {
@@ -137,27 +128,14 @@ function _bindEvents() {
       setTimeout(() => { btn.innerHTML = prev; btn.classList.remove('po-copied'); }, 2000);
     });
   });
-
-  // Download
-  document.getElementById('ftBtnDl')?.addEventListener('click', () => {
-    const el = document.getElementById('ftRawBat');
-    const text = el._raw || el.textContent;
-    const a = Object.assign(document.createElement('a'), {
-      href: URL.createObjectURL(new Blob([text], { type: 'text/plain' })),
-      download: 'Terminal-Futura.bat'
-    });
-    a.click();
-    URL.revokeObjectURL(a.href);
-  });
 }
 
-// ── Geração do .bat ───────────────────────────────────────────────────────
-function _generate() {
+// ── Geração do .zip ───────────────────────────────────────────────────────
+async function _generate() {
   const op = document.querySelector('.ft-op-btn.active')?.dataset.op || '1';
   const usePadrao = document.getElementById('ftPastaRadioPadrao').checked;
   const customNome = document.getElementById('ftPastaCustomInput')?.value.trim() || '';
 
-  // Validar pasta custom
   if (!usePadrao && !customNome) {
     const input = document.getElementById('ftPastaCustomInput');
     input.style.borderColor = 'var(--danger)';
@@ -166,14 +144,79 @@ function _generate() {
     return;
   }
 
-  // Sanitizar nome da pasta (mesmo critério do .ps1 original)
   const nomeSanitizado = customNome.replace(/[\\/:*?"<>|]/g, '_');
   const pastaArg = usePadrao ? 'C:\\FUTURA' : `C:\\${nomeSanitizado}`;
-  const opLabel = op === '1' ? 'Criar Novo Terminal'
-                : op === '2' ? 'Atualizar Terminal'
-                : 'Atualizacao Completa';
+  const opLabel  = op === '1' ? 'Criar Novo Terminal'
+                 : op === '2' ? 'Atualizar Terminal'
+                 : 'Atualizacao Completa';
 
-  const bat = [
+  const btn = document.getElementById('ftBtnGerar');
+  const prev = btn.innerHTML;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Gerando...';
+  btn.disabled = true;
+
+  try {
+    // Buscar .ps1 do repositório
+    const res = await fetch(PS1_URL);
+    if (!res.ok) throw new Error(`Erro ao buscar .ps1: HTTP ${res.status}`);
+    const ps1Content = await res.text();
+
+    // Gerar .bat
+    const batContent = _buildBat(op, opLabel, pastaArg);
+
+    // Mostrar preview
+    const el = document.getElementById('ftRawBat');
+    el._raw = batContent;
+    el.innerHTML = _hlBat(batContent);
+    document.getElementById('ftOutput').classList.remove('hidden');
+
+    // Carregar JSZip e gerar .zip
+    await _loadJSZip();
+    const zip = new JSZip();
+    zip.file(BAT_FILENAME, batContent);
+    zip.file(PS1_FILENAME, ps1Content);
+
+    const blob = await zip.generateAsync({ type: 'blob' });
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob),
+      download: ZIP_FILENAME
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    btn.innerHTML = '<i class="fa-solid fa-check"></i> Baixado!';
+    setTimeout(() => {
+      btn.innerHTML = prev;
+      btn.disabled = false;
+      document.getElementById('ftOutput').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 1500);
+
+  } catch (err) {
+    console.error(err);
+    btn.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Erro — tente novamente';
+    btn.style.background = 'var(--danger)';
+    setTimeout(() => {
+      btn.innerHTML = prev;
+      btn.disabled = false;
+      btn.style.background = '';
+    }, 3000);
+  }
+}
+
+function _loadJSZip() {
+  if (window.JSZip) return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = JSZIP_CDN;
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Falha ao carregar JSZip'));
+    document.head.appendChild(s);
+  });
+}
+
+// ── Geração do conteúdo do .bat ───────────────────────────────────────────
+function _buildBat(op, opLabel, pastaArg) {
+  return [
     `@echo off`,
     `REM ============================================================================`,
     `REM Terminal FUTURA - Gerenciamento v2.6.0`,
@@ -184,7 +227,6 @@ function _generate() {
     `title Terminal FUTURA - ${opLabel}`,
     `color 0B`,
     ``,
-    `REM Verificar se esta executando como administrador`,
     `net session >nul 2>&1`,
     `if %errorLevel% == 0 goto :ExecutarScript`,
     ``,
@@ -249,17 +291,9 @@ function _generate() {
     `pause`,
     `exit /b %EXITCODE%`,
   ].join('\r\n');
-
-  const el = document.getElementById('ftRawBat');
-  el._raw = bat;
-  el.innerHTML = _hlBat(bat);
-
-  const out = document.getElementById('ftOutput');
-  out.classList.remove('hidden');
-  setTimeout(() => out.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
 }
 
-// ── Highlight sintaxe .bat ────────────────────────────────────────────────
+// ── Highlight .bat ────────────────────────────────────────────────────────
 function _hlBat(code) {
   const e = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   return e(code)
