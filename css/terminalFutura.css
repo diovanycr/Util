@@ -1,0 +1,135 @@
+/* ============================================================
+   terminalFutura.css — Ferramenta Terminal FUTURA
+   ============================================================ */
+
+.ft-ops-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (max-width: 700px) {
+  .ft-ops-grid { grid-template-columns: 1fr; }
+}
+
+.ft-op-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: var(--bg);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  width: 100%;
+}
+
+.ft-op-btn:hover {
+  border-color: var(--primary);
+  background: #eff6ff;
+}
+
+.ft-op-btn.active {
+  border-color: var(--primary);
+  background: #eff6ff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.ft-op-icon {
+  font-size: 22px;
+  margin-bottom: 2px;
+}
+
+.ft-op-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.ft-op-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Pasta de instalação */
+.ft-pasta-opts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ft-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  transition: border-color 0.15s;
+}
+
+.ft-radio:hover { border-color: var(--primary); }
+
+.ft-radio input[type="radio"] {
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.ft-radio-label {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.ft-custom-pasta {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.ft-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--card);
+  outline: none;
+  transition: border-color 0.15s;
+  min-width: 0;
+}
+
+.ft-input:focus { border-color: var(--primary); }
+
+/* Dark mode */
+[data-theme="dark"] .ft-op-btn {
+  background: #0f172a;
+}
+
+[data-theme="dark"] .ft-op-btn:hover,
+[data-theme="dark"] .ft-op-btn.active {
+  background: #1e3a5f;
+  border-color: var(--primary);
+}
+
+[data-theme="dark"] .ft-radio,
+[data-theme="dark"] .ft-custom-pasta {
+  background: #0f172a;
+}
+
+[data-theme="dark"] .ft-input {
+  background: #1e293b;
+  color: var(--text);
+  border-color: var(--border);
+}
