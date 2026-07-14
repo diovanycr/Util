@@ -116,7 +116,7 @@
             <i class="fa-solid fa-star"></i> Favoritos
           </button>
           <button id="btnImport" class="btn ghost"><i class="fa-solid fa-file-import"></i> Importar</button>
-          <button id="btnExport" class="btn ghost"><i class="fa-solid fa-file-export"></i> Exportar</button>
+          <button id="btnExport" class="btn ghost" title="Exportar mensagens"><i class="fa-solid fa-file-export"></i> Exportar</button>
           <button id="btnNewMsg" class="btn primary"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
         </div>
 
@@ -263,6 +263,19 @@
       <h3>Aviso</h3>
       <p id="modalMessage" class="mt-10"></p>
       <button class="btn primary mt-16" style="width:100%">OK</button>
+    </div>
+  </div>
+
+  <!-- Modal de Formato de Exportação -->
+  <div id="exportFormatModal" class="modal-overlay hidden">
+    <div class="modal-box card center" style="max-width: 400px;">
+      <h3>Exportar Mensagens</h3>
+      <p class="sub mt-10">Escolha o formato do arquivo de backup:</p>
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px; width: 100%;">
+        <button id="btnExportFormatTxt" class="btn primary" style="width:100%"><i class="fa-solid fa-file-lines"></i> Formato TXT (Legado / Linhas)</button>
+        <button id="btnExportFormatJson" class="btn primary" style="width:100%"><i class="fa-solid fa-file-code"></i> Formato JSON (Completo)</button>
+        <button id="btnCancelExportFormat" class="btn ghost" style="width:100%; margin-top: 5px;">Cancelar</button>
+      </div>
     </div>
   </div>
 

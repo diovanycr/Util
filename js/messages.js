@@ -71,10 +71,50 @@ function setupUserInterface() {
     };
 
     // Exportar / Importar
-    el('btnExport').onclick = () => exportToTxt(currentUserId);
+    el('btnExport').onclick = () => {
+        const modal = el('exportFormatModal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+        }
+    };
+
+    el('btnCancelExportFormat').onclick = () => {
+        const modal = el('exportFormatModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+    };
+
+    el('btnExportFormatTxt').onclick = () => {
+        const modal = el('exportFormatModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+        exportToTxt(currentUserId);
+    };
+
+    el('btnExportFormatJson').onclick = () => {
+        const modal = el('exportFormatModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            modal.style.display = 'none';
+        }
+        exportToJson(currentUserId);
+    };
+
+    el('exportFormatModal').addEventListener('click', (e) => {
+        if (e.target === el('exportFormatModal')) {
+            el('exportFormatModal').classList.add('hidden');
+            el('exportFormatModal').style.display = 'none';
+        }
+    });
+
     el('btnImport').onclick = () => {
         const input = document.createElement('input');
-        input.type = 'file'; input.accept = '.txt';
+        input.type = 'file'; input.accept = '.json,.txt';
         input.onchange = (e) => importFromTxt(e, currentUserId);
         input.click();
     };
@@ -280,26 +320,59 @@ async function importFromTxt(event, userId) {
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
-            const newLines = e.target.result.split('\n').map(l => l.trim()).filter(Boolean);
-            if (newLines.length === 0) return showModal("O arquivo está vazio.");
+            const rawContent = e.target.result;
+            const content = rawContent.trim();
+            
+            let messagesToImport = [];
+            
+            if (content.startsWith('[') && content.endsWith(']')) {
+                // Formato JSON
+                const parsed = JSON.parse(content);
+                messagesToImport = parsed.map(item => ({
+                    text: item.text || '',
+                    title: item.title || '',
+                    category: item.category || 'Geral',
+                    order: item.order || 999
+                })).filter(item => item.text);
+            } else {
+                // Formato TXT (linha por linha, restaurando \n escapado)
+                const newLines = rawContent.split('\n').map(l => l.trim()).filter(Boolean);
+                messagesToImport = newLines.map(line => ({
+                    text: line.replace(/\\n/g, '\n').replace(/\\r/g, '\r'),
+                    title: '',
+                    category: 'Geral',
+                    order: 999
+                }));
+            }
+
+            if (messagesToImport.length === 0) return showModal("O arquivo está vazio ou inválido.");
 
             const snap = await getDocs(collection(db, 'users', userId, 'messages'));
             const existingItems = snap.docs.map(d => ({ id: d.id, text: d.data().text }));
-            const duplicates = newLines.filter(line => existingItems.some(ext => ext.text === line));
+            const duplicates = messagesToImport.filter(item => existingItems.some(ext => ext.text === item.text));
 
             const processImport = async (replaceDuplicates) => {
                 let added = 0;
-                for (const line of newLines) {
-                    const existing = existingItems.find(ext => ext.text === line);
+                for (const item of messagesToImport) {
+                    const existing = existingItems.find(ext => ext.text === item.text);
                     if (existing) {
                         if (replaceDuplicates) {
-                            await updateDoc(doc(db, 'users', userId, 'messages', existing.id), { deleted: false, updatedAt: Date.now() });
+                            await updateDoc(doc(db, 'users', userId, 'messages', existing.id), { 
+                                deleted: false, 
+                                title: item.title || '',
+                                category: item.category || 'Geral',
+                                updatedAt: Date.now() 
+                            });
                             added++;
                         }
                     } else {
                         await addDoc(collection(db, 'users', userId, 'messages'), {
-                            text: line, title: '', category: 'Geral',
-                            order: 999, deleted: false, createdAt: Date.now()
+                            text: item.text, 
+                            title: item.title || '', 
+                            category: item.category || 'Geral',
+                            order: item.order || 999, 
+                            deleted: false, 
+                            createdAt: Date.now()
                         });
                         added++;
                     }
@@ -314,20 +387,46 @@ async function importFromTxt(event, userId) {
                     `Encontramos ${duplicates.length} mensagens repetidas. Deseja substituir as existentes?`
                 );
             } else { processImport(false); }
-        } catch (err) { showModal("Erro ao ler o arquivo .txt"); }
+        } catch (err) { showModal("Erro ao ler o arquivo."); }
     };
     reader.readAsText(file);
 }
 
 async function exportToTxt(userId) {
     try {
-        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-        const lines = snap.docs.map(d => d.data()).filter(d => !d.deleted).map(d => d.text);
-        if (lines.length === 0) return showModal("Não há mensagens para exportar.");
-        const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+        if (allMessages.length === 0) return showModal("Não há mensagens para exportar.");
+        
+        // Exporta como TXT, escapando quebras de linha para manter cada mensagem em uma linha no arquivo
+        const lines = allMessages.map(d => d.text.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
+        const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        
         const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob); a.download = 'backup_mensagens.txt'; a.click();
-        showToast("Exportado com sucesso!");
+        a.href = url;
+        a.download = `backup_mensagens_${new Date().toISOString().slice(0, 10)}.txt`;
+        a.click();
+        
+        URL.revokeObjectURL(url);
+        showToast("Exportado como TXT!");
+    } catch (e) { showModal("Erro ao exportar."); }
+}
+
+async function exportToJson(userId) {
+    try {
+        if (allMessages.length === 0) return showModal("Não há mensagens para exportar.");
+        
+        // Exporta o backup completo com títulos e categorias
+        const exportData = allMessages.map(({ id, createdAt, updatedAt, ...rest }) => rest);
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_mensagens_${new Date().toISOString().slice(0, 10)}.json`;
+        a.click();
+        
+        URL.revokeObjectURL(url);
+        showToast("Exportado como JSON!");
     } catch (e) { showModal("Erro ao exportar."); }
 }
 
