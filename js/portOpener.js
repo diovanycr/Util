@@ -2,7 +2,7 @@
 //  portOpener.js — Port Opener integrado ao PainelAtende
 // ============================================================
 
-import { renderTerminalFutura } from './terminalFutura.js';
+
 
 const COMMON_PORTS = {
   20:'FTP Data',21:'FTP',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',
@@ -41,9 +41,9 @@ export function renderSistemasTab(container) {
             <span class="po-tool-desc">Gera scripts para abrir portas no Firewall do Windows</span>
           </button>
           <button class="po-tool-btn" data-tool="futura">
-            <span class="po-tool-icon">💻</span>
-            <span class="po-tool-name">Terminal FUTURA</span>
-            <span class="po-tool-desc">Gera scripts para criar, atualizar e manutenção de terminais</span>
+            <span class="po-tool-icon">🔍</span>
+            <span class="po-tool-name">Futura Search</span>
+            <span class="po-tool-desc">Pesquise no manual e tire dúvidas do sistema com IA</span>
           </button>
         </div>
       </div>
@@ -188,13 +188,17 @@ export function renderSistemasTab(container) {
         </div><!-- /poOutput -->
       </div><!-- /poTool-portopener -->
 
+      <!-- Futura Search Widget -->
+      <div id="poTool-futura" class="po-tool-panel hidden">
+        <div id="futuraSearchWidgetContainer"></div>
+      </div>
 
     </div><!-- /po-wrap -->
   `;
 
   _bindEvents(container);
   _renderQuickPorts();
-  renderTerminalFutura(document.querySelector('.po-wrap'));
+  new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer' });
 }
 
 // ── Bind de eventos ───────────────────────────────────────────────────────
