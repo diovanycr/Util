@@ -241,3 +241,12 @@ O projeto possui um utilitário CLI zero-dependências em `scripts/backlog.js` p
   ```
   *Nota: Este comando extrai as tarefas concluídas da release mais recente do `backlog.md`, insere (via prepend) a nota formatada no topo do `CHANGELOG.md` com a data atual e apaga o bloco de concluídas do `backlog.md` para manter o backlog sempre limpo.*
 
+### 🤖 Como instruir uma nova IA a Auditar e Alimentar o Backlog:
+Você pode copiar e colar a seguinte instrução para a IA em uma nova conversa:
+
+> **Instrução para a IA:**
+> "Faça uma auditoria completa no código-fonte do projeto atual (arquivos HTML, CSS e JS). Identifique bugs em potencial, melhorias de acessibilidade (A11y), inconsistências de design/UX ou oportunidades de refatoração. Em seguida, utilize o script de gerenciamento do backlog rodando o comando:
+> `node scripts/backlog.js add "Descrição resumida da melhoria/bug" --size P|M|G --scope UI|Bug|Backend|Layout|Accessibility`
+> para registrar cada uma das melhorias diretamente nas seções correspondentes do `backlog.md`."
+
+
