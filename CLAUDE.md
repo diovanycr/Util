@@ -241,28 +241,32 @@ O projeto possui um utilitário CLI zero-dependências em `scripts/backlog.js` p
   ```
   *Nota: Este comando extrai as tarefas concluídas da release mais recente do `backlog.md`, insere (via prepend) a nota formatada no topo do `CHANGELOG.md` com a data atual e apaga o bloco de concluídas do `backlog.md` para manter o backlog sempre limpo.*
 
-### 🚀 Passo a Passo para Lançar uma Release (Mover para o Changelog):
-Quando você terminar um conjunto de tarefas e quiser gerar a nova versão do sistema limando o backlog:
+### 🚀 Passo a Passo para Lançar uma Release (Fluxo Simplificado):
+Quando você terminar um conjunto de tarefas e quiser gerar a nova versão, **não precisa mais criar a release manualmente**. O `changelog` faz tudo:
 
-1. **Abra o terminal** na pasta do projeto.
-2. **Gere a nova versão no Backlog:**
-   Para preparar o fechamento do ciclo, crie o cabeçalho da release informando a versão (ex: `v1.2.0`):
-   ```bash
-   node scripts/backlog.js release v1.2.0
-   ```
-   *(Isso criará a seção `### 📦 Release v1.2.0` dentro da aba `## Feito` no seu backlog.md).*
-3. **Marque as tarefas como feitas:**
-   Para cada tarefa concluída, rode o comando:
+1. **Marque as tarefas como feitas** (para cada tarefa concluída):
    ```bash
    node scripts/backlog.js done "Trecho do nome da tarefa"
    ```
-   *(Isso mudará o checkbox de `[ ]` para `[x]` e moverá a tarefa com todas as descrições dela para baixo do cabeçalho da nova release).*
-4. **Compile o Changelog e Limpe o Backlog:**
-   Quando todas as tarefas da release estiverem prontas e testadas, execute:
+   *(Isso move a tarefa para a seção `## Feito` com `[x]`).*
+
+2. **Gere o Changelog e limpe o Backlog** com apenas um comando:
    ```bash
    node scripts/backlog.js changelog
    ```
-   *(Esse comando vai automaticamente ler todas as tarefas da nova release, formatar a lista, inseri-la no topo do seu `CHANGELOG.md` e apagar o bloco de concluídas do seu `backlog.md` finalizando a release!).*
+   *O que acontece automaticamente:*
+   - Lê o último `## [vX.Y.Z]` do `CHANGELOG.md` e incrementa o patch (ex: `v1.1.0` → `v1.1.1`)
+   - Cria o bloco `### 📦 Release vX.Y.Z` no backlog se não existir
+   - Move qualquer tarefa `[x]` de seções pendentes para dentro da release
+   - Insere a nota formatada no **topo** do `CHANGELOG.md`
+   - Apaga o bloco de concluídos do `backlog.md` para o próximo ciclo
+
+3. **(Opcional) Quer controlar a versão manualmente?** Use o comando `release` antes do `changelog`:
+   ```bash
+   node scripts/backlog.js release v2.0.0
+   node scripts/backlog.js changelog
+   ```
+
 
 
 ### 🤖 Como instruir uma nova IA a Auditar e Alimentar o Backlog:

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.1] - 15/07/2026
+* **Validar campos obrigatórios no formulário de login** `[P]` `[UI]`
+
+*(Nenhum item concluído neste ciclo ainda)*
+
+
 ## [v1.1.0] - 15/07/2026
 
 * **#1 — Tela de login com identidade visual** `[G]` `[UI/CSS]`

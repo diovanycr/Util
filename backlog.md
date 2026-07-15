@@ -27,7 +27,6 @@ Próximo passo: Homologação e deploys finais.
 
 ## Próximo
 
-*(Aguardando novas priorizações de melhorias)*
 
 ## Feito
 
