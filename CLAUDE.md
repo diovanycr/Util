@@ -277,4 +277,52 @@ Você pode copiar e colar a seguinte instrução para a IA em uma nova conversa:
 > `node scripts/backlog.js add "Descrição resumida da melhoria/bug" --size P|M|G --scope UI|Bug|Backend|Layout|Accessibility`
 > para registrar cada uma das melhorias diretamente nas seções correspondentes do `backlog.md`."
 
+---
+
+## 🔄 Ciclo de Desenvolvimento (Referência Rápida)
+
+Este é o fluxo completo de trabalho com IA + backlog. Guarde e siga essa ordem.
+
+### Fase 1 — Descobrir o que melhorar (IA faz)
+Copie e mande este prompt para a IA:
+
+> *"Faça uma auditoria completa no código-fonte do projeto (HTML, CSS e JS). Identifique bugs, melhorias de UX, acessibilidade e refatorações. Para cada item encontrado, rode o comando:*
+> *`node scripts/backlog.js add "Descrição" --size P|M|G --scope UI|Bug|Backend|Layout|Accessibility`"*
+
+✅ A IA analisa o código e popula automaticamente o `backlog.md`.
+
+---
+
+### Fase 2 — Implementar as tarefas (IA faz)
+Abra uma nova conversa com a IA e mande:
+
+> *"Olha o backlog.md e vamos começar a implementar"*
+
+Vá pedindo `"continua"` até todas as tarefas estarem concluídas.
+
+✅ A IA implementa as melhorias e marca as tarefas como feitas no backlog.
+
+---
+
+### Fase 3 — Fechar a release (você roda no terminal)
+Quando a implementação estiver pronta e testada, rode **um único comando**:
+
+```bash
+node scripts/backlog.js changelog
+```
+
+O que acontece automaticamente:
+- Detecta a última versão do `CHANGELOG.md` e incrementa o patch (`v1.1.0` → `v1.1.1`)
+- Cria o bloco de release no backlog
+- Move todas as tarefas `[x]` para dentro da release
+- Publica a nota formatada no topo do `CHANGELOG.md`
+- Limpa o `backlog.md` para o próximo ciclo
+
+✅ O projeto está versionado e o backlog está limpo para o próximo ciclo.
+
+---
+
+> 💡 **Resumo:** Você só precisa rodar **1 comando por ciclo** (`changelog`). Todo o resto é feito pela IA.
+
+
 
