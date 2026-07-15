@@ -323,6 +323,12 @@ function normalizeTags(item) {
 async function loadProblems(userId) {
     const list = el('problemList');
     if (!list) return;
+    list.innerHTML = `
+        <div class="loading-state">
+            <span class="spinner"></span>
+            <span>Carregando problemas...</span>
+        </div>
+    `;
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'problems'));
         allProblems = snap.docs
@@ -337,6 +343,7 @@ async function loadProblems(userId) {
         document.dispatchEvent(event);
     } catch (err) {
         console.error("Erro ao carregar problemas:", err);
+        list.innerHTML = `<div class="empty-state-container"><i class="fa-solid fa-triangle-exclamation empty-state-icon"></i><p class="empty-state-title">Erro ao carregar problemas</p></div>`;
     }
 }
 
@@ -397,7 +404,13 @@ function renderProblems(problems) {
     list.innerHTML = '';
 
     if (problems.length === 0) {
-        list.innerHTML = '<p class="sub center">Nenhum problema encontrado.</p>';
+        list.innerHTML = `
+            <div class="empty-state-container">
+                <i class="fa-solid fa-circle-question empty-state-icon"></i>
+                <p class="empty-state-title">Nenhum problema encontrado</p>
+                <p class="empty-state-desc">Nenhum registro corresponde aos filtros ou pesquisa atuais.</p>
+            </div>
+        `;
         return;
     }
 

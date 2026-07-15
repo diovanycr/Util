@@ -198,6 +198,11 @@ export function renderSistemasTab(container) {
 
   _bindEvents(container);
   _renderQuickPorts();
+  
+  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+  const futContainer = document.getElementById('futuraSearchWidgetContainer');
+  if (futContainer) futContainer.setAttribute('data-theme', currentTheme);
+
   new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer' });
 }
 

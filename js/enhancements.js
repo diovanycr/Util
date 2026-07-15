@@ -9,8 +9,10 @@ let counts = { msg: 0, problem: 0, link: 0 };
 let compactMode = false;
 let favorites = new Set();
 let filteringFavorites = { msg: false, problem: false, link: false };
+let currentUserId = null;
 
-export function initEnhancements() {
+export function initEnhancements(uid) {
+    currentUserId = uid;
     setupGlobalSearch();
     setupNumericShortcuts();
     setupCounterListeners();
@@ -41,7 +43,14 @@ function setupCounterListeners() {
 
 function updateBadge(id, count) {
     const badge = el(id);
-    if (badge) badge.textContent = count;
+    if (badge) {
+        badge.textContent = count;
+        if (count === 0 || count === '0' || !count) {
+            badge.style.display = 'none';
+        } else {
+            badge.style.display = 'inline-flex';
+        }
+    }
 }
 
 // --- BUSCA GLOBAL ---
@@ -179,11 +188,13 @@ function setupCompactMode() {
         document.body.classList.add('compact-mode');
         btn.querySelector('i').className = 'fa-solid fa-expand';
         btn.title = 'Modo normal';
+        btn.classList.add('active');
     }
 
     btn.onclick = () => {
         compactMode = !compactMode;
         document.body.classList.toggle('compact-mode', compactMode);
+        btn.classList.toggle('active', compactMode);
         
         const icon = btn.querySelector('i');
         if (compactMode) {
@@ -346,12 +357,15 @@ function addFavoriteStars() {
 }
 
 function loadFavoritesFromStorage() {
-    const stored = localStorage.getItem('favorites');
+    const key = currentUserId ? `favorites_${currentUserId}` : 'favorites';
+    const stored = localStorage.getItem(key);
     if (stored) favorites = new Set(JSON.parse(stored));
+    else favorites = new Set();
 }
 
 function saveFavoritesToStorage() {
-    localStorage.setItem('favorites', JSON.stringify([...favorites]));
+    const key = currentUserId ? `favorites_${currentUserId}` : 'favorites';
+    localStorage.setItem(key, JSON.stringify([...favorites]));
 }
 
 function toggleFavorite(id) {
@@ -378,7 +392,8 @@ function setupNumericShortcuts() {
         const tabMap = {
             '1': 'tabMessages',
             '2': 'tabProblems',
-            '3': 'tabLinks'
+            '3': 'tabLinks',
+            '4': 'tabSistemas'
         };
 
         if (tabMap[e.key]) {

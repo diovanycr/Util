@@ -23,6 +23,9 @@ export function initTheme() {
 
 function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    const futContainer = document.getElementById('futuraSearchWidgetContainer');
+    if (futContainer) futContainer.setAttribute('data-theme', theme);
+    
     const btn = document.getElementById('btnTheme');
     if (btn) {
         btn.innerHTML = theme === 'dark'

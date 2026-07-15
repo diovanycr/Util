@@ -35,6 +35,8 @@ export function initLinks(uid) {
 export function resetLinks() {
     uiInitialized = false;
     currentUserId = null;
+    const list = el('linkList');
+    if (list) list.innerHTML = '';
 }
 
 function setupLinksInterface() {

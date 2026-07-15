@@ -57,7 +57,10 @@ function _injectPanel() {
     panel.className = 'card hidden mt-16';
     panel.innerHTML = `
         <div class="history-header">
-            <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico de cópias</h3>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <h3><i class="fa-solid fa-clock-rotate-left"></i> Histórico de cópias</h3>
+                <span id="historyCounter" style="font-size:12px;color:var(--muted);font-weight:600;"></span>
+            </div>
             <div style="display:flex;gap:8px;">
                 <button id="btnClearHistory" class="btn ghost" title="Limpar histórico">
                     <i class="fa-solid fa-trash"></i> Limpar
@@ -102,6 +105,15 @@ export function renderHistoryPanel() {
     if (!list) return;
 
     const history = getHistory();
+
+    // Atualiza contador
+    const counter = document.getElementById('historyCounter');
+    if (counter) {
+        const pct = history.length / MAX_HISTORY;
+        counter.textContent = `${history.length} / ${MAX_HISTORY}`;
+        counter.style.color = pct >= 1 ? 'var(--danger)' : pct >= 0.8 ? 'var(--warning, #f59e0b)' : 'var(--muted)';
+    }
+
     if (history.length === 0) {
         list.innerHTML = '<p class="sub center">Nenhuma cópia registrada ainda.</p>';
         return;

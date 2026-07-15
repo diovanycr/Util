@@ -173,6 +173,12 @@ function updateCategoryFilterBar() {
 export async function loadMessages(userId) {
     const list = el('msgList');
     if (!list) return;
+    list.innerHTML = `
+        <div class="loading-state">
+            <span class="spinner"></span>
+            <span>Carregando mensagens...</span>
+        </div>
+    `;
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
         const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -189,6 +195,7 @@ export async function loadMessages(userId) {
         document.dispatchEvent(event);
     } catch (err) {
         console.error("Erro ao carregar mensagens:", err);
+        list.innerHTML = `<div class="empty-state-container"><i class="fa-solid fa-triangle-exclamation empty-state-icon"></i><p class="empty-state-title">Erro ao carregar mensagens</p></div>`;
     }
 }
 
@@ -201,7 +208,13 @@ function renderMessages() {
         : allMessages;
 
     if (filtered.length === 0) {
-        list.innerHTML = '<p class="sub center">Nenhuma mensagem encontrada.</p>';
+        list.innerHTML = `
+            <div class="empty-state-container">
+                <i class="fa-regular fa-message empty-state-icon"></i>
+                <p class="empty-state-title">Nenhuma mensagem encontrada</p>
+                <p class="empty-state-desc">Cadastre novas respostas ou limpe os filtros para começar.</p>
+            </div>
+        `;
         return;
     }
 
@@ -215,6 +228,7 @@ function renderMessages() {
     Object.entries(groups).forEach(([category, items]) => {
         const groupEl = document.createElement('div');
         groupEl.className = 'msg-group';
+        groupEl.dataset.category = category;
         groupEl.innerHTML = `<div class="msg-group-label">${escapeHtml(category)}</div>`;
 
         items.forEach(item => {
@@ -416,7 +430,7 @@ async function exportToJson(userId) {
         if (allMessages.length === 0) return showModal("Não há mensagens para exportar.");
         
         // Exporta o backup completo com títulos e categorias
-        const exportData = allMessages.map(({ id, createdAt, updatedAt, ...rest }) => rest);
+        const exportData = allMessages.map(({ text, title, category }) => ({ text, title: title || '', category: category || 'Geral' }));
         const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         
@@ -481,9 +495,25 @@ async function saveOrder(userId) {
         const batch = writeBatch(db);
         rows.forEach((row, i) => {
             const id = row.dataset.id;
-            if (id) batch.update(doc(db, 'users', userId, 'messages', id), { order: i + 1 });
+            const category = row.closest('.msg-group')?.dataset.category || 'Geral';
+            if (id) batch.update(doc(db, 'users', userId, 'messages', id), { order: i + 1, category });
         });
         await batch.commit();
+
+        // Atualiza a lista local allMessages com a nova ordem e categorias
+        rows.forEach((row, i) => {
+            const id = row.dataset.id;
+            const category = row.closest('.msg-group')?.dataset.category || 'Geral';
+            const msg = allMessages.find(m => m.id === id);
+            if (msg) {
+                msg.order = i + 1;
+                msg.category = category;
+            }
+        });
+
+        // Reordena localmente e atualiza os chips de categoria
+        allMessages.sort((a, b) => (a.order || 0) - (b.order || 0));
+        updateCategoryFilterBar();
     } catch (err) { console.error("Erro ao salvar ordem:", err); }
 }
 

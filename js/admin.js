@@ -101,12 +101,14 @@ export async function loadUsers() {
                 openConfirmModal(
                     async () => {
                         try {
-                            const msgsSnap = await getDocs(collection(db, 'users', d.id, 'messages'));
+                            const msgsSnap  = await getDocs(collection(db, 'users', d.id, 'messages'));
                             const probsSnap = await getDocs(collection(db, 'users', d.id, 'problems'));
+                            const linksSnap = await getDocs(collection(db, 'users', d.id, 'links'));
                             
                             const deletePromises = [
-                                ...msgsSnap.docs.map(m => deleteDoc(doc(db, 'users', d.id, 'messages', m.id))),
-                                ...probsSnap.docs.map(p => deleteDoc(doc(db, 'users', d.id, 'problems', p.id)))
+                                ...msgsSnap.docs.map(m  => deleteDoc(doc(db, 'users', d.id, 'messages',  m.id))),
+                                ...probsSnap.docs.map(p  => deleteDoc(doc(db, 'users', d.id, 'problems',  p.id))),
+                                ...linksSnap.docs.map(l  => deleteDoc(doc(db, 'users', d.id, 'links',     l.id)))
                             ];
                             await Promise.all(deletePromises);
                             
@@ -119,7 +121,7 @@ export async function loadUsers() {
                         }
                     },
                     null,
-                    `Deseja realmente excluir "${u.username}"? Todas as mensagens e problemas serão perdidos.`
+                    `Deseja realmente excluir "${u.username}"? Todas as mensagens, problemas e links serão perdidos.`
                 );
             };
 
