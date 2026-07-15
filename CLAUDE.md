@@ -217,3 +217,27 @@ As credenciais do Firebase estão fixas em `js/firebase.js`. Isso é padrão par
 - **Adicionar nova ação na UI:** Vincule event listener na função `init*` do módulo (dentro do bloco `if (!uiInitialized)`), use `el()` para acesso ao DOM.
 - **Adicionar novo fluxo de modal:** Use `showModal()` para alertas ou `openConfirmModal(onConfirm, onCancel, mensagem)` para confirmações.
 - **Adicionar nova subcoleção por usuário:** Siga o padrão `users/{uid}/novaColecao` e lembre de incluir a exclusão em cascata no `admin.js` ao deletar usuário.
+
+## Gerenciamento de Backlog & Changelog (CLI)
+
+O projeto possui um utilitário CLI zero-dependências em `scripts/backlog.js` para automatizar as tarefas do `backlog.md` e gerar notas de versão no `CHANGELOG.md`.
+
+### Comandos Disponíveis:
+- **Adicionar tarefa no topo do Próximo:**
+  ```bash
+  node scripts/backlog.js add "Título da tarefa" --size M --scope UI
+  ```
+- **Concluir uma tarefa pendente (move para Feito):**
+  ```bash
+  node scripts/backlog.js done "Trecho do título da tarefa"
+  ```
+- **Criar uma nova divisão de release:**
+  ```bash
+  node scripts/backlog.js release v1.2.0
+  ```
+- **Compilar changelog acumulativo e limpar backlog:**
+  ```bash
+  node scripts/backlog.js changelog
+  ```
+  *Nota: Este comando extrai as tarefas concluídas da release mais recente do `backlog.md`, insere (via prepend) a nota formatada no topo do `CHANGELOG.md` com a data atual e apaga o bloco de concluídas do `backlog.md` para manter o backlog sempre limpo.*
+
