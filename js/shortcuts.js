@@ -33,6 +33,22 @@ export function initShortcuts() {
         const modalOpen = searchModal && !searchModal.classList.contains('hidden');
 
         if (modalOpen) {
+            if (e.key === 'Tab') {
+                const focusables = searchModal.querySelectorAll('input, button, kbd, [tabindex="0"]');
+                if (focusables.length) {
+                    const first = focusables[0];
+                    const last = focusables[focusables.length - 1];
+                    if (e.shiftKey && document.activeElement === first) {
+                        e.preventDefault();
+                        last.focus();
+                        return;
+                    } else if (!e.shiftKey && document.activeElement === last) {
+                        e.preventDefault();
+                        first.focus();
+                        return;
+                    }
+                }
+            }
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 _navigateResults(1);

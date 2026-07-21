@@ -15,8 +15,8 @@ import {
 
 import { showModal } from './modal.js';
 import { loadUsers } from './admin.js';
-import { initMessages, resetMessages } from './messages.js';
-import { initProblems, resetProblems } from './problems.js';
+import { initMessages, resetMessages, loadMessages, updateTrashCount } from './messages.js';
+import { initProblems, resetProblems, loadProblems } from './problems.js';
 import { initSearch } from './search.js';
 import { initLinks, resetLinks } from './links.js';
 import { initEnhancements } from './enhancements.js';
@@ -94,7 +94,6 @@ export function initAuth() {
                         initMessages(user.uid);
                         messagesInitialized = true;
                     } else {
-                        const { loadMessages, updateTrashCount } = await import('./messages.js');
                         loadMessages(user.uid);
                         updateTrashCount(user.uid);
                     }
@@ -103,8 +102,7 @@ export function initAuth() {
                         initProblems(user.uid);
                         problemsInitialized = true;
                     } else {
-                        const { loadProblems } = await import('./problems.js');
-                        if (loadProblems) loadProblems(user.uid);
+                        loadProblems(user.uid);
                     }
                 }
 
@@ -113,6 +111,7 @@ export function initAuth() {
                 showModal("Erro ao carregar dados da conta.");
             }
         } else {
+            clearHeaderGreetingInterval();
             messagesInitialized = false;
             problemsInitialized = false;
             resetMessages();
@@ -141,7 +140,15 @@ async function doLogin() {
         return;
     }
 
+    const btnLogin = el('btnLogin');
+    const originalText = btnLogin ? btnLogin.innerHTML : 'Entrar';
+
     try {
+        if (btnLogin) {
+            btnLogin.disabled = true;
+            btnLogin.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Entrando...';
+        }
+
         const q = query(collection(db, 'users'), where('username', '==', username));
         const snap = await getDocs(q);
 
@@ -159,6 +166,11 @@ async function doLogin() {
             showModal("Senha incorreta.");
         } else {
             showModal("Erro ao tentar entrar. Verifique sua conexão.");
+        }
+    } finally {
+        if (btnLogin) {
+            btnLogin.disabled = false;
+            btnLogin.innerHTML = originalText;
         }
     }
 }
@@ -253,6 +265,8 @@ function showConfirmLogout(onConfirm) {
 let activeUserDisplayName = '';
 let headerTimeInterval = null;
 
+const onHeaderWindowFocus = () => updateHeaderProfileGreeting();
+
 export function updateHeaderProfileGreeting(name) {
     if (name) activeUserDisplayName = name;
     if (!activeUserDisplayName) return;
@@ -276,6 +290,15 @@ export function updateHeaderProfileGreeting(name) {
 
     if (!headerTimeInterval) {
         headerTimeInterval = setInterval(() => updateHeaderProfileGreeting(), 30000);
-        window.addEventListener('focus', () => updateHeaderProfileGreeting());
+        window.addEventListener('focus', onHeaderWindowFocus);
     }
+}
+
+export function clearHeaderGreetingInterval() {
+    if (headerTimeInterval) {
+        clearInterval(headerTimeInterval);
+        headerTimeInterval = null;
+    }
+    window.removeEventListener('focus', onHeaderWindowFocus);
+    activeUserDisplayName = '';
 }

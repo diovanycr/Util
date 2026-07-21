@@ -127,27 +127,27 @@
     </div>
 
     <div id="userArea" class="hidden">
-      <div class="tabs">
-        <button class="tab active" data-tab="tabMessages" title="Mensagens">
-          <i class="fa-solid fa-message"></i> <span class="tab-text">Mensagens</span>
+      <div class="tabs" role="tablist" aria-label="Navegação do painel">
+        <button class="tab active" data-tab="tabMessages" id="tab-messages" role="tab" aria-selected="true" aria-controls="tabMessages" title="Mensagens">
+          <i class="fa-solid fa-message" aria-hidden="true"></i> <span class="tab-text">Mensagens</span>
           <span id="msgCount" class="tab-badge">0</span>
         </button>
-        <button class="tab" data-tab="tabProblems" title="Problemas / Soluções">
-          <i class="fa-solid fa-wrench"></i> <span class="tab-text">Problemas / Soluções</span>
+        <button class="tab" data-tab="tabProblems" id="tab-problems" role="tab" aria-selected="false" aria-controls="tabProblems" title="Problemas / Soluções">
+          <i class="fa-solid fa-wrench" aria-hidden="true"></i> <span class="tab-text">Problemas / Soluções</span>
           <span id="problemCount" class="tab-badge">0</span>
         </button>
-        <button class="tab" data-tab="tabLinks" title="Links Úteis">
-          <i class="fa-solid fa-link"></i> <span class="tab-text">Links Úteis</span>
+        <button class="tab" data-tab="tabLinks" id="tab-links" role="tab" aria-selected="false" aria-controls="tabLinks" title="Links Úteis">
+          <i class="fa-solid fa-link" aria-hidden="true"></i> <span class="tab-text">Links Úteis</span>
           <span id="linkCount" class="tab-badge">0</span>
         </button>
         <!-- ✅ NOVA ABA: Sistemas -->
-        <button class="tab" data-tab="tabSistemas" title="Sistemas">
-          <i class="fa-solid fa-screwdriver-wrench"></i> <span class="tab-text">Sistemas</span>
+        <button class="tab" data-tab="tabSistemas" id="tab-sistemas" role="tab" aria-selected="false" aria-controls="tabSistemas" title="Sistemas">
+          <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> <span class="tab-text">Sistemas</span>
         </button>
       </div>
 
       <!-- ABA: Mensagens -->
-      <div id="tabMessages" class="tab-content">
+      <div id="tabMessages" class="tab-content" role="tabpanel" aria-labelledby="tab-messages">
         <div class="card toolbar">
           <button id="btnFilterFavorites" class="btn ghost" title="Mostrar apenas favoritos">
             <i class="fa-solid fa-star"></i> Favoritos
@@ -200,7 +200,7 @@
       </div>
 
       <!-- ABA: Problemas / Soluções -->
-      <div id="tabProblems" class="tab-content hidden">
+      <div id="tabProblems" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-problems">
         <div class="card toolbar">
           <div class="search-box">
             <i class="fa-solid fa-search"></i>
@@ -225,13 +225,13 @@
             <textarea id="problemDesc" rows="3" placeholder="Contexto ou detalhes do problema..."></textarea>
           </div>
           <div class="form-field mt-10">
-            <label class="field-label">Tags <span class="sub">(Enter ou vírgula para confirmar)</span></label>
+            <label class="field-label" for="problemTagInput">Tags <span class="sub">(Enter ou vírgula para confirmar)</span></label>
             <div class="tag-input-wrapper" id="tagInputWrapper">
               <div id="tagPillsCreate" class="tag-pills-inline"></div>
               <input id="problemTagInput" type="text" placeholder="Ex: boleto, financeiro..." autocomplete="off" />
             </div>
           </div>
-          <label class="field-label">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
+          <label class="field-label" id="problemSolutionLabelHeading">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
 
           <div class="solution-editor-header" id="problemSolutionHeader">
             <input type="text" value="Solução 1" id="problemSolutionLabel" placeholder="Título da solução..." />
@@ -241,7 +241,7 @@
               <option value="obsolete">❌ Obsoleta</option>
             </select>
           </div>
-          <div id="problemSolution" class="rich-editor" contenteditable="true" data-placeholder="Digite a solução... Cole imagens aqui"></div>
+          <div id="problemSolution" class="rich-editor" contenteditable="true" aria-labelledby="problemSolutionLabelHeading" data-placeholder="Digite a solução... Cole imagens aqui"></div>
           <div class="copy-texts-section" id="simpleCopyTextsSection">
             <label class="field-label" style="margin-top:8px;">
               Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
@@ -267,7 +267,7 @@
       </div>
 
       <!-- ABA: Links Úteis -->
-      <div id="tabLinks" class="tab-content hidden">
+      <div id="tabLinks" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-links">
         <div class="card toolbar">
           <div class="search-box">
             <i class="fa-solid fa-search"></i>
@@ -280,9 +280,18 @@
         </div>
 
         <div id="newLinkBox" class="card hidden mt-16">
-          <input id="linkUrl" type="url" placeholder="URL (ex: https://site.com.br)" />
-          <input id="linkTitle" type="text" placeholder="Título (opcional — usa o domínio se vazio)" />
-          <input id="linkCategory" type="text" placeholder="Categoria (ex: Sistemas, Ferramentas...)" />
+          <div class="form-field">
+            <label class="field-label" for="linkUrl">URL do link</label>
+            <input id="linkUrl" type="url" placeholder="URL (ex: https://site.com.br)" />
+          </div>
+          <div class="form-field mt-10">
+            <label class="field-label" for="linkTitle">Título <span class="sub">(opcional)</span></label>
+            <input id="linkTitle" type="text" placeholder="Título (opcional — usa o domínio se vazio)" />
+          </div>
+          <div class="form-field mt-10">
+            <label class="field-label" for="linkCategory">Categoria</label>
+            <input id="linkCategory" type="text" placeholder="Categoria (ex: Sistemas, Ferramentas...)" />
+          </div>
           <div class="flex-end mt-10">
             <button id="btnCancelLink" class="btn ghost">Cancelar</button>
             <button id="btnAddLink" class="btn primary">Salvar</button>
@@ -293,7 +302,7 @@
       </div>
 
       <!-- ✅ ABA: Sistemas -->
-      <div id="tabSistemas" class="tab-content hidden">
+      <div id="tabSistemas" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-sistemas">
         <!-- O conteúdo é injetado pelo portOpener.js via renderSistemasTab() -->
       </div>
 
@@ -317,7 +326,7 @@
     <div class="modal-box card center">
       <h3>Aviso</h3>
       <p id="modalMessage" class="mt-10"></p>
-      <button class="btn primary mt-16" style="width:100%">OK</button>
+      <button id="btnModalAlertOk" class="btn primary mt-16" style="width:100%">OK</button>
     </div>
   </div>
 

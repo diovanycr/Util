@@ -151,22 +151,22 @@ function renderLinks(container, links) {
             const card = document.createElement('div');
             card.className = 'link-card';
             card.innerHTML = `
-                <a class="link-main" href="${escapeAttr(item.url)}" target="_blank" rel="noopener noreferrer">
+                <a class="link-main" href="${escapeAttr(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir link: ${escapeAttr(item.title)}">
                     <img class="link-favicon" 
                          src="https://www.google.com/s2/favicons?domain=${escapeAttr(extractDomain(item.url))}&sz=32"
                          onerror="this.style.display='none'"
-                         alt="" />
+                         alt="Ícone de ${escapeAttr(item.title)}" />
                     <div class="link-info">
                         <span class="link-title">${escapeHtml(item.title)}</span>
                         <span class="link-url">${escapeHtml(extractDomain(item.url))}</span>
                     </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square link-open-icon"></i>
+                    <i class="fa-solid fa-arrow-up-right-from-square link-open-icon" aria-hidden="true"></i>
                 </a>
-                <button class="btn ghost link-edit-btn" title="Editar link">
-                    <i class="fa-solid fa-pen"></i>
+                <button class="btn ghost link-edit-btn" title="Editar link" aria-label="Editar link ${escapeAttr(item.title)}">
+                    <i class="fa-solid fa-pen" aria-hidden="true"></i>
                 </button>
-                <button class="btn ghost link-del-btn" title="Remover link">
-                    <i class="fa-solid fa-trash"></i>
+                <button class="btn ghost link-del-btn" title="Remover link" aria-label="Remover link ${escapeAttr(item.title)}">
+                    <i class="fa-solid fa-trash" aria-hidden="true"></i>
                 </button>
             `;
 
@@ -234,9 +234,7 @@ function enterEditMode(card, item) {
 
     card.querySelector('.edit-link-url').focus();
 
-    card.querySelector('.btn-cancel-link-edit').onclick = () => loadLinks(currentUserId);
-
-    card.querySelector('.btn-save-link-edit').onclick = async () => {
+    const saveLinkEdit = async () => {
         let url   = card.querySelector('.edit-link-url').value.trim();
         const title    = card.querySelector('.edit-link-title').value.trim();
         const category = card.querySelector('.edit-link-cat').value.trim();
@@ -257,6 +255,18 @@ function enterEditMode(card, item) {
             showModal("Erro ao atualizar o link.");
         }
     };
+
+    card.querySelector('.btn-cancel-link-edit').onclick = () => loadLinks(currentUserId);
+    card.querySelector('.btn-save-link-edit').onclick = saveLinkEdit;
+
+    card.querySelectorAll('input').forEach(input => {
+        input.onkeydown = (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                saveLinkEdit();
+            }
+        };
+    });
 }
 
 async function saveLinkOrder(userId) {

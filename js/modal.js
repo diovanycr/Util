@@ -59,7 +59,7 @@ export function initModalListeners() {
   });
   
   // Botão OK do modal de alerta
-  const modalOkBtn = document.querySelector('#modalOverlay .btn.primary');
+  const modalOkBtn = el('btnModalAlertOk');
   if (modalOkBtn) {
     modalOkBtn.addEventListener('click', closeModal);
   }

@@ -431,19 +431,20 @@ function renderProblems(problems) {
 
         const solutionsHtml = solutions.map((s, i) => {
             const st = STATUS_LABELS[s.status] || STATUS_LABELS.confirmed;
+            const accordionId = `problem-${item.id}-sol-${i}`;
             return `
                 <div class="accordion-item">
-                    <button class="accordion-trigger" data-index="${i}">
+                    <button class="accordion-trigger" data-index="${i}" aria-expanded="false" aria-controls="${accordionId}">
                         <span>
-                            <i class="fa-solid fa-lightbulb"></i>
+                            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
                             ${escapeHtml(s.label || `Solução ${i + 1}`)}
                             <span class="solution-status-badge ${st.cls}">
-                                <i class="fa-solid ${st.icon}"></i> ${st.label}
+                                <i class="fa-solid ${st.icon}" aria-hidden="true"></i> ${st.label}
                             </span>
                         </span>
-                        <i class="fa-solid fa-chevron-down accordion-icon"></i>
+                        <i class="fa-solid fa-chevron-down accordion-icon" aria-hidden="true"></i>
                     </button>
-                    <div class="accordion-body">
+                    <div id="${accordionId}" class="accordion-body">
                         <div class="solution-text">${sanitizeHtml(s.text)}</div>
                         <div class="solution-copy-fields">
                         ${(() => {
@@ -451,19 +452,19 @@ function renderProblems(problems) {
                                       : s.copyText          ? [s.copyText]
                                       : [];
                             if (cts.length === 0) return `
-                                <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="0">
-                                    <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
+                                <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="0" tabindex="0" role="button" aria-label="Copiar texto da solução">
+                                    <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;" aria-hidden="true"></i>
                                     <span class="solution-copy-field-text" style="color:var(--muted);font-style:italic;">Clique para copiar o texto completo</span>
-                                    <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i></span>
+                                    <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i></span>
                                 </div>`;
                             return cts.map((ct, ci) => `
-                                <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="${ci}">
-                                    <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;"></i>
+                                <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="${ci}" tabindex="0" role="button" aria-label="Copiar ${ct.label ? escapeAttr(ct.label) : 'texto'}">
+                                    <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;" aria-hidden="true"></i>
                                     <div class="solution-copy-field-info">
                                         ${ct.label ? `<span class="solution-copy-field-label">${escapeHtml(ct.label)}</span>` : ''}
                                         <span class="solution-copy-field-text">${escapeHtml(ct.text)}</span>
                                     </div>
-                                    <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer"></i> Copiar</span>
+                                    <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> Copiar</span>
                                 </div>`).join('');
                         })()}
                         </div>
@@ -480,8 +481,8 @@ function renderProblems(problems) {
             <div class="problem-header">
                 <h3 class="problem-title">${escapeHtml(item.title)}</h3>
                 <div class="problem-actions">
-                    <button class="btn ghost btn-edit-problem"><i class="fa-solid fa-pen"></i></button>
-                    <button class="btn ghost btn-del-problem"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn ghost btn-edit-problem" aria-label="Editar problema"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+                    <button class="btn ghost btn-del-problem" aria-label="Excluir problema"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
                 </div>
             </div>
             ${item.description ? `<p class="problem-desc">${escapeHtml(item.description)}</p>` : ''}
@@ -496,6 +497,7 @@ function renderProblems(problems) {
                 const isOpen = body.classList.contains('open');
                 body.classList.toggle('open', !isOpen);
                 icon.classList.toggle('rotated', !isOpen);
+                trigger.setAttribute('aria-expanded', !isOpen);
             };
         });
 

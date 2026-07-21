@@ -1297,7 +1297,7 @@ body, .sidebar, .main, .topbar, .config-btn, .status-pill, .search-field, .qtag,
     <div class="sidebar-history">
       <div class="sidebar-history-header">
         <span class="nav-label">Histórico</span>
-        <button id="clearHistory" class="clear-btn" title="Limpar histórico"><i class="fa-solid fa-trash-can"></i></button>
+        <button id="clearFuturaHistory" class="clear-btn" title="Limpar histórico"><i class="fa-solid fa-trash-can"></i></button>
       </div>
       <div id="historyList" class="history-list"></div>
     </div>

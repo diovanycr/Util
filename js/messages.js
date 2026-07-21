@@ -33,10 +33,27 @@ export function initMessages(uid) {
     initHistory();
 }
 
+let autoTimeInterval = null;
+
+const onMessagesWindowFocus = () => {
+    const nowHour = new Date().getHours();
+    if (nowHour !== lastCheckedHour) {
+        lastCheckedHour = nowHour;
+        if (allMessages.length > 0) {
+            renderMessages();
+        }
+    }
+};
+
 export function resetMessages() {
     uiInitialized = false;
     currentUserId = null;
     activeCategoryFilter = null;
+    if (autoTimeInterval) {
+        clearInterval(autoTimeInterval);
+        autoTimeInterval = null;
+    }
+    window.removeEventListener('focus', onMessagesWindowFocus);
 }
 
 function setupAutoTimeRefresh() {
@@ -52,10 +69,10 @@ function setupAutoTimeRefresh() {
     };
 
     // Checa a cada 30 segundos
-    setInterval(checkTimeChange, 30000);
-
-    // Checa imediatamente quando o usuário volta para a aba do navegador
-    window.addEventListener('focus', checkTimeChange);
+    if (!autoTimeInterval) {
+        autoTimeInterval = setInterval(checkTimeChange, 30000);
+        window.addEventListener('focus', onMessagesWindowFocus);
+    }
 }
 
 function setupUserInterface() {
@@ -241,7 +258,6 @@ function renderMessages() {
 
     const now = new Date();
     const currentHour = now.getHours();
-    console.log(`[PainelAtende] Horário detectado no navegador: ${currentHour}h (${now.toLocaleTimeString('pt-BR')})`);
 
     const categoryFiltered = activeCategoryFilter
         ? allMessages.filter(m => (m.category || 'Geral') === activeCategoryFilter)
@@ -339,17 +355,16 @@ function renderMessages() {
             }
 
             row.innerHTML = `
-                <span class="drag-handle">&#9776;</span>
-                <div class="msg-content" style="flex:1; cursor:pointer; min-width:0;">
+                <span class="drag-handle" aria-hidden="true">&#9776;</span>
+                <div class="msg-content" tabindex="0" role="button" aria-label="Copiar mensagem: ${escapeAttr(displayText)}" style="flex:1; cursor:pointer; min-width:0;">
                     ${titleHtml}
                     <div class="msg-text">${escapeHtml(displayText)}</div>
                 </div>
-                <button class="btn ghost btn-edit"><i class="fa-solid fa-pen"></i></button>
-                <button class="btn ghost btn-del"><i class="fa-solid fa-trash"></i></button>
+                <button class="btn ghost btn-edit" aria-label="Editar mensagem"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+                <button class="btn ghost btn-del" aria-label="Excluir mensagem"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
             `;
 
-            // Copiar ao clicar + registrar no histórico
-            row.querySelector('.msg-content').onclick = async () => {
+            const copyAction = async () => {
                 try {
                     const textToCopy = item.text.includes('{usuario}')
                         ? item.text.replace(/\{usuario\}/g, userName)
@@ -359,6 +374,16 @@ function renderMessages() {
                     renderHistoryPanel();
                     showToast("Copiado!");
                 } catch (err) { console.error(err); }
+            };
+
+            // Copiar ao clicar + registrar no histórico
+            const contentEl = row.querySelector('.msg-content');
+            contentEl.onclick = copyAction;
+            contentEl.onkeydown = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    copyAction();
+                }
             };
 
             // Editar
@@ -409,9 +434,7 @@ function enterEditMode(row, item, userId) {
 
     row.querySelector('.edit-msg-text').focus();
 
-    row.querySelector('.btn-cancel-edit').onclick = () => loadMessages(userId);
-
-    row.querySelector('.btn-save-edit').onclick = async () => {
+    const saveEdit = async () => {
         const newText     = row.querySelector('.edit-msg-text').value.trim();
         const newTitle    = row.querySelector('.edit-msg-title').value.trim();
         const newCategory = row.querySelector('.edit-msg-category').value.trim() || 'Geral';
@@ -423,6 +446,16 @@ function enterEditMode(row, item, userId) {
             showToast("Mensagem atualizada!");
             loadMessages(userId);
         } catch (err) { showModal("Erro ao atualizar a mensagem."); }
+    };
+
+    row.querySelector('.btn-cancel-edit').onclick = () => loadMessages(userId);
+    row.querySelector('.btn-save-edit').onclick = saveEdit;
+
+    row.querySelector('.edit-msg-text').onkeydown = (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+            e.preventDefault();
+            saveEdit();
+        }
     };
 }
 
