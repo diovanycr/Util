@@ -26,6 +26,7 @@ Próximo passo: Homologação e deploys finais.
 *(Tudo concluído nesta sprint!)*
 
 ## Próximo
+*(Nenhum item pendente)*
 
 
 ## Feito

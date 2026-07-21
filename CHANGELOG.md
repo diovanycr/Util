@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.2] - 21/07/2026
+* **Adicionar suporte ARIA (aria-live e aria-describedby) para mensagens de erro em formulários** `[P]` `[Accessibility]`
+* **Melhorar contraste de bordas e cards no dark mode em search.css e compact-favorites.css** `[P]` `[UI]`
+* **Persistir mapeamento de cores de tags em localStorage para consistência visual entre reloads** `[P]` `[UI]`
+* **Adicionar suporte à tecla Escape para limpar a busca do header (#globalSearch)** `[P]` `[UI]`
+* **Filtro dinâmico por horário na categoria Saudação (exibir 'Bom dia' antes das 12h e 'Boa tarde' após as 12h)** `[P]` `[UI]`
+
+*(Nenhum item concluído neste ciclo ainda)*
+
+
 ## [v1.1.1] - 15/07/2026
 * **Validar campos obrigatórios no formulário de login** `[P]` `[UI]`
 

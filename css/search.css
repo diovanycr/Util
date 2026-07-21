@@ -71,5 +71,7 @@
 .btn-clear-search:hover { color: var(--danger); }
 
 [data-theme="dark"] .search-shortcut-hint { background: #334155; border-color: #475569; }
-[data-theme="dark"] .global-search-box { background: #1e293b; }
+[data-theme="dark"] .global-search-box { background: #1e293b; border: 1px solid var(--border); box-shadow: 0 32px 64px rgba(0,0,0,0.6); }
 [data-theme="dark"] .global-search-box input { color: var(--text); }
+[data-theme="dark"] .search-result-item:hover,
+[data-theme="dark"] .search-result-item.search-selected { background: #334155; }

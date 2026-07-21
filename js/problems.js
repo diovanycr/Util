@@ -30,12 +30,19 @@ const TAG_COLORS = [
     'tag-blue', 'tag-green', 'tag-purple', 'tag-orange',
     'tag-pink', 'tag-teal', 'tag-red', 'tag-indigo'
 ];
-const tagColorMap = {}; // tag -> classe de cor (persistente na sessão)
+const TAG_STORAGE_KEY = 'painelAtende_tagColors';
+let tagColorMap = {};
+try {
+    tagColorMap = JSON.parse(localStorage.getItem(TAG_STORAGE_KEY) || '{}');
+} catch { tagColorMap = {}; }
 
 function getTagColor(tag) {
     if (!tagColorMap[tag]) {
         const keys = Object.keys(tagColorMap);
         tagColorMap[tag] = TAG_COLORS[keys.length % TAG_COLORS.length];
+        try {
+            localStorage.setItem(TAG_STORAGE_KEY, JSON.stringify(tagColorMap));
+        } catch {}
     }
     return tagColorMap[tag];
 }

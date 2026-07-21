@@ -57,3 +57,7 @@
 
 [data-theme="dark"] .btn-favorite.active,
 [data-theme="dark"] .btn-favorite:hover { color: #fbbf24; }
+
+[data-theme="dark"] .compact-mode .user-row,
+[data-theme="dark"] .compact-mode .problem-card,
+[data-theme="dark"] .compact-mode .link-card { border-color: var(--border); }

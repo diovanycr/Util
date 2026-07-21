@@ -61,7 +61,7 @@ export function initAuth() {
                 const isAdmin = data.role === 'admin';
                 const displayName = data.username || data.email;
                 
-                el('loggedUser').textContent = displayName;
+                updateHeaderProfileGreeting(displayName);
                 
                 const userAvatar = el('userAvatar');
                 if (userAvatar) {
@@ -247,4 +247,35 @@ function showConfirmLogout(onConfirm) {
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
     overlay.querySelector('#logoutConfirmCancel').onclick = close;
     overlay.querySelector('#logoutConfirmOk').onclick = () => { close(); onConfirm(); };
+}
+
+// --- SAUDAÇÃO DINÂMICA DO HEADER ---
+let activeUserDisplayName = '';
+let headerTimeInterval = null;
+
+export function updateHeaderProfileGreeting(name) {
+    if (name) activeUserDisplayName = name;
+    if (!activeUserDisplayName) return;
+
+    const now = new Date();
+    const currentHour = now.getHours();
+
+    let greetingPrefix = 'Bom dia';
+    if (currentHour < 12) {
+        greetingPrefix = 'Bom dia';
+    } else if (currentHour < 18) {
+        greetingPrefix = 'Boa tarde';
+    } else {
+        greetingPrefix = 'Boa noite';
+    }
+
+    const loggedUserEl = el('loggedUser');
+    if (loggedUserEl) {
+        loggedUserEl.textContent = `${greetingPrefix}, ${activeUserDisplayName}!`;
+    }
+
+    if (!headerTimeInterval) {
+        headerTimeInterval = setInterval(() => updateHeaderProfileGreeting(), 30000);
+        window.addEventListener('focus', () => updateHeaderProfileGreeting());
+    }
 }

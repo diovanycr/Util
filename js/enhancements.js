@@ -71,6 +71,12 @@ function setupGlobalSearch() {
         if (e.key === 'Enter') {
             e.preventDefault();
             copyFirstResult();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            input.value = '';
+            clearBtn.classList.add('hidden');
+            applyGlobalSearch('');
+            input.blur();
         }
     };
 

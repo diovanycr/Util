@@ -1,11 +1,13 @@
 /* ============================================================
-   login.css — Tela de login e autenticação
-   ============================================================ */#loginBox {
+   login.css — Tela de login e autenticação (Versão Light)
+   ============================================================ */
+
+#loginBox {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at 0% 0%, #1e3a8a, #0f172a);
+  background: radial-gradient(circle at 50% 0%, #eff6ff 0%, #f1f5f9 60%, #e2e8f0 100%);
   padding: 20px;
   position: fixed;
   inset: 0;
@@ -13,48 +15,48 @@
 }
 
 .login-card-box {
-  max-width: 440px;
+  max-width: 420px;
   width: 100%;
-  padding: 40px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-  background: rgba(30, 41, 59, 0.9) !important;
-  backdrop-filter: blur(8px);
+  padding: 40px 36px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  background: #ffffff !important;
 }
+
 .login-header {
-  margin-bottom: 30px;
+  margin-bottom: 28px;
   text-align: center;
 }
 
 .login-logo {
-  font-size: 40px;
+  font-size: 36px;
   color: var(--primary);
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 72px;
-  height: 72px;
-  background: rgba(37, 99, 235, 0.1);
+  width: 68px;
+  height: 68px;
+  background: #eff6ff;
   border-radius: 50%;
-  border: 1px solid rgba(37, 99, 235, 0.2);
+  border: 1px solid #dbeafe;
 }
 
 #loginBox h2 {
   font-size: 24px;
   font-weight: 700;
-  color: #fff;
+  color: #0f172a;
   margin-bottom: 6px;
 }
 
 .login-subtitle {
-  color: #94a3b8;
+  color: #64748b;
   font-size: 14px;
 }
 
 .login-form-group {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
   text-align: left;
 }
 
@@ -62,35 +64,75 @@
   display: block;
   font-size: 13px;
   font-weight: 600;
-  color: #cbd5e1;
+  color: #334155;
   margin-bottom: 6px;
 }
 
 .login-form-group input {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
   margin-bottom: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 14px;
   transition: all 0.2s;
+}
+
+.login-form-group input::placeholder {
+  color: #94a3b8;
 }
 
 .login-form-group input:focus {
   border-color: var(--primary);
-  background: rgba(15, 23, 42, 0.8);
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.25);
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
 
-.login-divider { display: flex; align-items: center; margin: 20px 0; gap: 12px; }
+.login-divider { 
+  display: flex; 
+  align-items: center; 
+  margin: 22px 0; 
+  gap: 12px; 
+}
+
 .login-divider::before,
-.login-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.1); }
-.login-divider span { color: #64748b; font-size: 13px; font-weight: 500; }
+.login-divider::after { 
+  content: ''; 
+  flex: 1; 
+  height: 1px; 
+  background: #e2e8f0; 
+}
+
+.login-divider span { 
+  color: #94a3b8; 
+  font-size: 12px; 
+  font-weight: 600; 
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 .btn-google {
-  width: 100%; background: #ffffff; color: #3c4043;
-  border: 1px solid #dadce0; font-weight: 600;
-  padding: 12px 20px; gap: 10px; transition: all 0.2s;
+  width: 100%; 
+  background: #ffffff; 
+  color: #374151;
+  border: 1px solid #cbd5e1; 
+  font-weight: 600;
+  padding: 11px 20px; 
+  gap: 10px; 
+  transition: all 0.2s;
   border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.btn-google:hover { background: #f8f9fa; border-color: #dadce0; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); }
-.btn-google svg { flex-shrink: 0; }
 
+.btn-google:hover { 
+  background: #f8fafc; 
+  border-color: #94a3b8; 
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); 
+}
+
+.btn-google svg { 
+  flex-shrink: 0; 
+}

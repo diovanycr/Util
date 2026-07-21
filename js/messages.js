@@ -19,11 +19,13 @@ let dragSrc = null;
 let uiInitialized = false;
 let allMessages = [];
 let activeCategoryFilter = null;
+let lastCheckedHour = new Date().getHours();
 
 export function initMessages(uid) {
     currentUserId = uid;
     if (!uiInitialized) {
         setupUserInterface();
+        setupAutoTimeRefresh();
         uiInitialized = true;
     }
     loadMessages(uid);
@@ -35,6 +37,25 @@ export function resetMessages() {
     uiInitialized = false;
     currentUserId = null;
     activeCategoryFilter = null;
+}
+
+function setupAutoTimeRefresh() {
+    // Re-renderiza a lista automaticamente se a hora mudar (ex: virada das 12h ou 18h)
+    const checkTimeChange = () => {
+        const nowHour = new Date().getHours();
+        if (nowHour !== lastCheckedHour) {
+            lastCheckedHour = nowHour;
+            if (allMessages.length > 0) {
+                renderMessages();
+            }
+        }
+    };
+
+    // Checa a cada 30 segundos
+    setInterval(checkTimeChange, 30000);
+
+    // Checa imediatamente quando o usuário volta para a aba do navegador
+    window.addEventListener('focus', checkTimeChange);
 }
 
 function setupUserInterface() {
@@ -181,7 +202,22 @@ export async function loadMessages(userId) {
     `;
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-        const allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        let allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+        // Se o usuário não possuir nenhuma mensagem cadastrada, cria saudações padrão com {usuario}
+        if (allDocs.length === 0) {
+            const defaultGreetings = [
+                { title: 'Saudação - Bom dia', category: 'Saudação', text: 'Bom dia, {usuario}! Como posso te ajudar hoje?', order: 1, deleted: false, createdAt: Date.now() },
+                { title: 'Saudação - Boa tarde', category: 'Saudação', text: 'Boa tarde, {usuario}! Como posso te ajudar hoje?', order: 2, deleted: false, createdAt: Date.now() },
+                { title: 'Saudação - Boa noite', category: 'Saudação', text: 'Boa noite, {usuario}! Como posso te ajudar hoje?', order: 3, deleted: false, createdAt: Date.now() }
+            ];
+            for (const g of defaultGreetings) {
+                await addDoc(collection(db, 'users', userId, 'messages'), g);
+            }
+            const newSnap = await getDocs(collection(db, 'users', userId, 'messages'));
+            allDocs = newSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+
         _updateTrashBadge(allDocs);
 
         allMessages = allDocs
@@ -203,9 +239,42 @@ function renderMessages() {
     const list = el('msgList');
     list.innerHTML = '';
 
-    const filtered = activeCategoryFilter
+    const now = new Date();
+    const currentHour = now.getHours();
+    console.log(`[PainelAtende] Horário detectado no navegador: ${currentHour}h (${now.toLocaleTimeString('pt-BR')})`);
+
+    const categoryFiltered = activeCategoryFilter
         ? allMessages.filter(m => (m.category || 'Geral') === activeCategoryFilter)
         : allMessages;
+
+    // Filtro por horário para saudações ("Bom dia" antes das 12h, "Boa tarde" a partir das 12h)
+    const filtered = categoryFiltered.filter(m => {
+        const cat = (m.category || '').toLowerCase();
+        const title = (m.title || '').toLowerCase();
+        const text = (m.text || '').toLowerCase();
+
+        // Identifica se a mensagem é especificamente uma saudação de Bom Dia, Boa Tarde ou Boa Noite
+        const isBomDia   = title.includes('bom dia')   || text.includes('bom dia');
+        const isBoaTarde = title.includes('boa tarde') || text.includes('boa tarde');
+        const isBoaNoite = title.includes('boa noite') || text.includes('boa noite');
+
+        // Se não for uma mensagem de saudação específica com esses termos, mantém visível
+        if (!isBomDia && !isBoaTarde && !isBoaNoite) return true;
+
+        if (currentHour < 12) {
+            // Período da manhã (00:00 até 11:59): Exibe "Bom dia", oculta "Boa tarde" e "Boa noite"
+            if (isBoaTarde || isBoaNoite) return false;
+            return true;
+        } else if (currentHour < 18) {
+            // Período da tarde (12:00 até 17:59): Exibe "Boa tarde", oculta "Bom dia" e "Boa noite"
+            if (isBomDia || isBoaNoite) return false;
+            return true;
+        } else {
+            // Período da noite (18:00 até 23:59): Exibe "Boa noite" (ou "Boa tarde" se não houver boa noite), oculta "Bom dia"
+            if (isBomDia) return false;
+            return true;
+        }
+    });
 
     if (filtered.length === 0) {
         list.innerHTML = `
@@ -237,15 +306,43 @@ function renderMessages() {
             row.draggable = true;
             row.dataset.id = item.id;
 
+            const isGreeting = (item.category || '').toLowerCase().includes('sauda') ||
+                               (item.title || '').toLowerCase().includes('bom dia') ||
+                               (item.title || '').toLowerCase().includes('boa tarde') ||
+                               (item.title || '').toLowerCase().includes('boa noite') ||
+                               (item.text || '').toLowerCase().includes('bom dia') ||
+                               (item.text || '').toLowerCase().includes('boa tarde') ||
+                               (item.text || '').toLowerCase().includes('boa noite');
+
+            let timeBadgeHtml = '';
+            if (isGreeting) {
+                let changeInfo = '';
+                if (currentHour < 12) {
+                    changeInfo = 'Muda automaticamente para Boa tarde às 12:00';
+                } else if (currentHour < 18) {
+                    changeInfo = 'Muda automaticamente para Boa noite às 18:00';
+                } else {
+                    changeInfo = 'Muda automaticamente para Bom dia às 00:00';
+                }
+                timeBadgeHtml = `<span class="greeting-auto-badge" title="${changeInfo}"><i class="fa-regular fa-clock"></i> ${changeInfo}</span>`;
+            }
+
+            const userName = el('loggedUser')?.textContent?.trim() || 'Usuário';
+
             const titleHtml = item.title
-                ? `<span class="msg-title">${escapeHtml(item.title)}</span>`
-                : '';
+                ? `<span class="msg-title">${escapeHtml(item.title)} ${timeBadgeHtml}</span>`
+                : (timeBadgeHtml ? `<span class="msg-title">${timeBadgeHtml}</span>` : '');
+
+            let displayText = item.text;
+            if (displayText.includes('{usuario}')) {
+                displayText = displayText.replace(/\{usuario\}/g, userName);
+            }
 
             row.innerHTML = `
                 <span class="drag-handle">&#9776;</span>
                 <div class="msg-content" style="flex:1; cursor:pointer; min-width:0;">
                     ${titleHtml}
-                    <div class="msg-text">${escapeHtml(item.text)}</div>
+                    <div class="msg-text">${escapeHtml(displayText)}</div>
                 </div>
                 <button class="btn ghost btn-edit"><i class="fa-solid fa-pen"></i></button>
                 <button class="btn ghost btn-del"><i class="fa-solid fa-trash"></i></button>
@@ -254,8 +351,11 @@ function renderMessages() {
             // Copiar ao clicar + registrar no histórico
             row.querySelector('.msg-content').onclick = async () => {
                 try {
-                    await navigator.clipboard.writeText(item.text);
-                    addToHistory(item.text, item.title || '', item.category || 'Geral');
+                    const textToCopy = item.text.includes('{usuario}')
+                        ? item.text.replace(/\{usuario\}/g, userName)
+                        : item.text;
+                    await navigator.clipboard.writeText(textToCopy);
+                    addToHistory(textToCopy, item.title || '', item.category || 'Geral');
                     renderHistoryPanel();
                     showToast("Copiado!");
                 } catch (err) { console.error(err); }
