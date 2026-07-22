@@ -2,6 +2,38 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.3] - 22/07/2026
+* **Bug: FuturaSearchWidget cria duplo alternador de tema (#themeToggleBtn) que não sincroniza com o initTheme() global do PainelAtende (futura-widget.js:1306, theme.js)** `[M]` `[Bug]`
+* **A11y: atalhos numéricos '1-4' e letras 'N', 'P' não são anunciados via aria-keyshortcuts nos botões de navegação/ação correspondentes (enhancements.js, shortcuts.js)** `[P]` `[Accessibility]`
+* **UX: botão de exportar mensagens exibe modal mas não indica claramente qual o formato default recomendado via teclado/foco (messages.js:95-134)** `[P]` `[UI]`
+* **Layout: painel de histórico de cópias não tem limitação de largura e causa estolamento em telas ultra-wide (history.js:57)** `[P]` `[Layout]`
+* **Layout: modal de busca global (Ctrl+K) em telas pequenas (mobile/smartphones) ultrapassa altura e esconde caixa de input (search.css:16-24)** `[M]` `[Layout]`
+* **Bug: FuturaSearchWidget em futura-widget.js reinjeta FontAwesome v6.5.2 e Google Fonts no <head> mesmo já existindo no index.html (futura-widget.js:18-45)** `[P]` `[Bug]`
+* **Refactor: duplicar lógica de sanitizeHtml() / escapeHtml() entre utils.js e problemas.js — centralizar funções utilitárias (problems.js:671, utils.js)** `[P]` `[Backend]`
+* **Bug: filtro de favoritos usa display:none/'' inline mas a busca global verifica style.display para visibilidade — conflito quando ambos estão ativos (enhancements.js)** `[M]` `[Bug]`
+* **Bug: busca global (Ctrl+K) faz fetch ao Firestore a cada digitação sem cache local — N leituras por sessão e sem debounce suficiente (search.js:50-53)** `[M]` `[Bug]`
+* **A11y: botões de ação nos cards de mensagem (editar, excluir, favoritar) não possuem aria-label — ilegíveis por screen readers (messages.js:347-348)** `[M]` `[Accessibility]`
+* **A11y: .msg-content clicável usa div, não botão — invia Tab-navigation e não é acionável via Enter pelo teclado (messages.js:343)** `[M]` `[Accessibility]`
+* **A11y: accordion-trigger nos problemas não possui aria-expanded nem aria-controls — estado aberto/fechado invisível para AT (problems.js:436)** `[M]` `[Accessibility]`
+* **A11y: modal de busca global não prende foco (focus trap) — Tab navega para elementos da página de fundo (shortcuts.js, search.js)** `[M]` `[Accessibility]`
+* **A11y: campo de tags em problema não possui label associado via for/id — label 'Tags' desassociado do input#problemTagInput (index.html:228)** `[P]` `[Accessibility]`
+* **A11y: label 'Solução' (index.html:234) não tem atributo for — editor contenteditable #problemSolution não pode ser associado com label convencional, precisa de aria-labelledby** `[P]` `[Accessibility]`
+* **A11y: tabs principais (#userArea .tabs) não usam role=tablist/tab/tabpanel — estrutura semântica incorreta para tecnologias assistivas (index.html:130)** `[M]` `[Accessibility]`
+* **A11y: favicons de links externos carregados via Google S2 sem fallback acessível — onerror só oculta, sem alt text descritivo (links.js:158)** `[P]` `[Accessibility]`
+* **UX: não há feedback de loading/disabled no botão de login durante a autenticação — usuário pode clicar múltiplas vezes (auth.js:135)** `[M]` `[UI]`
+* **UX: formulário de novo link (index.html:283-285) não usa label+for nos campos URL, título e categoria — visualmente nu, sem orientação ao usuário** `[P]` `[UI]`
+* **UX: formulário de edição inline de mensagens e links não suporta atalho Ctrl+Enter para salvar (messages.js:414, links.js:239)** `[P]` `[UI]`
+* **Bug: FuturaSearchWidget possui botão #clearHistory com mesmo ID da history.js, podendo gerar colisões de listeners no DOM (futura-widget.js:1300, history.js)** `[P]` `[Bug]`
+* **Bug: modal de alerta (#modalOverlay) possui botão OK sem id — quebra se houver múltiplas instâncias e é selecionado por querySelector frágil (modal.js:62)** `[P]` `[Bug]`
+* **Bug: setupAutoTimeRefresh() em messages.js adiciona listener window 'focus' sem remover no resetMessages — mesmo problema de leak da auth.js** `[P]` `[Bug]`
+* **Bug: import dinâmico de messages.js e problems.js no onAuthStateChanged sem necessidade — módulos já foram importados estaticamente (auth.js:97,106)** `[P]` `[Bug]`
+* **Bug: listener 'focus' em window nunca é removido no logout — event listeners duplicados entre sessões (auth.js:279)** `[P]` `[Bug]`
+* **Bug: headerTimeInterval nunca é limpo no logout — múltiplos intervalos acumulam entre sessões (auth.js:278)** `[P]` `[Bug]`
+* **Bug: console.log de debug em renderMessages() vaza para produção (messages.js:244)** `[P]` `[Bug]`
+
+*(Nenhum item concluído neste ciclo ainda)*
+
+
 ## [v1.1.2] - 21/07/2026
 * **Adicionar suporte ARIA (aria-live e aria-describedby) para mensagens de erro em formulários** `[P]` `[Accessibility]`
 * **Melhorar contraste de bordas e cards no dark mode em search.css e compact-favorites.css** `[P]` `[UI]`

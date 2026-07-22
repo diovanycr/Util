@@ -392,6 +392,12 @@ function isFavorite(id) {
 // --- ATALHOS NUMÉRICOS ---
 
 function setupNumericShortcuts() {
+    // Configura aria-keyshortcuts nas abas
+    document.querySelector('[data-tab="tabMessages"]')?.setAttribute('aria-keyshortcuts', '1 N');
+    document.querySelector('[data-tab="tabProblems"]')?.setAttribute('aria-keyshortcuts', '2 P');
+    document.querySelector('[data-tab="tabLinks"]')?.setAttribute('aria-keyshortcuts', '3');
+    document.querySelector('[data-tab="tabSistemas"]')?.setAttribute('aria-keyshortcuts', '4');
+
     document.addEventListener('keydown', (e) => {
         if (e.target.matches('input, textarea, [contenteditable="true"]')) return;
 

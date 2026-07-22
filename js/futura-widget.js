@@ -2152,10 +2152,18 @@ loadHistory();
 searchInput.focus();
 
 
-      // ── Reconnect buttons that had inline onclick removed ──
-      // Theme toggle
+      // Theme toggle (sincronizado com o PainelAtende global)
       const _themeBtn = document.getElementById("themeToggleBtn");
-      if (_themeBtn) _themeBtn.addEventListener("click", toggleTheme);
+      if (_themeBtn) {
+        _themeBtn.addEventListener("click", () => {
+          const globalThemeBtn = document.getElementById("btnTheme");
+          if (globalThemeBtn) {
+            globalThemeBtn.click();
+          } else {
+            toggleTheme();
+          }
+        });
+      }
 
       // Config modal
       const _configBtn = document.getElementById("configBtn");
