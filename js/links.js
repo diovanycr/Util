@@ -16,7 +16,7 @@ import {
 
 import { showModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr } from './utils.js';
+import { escapeHtml, escapeAttr, addKeyboardDragSupport } from './utils.js';
 
 let currentUserId = null;
 let allLinks = [];
@@ -162,6 +162,7 @@ function renderLinks(container, links) {
                     </div>
                     <i class="fa-solid fa-arrow-up-right-from-square link-open-icon" aria-hidden="true"></i>
                 </a>
+                <button class="btn ghost link-drag-handle" title="Reordenar link"><i class="fa-solid fa-grip-lines" aria-hidden="true"></i></button>
                 <button class="btn ghost link-edit-btn" title="Editar link" aria-label="Editar link ${escapeAttr(item.title)}">
                     <i class="fa-solid fa-pen" aria-hidden="true"></i>
                 </button>
@@ -186,7 +187,7 @@ function renderLinks(container, links) {
                 }
             };
 
-            // Drag-and-drop
+            // Drag-and-drop (mouse)
             card.draggable = true;
             card.dataset.id = item.id;
             card.ondragstart = (e) => {
@@ -208,6 +209,16 @@ function renderLinks(container, links) {
                 const parent = card.parentNode;
                 parent.insertBefore(dragSrcLink, after ? card.nextSibling : card);
             };
+
+            // Drag-and-drop (teclado)
+            const dragHandle = card.querySelector('.link-drag-handle');
+            if (dragHandle) {
+                addKeyboardDragSupport(
+                    dragHandle,
+                    () => [...card.parentNode.querySelectorAll('.link-card')],
+                    () => saveLinkOrder(currentUserId)
+                );
+            }
 
             group.appendChild(card);
         });

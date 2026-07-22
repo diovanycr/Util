@@ -11,7 +11,7 @@ import {
 
 import { openConfirmModal, showModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr } from './utils.js';
+import { escapeHtml, escapeAttr, addKeyboardDragSupport } from './utils.js';
 import { addToHistory, initHistory, renderHistoryPanel } from './history.js';
 
 let currentUserId = null;
@@ -356,7 +356,7 @@ function renderMessages() {
             }
 
             row.innerHTML = `
-                <span class="drag-handle" aria-hidden="true">&#9776;</span>
+                <span class="drag-handle">&#9776;</span>
                 <div class="msg-content" tabindex="0" role="button" aria-label="Copiar mensagem: ${escapeAttr(displayText)}" style="flex:1; cursor:pointer; min-width:0;">
                     ${titleHtml}
                     <div class="msg-text">${escapeHtml(displayText)}</div>
@@ -399,7 +399,7 @@ function renderMessages() {
                 } catch (err) { showModal("Erro ao mover para a lixeira."); }
             };
 
-            // Drag
+            // Drag (mouse)
             row.ondragstart = () => { dragSrc = row; row.classList.add('dragging'); };
             row.ondragend   = () => { row.classList.remove('dragging'); saveOrder(currentUserId); };
             row.ondragover  = (e) => {
@@ -408,6 +408,16 @@ function renderMessages() {
                 const after = e.clientY > rect.top + rect.height / 2;
                 row.parentNode.insertBefore(dragSrc, after ? row.nextSibling : row);
             };
+
+            // Drag (teclado)
+            const handle = row.querySelector('.drag-handle');
+            if (handle) {
+                addKeyboardDragSupport(
+                    handle,
+                    () => [...row.parentNode.querySelectorAll('.user-row')],
+                    () => saveOrder(currentUserId)
+                );
+            }
 
             groupEl.appendChild(row);
         });

@@ -30,180 +30,212 @@ let poDir   = 'IN';
 export function renderSistemasTab(container) {
   container.innerHTML = `
     <div class="po-wrap">
-
-      <!-- Seletor de ferramenta -->
-      <div class="card po-tool-selector">
-        <p class="po-selector-label">Escolha uma ferramenta</p>
-        <div class="po-tools-grid">
-          <button class="po-tool-btn active" data-tool="portopener">
-            <span class="po-tool-icon">🛡️</span>
-            <span class="po-tool-name">Port Opener</span>
-            <span class="po-tool-desc">Gera scripts para abrir portas no Firewall do Windows</span>
-          </button>
-          <button class="po-tool-btn" data-tool="futura">
-            <span class="po-tool-icon">🔍</span>
-            <span class="po-tool-name">Futura Search</span>
-            <span class="po-tool-desc">Pesquise no manual e tire dúvidas do sistema com IA</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Port Opener -->
-      <div id="poTool-portopener" class="po-tool-panel">
-
-        <div class="card">
-          <div class="po-card-header">
-            <span class="po-card-icon">🛡️</span>
-            <div>
-              <h3 class="po-card-title">Windows Port Opener</h3>
-              <p class="sub">Gera scripts prontos para abrir portas no Firewall do Windows</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Entrada de portas -->
-        <div class="card">
-          <p class="po-section-label">Portas</p>
-          <div class="po-tag-field" id="poTagField">
-            <div id="poTagPills" class="po-tag-pills"></div>
-            <input id="poPortInput" class="po-port-input" type="text"
-              inputmode="numeric" autocomplete="off"
-              placeholder="Digite a porta e pressione Enter..." />
-          </div>
-          <p class="po-hint">
-            <kbd>Enter</kbd> ou <kbd>,</kbd> para adicionar &nbsp;·&nbsp;
-            <kbd>Backspace</kbd> para remover a última
-          </p>
-        </div>
-
-        <!-- Portas rápidas -->
-        <div class="card">
-          <p class="po-section-label">Portas comuns</p>
-          <div class="po-quick-grid" id="poQuickGrid"></div>
-        </div>
-
-        <!-- Opções -->
-        <div class="card">
-          <p class="po-section-label">Opções</p>
-          <div class="po-opts-grid">
-            <div class="po-opt-group">
-              <p class="po-opt-label">Protocolo</p>
-              <div class="po-seg" id="poSegProto">
-                <button class="po-seg-btn active" data-v="TCP">TCP</button>
-                <button class="po-seg-btn" data-v="UDP">UDP</button>
-                <button class="po-seg-btn" data-v="BOTH">Ambos</button>
-              </div>
-            </div>
-            <div class="po-opt-group">
-              <p class="po-opt-label">Direção</p>
-              <div class="po-seg" id="poSegDir">
-                <button class="po-seg-btn active" data-v="IN">Entrada</button>
-                <button class="po-seg-btn" data-v="OUT">Saída</button>
-                <button class="po-seg-btn" data-v="BOTH">Ambas</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Botão gerar -->
-        <div class="card" style="padding:16px 24px;">
-          <button id="poBtnGenerate" class="btn primary" style="width:100%;padding:13px;font-size:15px;justify-content:center;">
-            <i class="fa-solid fa-terminal"></i> Gerar Scripts
-          </button>
-        </div>
-
-        <!-- Output -->
-        <div id="poOutput" class="hidden">
-
-          <div class="po-notice">
-            <span>⚠️</span>
-            <span>Execute os scripts como <strong>Administrador</strong> — clique com o botão direito → "Executar como administrador"</span>
-          </div>
-
-          <div class="po-summary" id="poSummary">
-            <span>✅</span>
-            <span id="poSummaryText"></span>
-            <div id="poSummaryTags" class="po-summary-tags"></div>
-          </div>
-
-          <!-- Tabs de output -->
-          <div class="tabs po-output-tabs">
-            <button class="tab active po-otab" data-pane="bat">.BAT</button>
-            <button class="tab po-otab" data-pane="ps1">PowerShell</button>
-            <button class="tab po-otab" data-pane="netsh">netsh</button>
-            <button class="tab po-otab" data-pane="undo">Remover</button>
-          </div>
-
-          <div id="poPane-bat"   class="po-pane">
-            <div class="card" style="padding:0;overflow:hidden;">
-              <div class="po-code-header">
-                <span class="po-code-title">Script executável <span class="po-badge po-badge-blue">.bat</span></span>
-                <div style="display:flex;gap:6px;">
-                  <button class="btn ghost po-btn-dl" data-id="poRaw-bat" data-name="abrir-portas.bat"><i class="fa-solid fa-download"></i> Baixar</button>
-                  <button class="btn ghost po-btn-copy" data-id="poRaw-bat"><i class="fa-solid fa-copy"></i> Copiar</button>
-                </div>
-              </div>
-              <pre id="poRaw-bat" class="po-pre"></pre>
-            </div>
-          </div>
-
-          <div id="poPane-ps1"   class="po-pane hidden">
-            <div class="card" style="padding:0;overflow:hidden;">
-              <div class="po-code-header">
-                <span class="po-code-title">PowerShell Script <span class="po-badge po-badge-purple">.ps1</span></span>
-                <div style="display:flex;gap:6px;">
-                  <button class="btn ghost po-btn-dl" data-id="poRaw-ps1" data-name="abrir-portas.ps1"><i class="fa-solid fa-download"></i> Baixar</button>
-                  <button class="btn ghost po-btn-copy" data-id="poRaw-ps1"><i class="fa-solid fa-copy"></i> Copiar</button>
-                </div>
-              </div>
-              <pre id="poRaw-ps1" class="po-pre"></pre>
-            </div>
-          </div>
-
-          <div id="poPane-netsh" class="po-pane hidden">
-            <div class="card" style="padding:0;overflow:hidden;">
-              <div class="po-code-header">
-                <span class="po-code-title">Comandos netsh (CMD) <span class="po-badge po-badge-gray">cmd</span></span>
-                <div style="display:flex;gap:6px;">
-                  <button class="btn ghost po-btn-copy" data-id="poRaw-netsh"><i class="fa-solid fa-copy"></i> Copiar</button>
-                </div>
-              </div>
-              <pre id="poRaw-netsh" class="po-pre"></pre>
-            </div>
-          </div>
-
-          <div id="poPane-undo"  class="po-pane hidden">
-            <div class="card" style="padding:0;overflow:hidden;">
-              <div class="po-code-header">
-                <span class="po-code-title">Remover regras <span class="po-badge po-badge-amber">.bat</span></span>
-                <div style="display:flex;gap:6px;">
-                  <button class="btn ghost po-btn-dl" data-id="poRaw-undo" data-name="remover-portas.bat"><i class="fa-solid fa-download"></i> Baixar</button>
-                  <button class="btn ghost po-btn-copy" data-id="poRaw-undo"><i class="fa-solid fa-copy"></i> Copiar</button>
-                </div>
-              </div>
-              <pre id="poRaw-undo" class="po-pre"></pre>
-            </div>
-          </div>
-
-        </div><!-- /poOutput -->
-      </div><!-- /poTool-portopener -->
-
-      <!-- Futura Search Widget -->
-      <div id="poTool-futura" class="po-tool-panel hidden">
-        <div id="futuraSearchWidgetContainer"></div>
-      </div>
-
+      ${_buildToolSelector()}
+      ${_buildPortOpenerPanel()}
+      ${_buildFuturaPanel()}
     </div><!-- /po-wrap -->
   `;
 
   _bindEvents(container);
   _renderQuickPorts();
-  
+
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
   const futContainer = document.getElementById('futuraSearchWidgetContainer');
   if (futContainer) futContainer.setAttribute('data-theme', currentTheme);
 
   new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer' });
+}
+
+// ── Sub-funções de construção do HTML ─────────────────────────────────────
+
+/** Seletor de ferramenta (Port Opener | Futura Search) */
+function _buildToolSelector() {
+  return `
+    <div class="card po-tool-selector">
+      <p class="po-selector-label">Escolha uma ferramenta</p>
+      <div class="po-tools-grid">
+        <button class="po-tool-btn active" data-tool="portopener">
+          <span class="po-tool-icon">🛡️</span>
+          <span class="po-tool-name">Port Opener</span>
+          <span class="po-tool-desc">Gera scripts para abrir portas no Firewall do Windows</span>
+        </button>
+        <button class="po-tool-btn" data-tool="futura">
+          <span class="po-tool-icon">🔍</span>
+          <span class="po-tool-name">Futura Search</span>
+          <span class="po-tool-desc">Pesquise no manual e tire dúvidas do sistema com IA</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+/** Painel principal do Port Opener (entrada de portas, opções e output) */
+function _buildPortOpenerPanel() {
+  return `
+    <div id="poTool-portopener" class="po-tool-panel">
+      ${_buildPortOpenerHeader()}
+      ${_buildPortInput()}
+      ${_buildQuickPorts()}
+      ${_buildOptions()}
+      ${_buildGenerateButton()}
+      ${_buildOutputSection()}
+    </div><!-- /poTool-portopener -->
+  `;
+}
+
+/** Cabeçalho do card Port Opener */
+function _buildPortOpenerHeader() {
+  return `
+    <div class="card">
+      <div class="po-card-header">
+        <span class="po-card-icon">🛡️</span>
+        <div>
+          <h3 class="po-card-title">Windows Port Opener</h3>
+          <p class="sub">Gera scripts prontos para abrir portas no Firewall do Windows</p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/** Campo de entrada de portas com pills */
+function _buildPortInput() {
+  return `
+    <div class="card">
+      <p class="po-section-label">Portas</p>
+      <div class="po-tag-field" id="poTagField">
+        <div id="poTagPills" class="po-tag-pills"></div>
+        <input id="poPortInput" class="po-port-input" type="text"
+          inputmode="numeric" autocomplete="off"
+          placeholder="Digite a porta e pressione Enter..." />
+      </div>
+      <p class="po-hint">
+        <kbd>Enter</kbd> ou <kbd>,</kbd> para adicionar &nbsp;·&nbsp;
+        <kbd>Backspace</kbd> para remover a última
+      </p>
+    </div>
+  `;
+}
+
+/** Grid de portas comuns para seleção rápida */
+function _buildQuickPorts() {
+  return `
+    <div class="card">
+      <p class="po-section-label">Portas comuns</p>
+      <div class="po-quick-grid" id="poQuickGrid"></div>
+    </div>
+  `;
+}
+
+/** Segmented controls de protocolo e direção */
+function _buildOptions() {
+  return `
+    <div class="card">
+      <p class="po-section-label">Opções</p>
+      <div class="po-opts-grid">
+        <div class="po-opt-group">
+          <p class="po-opt-label">Protocolo</p>
+          <div class="po-seg" id="poSegProto">
+            <button class="po-seg-btn active" data-v="TCP">TCP</button>
+            <button class="po-seg-btn" data-v="UDP">UDP</button>
+            <button class="po-seg-btn" data-v="BOTH">Ambos</button>
+          </div>
+        </div>
+        <div class="po-opt-group">
+          <p class="po-opt-label">Direção</p>
+          <div class="po-seg" id="poSegDir">
+            <button class="po-seg-btn active" data-v="IN">Entrada</button>
+            <button class="po-seg-btn" data-v="OUT">Saída</button>
+            <button class="po-seg-btn" data-v="BOTH">Ambas</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/** Botão de geração de scripts */
+function _buildGenerateButton() {
+  return `
+    <div class="card" style="padding:16px 24px;">
+      <button id="poBtnGenerate" class="btn primary" style="width:100%;padding:13px;font-size:15px;justify-content:center;">
+        <i class="fa-solid fa-terminal"></i> Gerar Scripts
+      </button>
+    </div>
+  `;
+}
+
+/** Área de output: aviso, resumo, abas .bat / .ps1 / netsh / undo */
+function _buildOutputSection() {
+  return `
+    <div id="poOutput" class="hidden">
+
+      <div class="po-notice">
+        <span>⚠️</span>
+        <span>Execute os scripts como <strong>Administrador</strong> — clique com o botão direito → "Executar como administrador"</span>
+      </div>
+
+      <div class="po-summary" id="poSummary">
+        <span>✅</span>
+        <span id="poSummaryText"></span>
+        <div id="poSummaryTags" class="po-summary-tags"></div>
+      </div>
+
+      <!-- Abas de output -->
+      <div class="tabs po-output-tabs">
+        <button class="tab active po-otab" data-pane="bat">.BAT</button>
+        <button class="tab po-otab" data-pane="ps1">PowerShell</button>
+        <button class="tab po-otab" data-pane="netsh">netsh</button>
+        <button class="tab po-otab" data-pane="undo">Remover</button>
+      </div>
+
+      ${_buildCodePane('bat',   'Script executável',    'po-badge-blue',   'abrir-portas.bat',   true)}
+      ${_buildCodePane('ps1',   'PowerShell Script',    'po-badge-purple', 'abrir-portas.ps1',   true)}
+      ${_buildCodePane('netsh', 'Comandos netsh (CMD)', 'po-badge-gray',   null,                 false)}
+      ${_buildCodePane('undo',  'Remover regras',       'po-badge-amber',  'remover-portas.bat', true)}
+
+    </div><!-- /poOutput -->
+  `;
+}
+
+/**
+ * Painel de código de um formato de script específico.
+ * @param {string}  key       - Identificador do painel (bat, ps1, netsh, undo)
+ * @param {string}  title     - Título legível do painel
+ * @param {string}  badgeCls  - Classe CSS da badge de formato
+ * @param {string|null} dlName - Nome do arquivo para download (null = sem botão)
+ * @param {boolean} hidden    - Se o painel começa oculto
+ */
+function _buildCodePane(key, title, badgeCls, dlName, hidden) {
+  const ext    = key === 'ps1' ? '.ps1' : key === 'netsh' ? 'cmd' : '.bat';
+  const badge  = key === 'netsh' ? 'cmd' : `.${key === 'undo' ? 'bat' : key}`;
+  const dlBtn  = dlName
+    ? `<button class="btn ghost po-btn-dl" data-id="poRaw-${key}" data-name="${dlName}"><i class="fa-solid fa-download"></i> Baixar</button>`
+    : '';
+
+  return `
+    <div id="poPane-${key}" class="po-pane${hidden ? ' hidden' : ''}">
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div class="po-code-header">
+          <span class="po-code-title">${title} <span class="po-badge ${badgeCls}">${badge}</span></span>
+          <div style="display:flex;gap:6px;">
+            ${dlBtn}
+            <button class="btn ghost po-btn-copy" data-id="poRaw-${key}"><i class="fa-solid fa-copy"></i> Copiar</button>
+          </div>
+        </div>
+        <pre id="poRaw-${key}" class="po-pre"></pre>
+      </div>
+    </div>
+  `;
+}
+
+/** Contêiner do Futura Search Widget */
+function _buildFuturaPanel() {
+  return `
+    <div id="poTool-futura" class="po-tool-panel hidden">
+      <div id="futuraSearchWidgetContainer"></div>
+    </div>
+  `;
 }
 
 // ── Bind de eventos ───────────────────────────────────────────────────────
@@ -268,7 +300,6 @@ function _bindEvents(container) {
     if (copyBtn) {
       const el = document.getElementById(copyBtn.dataset.id);
       navigator.clipboard.writeText(el._raw || el.textContent).then(() => {
-        const icon = copyBtn.querySelector('i');
         const prev = copyBtn.innerHTML;
         copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
         copyBtn.classList.add('po-copied');
@@ -458,7 +489,7 @@ function _hl(code) {
       '<span class="po-c-kw">$1</span>')
     .replace(/"([^"]*)"/g,'<span class="po-c-str">"$1"</span>')
     .replace(/\b(\d{2,5})\b/g,'<span class="po-c-num">$1</span>')
-    .replace(/(\$[\w.[\]]+)/g,'<span class="po-c-var">$1</span>');
+    .replace(/(\$[\w.[[\]]+)/g,'<span class="po-c-var">$1</span>');
 }
 
 function _setCode(id, text) {

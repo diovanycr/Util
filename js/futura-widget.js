@@ -56,29 +56,36 @@ class FuturaSearchWidget {
     if (!document.getElementById(styleId)) {
       const style = document.createElement("style");
       style.id = styleId;
-      style.innerHTML = `/* ============================================
-   RESET
-============================================ */
-*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+      style.innerHTML = `/* ── Reset interno do widget (isolado) ────────────────────── */
+.futura-search-widget *, .futura-search-widget *::before, .futura-search-widget *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-:root {
-  --bg:          #f7f6f3;
-  --surface:     #ffffff;
-  --surface-2:   #f2f1ee;
-  --border:      #e4e2dc;
-  --border-dark: #ccc9c0;
-  --blue:        #1a56db;
-  --blue-light:  #eff4ff;
-  --blue-mid:    #3b6fd4;
-  --text:        #1a1916;
-  --text-2:      #4a4843;
-  --muted:       #8a8780;
-  --success:     #0d7f5f;
-  --danger:      #b91c1c;
-  --sidebar-w:   240px;
-  --radius:      10px;
-  --shadow-sm:   0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
-  --shadow-md:   0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+/* Variáveis CSS escopadas ao widget (não afetam o :root do app) */
+.futura-search-widget {
+  --fw-bg:          #f7f6f3;
+  --fw-surface:     #ffffff;
+  --fw-surface-2:   #f2f1ee;
+  --fw-border:      #e4e2dc;
+  --fw-border-dark: #ccc9c0;
+  --fw-blue:        #1a56db;
+  --fw-blue-light:  #eff4ff;
+  --fw-blue-mid:    #3b6fd4;
+  --fw-text:        #1a1916;
+  --fw-text-2:      #4a4843;
+  --fw-muted:       #8a8780;
+  --fw-success:     #0d7f5f;
+  --fw-danger:      #b91c1c;
+  --fw-sidebar-w:   240px;
+  --fw-radius:      10px;
+  --fw-shadow-sm:   0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.04);
+  --fw-shadow-md:   0 4px 16px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+  /* Aliases para compatibilidade com o CSS interno existente */
+  --bg: var(--fw-bg); --surface: var(--fw-surface); --surface-2: var(--fw-surface-2);
+  --border: var(--fw-border); --border-dark: var(--fw-border-dark);
+  --blue: var(--fw-blue); --blue-light: var(--fw-blue-light); --blue-mid: var(--fw-blue-mid);
+  --text: var(--fw-text); --text-2: var(--fw-text-2); --muted: var(--fw-muted);
+  --success: var(--fw-success); --danger: var(--fw-danger);
+  --sidebar-w: var(--fw-sidebar-w); --radius: var(--fw-radius);
+  --shadow-sm: var(--fw-shadow-sm); --shadow-md: var(--fw-shadow-md);
 }
 
 .futura-search-widget { scroll-behavior: smooth; font-size: 15px; }
@@ -93,10 +100,7 @@ class FuturaSearchWidget {
   -webkit-font-smoothing: antialiased;
 }
 
-/* ============================================
-   SIDEBAR
-============================================ */
-.sidebar {
+.futura-search-widget .sidebar {
   width: var(--sidebar-w);
   min-height: 100vh;
   background: var(--surface);
@@ -109,7 +113,7 @@ class FuturaSearchWidget {
   z-index: 10;
 }
 
-.sidebar-logo {
+.futura-search-widget .sidebar-logo {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -117,7 +121,7 @@ class FuturaSearchWidget {
   margin-bottom: 32px;
 }
 
-.logo-mark {
+.futura-search-widget .logo-mark {
   width: 32px; height: 32px;
   background: var(--blue);
   color: white;
@@ -128,21 +132,21 @@ class FuturaSearchWidget {
   flex-shrink: 0;
 }
 
-.sidebar-logo span {
+.futura-search-widget .sidebar-logo span {
   font-size: 14px;
   font-weight: 500;
   color: var(--text);
   letter-spacing: -0.01em;
 }
 
-.sidebar-nav {
+.futura-search-widget .sidebar-nav {
   display: flex;
   flex-direction: column;
   gap: 2px;
   margin-bottom: 28px;
 }
 
-.nav-label {
+.futura-search-widget .nav-label {
   font-size: 11px;
   font-weight: 500;
   color: var(--muted);
@@ -153,7 +157,7 @@ class FuturaSearchWidget {
   display: block;
 }
 
-.nav-item {
+.futura-search-widget .nav-item {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -165,18 +169,18 @@ class FuturaSearchWidget {
   transition: background 0.15s, color 0.15s;
 }
 
-.nav-item:hover { background: var(--surface-2); color: var(--text); }
-.nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 500; }
-.nav-item i { font-size: 13px; }
+.futura-search-widget .nav-item:hover { background: var(--surface-2); color: var(--text); }
+.futura-search-widget .nav-item.active { background: var(--blue-light); color: var(--blue); font-weight: 500; }
+.futura-search-widget .nav-item i { font-size: 13px; }
 
-.sidebar-history {
+.futura-search-widget .sidebar-history {
   flex: 1;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.sidebar-history-header {
+.futura-search-widget .sidebar-history-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -184,7 +188,7 @@ class FuturaSearchWidget {
   margin-bottom: 6px;
 }
 
-.clear-btn {
+.futura-search-widget .clear-btn {
   background: none;
   border: none;
   color: var(--muted);
@@ -195,9 +199,9 @@ class FuturaSearchWidget {
   transition: color 0.15s, background 0.15s;
 }
 
-.clear-btn:hover { color: var(--danger); background: #fef2f2; }
+.futura-search-widget .clear-btn:hover { color: var(--danger); background: #fef2f2; }
 
-.history-list {
+.futura-search-widget .history-list {
   display: flex;
   flex-direction: column;
   gap: 1px;
@@ -205,7 +209,7 @@ class FuturaSearchWidget {
   flex: 1;
 }
 
-.history-item {
+.futura-search-widget .history-item {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -220,16 +224,16 @@ class FuturaSearchWidget {
   text-overflow: ellipsis;
 }
 
-.history-item:hover { background: var(--surface-2); color: var(--text-2); }
-.history-item i { font-size: 11px; flex-shrink: 0; }
+.futura-search-widget .history-item:hover { background: var(--surface-2); color: var(--text-2); }
+.futura-search-widget .history-item i { font-size: 11px; flex-shrink: 0; }
 
-.sidebar-footer {
+.futura-search-widget .sidebar-footer {
   padding-top: 16px;
   border-top: 1px solid var(--border);
   margin-top: 16px;
 }
 
-.config-btn {
+.futura-search-widget .config-btn {
   display: flex;
   align-items: center;
   gap: 9px;
@@ -246,13 +250,13 @@ class FuturaSearchWidget {
   text-align: left;
 }
 
-.config-btn:hover { background: var(--surface-2); color: var(--text); }
-.config-btn i { font-size: 14px; }
+.futura-search-widget .config-btn:hover { background: var(--surface-2); color: var(--text); }
+.futura-search-widget .config-btn i { font-size: 14px; }
 
 /* ============================================
    MAIN
 ============================================ */
-.main {
+.futura-search-widget .main {
   margin-left: var(--sidebar-w);
   flex: 1;
   display: flex;
@@ -260,7 +264,7 @@ class FuturaSearchWidget {
   min-height: 100vh;
 }
 
-.topbar {
+.futura-search-widget .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -272,7 +276,7 @@ class FuturaSearchWidget {
   z-index: 5;
 }
 
-.page-title {
+.futura-search-widget .page-title {
   font-family: 'Instrument Serif', serif;
   font-size: 22px;
   font-weight: 400;
@@ -280,12 +284,12 @@ class FuturaSearchWidget {
   letter-spacing: -0.02em;
 }
 
-.page-title em {
+.futura-search-widget .page-title em {
   font-style: italic;
   color: var(--blue);
 }
 
-.status-pill {
+.futura-search-widget .status-pill {
   display: flex;
   align-items: center;
   gap: 7px;
@@ -299,21 +303,21 @@ class FuturaSearchWidget {
   transition: border-color 0.2s;
 }
 
-.status-pill:hover { border-color: var(--border-dark); }
+.futura-search-widget .status-pill:hover { border-color: var(--border-dark); }
 
-.status-dot {
+.futura-search-widget .status-dot {
   width: 7px; height: 7px;
   border-radius: 50%;
   background: var(--border-dark);
   flex-shrink: 0;
 }
 
-.status-dot.active { background: var(--success); }
+.futura-search-widget .status-dot.active { background: var(--success); }
 
 /* ============================================
    CONTENT
 ============================================ */
-.content {
+.futura-search-widget .content {
   padding: 56px 48px 80px;
   max-width: 860px;
 }
@@ -489,7 +493,7 @@ class FuturaSearchWidget {
   color: var(--muted);
 }
 
-.hidden { display: none !important; }
+.futura-search-widget .fw-hidden { display: none !important; }
 
 /* ============================================
    AI BLOCK
@@ -928,17 +932,17 @@ class FuturaSearchWidget {
    RESPONSIVE
 ============================================ */
 @media (max-width: 768px) {
-  .sidebar { display: none; }
-  .main { margin-left: 0; }
-  .topbar, .content { padding-left: 20px; padding-right: 20px; }
-  .content { padding-top: 32px; }
-  .mode-cards, .provider-cards { grid-template-columns: 1fr; }
+  .futura-search-widget .sidebar { display: none; }
+  .futura-search-widget .main { margin-left: 0; }
+  .futura-search-widget .topbar, .futura-search-widget .content { padding-left: 20px; padding-right: 20px; }
+  .futura-search-widget .content { padding-top: 32px; }
+  .futura-search-widget .mode-cards, .futura-search-widget .provider-cards { grid-template-columns: 1fr; }
 }
 
 /* ============================================
-   DARK THEME VARIABLES
+   DARK THEME VARIABLES (escopadas ao widget)
    ============================================ */
-[data-theme="dark"] {
+.futura-search-widget[data-theme="dark"] {
   --bg:          #0b0c10;
   --surface:     #13151a;
   --surface-2:   #1c1e26;
@@ -957,7 +961,7 @@ class FuturaSearchWidget {
 /* ============================================
    SMOOTH COLOR TRANSITIONS
    ============================================ */
-body, .sidebar, .main, .topbar, .config-btn, .status-pill, .search-field, .qtag, .ai-block, .ai-block-header, .result-card, .provider-btn-card, .prompt-preview, .modal, .mode-card, .provider-card, input, select {
+.futura-search-widget *, .futura-search-widget .sidebar, .futura-search-widget .main, .futura-search-widget .topbar, .futura-search-widget .config-btn, .futura-search-widget .status-pill, .futura-search-widget .search-field, .futura-search-widget .qtag, .futura-search-widget .ai-block, .futura-search-widget .ai-block-header, .futura-search-widget .result-card, .futura-search-widget .provider-btn-card, .futura-search-widget .prompt-preview, .futura-search-widget .modal, .futura-search-widget .mode-card, .futura-search-widget .provider-card, .futura-search-widget input, .futura-search-widget select {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -1361,12 +1365,12 @@ body, .sidebar, .main, .topbar, .config-btn, .status-pill, .search-field, .qtag,
         </div>
       </section>
 
-      <div id="loader" class="loader hidden">
+      <div id="loader" class="loader fw-hidden">
         <div class="loader-bar"><div class="loader-fill"></div></div>
         <p id="loaderText">Pesquisando no manual...</p>
       </div>
 
-      <div id="skeletonLoader" class="skeleton-loader hidden">
+      <div id="skeletonLoader" class="skeleton-loader fw-hidden">
         <div class="skeleton-ai-card">
           <div class="skeleton-header">
             <div class="skeleton-shimmer skeleton-tag"></div>
@@ -1394,7 +1398,7 @@ body, .sidebar, .main, .topbar, .config-btn, .status-pill, .search-field, .qtag,
         </div>
       </div>
 
-      <section id="aiBlock" class="ai-block hidden">
+      <section id="aiBlock" class="ai-block fw-hidden">
         <div class="ai-block-header">
           <div class="ai-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> Resposta</div>
           <span id="queryLabel" class="query-chip"></span>
@@ -1457,7 +1461,7 @@ const skeletonLoader   = document.getElementById("skeletonLoader");
 const voiceSearchBtn   = document.getElementById("voiceSearchBtn");
 const audioReadBtn     = document.getElementById("audioReadBtn");
 const historyList      = document.getElementById("historyList");
-const clearHistoryBtn  = document.getElementById("clearHistory");
+const clearHistoryBtn  = document.getElementById("clearFuturaHistory");
 const suggestionsBox   = document.getElementById("suggestions");
 const aiBlock          = document.getElementById("aiBlock");
 const summaryContent   = document.getElementById("summaryContent");
@@ -1486,8 +1490,9 @@ function updateStatus() {
    TEMA ESCURO / CLARO
 ===================================================== */
 function initTheme() {
+  const widget = widgetScope;
   const currentTheme = localStorage.getItem("futura-theme") || "light";
-  document.body.setAttribute("data-theme", currentTheme);
+  widget.setAttribute("data-theme", currentTheme);
   updateThemeButton(currentTheme);
 }
 
@@ -1506,8 +1511,9 @@ function updateThemeButton(theme) {
 }
 
 function toggleTheme() {
-  const currentTheme = document.body.getAttribute("data-theme") === "dark" ? "light" : "dark";
-  document.body.setAttribute("data-theme", currentTheme);
+  const widget = widgetScope;
+  const currentTheme = widget.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  widget.setAttribute("data-theme", currentTheme);
   localStorage.setItem("futura-theme", currentTheme);
   updateThemeButton(currentTheme);
   showToast(currentTheme === "dark" ? "Tema escuro ativado." : "Tema claro ativado.", "success");
@@ -1755,7 +1761,7 @@ async function performSearch(query) {
   saveHistory(query);
   suggestionsBox.innerHTML = "";
   resultsContainer.innerHTML = "";
-  aiBlock.classList.add("hidden");
+  aiBlock.classList.add("fw-hidden");
 
   if (CONFIG.mode === "noapi") {
     showProviderChoice(query);
@@ -1791,7 +1797,7 @@ function openPerplexity(q) { window.open("https://www.perplexity.ai/search?q=" +
 
 function showProviderChoice(query) {
   queryLabel.textContent = `"${query}"`;
-  aiBlock.classList.remove("hidden");
+  aiBlock.classList.remove("fw-hidden");
   summaryContent.innerHTML = `
     <p style="font-size:13.5px;color:var(--muted);margin-bottom:18px">
       Escolha onde pesquisar. A pergunta já vai formatada para buscar no manual da Futura:
@@ -1899,7 +1905,7 @@ async function callOpenAI(query) {
 ===================================================== */
 function showExplanation(query, text) {
   queryLabel.textContent = `"${query}"`;
-  aiBlock.classList.remove("hidden");
+  aiBlock.classList.remove("fw-hidden");
   summaryContent.innerHTML = formatResponse(text);
   aiBlock.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
@@ -1976,8 +1982,8 @@ function renderError(query, msg) {
 }
 
 function setLoader(visible, msg="Aguarde...") {
-  loaderEl?.classList.toggle("hidden", !visible);
-  skeletonLoader?.classList.toggle("hidden", !visible);
+  loaderEl?.classList.toggle("fw-hidden", !visible);
+  skeletonLoader?.classList.toggle("fw-hidden", !visible);
   if (loaderText) loaderText.textContent = msg;
 }
 

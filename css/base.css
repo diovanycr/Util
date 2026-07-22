@@ -122,3 +122,45 @@ body {
   background: var(--danger);
   color: #fff;
 }
+
+/* ── Acessibilidade: screen reader only ─────────────────────────────────── */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Drag & Drop acessível via teclado ──────────────────────────────────── */
+/* Estado ativo de reordenação — destaque visual no item sendo movido */
+.user-row.reorder-active,
+.problem-card.reorder-active,
+.link-card.reorder-active {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+}
+
+/* Handle de drag para links e problems */
+.link-drag-handle,
+.problem-drag-handle {
+  cursor: grab;
+  color: var(--muted);
+  opacity: 0.6;
+  transition: opacity 0.15s, color 0.15s;
+}
+
+.link-drag-handle:hover,
+.problem-drag-handle:hover,
+.link-drag-handle:focus-visible,
+.problem-drag-handle:focus-visible {
+  opacity: 1;
+  color: var(--primary);
+}
+
+/* ── Filtros de visibilidade (busca e filtro de categoria) ────────────────── */
+.hidden-by-search  { display: none !important; }
+.hidden-by-filter  { display: none !important; }
