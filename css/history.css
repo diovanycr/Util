@@ -2,6 +2,12 @@
    history.css — Histórico de cópias
    ============================================================ */
 
+#historyPanel {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .history-header {
   display: flex;
   align-items: center;

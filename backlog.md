@@ -30,18 +30,18 @@ Próximo passo: Homologação e deploys finais.
 - [ ] **A11y: atalhos numéricos '1-4' e letras 'N', 'P' não são anunciados via aria-keyshortcuts nos botões de navegação/ação correspondentes (enhancements.js, shortcuts.js)** `[P]` `[Accessibility]`
 - [ ] **A11y: drag and drop de mensagens, problemas e links é exclusivo para mouse — sem suporte para acionamento via teclado (Space/Enter/Setas) (messages.js, problems.js, links.js)** `[G]` `[Accessibility]`
 - [ ] **Bug: FuturaSearchWidget cria duplo alternador de tema (#themeToggleBtn) que não sincroniza com o initTheme() global do PainelAtende (futura-widget.js:1306, theme.js)** `[M]` `[Bug]`
-- [ ] **Bug: FuturaSearchWidget em futura-widget.js reinjeta FontAwesome v6.5.2 e Google Fonts no <head> mesmo já existindo no index.html (futura-widget.js:18-45)** `[P]` `[Bug]`
-- [ ] **Layout: painel de histórico de cópias não tem limitação de largura e causa estolamento em telas ultra-wide (history.js:57)** `[P]` `[Layout]`
-- [ ] **Layout: modal de busca global (Ctrl+K) em telas pequenas (mobile/smartphones) ultrapassa altura e esconde caixa de input (search.css:16-24)** `[M]` `[Layout]`
 - [ ] **Refactor: portOpener.js concatena strings HTML complexas via template literal de 200+ linhas sem componente dinâmico ou sanitização estrita (portOpener.js:31-197)** `[M]` `[Backend]`
-- [ ] **Refactor: duplicar lógica de sanitizeHtml() / escapeHtml() entre utils.js e problemas.js — centralizar funções utilitárias (problems.js:671, utils.js)** `[P]` `[Backend]`
-- [ ] **UX: botão de exportar mensagens exibe modal mas não indica claramente qual o formato default recomendado via teclado/foco (messages.js:95-134)** `[P]` `[UI]`
-- [ ] **Bug: filtro de favoritos usa display:none/'' inline mas a busca global verifica style.display para visibilidade — conflito quando ambos estão ativos (enhancements.js)** `[M]` `[Bug]`
-- [ ] **Bug: busca global (Ctrl+K) faz fetch ao Firestore a cada digitação sem cache local — N leituras por sessão e sem debounce suficiente (search.js:50-53)** `[M]` `[Bug]`
 *(Nenhum item pendente)*
 
 
 ## Feito
+- [x] **UX: botão de exportar mensagens exibe modal mas não indica claramente qual o formato default recomendado via teclado/foco (messages.js:95-134)** `[P]` `[UI]`
+- [x] **Layout: painel de histórico de cópias não tem limitação de largura e causa estolamento em telas ultra-wide (history.js:57)** `[P]` `[Layout]`
+- [x] **Layout: modal de busca global (Ctrl+K) em telas pequenas (mobile/smartphones) ultrapassa altura e esconde caixa de input (search.css:16-24)** `[M]` `[Layout]`
+- [x] **Bug: FuturaSearchWidget em futura-widget.js reinjeta FontAwesome v6.5.2 e Google Fonts no <head> mesmo já existindo no index.html (futura-widget.js:18-45)** `[P]` `[Bug]`
+- [x] **Refactor: duplicar lógica de sanitizeHtml() / escapeHtml() entre utils.js e problemas.js — centralizar funções utilitárias (problems.js:671, utils.js)** `[P]` `[Backend]`
+- [x] **Bug: filtro de favoritos usa display:none/'' inline mas a busca global verifica style.display para visibilidade — conflito quando ambos estão ativos (enhancements.js)** `[M]` `[Bug]`
+- [x] **Bug: busca global (Ctrl+K) faz fetch ao Firestore a cada digitação sem cache local — N leituras por sessão e sem debounce suficiente (search.js:50-53)** `[M]` `[Bug]`
 - [x] **A11y: botões de ação nos cards de mensagem (editar, excluir, favoritar) não possuem aria-label — ilegíveis por screen readers (messages.js:347-348)** `[M]` `[Accessibility]`
 - [x] **A11y: .msg-content clicável usa div, não botão — invia Tab-navigation e não é acionável via Enter pelo teclado (messages.js:343)** `[M]` `[Accessibility]`
 - [x] **A11y: accordion-trigger nos problemas não possui aria-expanded nem aria-controls — estado aberto/fechado invisível para AT (problems.js:436)** `[M]` `[Accessibility]`

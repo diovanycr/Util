@@ -57,7 +57,9 @@ body {
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
 
 /* Utilitários */
-.hidden { display: none !important; }
+.hidden,
+.hidden-by-search,
+.hidden-by-filter { display: none !important; }
 .sub { color: var(--muted); font-size: 14px; }
 .grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
 .flex-end { display: flex; justify-content: flex-end; gap: 10px; }

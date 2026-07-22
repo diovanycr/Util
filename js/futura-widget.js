@@ -16,7 +16,7 @@ class FuturaSearchWidget {
 
   loadDependencies() {
     const deps = [
-      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css",
+      "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
       "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;400;500&display=swap",
       "https://cdn.jsdelivr.net/npm/marked/marked.min.js",
       "https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"
@@ -25,7 +25,8 @@ class FuturaSearchWidget {
     deps.forEach(dep => {
       try {
         if (dep.includes("css")) {
-          if (!document.querySelector(`link[href="${dep}"]`)) {
+          const fontAwesomeExists = dep.includes("font-awesome") && document.querySelector('link[href*="font-awesome"]');
+          if (!fontAwesomeExists && !document.querySelector(`link[href="${dep}"]`)) {
             const link = document.createElement("link");
             link.rel = "stylesheet";
             link.href = dep;

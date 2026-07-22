@@ -105,13 +105,13 @@ function applyGlobalSearch(query) {
     msgRows.forEach(row => {
         const text = row.textContent.toLowerCase();
         const visible = !query || text.includes(query);
-        row.style.display = visible ? '' : 'none';
+        row.classList.toggle('hidden-by-search', !visible);
         if (visible) msgVisible++;
     });
     
     document.querySelectorAll('#msgList .msg-group').forEach(group => {
-        const hasVisible = [...group.querySelectorAll('.user-row')].some(r => r.style.display !== 'none');
-        group.style.display = hasVisible ? '' : 'none';
+        const hasVisible = [...group.querySelectorAll('.user-row')].some(r => !r.classList.contains('hidden-by-search') && !r.classList.contains('hidden-by-filter'));
+        group.classList.toggle('hidden-by-search', !hasVisible);
     });
 
     // Filtra problemas
@@ -119,7 +119,7 @@ function applyGlobalSearch(query) {
     problemCards.forEach(card => {
         const text = card.textContent.toLowerCase();
         const visible = !query || text.includes(query);
-        card.style.display = visible ? '' : 'none';
+        card.classList.toggle('hidden-by-search', !visible);
         if (visible) problemVisible++;
     });
 
@@ -128,13 +128,13 @@ function applyGlobalSearch(query) {
     linkCards.forEach(card => {
         const text = card.textContent.toLowerCase();
         const visible = !query || text.includes(query);
-        card.style.display = visible ? '' : 'none';
+        card.classList.toggle('hidden-by-search', !visible);
         if (visible) linkVisible++;
     });
     
     document.querySelectorAll('#linkList .link-group').forEach(group => {
-        const hasVisible = [...group.querySelectorAll('.link-card')].some(c => c.style.display !== 'none');
-        group.style.display = hasVisible ? '' : 'none';
+        const hasVisible = [...group.querySelectorAll('.link-card')].some(c => !c.classList.contains('hidden-by-search') && !c.classList.contains('hidden-by-filter'));
+        group.classList.toggle('hidden-by-search', !hasVisible);
     });
     
     // Atualiza badges
@@ -259,15 +259,15 @@ function applyFavoriteFilter(type, itemSelector, groupSelector) {
     items.forEach(item => {
         const id = item.dataset.id;
         const visible = !filtering || isFavorite(id);
-        item.style.display = visible ? '' : 'none';
+        item.classList.toggle('hidden-by-filter', !visible);
         if (visible) visibleCount++;
     });
 
     // Oculta grupos vazios se existir
     if (groupSelector) {
         document.querySelectorAll(groupSelector).forEach(group => {
-            const hasVisible = [...group.querySelectorAll(itemSelector)].some(i => i.style.display !== 'none');
-            group.style.display = hasVisible ? '' : 'none';
+            const hasVisible = [...group.querySelectorAll(itemSelector)].some(i => !i.classList.contains('hidden-by-filter') && !i.classList.contains('hidden-by-search'));
+            group.classList.toggle('hidden-by-filter', !hasVisible);
         });
     }
 

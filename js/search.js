@@ -3,7 +3,9 @@
  * Pesquisa simultaneamente em mensagens e problemas do usuário logado
  */
 
-import { db, el, collection, getDocs } from './firebase.js';
+import { el } from './firebase.js';
+import { allMessages } from './messages.js';
+import { allProblems } from './problems.js';
 import { openSearch, closeSearch } from './shortcuts.js';
 import { showToast } from './toast.js';
 
@@ -23,14 +25,14 @@ export function initSearch(uid) {
         if (e.target === modal) closeSearch();
     });
 
-    // Busca ao digitar (debounce 250ms)
+    // Busca ao digitar (debounce 200ms)
     let debounceTimer;
     input.addEventListener('input', () => {
         clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => runSearch(input.value.trim()), 250);
+        debounceTimer = setTimeout(() => runSearch(input.value.trim()), 200);
     });
 
-    // Fecha com Esc (capturado aqui também para garantir)
+    // Fecha com Esc
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') closeSearch();
     });
@@ -43,25 +45,18 @@ async function runSearch(query) {
         return;
     }
 
-    results.innerHTML = '<p class="search-hint">Buscando...</p>';
     const q = query.toLowerCase();
 
     try {
-        const [msgsSnap, probsSnap] = await Promise.all([
-            getDocs(collection(db, 'users', currentUserId, 'messages')),
-            getDocs(collection(db, 'users', currentUserId, 'problems'))
-        ]);
+        const msgMatches = allMessages
+            .filter(d => !d.deleted && ((d.text && d.text.toLowerCase().includes(q)) || (d.title && d.title.toLowerCase().includes(q)) || (d.category && d.category.toLowerCase().includes(q))));
 
-        const msgMatches = msgsSnap.docs
-            .map(d => ({ id: d.id, ...d.data() }))
-            .filter(d => !d.deleted && d.text?.toLowerCase().includes(q));
-
-        const probMatches = probsSnap.docs
-            .map(d => ({ id: d.id, ...d.data() }))
+        const probMatches = allProblems
             .filter(d => {
                 const solutions = normalizeSolutions(d);
                 const solText = solutions.map(s => s.text.replace(/<[^>]*>/g, '')).join(' ');
-                return `${d.title} ${d.description || ''} ${solText}`.toLowerCase().includes(q);
+                const tags = Array.isArray(d.tags) ? d.tags.join(' ') : '';
+                return `${d.title} ${d.description || ''} ${solText} ${tags}`.toLowerCase().includes(q);
             });
 
         if (msgMatches.length === 0 && probMatches.length === 0) {

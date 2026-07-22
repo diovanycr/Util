@@ -11,10 +11,10 @@ import {
 
 import { showModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr } from './utils.js';
+import { escapeHtml, escapeAttr, sanitizeHtml } from './utils.js';
 
 let currentUserId = null;
-let allProblems   = [];
+export let allProblems   = [];
 let uiInitialized = false;
 let dragSrcProblem = null;
 let activeTagFilter = null; // tag selecionada no filtro
@@ -327,7 +327,7 @@ function normalizeTags(item) {
 
 // --- CARREGAMENTO ---
 
-async function loadProblems(userId) {
+export async function loadProblems(userId) {
     const list = el('problemList');
     if (!list) return;
     list.innerHTML = `
@@ -670,28 +670,4 @@ async function saveProblemOrder(userId) {
     } catch (err) { console.error("Erro ao salvar ordem:", err); }
 }
 
-function sanitizeHtml(html) {
-    const temp    = document.createElement('div');
-    temp.innerHTML = html;
-    const allowed = new Set(['IMG', 'BR', 'P', 'DIV', '#text']);
-    function clean(node) {
-        [...node.childNodes].forEach(child => {
-            if (child.nodeType === Node.ELEMENT_NODE) {
-                if (!allowed.has(child.tagName)) {
-                    node.replaceChild(document.createTextNode(child.textContent), child);
-                } else {
-                    if (child.tagName === 'IMG') {
-                        const src = child.getAttribute('src');
-                        [...child.attributes].forEach(a => child.removeAttribute(a.name));
-                        if (src) child.setAttribute('src', src);
-                    } else {
-                        [...child.attributes].forEach(a => child.removeAttribute(a.name));
-                    }
-                    clean(child);
-                }
-            }
-        });
-    }
-    clean(temp);
-    return temp.innerHTML;
-}
+

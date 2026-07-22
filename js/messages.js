@@ -17,7 +17,7 @@ import { addToHistory, initHistory, renderHistoryPanel } from './history.js';
 let currentUserId = null;
 let dragSrc = null;
 let uiInitialized = false;
-let allMessages = [];
+export let allMessages = [];
 let activeCategoryFilter = null;
 let lastCheckedHour = new Date().getHours();
 
@@ -114,6 +114,7 @@ function setupUserInterface() {
         if (modal) {
             modal.classList.remove('hidden');
             modal.style.display = 'flex';
+            el('btnExportFormatJson')?.focus();
         }
     };
 
