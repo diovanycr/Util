@@ -11,7 +11,7 @@ import {
 
 import { showModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr, sanitizeHtml } from './utils.js';
+import { escapeHtml, escapeAttr, sanitizeHtml, addKeyboardDragSupport } from './utils.js';
 
 let currentUserId = null;
 export let allProblems   = [];
@@ -481,6 +481,7 @@ function renderProblems(problems) {
             <div class="problem-header">
                 <h3 class="problem-title">${escapeHtml(item.title)}</h3>
                 <div class="problem-actions">
+                    <button class="btn ghost problem-drag-handle" title="Reordenar problema"><i class="fa-solid fa-grip-lines" aria-hidden="true"></i></button>
                     <button class="btn ghost btn-edit-problem" aria-label="Editar problema"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
                     <button class="btn ghost btn-del-problem" aria-label="Excluir problema"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
                 </div>
@@ -534,6 +535,16 @@ function renderProblems(problems) {
             const after = e.clientY > rect.top + rect.height / 2;
             list.insertBefore(dragSrcProblem, after ? card.nextSibling : card);
         };
+
+        // Drag-and-drop (teclado)
+        const dragHandle = card.querySelector('.problem-drag-handle');
+        if (dragHandle) {
+            addKeyboardDragSupport(
+                dragHandle,
+                () => [...list.querySelectorAll('.problem-card')],
+                () => saveProblemOrder(currentUserId)
+            );
+        }
 
         list.appendChild(card);
     });
