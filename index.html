@@ -78,27 +78,27 @@
         </div>
 
         <div class="search-box" style="max-width: 200px; margin-right: 8px;">
-          <i class="fa-solid fa-search"></i>
-          <input id="globalSearch" type="text" placeholder="Filtrar nesta página..." style="padding-right: 32px;" />
-          <button id="btnClearGlobalSearch" class="btn-clear-search hidden" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
-            <i class="fa-solid fa-xmark"></i>
+          <i class="fa-solid fa-search" aria-hidden="true"></i>
+          <input id="globalSearch" type="text" placeholder="Filtrar nesta página..." aria-label="Filtrar itens nesta página" style="padding-right: 32px;" />
+          <button id="btnClearGlobalSearch" class="btn-clear-search hidden" aria-label="Limpar filtro da página" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
           </button>
         </div>
 
-        <button id="btnSearch" class="btn ghost" title="Busca global (Ctrl+K)">
-          <i class="fa-solid fa-search"></i>
+        <button id="btnSearch" class="btn ghost" title="Busca global (Ctrl+K)" aria-label="Busca global (Ctrl+K)">
+          <i class="fa-solid fa-search" aria-hidden="true"></i>
           <span class="search-shortcut-hint">Ctrl+K</span>
         </button>
-        <button id="btnCompactMode" class="btn ghost" title="Modo compacto">
-          <i class="fa-solid fa-compress"></i>
+        <button id="btnCompactMode" class="btn ghost" title="Modo compacto" aria-label="Alternar modo compacto" aria-pressed="false">
+          <i class="fa-solid fa-compress" aria-hidden="true"></i>
         </button>
-        <button id="btnTheme" class="btn ghost" title="Modo escuro">
-          <i class="fa-solid fa-moon"></i>
+        <button id="btnTheme" class="btn ghost" title="Modo escuro" aria-label="Ativar modo escuro" aria-pressed="false">
+          <i class="fa-solid fa-moon" aria-hidden="true"></i>
         </button>
-        <button id="btnHelp" class="btn ghost" title="Atalhos de teclado">
-          <i class="fa-solid fa-keyboard"></i>
+        <button id="btnHelp" class="btn ghost" title="Atalhos de teclado" aria-label="Ajuda e atalhos de teclado">
+          <i class="fa-solid fa-keyboard" aria-hidden="true"></i>
         </button>
-        <button id="btnLogout" class="btn danger-outline" title="Sair do sistema"><i class="fa-solid fa-right-from-bracket"></i> Sair</button>
+        <button id="btnLogout" class="btn danger-outline" title="Sair do sistema" aria-label="Sair do sistema"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sair</button>
       </div>
     </div>
 
@@ -150,8 +150,8 @@
       <!-- ABA: Mensagens -->
       <div id="tabMessages" class="tab-content" role="tabpanel" aria-labelledby="tab-messages">
         <div class="card toolbar">
-          <button id="btnFilterFavorites" class="btn ghost" title="Mostrar apenas favoritos">
-            <i class="fa-solid fa-star"></i> Favoritos
+          <button id="btnFilterFavorites" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas mensagens favoritas" aria-pressed="false">
+            <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
           </button>
           <button id="btnImport" class="btn ghost"><i class="fa-solid fa-file-import"></i> Importar</button>
           <button id="btnExport" class="btn ghost" title="Exportar mensagens"><i class="fa-solid fa-file-export"></i> Exportar</button>
@@ -204,11 +204,11 @@
       <div id="tabProblems" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-problems">
         <div class="card toolbar">
           <div class="search-box">
-            <i class="fa-solid fa-search"></i>
-            <input id="problemSearch" type="text" placeholder="Pesquisar problemas..." />
+            <i class="fa-solid fa-search" aria-hidden="true"></i>
+            <input id="problemSearch" type="text" placeholder="Pesquisar problemas..." aria-label="Pesquisar problemas" />
           </div>
-          <button id="btnFilterFavoriteProblems" class="btn ghost" title="Mostrar apenas favoritos">
-            <i class="fa-solid fa-star"></i>
+          <button id="btnFilterFavoriteProblems" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas problemas favoritos" aria-pressed="false">
+            <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
           </button>
           <button id="btnExportProblems" class="btn ghost"><i class="fa-solid fa-file-export"></i> Exportar</button>
           <button id="btnNewProblem" class="btn primary"><i class="fa-solid fa-plus"></i> Novo problema</button>
@@ -271,11 +271,11 @@
       <div id="tabLinks" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-links">
         <div class="card toolbar">
           <div class="search-box">
-            <i class="fa-solid fa-search"></i>
-            <input id="linkSearch" type="text" placeholder="Pesquisar links..." />
+            <i class="fa-solid fa-search" aria-hidden="true"></i>
+            <input id="linkSearch" type="text" placeholder="Pesquisar links..." aria-label="Pesquisar links" />
           </div>
-          <button id="btnFilterFavoriteLinks" class="btn ghost" title="Mostrar apenas favoritos">
-            <i class="fa-solid fa-star"></i>
+          <button id="btnFilterFavoriteLinks" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas links favoritos" aria-pressed="false">
+            <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
           </button>
           <button id="btnNewLink" class="btn primary"><i class="fa-solid fa-plus"></i> Novo link</button>
         </div>
@@ -497,14 +497,14 @@
   </div>
 
   <!-- Modal de busca global (Ctrl+K) -->
-  <div id="globalSearchModal" class="modal-overlay hidden">
+  <div id="globalSearchModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Busca global">
     <div class="global-search-box">
       <div class="global-search-header">
-        <i class="fa-solid fa-search"></i>
-        <input id="globalSearchInput" type="text" placeholder="Buscar em mensagens e problemas..." autocomplete="off" />
+        <i class="fa-solid fa-search" aria-hidden="true"></i>
+        <input id="globalSearchInput" type="text" placeholder="Buscar em mensagens, problemas e links..." autocomplete="off" aria-label="Buscar em mensagens, problemas e links" />
         <kbd>Esc</kbd>
       </div>
-      <div id="globalSearchResults" class="global-search-results">
+      <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Resultados da busca">
         <p class="search-hint">Digite para buscar...</p>
       </div>
     </div>

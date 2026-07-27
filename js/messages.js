@@ -30,7 +30,7 @@ export function initMessages(uid) {
     }
     loadMessages(uid);
     updateTrashCount(uid);
-    initHistory();
+    initHistory(uid);
 }
 
 let autoTimeInterval = null;
@@ -344,7 +344,8 @@ function renderMessages() {
                 timeBadgeHtml = `<span class="greeting-auto-badge" title="${changeInfo}"><i class="fa-regular fa-clock"></i> ${changeInfo}</span>`;
             }
 
-            const userName = el('loggedUser')?.textContent?.trim() || 'Usuário';
+            // Usa username puro (data-username), nunca o texto do header com saudação
+            const userName = el('loggedUser')?.dataset?.username?.trim() || 'Usuário';
 
             const titleHtml = item.title
                 ? `<span class="msg-title">${escapeHtml(item.title)} ${timeBadgeHtml}</span>`

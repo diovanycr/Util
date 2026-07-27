@@ -1,9 +1,17 @@
 // ============================================================
-//  history.js — Histórico de cópias (localStorage)
+//  history.js — Histórico de cópias (localStorage, por usuário)
 // ============================================================
 
-const HISTORY_KEY  = 'painelAtende_copyHistory';
+const HISTORY_KEY_BASE = 'painelAtende_copyHistory';
 const MAX_HISTORY  = 20;
+
+let currentUserId = null;
+
+function historyKey() {
+    return currentUserId
+        ? `${HISTORY_KEY_BASE}_${currentUserId}`
+        : HISTORY_KEY_BASE;
+}
 
 // --- API pública ---
 
@@ -12,22 +20,23 @@ export function addToHistory(text, title = '', category = '') {
     // Remove duplicata se já existir
     const filtered = history.filter(h => h.text !== text);
     filtered.unshift({ text, title, category, copiedAt: Date.now() });
-    localStorage.setItem(HISTORY_KEY, JSON.stringify(filtered.slice(0, MAX_HISTORY)));
+    localStorage.setItem(historyKey(), JSON.stringify(filtered.slice(0, MAX_HISTORY)));
 }
 
 export function getHistory() {
     try {
-        return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
+        return JSON.parse(localStorage.getItem(historyKey()) || '[]');
     } catch { return []; }
 }
 
 export function clearHistory() {
-    localStorage.removeItem(HISTORY_KEY);
+    localStorage.removeItem(historyKey());
 }
 
 // --- UI ---
 
-export function initHistory() {
+export function initHistory(uid) {
+    if (uid) currentUserId = uid;
     _injectButton();
     _injectPanel();
 }

@@ -14,7 +14,7 @@ import {
     updateDoc
 } from './firebase.js';
 
-import { showModal } from './modal.js';
+import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';
 import { escapeHtml, escapeAttr, addKeyboardDragSupport } from './utils.js';
 
@@ -176,15 +176,21 @@ function renderLinks(container, links) {
                 enterEditMode(card, item);
             };
 
-            card.querySelector('.link-del-btn').onclick = async (e) => {
+            card.querySelector('.link-del-btn').onclick = (e) => {
                 e.stopPropagation();
-                try {
-                    await deleteDoc(doc(db, 'users', currentUserId, 'links', item.id));
-                    showToast("Link removido!");
-                    loadLinks(currentUserId);
-                } catch (err) {
-                    showModal("Erro ao remover o link.");
-                }
+                openConfirmModal(
+                    async () => {
+                        try {
+                            await deleteDoc(doc(db, 'users', currentUserId, 'links', item.id));
+                            showToast("Link removido!");
+                            loadLinks(currentUserId);
+                        } catch (err) {
+                            showModal("Erro ao remover o link.");
+                        }
+                    },
+                    null,
+                    `Deseja realmente remover o link "${item.title}"? Esta ação não poderá ser desfeita.`
+                );
             };
 
             // Drag-and-drop (mouse)

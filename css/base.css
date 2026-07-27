@@ -161,6 +161,13 @@ body {
   color: var(--primary);
 }
 
-/* ── Filtros de visibilidade (busca e filtro de categoria) ────────────────── */
-.hidden-by-search  { display: none !important; }
-.hidden-by-filter  { display: none !important; }
+/* .hidden-by-search / .hidden-by-filter já definidos nos utilitários acima */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

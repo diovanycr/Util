@@ -28,9 +28,12 @@ function applyTheme(theme) {
     
     const btn = document.getElementById('btnTheme');
     if (btn) {
-        btn.innerHTML = theme === 'dark'
-            ? '<i class="fa-solid fa-sun"></i>'
-            : '<i class="fa-solid fa-moon"></i>';
-        btn.title = theme === 'dark' ? 'Modo claro' : 'Modo escuro';
+        const isDark = theme === 'dark';
+        btn.innerHTML = isDark
+            ? '<i class="fa-solid fa-sun" aria-hidden="true"></i>'
+            : '<i class="fa-solid fa-moon" aria-hidden="true"></i>';
+        btn.title = isDark ? 'Modo claro' : 'Modo escuro';
+        btn.setAttribute('aria-label', isDark ? 'Ativar modo claro' : 'Ativar modo escuro');
+        btn.setAttribute('aria-pressed', isDark ? 'true' : 'false');
     }
 }

@@ -149,12 +149,22 @@ function applyGlobalSearch(query) {
     }
 }
 
+/** Considera hidden-by-search / hidden-by-filter / .hidden, não só style.display */
+function isDomVisible(node) {
+    if (!node) return false;
+    if (node.classList.contains('hidden-by-search')) return false;
+    if (node.classList.contains('hidden-by-filter')) return false;
+    if (node.classList.contains('hidden')) return false;
+    if (node.style.display === 'none') return false;
+    return true;
+}
+
 function copyFirstResult() {
     const activeTab = document.querySelector('.tab.active')?.dataset.tab;
     
     if (activeTab === 'tabMessages') {
         const firstMsg = [...document.querySelectorAll('#msgList .user-row')]
-            .find(r => r.style.display !== 'none');
+            .find(isDomVisible);
         if (firstMsg) {
             const textEl = firstMsg.querySelector('.msg-text');
             if (textEl) {
@@ -164,14 +174,14 @@ function copyFirstResult() {
         }
     } else if (activeTab === 'tabProblems') {
         const firstProblem = [...document.querySelectorAll('#problemList .problem-card')]
-            .find(c => c.style.display !== 'none');
+            .find(isDomVisible);
         if (firstProblem) {
             const copyField = firstProblem.querySelector('.solution-copy-field');
             if (copyField) copyField.click();
         }
     } else if (activeTab === 'tabLinks') {
         const firstLink = [...document.querySelectorAll('#linkList .link-card')]
-            .find(c => c.style.display !== 'none');
+            .find(isDomVisible);
         if (firstLink) {
             const link = firstLink.querySelector('.link-main');
             if (link?.href) {
@@ -389,29 +399,12 @@ function isFavorite(id) {
     return favorites.has(id);
 }
 
-// --- ATALHOS NUMÉRICOS ---
+// --- ATALHOS NUMÉRICOS (aria apenas — handlers de tecla ficam em shortcuts.js) ---
 
 function setupNumericShortcuts() {
-    // Configura aria-keyshortcuts nas abas
+    // Configura aria-keyshortcuts nas abas (navegação 1-4 é tratada só em shortcuts.js)
     document.querySelector('[data-tab="tabMessages"]')?.setAttribute('aria-keyshortcuts', '1 N');
     document.querySelector('[data-tab="tabProblems"]')?.setAttribute('aria-keyshortcuts', '2 P');
     document.querySelector('[data-tab="tabLinks"]')?.setAttribute('aria-keyshortcuts', '3');
     document.querySelector('[data-tab="tabSistemas"]')?.setAttribute('aria-keyshortcuts', '4');
-
-    document.addEventListener('keydown', (e) => {
-        if (e.target.matches('input, textarea, [contenteditable="true"]')) return;
-
-        const tabMap = {
-            '1': 'tabMessages',
-            '2': 'tabProblems',
-            '3': 'tabLinks',
-            '4': 'tabSistemas'
-        };
-
-        if (tabMap[e.key]) {
-            e.preventDefault();
-            const btn = document.querySelector(`button[data-tab="${tabMap[e.key]}"]`);
-            if (btn) btn.click();
-        }
-    });
 }

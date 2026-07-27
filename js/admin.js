@@ -13,6 +13,7 @@ import {
 
 import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';
+import { escapeHtml, escapeAttr } from './utils.js';
 
 export async function loadUsers() {
     const userList = el('userList');
@@ -40,27 +41,33 @@ export async function loadUsers() {
             
             const isGoogle = u.provider === 'google';
             
+            const safeUsername = escapeHtml(u.username || '');
+            const safeEmail = escapeHtml(u.email || '');
+            const safePhoto = u.photoURL && /^https:\/\//i.test(u.photoURL)
+                ? escapeAttr(u.photoURL)
+                : '';
+
             row.innerHTML = `
                 <div style="display:flex;align-items:center;gap:12px;">
-                    ${isGoogle && u.photoURL ? `<img src="${u.photoURL}" class="user-avatar" referrerpolicy="no-referrer" />` : ''}
+                    ${isGoogle && safePhoto ? `<img src="${safePhoto}" class="user-avatar" referrerpolicy="no-referrer" alt="" />` : ''}
                     <div>
-                        <strong>${u.username}</strong> 
+                        <strong>${safeUsername}</strong> 
                         ${isBlocked ? '<span class="status-badge-blocked">Bloqueado</span>' : ''}
                         ${isGoogle ? '<span class="status-badge-google"><i class="fa-brands fa-google"></i> Google</span>' : ''}
                         <br>
-                        <span class="sub">${u.email}</span>
+                        <span class="sub">${safeEmail}</span>
                     </div>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;">
                     <button class="btn ghost btnBlock">${isBlocked ? 'Desbloquear' : 'Bloquear'}</button>
                     
                     ${!isGoogle ? `
-                    <button class="btn ghost btnReset" title="Resetar Senha">
-                        <i class="fa-solid fa-key"></i>
+                    <button class="btn ghost btnReset" title="Resetar Senha" aria-label="Resetar senha de ${escapeAttr(u.username || '')}">
+                        <i class="fa-solid fa-key" aria-hidden="true"></i>
                     </button>
                     ` : ''}
 
-                    <button class="btn ghost btnDelete"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn ghost btnDelete" aria-label="Excluir usuário ${escapeAttr(u.username || '')}"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
                 </div>
             `;
 

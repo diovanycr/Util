@@ -8,6 +8,7 @@ import { allMessages } from './messages.js';
 import { allProblems } from './problems.js';
 import { openSearch, closeSearch } from './shortcuts.js';
 import { showToast } from './toast.js';
+import { escapeHtml } from './utils.js';
 
 let currentUserId = null;
 
@@ -135,6 +136,9 @@ function normalizeSolutions(item) {
 
 function highlight(text, query) {
     if (!text) return '';
-    const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return text.replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+    // Escapa o texto primeiro para evitar XSS; depois aplica <mark> só no trecho da query
+    const safeText = escapeHtml(String(text));
+    const escapedQuery = escapeHtml(String(query)).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    if (!escapedQuery) return safeText;
+    return safeText.replace(new RegExp(`(${escapedQuery})`, 'gi'), '<mark>$1</mark>');
 }

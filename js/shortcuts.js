@@ -158,6 +158,12 @@ function closeOpenForms() {
 }
 
 // --- BUSCA GLOBAL (Ctrl+K) ---
+let _searchIndexResetBound = false;
+
+function _resetSearchIndex() {
+    _searchIndex = -1;
+}
+
 export function openSearch() {
     const modal = el('globalSearchModal');
     if (!modal) return;
@@ -168,8 +174,11 @@ export function openSearch() {
     if (input) { input.value = ''; input.focus(); }
     el('globalSearchResults').innerHTML = '<p class="search-hint">Digite para buscar...</p>';
 
-    // Reseta seleção quando o usuário digita
-    input?.addEventListener('input', () => { _searchIndex = -1; }, { once: false });
+    // Listener único: evita acumular handlers a cada abertura do modal
+    if (input && !_searchIndexResetBound) {
+        input.addEventListener('input', _resetSearchIndex);
+        _searchIndexResetBound = true;
+    }
 }
 
 export function closeSearch() {

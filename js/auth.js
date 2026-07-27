@@ -116,6 +116,7 @@ export function initAuth() {
             problemsInitialized = false;
             resetMessages();
             resetProblems();
+            resetLinks();
 
             el('app').classList.add('hidden');
             el('loginBox').classList.remove('hidden');
@@ -125,6 +126,13 @@ export function initAuth() {
             if (el('userList')) el('userList').innerHTML = '';
             if (el('msgList')) el('msgList').innerHTML = '';
             if (el('problemList')) el('problemList').innerHTML = '';
+            if (el('linkList')) el('linkList').innerHTML = '';
+
+            const loggedUserEl = el('loggedUser');
+            if (loggedUserEl) {
+                loggedUserEl.textContent = '';
+                delete loggedUserEl.dataset.username;
+            }
 
             el('loginUser').focus();
         }
@@ -133,7 +141,8 @@ export function initAuth() {
 
 async function doLogin() {
     const username = el('loginUser').value.trim().toLowerCase();
-    const password = el('loginPass').value.trim();
+    // Não faz trim na senha: espaços no início/fim podem ser intencionais
+    const password = el('loginPass').value;
 
     if (!username || !password) {
         showModal("Por favor, informe o usuário e a senha.");
@@ -285,6 +294,8 @@ export function updateHeaderProfileGreeting(name) {
 
     const loggedUserEl = el('loggedUser');
     if (loggedUserEl) {
+        // data-username guarda o nome puro para {usuario} nas mensagens
+        loggedUserEl.dataset.username = activeUserDisplayName;
         loggedUserEl.textContent = `${greetingPrefix}, ${activeUserDisplayName}!`;
     }
 

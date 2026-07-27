@@ -9,10 +9,28 @@ export function escapeHtml(text) {
 }
 
 /**
- * Escapa atributos HTML (para uso em value="" e similares)
+ * Escapa atributos HTML (para uso em value="" e similares).
+ * Escapa &, <, >, " e ' para evitar XSS em atributos.
  */
 export function escapeAttr(text) {
-    return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+/**
+ * Retorna true se o src de imagem for considerado seguro.
+ * Aceita apenas https: e data:image/* (base64 de imagens coladas).
+ */
+function isSafeImageSrc(src) {
+    if (!src || typeof src !== 'string') return false;
+    const trimmed = src.trim();
+    if (/^https:\/\//i.test(trimmed)) return true;
+    if (/^data:image\/[a-z0-9.+-]+;base64,/i.test(trimmed)) return true;
+    return false;
 }
 
 /**
@@ -31,7 +49,13 @@ export function sanitizeHtml(html) {
                     if (child.tagName === 'IMG') {
                         const src = child.getAttribute('src');
                         [...child.attributes].forEach(a => child.removeAttribute(a.name));
-                        if (src) child.setAttribute('src', src);
+                        if (isSafeImageSrc(src)) {
+                            child.setAttribute('src', src);
+                        } else {
+                            // Remove imagem com src inseguro (javascript:, data:text/html, etc.)
+                            node.removeChild(child);
+                            return;
+                        }
                     } else {
                         [...child.attributes].forEach(a => child.removeAttribute(a.name));
                     }

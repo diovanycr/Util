@@ -9,7 +9,7 @@ import {
     writeBatch
 } from './firebase.js';
 
-import { showModal } from './modal.js';
+import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';
 import { escapeHtml, escapeAttr, sanitizeHtml, addKeyboardDragSupport } from './utils.js';
 
@@ -519,12 +519,18 @@ function renderProblems(problems) {
         });
 
         card.querySelector('.btn-edit-problem').onclick = () => enterEditMode(card, item, currentUserId, solutions, tags);
-        card.querySelector('.btn-del-problem').onclick  = async () => {
-            try {
-                await deleteDoc(doc(db, 'users', currentUserId, 'problems', item.id));
-                showToast("Problema excluído!");
-                loadProblems(currentUserId);
-            } catch (err) { showModal("Erro ao excluir o problema."); }
+        card.querySelector('.btn-del-problem').onclick  = () => {
+            openConfirmModal(
+                async () => {
+                    try {
+                        await deleteDoc(doc(db, 'users', currentUserId, 'problems', item.id));
+                        showToast("Problema excluído!");
+                        loadProblems(currentUserId);
+                    } catch (err) { showModal("Erro ao excluir o problema."); }
+                },
+                null,
+                `Deseja realmente excluir o problema "${item.title}"? Esta ação não poderá ser desfeita.`
+            );
         };
 
         card.ondragstart = () => { dragSrcProblem = card; card.classList.add('dragging'); };
