@@ -153,3 +153,14 @@ export function addKeyboardDragSupport(handle, getItems, onReorder) {
         }
     });
 }
+
+/**
+ * Normaliza o formato de soluções de um problema para garantir
+ * que um array válido seja sempre retornado.
+ */
+export function normalizeSolutions(item) {
+    if (item.solutions && Array.isArray(item.solutions)) return item.solutions;
+    if (item.solution) return [{ label: 'Solução 1', text: item.solution }];
+    return [];
+}
+

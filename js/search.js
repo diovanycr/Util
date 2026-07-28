@@ -8,7 +8,7 @@ import { allMessages } from './messages.js';
 import { allProblems } from './problems.js';
 import { openSearch, closeSearch } from './shortcuts.js';
 import { showToast } from './toast.js';
-import { escapeHtml } from './utils.js';
+import { escapeHtml, normalizeSolutions } from './utils.js';
 
 let currentUserId = null;
 
@@ -126,12 +126,6 @@ async function runSearch(query) {
         console.error("Erro na busca global:", err);
         results.innerHTML = '<p class="search-hint">Erro ao buscar.</p>';
     }
-}
-
-function normalizeSolutions(item) {
-    if (item.solutions && Array.isArray(item.solutions)) return item.solutions;
-    if (item.solution) return [{ label: 'Solução 1', text: item.solution }];
-    return [];
 }
 
 function highlight(text, query) {

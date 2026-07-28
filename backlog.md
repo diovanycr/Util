@@ -29,12 +29,17 @@ Próximo passo: Priorizar e implementar os bugs críticos de segurança/XSS e o 
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **UX: empty states de listas sem CTA (botão Nova mensagem/problema) para ação imediata** `[P]` `[UI]`
-- [ ] **Bug: drag-and-drop de mensagens só reordena dentro do mesmo grupo de categoria — arrastar entre grupos não move o item no DOM** `[M]` `[Bug]`
+- [ ] **Gerador de Comandos de Impressão ESC/POS (Teste de Impressoras Térmicas): Ferramenta para gerar comandos brutos de corte de papel, gaveta e avanço de página em impressoras de cupom (Epson, Bematech, Elgin, Daruma)** `[M]` `[UI]`
+- [ ] **Validador e Calculador de Documentos / Chaves Fiscais: Gerador/Validador de CNPJ, CPF, PIS, Inscrição Estadual por UF e gerador de DV de Chave de Acesso de NFe/NFCe para testes de homologação** `[P]` `[UI]`
+- [ ] **Checador de Status de SEFAZ e Gateways de Pagamento: Painel integrado exibindo o status de disponibilidade dos serviços da SEFAZ (NFe/NFCe por UF) e adquirentes (Stone, PagBank, Mercado Pago, TEF)** `[M]` `[UI]`
+- [ ] **Central de Testes de APIs & Webhooks (E-commerce/Mobile): Testador rápido de endpoints REST/Webhooks para verificar integrações com plataformas como WooCommerce, VTEX, Mercado Livre e APIs Mobile** `[M]` `[UI]`
+- [ ] **Validador e Utilitário de Arquivos Fiscais / Ponto: Validador rápido de XML de NFe/NFCe, parser de arquivos AFD/AFDT de relógio de ponto e extrator de CNPJ/Inscrição Estadual** `[M]` `[Backend]`
+- [ ] **Gerador de Sumário de Atendimento / Encerramento de Chamado: Formulário rápido para gerar resumo padronizado (Cliente, Sistema/Módulo, Causa Raiz, Solução Aplicada, Testes Feitos) para colar diretamente no sistema de Tickets/CRM** `[M]` `[UI]`
+- [ ] **Árvore de Decisão & Triagem Interativa: Guias passo a passo interativos para diagnosticar falhas comuns (ex: PDV não conecta no banco, Impressora não corta papel, Ponto não coleta marcação, E-commerce não sincroniza estoque)** `[G]` `[UI]`
+- [ ] **Utilitário de Diagnóstico de Redes & Dispositivos PDV/Ponto: Calculadora IP/Subrede e testador de porta/comunicação (Port Opener/Socket check) para impressoras térmicas, balanças, leitores e relógios de ponto (REP)** `[M]` `[UI]`
+- [ ] **Gerador de Scripts & Comandos Dinâmicos: Gerador de comandos SQL (reset de caixa, liberação de terminal, correção de status de NFe/NFCe/Ponto) e comandos CMD/PowerShell com variáveis dinâmicas (ex: {ip_pdv}, {cnpj}, {porta_impressora})** `[G]` `[UI]`
 - [ ] **UX: tema escuro/claro não anuncia estado no botão (aria-pressed ou texto dinâmico além do title)** `[P]` `[Accessibility]`
-- [ ] **A11y: inputs de busca (globalSearch, problemSearch, linkSearch) sem label associado visível ou aria-label** `[P]` `[Accessibility]`
 - [ ] **Refatorar: botão restaurar da lixeira e empty trash sem aria-label — ícones sem texto acessível** `[P]` `[Accessibility]`
-- [ ] **Refatorar: normalizeSolutions duplicado em problems.js e search.js — extrair para utils.js compartilhado** `[P]` `[Backend]`
 - [ ] **Refatorar: modal de logout customizado em auth.js duplica confirmModal — reutilizar openConfirmModal** `[P]` `[UI]`
 - [ ] **Layout: regras CSS duplicadas de .hidden-by-search/.hidden-by-filter em base.css (linhas 60-62 e 165-166)** `[P]` `[Layout]`
 - [ ] **Layout: estilos inline espalhados no HTML/JS (auth logout overlay, toolbars, export modal) — migrar para classes CSS reutilizáveis** `[M]` `[Layout]`
@@ -53,7 +58,6 @@ Próximo passo: Priorizar e implementar os bugs críticos de segurança/XSS e o 
 - [ ] **A11y: chips de filtro de categoria/tags sem aria-pressed para indicar filtro ativo** `[P]` `[Accessibility]`
 - [ ] **A11y: modal de busca global sem role=dialog, aria-modal e resultados sem navegação anunciada (listbox/option)** `[M]` `[Accessibility]`
 - [ ] **A11y: modais (alerta, confirmação, export, logout) sem focus trap, retorno de foco e fechamento por Escape/overlay** `[M]` `[Accessibility]`
-- [ ] **A11y: solution-copy-field tem role=button e tabindex mas sem handler de teclado Enter/Espaço para copiar** `[P]` `[Accessibility]`
 - [ ] **A11y: estrelas de favorito (enhancements.js) sem aria-label nem aria-pressed para estado favoritado** `[P]` `[Accessibility]`
 - [ ] **A11y: botões só com ícone no header (tema, compacto, busca, ajuda, limpar busca) sem aria-label descritivo** `[P]` `[Accessibility]`
 - [ ] **A11y: tabs.js não atualiza aria-selected nem tabindex ao trocar abas — leitores de tela não refletem a aba ativa** `[M]` `[Accessibility]`
@@ -61,6 +65,17 @@ Próximo passo: Priorizar e implementar os bugs críticos de segurança/XSS e o 
 
 
 ## Feito
+- [x] **Bug: drag-and-drop de mensagens só reordena dentro do mesmo grupo de categoria — arrastar entre grupos não move o item no DOM** `[M]` `[Bug]`
+- [x] **UX: empty states de listas sem CTA (botão Nova mensagem/problema) para ação imediata** `[P]` `[UI]`
+- [x] **UX/Layout: Melhorar o feedback visual de estado vazio (Empty State) em mensagens, problemas e histórico para usar componentes de card padronizados** `[M]` `[Layout]`
+- [x] **A11y: inputs de busca (globalSearch, problemSearch, linkSearch) sem label associado visível ou aria-label** `[P]` `[Accessibility]`
+- [x] **Acessibilidade: Ausência de rótulos aria-label em campos de formulário e inputs de busca sem tag label explícita (Search e Filtros)** `[P]` `[Accessibility]`
+- [x] **UX: Ausência de indicação visual de foco (focus outline) personalizada e consistente em botões de ação e campos interativos no tema escuro** `[M]` `[UI]`
+- [x] **Refatoração: Duplicação de lógica de escape HTML e sanitização em múltiplos arquivos em vez de centralizar 100% no utils.js** `[M]` `[Backend]`
+- [x] **Bug: Em links.js, se a requisição Firebase falhar ao carregar links na inicialização, a lista fica sem mensagem explicativa de erro para o usuário** `[P]` `[Bug]`
+- [x] **A11y: solution-copy-field tem role=button e tabindex mas sem handler de teclado Enter/Espaço para copiar** `[P]` `[Accessibility]`
+- [x] **Acessibilidade: Ausência de atributos aria-expanded nos botões do accordion de soluções (js/problems.js)** `[P]` `[Accessibility]`
+- [x] **Refatorar: normalizeSolutions duplicado em problems.js e search.js — extrair para utils.js compartilhado** `[P]` `[Backend]`
 - [x] **Bug: histórico de cópias (history.js) usa chave global no localStorage sem userId — mistura histórico entre contas no mesmo browser** `[M]` `[Bug]`
 - [x] **Refatorar: escapeAttr incompleto — só escapa aspas, não &, <, > — unificar com escapeHtml para atributos** `[P]` `[Bug]`
 - [x] **Bug: copyFirstResult em enhancements.js usa style.display !== 'none' para detectar visibilidade, ignorando hidden-by-search e hidden-by-filter CSS classes — itens ocultos por classes podem ser copiados erroneamente** `[M]` `[Bug]`

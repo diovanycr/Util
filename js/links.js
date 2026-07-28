@@ -121,13 +121,30 @@ async function loadLinks(userId) {
         document.dispatchEvent(event);
 
         if (allLinks.length === 0) {
-            list.innerHTML = '<p class="sub center">Nenhum link cadastrado.</p>';
+            list.innerHTML = `
+                <div class="empty-state-container">
+                    <i class="fa-solid fa-link empty-state-icon"></i>
+                    <p class="empty-state-title">Nenhum link cadastrado</p>
+                    <p class="empty-state-desc">Adicione links úteis e atalhos rápidos para facilitar seu atendimento.</p>
+                    <button class="btn primary mt-12 btn-cta-new-link"><i class="fa-solid fa-plus"></i> Novo link</button>
+                </div>
+            `;
+            list.querySelector('.btn-cta-new-link')?.addEventListener('click', () => {
+                el('btnNewLink')?.click();
+            });
             return;
         }
 
         renderLinks(list, allLinks);
     } catch (err) {
         console.error("Erro ao carregar links:", err);
+        list.innerHTML = `
+            <div class="empty-state-container">
+                <i class="fa-solid fa-triangle-exclamation empty-state-icon" style="color:var(--danger, #ef4444);"></i>
+                <p class="empty-state-title">Erro ao carregar links</p>
+                <p class="empty-state-desc">Não foi possível conectar ao banco de dados. Verifique sua conexão e tente novamente.</p>
+            </div>
+        `;
     }
 }
 

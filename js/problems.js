@@ -416,8 +416,12 @@ function renderProblems(problems) {
                 <i class="fa-solid fa-circle-question empty-state-icon"></i>
                 <p class="empty-state-title">Nenhum problema encontrado</p>
                 <p class="empty-state-desc">Nenhum registro corresponde aos filtros ou pesquisa atuais.</p>
+                <button class="btn primary mt-12 btn-cta-new-problem"><i class="fa-solid fa-plus"></i> Novo problema</button>
             </div>
         `;
+        list.querySelector('.btn-cta-new-problem')?.addEventListener('click', () => {
+            el('btnNewProblem')?.click();
+        });
         return;
     }
 
@@ -503,7 +507,7 @@ function renderProblems(problems) {
         });
 
         card.querySelectorAll('.solution-copy-field').forEach((field) => {
-            field.onclick = async () => {
+            const doCopy = async () => {
                 const si  = parseInt(field.dataset.solIndex ?? 0);
                 const ci  = parseInt(field.dataset.ctIndex  ?? 0);
                 const s   = solutions[si];
@@ -514,6 +518,13 @@ function renderProblems(problems) {
                 if (textToCopy) {
                     try { await navigator.clipboard.writeText(textToCopy); showToast("Copiado!"); }
                     catch (err) { console.error(err); }
+                }
+            };
+            field.onclick = doCopy;
+            field.onkeydown = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    doCopy();
                 }
             };
         });

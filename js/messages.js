@@ -299,8 +299,12 @@ function renderMessages() {
                 <i class="fa-regular fa-message empty-state-icon"></i>
                 <p class="empty-state-title">Nenhuma mensagem encontrada</p>
                 <p class="empty-state-desc">Cadastre novas respostas ou limpe os filtros para começar.</p>
+                <button class="btn primary mt-12 btn-cta-new-msg"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
             </div>
         `;
+        list.querySelector('.btn-cta-new-msg')?.addEventListener('click', () => {
+            el('btnNewMsg')?.click();
+        });
         return;
     }
 
@@ -422,6 +426,16 @@ function renderMessages() {
 
             groupEl.appendChild(row);
         });
+
+        // Permite receber o item arrastado mesmo quando o cursor está sobre
+        // o label do grupo ou área vazia (entre linhas) — corrige bug de
+        // drag-and-drop cross-group onde ondragover das rows não disparava.
+        groupEl.ondragover = (e) => {
+            e.preventDefault();
+            if (!dragSrc || groupEl.contains(dragSrc)) return;
+            // Insere no final do grupo (antes do próximo sibling não-row, se houver)
+            groupEl.appendChild(dragSrc);
+        };
 
         list.appendChild(groupEl);
     });

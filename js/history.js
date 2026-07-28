@@ -2,6 +2,8 @@
 //  history.js — Histórico de cópias (localStorage, por usuário)
 // ============================================================
 
+import { escapeHtml } from './utils.js';
+
 const HISTORY_KEY_BASE = 'painelAtende_copyHistory';
 const MAX_HISTORY  = 20;
 
@@ -124,7 +126,13 @@ export function renderHistoryPanel() {
     }
 
     if (history.length === 0) {
-        list.innerHTML = '<p class="sub center">Nenhuma cópia registrada ainda.</p>';
+        list.innerHTML = `
+            <div class="empty-state-container" style="margin: 10px 0; padding: 24px 16px;">
+                <i class="fa-solid fa-clock-rotate-left empty-state-icon" style="font-size: 28px;"></i>
+                <p class="empty-state-title" style="font-size: 14px;">Nenhuma cópia registrada</p>
+                <p class="empty-state-desc" style="font-size: 12px;">Seus textos e soluções copiados aparecerão aqui.</p>
+            </div>
+        `;
         return;
     }
 
@@ -135,10 +143,10 @@ export function renderHistoryPanel() {
 
         const time = _formatTime(item.copiedAt);
         const titleHtml = item.title
-            ? `<span class="history-item-title">${_esc(item.title)}</span>`
+            ? `<span class="history-item-title">${escapeHtml(item.title)}</span>`
             : '';
         const catHtml = item.category && item.category !== 'Geral'
-            ? `<span class="history-item-cat">${_esc(item.category)}</span>`
+            ? `<span class="history-item-cat">${escapeHtml(item.category)}</span>`
             : '';
 
         row.innerHTML = `
@@ -148,7 +156,7 @@ export function renderHistoryPanel() {
                     ${catHtml}
                     <span class="history-item-time"><i class="fa-regular fa-clock"></i> ${time}</span>
                 </div>
-                <div class="history-item-text">${_esc(item.text)}</div>
+                <div class="history-item-text">${escapeHtml(item.text)}</div>
             </div>
             <button class="btn ghost history-copy-btn" title="Copiar novamente">
                 <i class="fa-solid fa-copy"></i>
@@ -182,12 +190,4 @@ function _formatTime(ts) {
     if (diff < 3600000) return `${Math.floor(diff / 60000)}min atrás`;
     if (diff < 86400000) return `${Math.floor(diff / 3600000)}h atrás`;
     return new Date(ts).toLocaleDateString('pt-BR');
-}
-
-function _esc(str) {
-    return String(str)
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/"/g,'&quot;');
 }
