@@ -13,7 +13,7 @@ import {
     where
 } from './firebase.js';
 
-import { showModal } from './modal.js';
+import { showModal, openConfirmModal } from './modal.js';
 import { loadUsers } from './admin.js';
 import { initMessages, resetMessages, loadMessages, updateTrashCount } from './messages.js';
 import { initProblems, resetProblems, loadProblems } from './problems.js';
@@ -33,7 +33,11 @@ export function initAuth() {
     el('btnGoogleLogin').addEventListener('click', doGoogleLogin);
 
     el('btnLogout').addEventListener('click', () => {
-        showConfirmLogout(() => signOut(auth).catch(console.error));
+        openConfirmModal(
+            () => signOut(auth).catch(console.error),
+            null,
+            "Deseja realmente sair da sua conta? Você será redirecionado para a tela de login."
+        );
     });
 
     onAuthStateChanged(auth, async (user) => {
@@ -226,49 +230,7 @@ async function doGoogleLogin() {
     }
 }
 
-function showConfirmLogout(onConfirm) {
-    // Remove overlay duplicado se existir
-    document.getElementById('logoutConfirmOverlay')?.remove();
 
-    const overlay = document.createElement('div');
-    overlay.id = 'logoutConfirmOverlay';
-    overlay.style.cssText = `
-        position: fixed; inset: 0; background: rgba(0,0,0,0.55);
-        display: flex; align-items: center; justify-content: center;
-        z-index: 9999; backdrop-filter: blur(4px);
-        animation: fadeIn 0.15s ease;
-    `;
-
-    overlay.innerHTML = `
-        <div style="
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 28px 28px 22px;
-            max-width: 340px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-            text-align: center;
-        ">
-            <div style="font-size: 34px; margin-bottom: 12px;">👋</div>
-            <p style="font-weight: 700; font-size: 16px; color: var(--text); margin: 0 0 6px;">Sair da conta?</p>
-            <p style="font-size: 13px; color: var(--muted); margin: 0 0 22px; line-height: 1.5;">
-                Você será redirecionado para a tela de login.
-            </p>
-            <div style="display: flex; gap: 10px; justify-content: center;">
-                <button id="logoutConfirmCancel" class="btn ghost" style="flex:1; max-width:130px;">Cancelar</button>
-                <button id="logoutConfirmOk" class="btn primary" style="flex:1; max-width:130px;">Sair</button>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(overlay);
-
-    const close = () => overlay.remove();
-    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-    overlay.querySelector('#logoutConfirmCancel').onclick = close;
-    overlay.querySelector('#logoutConfirmOk').onclick = () => { close(); onConfirm(); };
-}
 
 // --- SAUDAÇÃO DINÂMICA DO HEADER ---
 let activeUserDisplayName = '';

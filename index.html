@@ -71,7 +71,7 @@
       <div class="header-logo-section">
         <h1>PainelAtende</h1>
       </div>
-      <div style="display:flex;gap:8px;align-items:center;">
+      <div class="header-actions">
         <div class="user-profile-badge" id="headerProfileBadge">
           <div class="user-avatar" id="userAvatar">-</div>
           <span id="loggedUser" class="username-display"></span>
@@ -184,18 +184,18 @@
         <div class="list mt-16" id="msgList"></div>
 
         <div class="center mt-12">
-          <button id="btnTrashToggle" class="btn ghost">
-            <i class="fa-solid fa-trash"></i> Ver Lixeira <span id="trashCount" class="badge">0</span>
+          <button id="btnTrashToggle" class="btn ghost" aria-label="Ver Lixeira">
+            <i class="fa-solid fa-trash" aria-hidden="true"></i> Ver Lixeira <span id="trashCount" class="badge">0</span>
           </button>
         </div>
 
         <div id="trashBox" class="card hidden mt-16 border-danger">
-          <h3><i class="fa-solid fa-trash"></i> Lixeira</h3>
+          <h3><i class="fa-solid fa-trash" aria-hidden="true"></i> Lixeira</h3>
           <p class="sub">Mensagens deletadas aparecem aqui antes da exclusão definitiva.</p>
           <div class="list mt-10" id="trashList"></div>
           <div class="flex-end mt-12">
             <button id="btnCancelTrash" class="btn ghost">Fechar</button>
-            <button id="btnEmptyTrash" class="btn danger">Esvaziar lixeira</button>
+            <button id="btnEmptyTrash" class="btn danger" aria-label="Esvaziar lixeira definitivamente"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Esvaziar lixeira</button>
           </div>
         </div>
       </div>
@@ -210,7 +210,9 @@
           <button id="btnFilterFavoriteProblems" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas problemas favoritos" aria-pressed="false">
             <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
           </button>
-          <button id="btnExportProblems" class="btn ghost"><i class="fa-solid fa-file-export"></i> Exportar</button>
+          <button id="btnExportProblems" class="btn ghost" aria-label="Exportar problemas como JSON"><i class="fa-solid fa-file-export" aria-hidden="true"></i> Exportar</button>
+          <button id="btnImportProblems" class="btn ghost" aria-label="Importar problemas de arquivo JSON"><i class="fa-solid fa-file-import" aria-hidden="true"></i> Importar</button>
+          <input id="importProblemsInput" type="file" accept=".json" class="hidden" aria-hidden="true" />
           <button id="btnNewProblem" class="btn primary"><i class="fa-solid fa-plus"></i> Novo problema</button>
         </div>
 
@@ -244,18 +246,18 @@
           </div>
           <div id="problemSolution" class="rich-editor" contenteditable="true" aria-labelledby="problemSolutionLabelHeading" data-placeholder="Digite a solução... Cole imagens aqui"></div>
           <div class="copy-texts-section" id="simpleCopyTextsSection">
-            <label class="field-label" style="margin-top:8px;">
+            <label class="field-label mt-8">
               Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
             </label>
             <div id="simpleCopyTextsList" class="copy-texts-list"></div>
-            <button id="btnAddSimpleCopyText" class="btn ghost" style="align-self:flex-start;margin-top:6px;">
+            <button id="btnAddSimpleCopyText" class="btn ghost align-self-start mt-6">
               <i class="fa-solid fa-plus"></i> Adicionar texto para copiar
             </button>
           </div>
 
           <div id="solutionEditorsList" class="solution-editors-list hidden"></div>
 
-          <button id="btnAddSolution" class="btn ghost" style="align-self:flex-start; margin-top:8px;">
+          <button id="btnAddSolution" class="btn ghost align-self-start mt-8">
             <i class="fa-solid fa-plus"></i> Adicionar solução
           </button>
           <div class="flex-end mt-10">
@@ -468,29 +470,29 @@
       <!-- Painel: Suporte -->
       <div id="help-contact" class="help-panel hidden">
         <div class="help-contact-list">
-          <div class="help-contact-item">
-            <i class="fa-brands fa-whatsapp"></i>
+          <a href="https://wa.me/5518999999999" target="_blank" rel="noopener noreferrer" class="help-contact-item help-contact-link">
+            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
             <div>
-              <strong>WhatsApp</strong>
-              <span class="sub">Atendimento rápido para dúvidas e problemas</span>
+              <strong>WhatsApp Suporte</strong>
+              <span class="sub">Clique para abrir conversa no WhatsApp</span>
             </div>
-          </div>
-          <div class="help-contact-item">
-            <i class="fa-solid fa-envelope"></i>
+          </a>
+          <a href="mailto:suporte@painelatende.com.br" class="help-contact-item help-contact-link">
+            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
             <div>
-              <strong>E-mail</strong>
-              <span class="sub">Para solicitações e sugestões</span>
+              <strong>E-mail de Suporte</strong>
+              <span class="sub">suporte@painelatende.com.br</span>
             </div>
-          </div>
+          </a>
           <div class="help-contact-item">
-            <i class="fa-solid fa-clock"></i>
+            <i class="fa-solid fa-clock" aria-hidden="true"></i>
             <div>
-              <strong>Horário de atendimento</strong>
+              <strong>Horário de Atendimento</strong>
               <span class="sub">Segunda a sexta, das 8h às 18h</span>
             </div>
           </div>
         </div>
-        <p class="help-tip"><i class="fa-solid fa-circle-info"></i> Para reportar bugs ou sugerir melhorias, entre em contato pelo WhatsApp.</p>
+        <p class="help-tip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Para reportar bugs ou solicitar suporte, utilize os canais acima.</p>
       </div>
 
     </div>

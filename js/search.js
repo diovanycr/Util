@@ -6,6 +6,7 @@
 import { el } from './firebase.js';
 import { allMessages } from './messages.js';
 import { allProblems } from './problems.js';
+import { allLinks } from './links.js';
 import { openSearch, closeSearch } from './shortcuts.js';
 import { showToast } from './toast.js';
 import { escapeHtml, normalizeSolutions } from './utils.js';
@@ -60,7 +61,13 @@ async function runSearch(query) {
                 return `${d.title} ${d.description || ''} ${solText} ${tags}`.toLowerCase().includes(q);
             });
 
-        if (msgMatches.length === 0 && probMatches.length === 0) {
+        const linkMatches = allLinks
+            .filter(d => {
+                const searchStr = `${d.title || ''} ${d.url || ''} ${d.category || ''} ${d.description || ''}`.toLowerCase();
+                return searchStr.includes(q);
+            });
+
+        if (msgMatches.length === 0 && probMatches.length === 0 && linkMatches.length === 0) {
             results.innerHTML = '<p class="search-hint">Nenhum resultado encontrado.</p>';
             return;
         }
@@ -114,6 +121,38 @@ async function runSearch(query) {
                     if (problemSearch) {
                         problemSearch.value = item.title;
                         problemSearch.dispatchEvent(new Event('input'));
+                    }
+                    closeSearch();
+                };
+                section.appendChild(row);
+            });
+            results.appendChild(section);
+        }
+
+        if (linkMatches.length > 0) {
+            const section = document.createElement('div');
+            section.innerHTML = `<p class="search-section-label"><i class="fa-solid fa-link"></i> Links Úteis (${linkMatches.length})</p>`;
+            linkMatches.slice(0, 5).forEach(item => {
+                const row = document.createElement('div');
+                row.className = 'search-result-item';
+                row.innerHTML = `
+                    <div>
+                        <span class="search-result-title">${highlight(item.title || item.url, query)}</span>
+                        ${item.url ? `<span class="search-result-desc">${highlight(item.url, query)}</span>` : ''}
+                    </div>
+                    <button class="btn ghost search-goto-btn" title="Abrir link" aria-label="Abrir link em nova aba"><i class="fa-solid fa-external-link" aria-hidden="true"></i></button>
+                `;
+                row.querySelector('.search-goto-btn').onclick = (e) => {
+                    e.stopPropagation();
+                    if (item.url) window.open(item.url, '_blank', 'noopener,noreferrer');
+                    closeSearch();
+                };
+                row.onclick = () => {
+                    document.querySelector('[data-tab="tabLinks"]')?.click();
+                    const linkSearch = el('linkSearch');
+                    if (linkSearch) {
+                        linkSearch.value = item.title || item.url;
+                        linkSearch.dispatchEvent(new Event('input'));
                     }
                     closeSearch();
                 };

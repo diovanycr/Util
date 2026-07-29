@@ -142,6 +142,8 @@ function setupProblemInterface() {
 
     el('problemSearch').oninput = () => applyFilters();
     el('btnExportProblems').onclick = () => exportProblems();
+    el('btnImportProblems').onclick = () => el('importProblemsInput').click();
+    el('importProblemsInput').onchange = (e) => importProblems(e, currentUserId);
 }
 
 // --- TAG INPUT ---
@@ -276,11 +278,11 @@ function addSolutionEditor(container, solution = null) {
         <div class="rich-editor solution-rich-editor" contenteditable="true"
              data-placeholder="Digite a solução... Cole imagens aqui">${solution ? sanitizeHtml(solution.text) : ''}</div>
         <div class="copy-texts-section">
-            <label class="field-label" style="margin-top:8px;">
+            <label class="field-label mt-8">
                 Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
             </label>
             <div class="copy-texts-list"></div>
-            <button class="btn ghost btn-add-copy-text" style="align-self:flex-start;margin-top:6px;">
+            <button class="btn ghost btn-add-copy-text align-self-start mt-6">
                 <i class="fa-solid fa-plus"></i> Adicionar texto para copiar
             </button>
         </div>
@@ -457,13 +459,13 @@ function renderProblems(problems) {
                                       : [];
                             if (cts.length === 0) return `
                                 <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="0" tabindex="0" role="button" aria-label="Copiar texto da solução">
-                                    <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;" aria-hidden="true"></i>
-                                    <span class="solution-copy-field-text" style="color:var(--muted);font-style:italic;">Clique para copiar o texto completo</span>
+                                    <i class="fa-solid fa-copy copy-field-icon" aria-hidden="true"></i>
+                                    <span class="solution-copy-field-text">Clique para copiar o texto completo</span>
                                     <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i></span>
                                 </div>`;
                             return cts.map((ct, ci) => `
                                 <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="${ci}" tabindex="0" role="button" aria-label="Copiar ${ct.label ? escapeAttr(ct.label) : 'texto'}">
-                                    <i class="fa-solid fa-copy" style="color:var(--primary);font-size:13px;flex-shrink:0;" aria-hidden="true"></i>
+                                    <i class="fa-solid fa-copy copy-field-icon" aria-hidden="true"></i>
                                     <div class="solution-copy-field-info">
                                         ${ct.label ? `<span class="solution-copy-field-label">${escapeHtml(ct.label)}</span>` : ''}
                                         <span class="solution-copy-field-text">${escapeHtml(ct.text)}</span>
@@ -621,6 +623,56 @@ function enterEditMode(card, item, userId, solutions, tags) {
     };
 
     card.querySelector('.btn-cancel-edit').onclick = () => loadProblems(userId);
+}
+
+// --- IMPORTAR ---
+
+async function importProblems(e, userId) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    let data;
+    try {
+        const text = await file.text();
+        data = JSON.parse(text);
+    } catch {
+        return showModal('Arquivo inválido. Selecione um JSON exportado pelo Painel Atende.');
+    }
+
+    if (!Array.isArray(data) || data.length === 0) {
+        return showModal('O arquivo está vazio ou não contém problemas válidos.');
+    }
+
+    openConfirmModal(
+        async () => {
+            try {
+                const BATCH_SIZE = 500;
+                for (let i = 0; i < data.length; i += BATCH_SIZE) {
+                    const batch = writeBatch(db);
+                    data.slice(i, i + BATCH_SIZE).forEach(item => {
+                        const ref = doc(collection(db, 'users', userId, 'problems'));
+                        batch.set(ref, {
+                            title:       item.title       || '',
+                            description: item.description || '',
+                            solutions:   Array.isArray(item.solutions) ? item.solutions : [],
+                            tags:        Array.isArray(item.tags)      ? item.tags      : [],
+                            order:       item.order       || 999,
+                            createdAt:   item.createdAt   || Date.now()
+                        });
+                    });
+                    await batch.commit();
+                }
+                showToast(`${data.length} problema(s) importado(s)!`);
+                loadProblems(userId);
+            } catch (err) {
+                console.error(err);
+                showModal('Erro ao importar problemas.');
+            }
+        },
+        null,
+        `Importar ${data.length} problema(s) do arquivo "${file.name}"? Eles serão adicionados à sua lista atual.`
+    );
 }
 
 // --- EXPORTAR ---

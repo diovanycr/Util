@@ -222,8 +222,11 @@ export async function loadMessages(userId) {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
         let allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // Se o usuário não possuir nenhuma mensagem cadastrada, cria saudações padrão com {usuario}
-        if (allDocs.length === 0) {
+        // Se o usuário nunca teve saudações criadas e a coleção estiver vazia, cria as saudações padrão iniciais
+        const seedKey = `painelAtende_seeded_${userId}`;
+        const hasSeeded = localStorage.getItem(seedKey) === 'true';
+
+        if (allDocs.length === 0 && !hasSeeded) {
             const defaultGreetings = [
                 { title: 'Saudação - Bom dia', category: 'Saudação', text: 'Bom dia, {usuario}! Como posso te ajudar hoje?', order: 1, deleted: false, createdAt: Date.now() },
                 { title: 'Saudação - Boa tarde', category: 'Saudação', text: 'Boa tarde, {usuario}! Como posso te ajudar hoje?', order: 2, deleted: false, createdAt: Date.now() },
@@ -232,6 +235,7 @@ export async function loadMessages(userId) {
             for (const g of defaultGreetings) {
                 await addDoc(collection(db, 'users', userId, 'messages'), g);
             }
+            localStorage.setItem(seedKey, 'true');
             const newSnap = await getDocs(collection(db, 'users', userId, 'messages'));
             allDocs = newSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
@@ -264,32 +268,27 @@ function renderMessages() {
         ? allMessages.filter(m => (m.category || 'Geral') === activeCategoryFilter)
         : allMessages;
 
-    // Filtro por horário para saudações ("Bom dia" antes das 12h, "Boa tarde" a partir das 12h)
+    // Filtro por horário para saudações ("Bom dia" antes das 12h, "Boa tarde" das 12h às 18h, "Boa noite" após 18h)
+    // Aplica-se exclusivamente a mensagens da categoria "Saudação" ou com título explícito de saudação
     const filtered = categoryFiltered.filter(m => {
-        const cat = (m.category || '').toLowerCase();
+        const cat   = (m.category || '').toLowerCase();
         const title = (m.title || '').toLowerCase();
-        const text = (m.text || '').toLowerCase();
 
-        // Identifica se a mensagem é especificamente uma saudação de Bom Dia, Boa Tarde ou Boa Noite
-        const isBomDia   = title.includes('bom dia')   || text.includes('bom dia');
-        const isBoaTarde = title.includes('boa tarde') || text.includes('boa tarde');
-        const isBoaNoite = title.includes('boa noite') || text.includes('boa noite');
+        const isGreetingCategory = cat.includes('sauda') || title.startsWith('saud');
+        if (!isGreetingCategory) return true;
 
-        // Se não for uma mensagem de saudação específica com esses termos, mantém visível
+        const isBomDia   = title.includes('bom dia');
+        const isBoaTarde = title.includes('boa tarde');
+        const isBoaNoite = title.includes('boa noite');
+
         if (!isBomDia && !isBoaTarde && !isBoaNoite) return true;
 
         if (currentHour < 12) {
-            // Período da manhã (00:00 até 11:59): Exibe "Bom dia", oculta "Boa tarde" e "Boa noite"
-            if (isBoaTarde || isBoaNoite) return false;
-            return true;
+            return !isBoaTarde && !isBoaNoite;
         } else if (currentHour < 18) {
-            // Período da tarde (12:00 até 17:59): Exibe "Boa tarde", oculta "Bom dia" e "Boa noite"
-            if (isBomDia || isBoaNoite) return false;
-            return true;
+            return !isBomDia && !isBoaNoite;
         } else {
-            // Período da noite (18:00 até 23:59): Exibe "Boa noite" (ou "Boa tarde" se não houver boa noite), oculta "Bom dia"
-            if (isBomDia) return false;
-            return true;
+            return !isBomDia;
         }
     });
 
@@ -362,7 +361,7 @@ function renderMessages() {
 
             row.innerHTML = `
                 <span class="drag-handle">&#9776;</span>
-                <div class="msg-content" tabindex="0" role="button" aria-label="Copiar mensagem: ${escapeAttr(displayText)}" style="flex:1; cursor:pointer; min-width:0;">
+                <div class="msg-content flex-1" tabindex="0" role="button" aria-label="Copiar mensagem: ${escapeAttr(displayText)}">
                     ${titleHtml}
                     <div class="msg-text">${escapeHtml(displayText)}</div>
                 </div>
@@ -395,13 +394,20 @@ function renderMessages() {
             // Editar
             row.querySelector('.btn-edit').onclick = () => enterEditMode(row, item, currentUserId);
 
-            // Deletar
-            row.querySelector('.btn-del').onclick = async () => {
-                try {
-                    await updateDoc(doc(db, 'users', currentUserId, 'messages', item.id), { deleted: true });
-                    loadMessages(currentUserId);
-                    updateTrashCount(currentUserId);
-                } catch (err) { showModal("Erro ao mover para a lixeira."); }
+            // Deletar (com confirmação)
+            row.querySelector('.btn-del').onclick = () => {
+                openConfirmModal(
+                    async () => {
+                        try {
+                            await updateDoc(doc(db, 'users', currentUserId, 'messages', item.id), { deleted: true });
+                            loadMessages(currentUserId);
+                            updateTrashCount(currentUserId);
+                            showToast('Mensagem movida para a lixeira.');
+                        } catch (err) { showModal('Erro ao mover para a lixeira.'); }
+                    },
+                    null,
+                    'Mover esta mensagem para a lixeira?'
+                );
             };
 
             // Drag (mouse)
@@ -450,7 +456,7 @@ function enterEditMode(row, item, userId) {
     `;
     row.innerHTML = `
         <span class="drag-handle">&#9776;</span>
-        <div class="msg-edit-fields" style="flex:1; display:flex; flex-direction:column; gap:6px; min-width:0;">
+        <div class="msg-edit-fields">
             <input class="edit-msg-title"    type="text" value="${escapeAttr(item.title || '')}"    placeholder="Título (opcional)..." />
             <input class="edit-msg-category" type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." />
             <textarea class="edit-msg-text" rows="3">${escapeHtml(item.text)}</textarea>
@@ -526,30 +532,57 @@ async function importFromTxt(event, userId) {
 
             const processImport = async (replaceDuplicates) => {
                 let added = 0;
+                const operations = [];
+
                 for (const item of messagesToImport) {
                     const existing = existingItems.find(ext => ext.text === item.text);
                     if (existing) {
                         if (replaceDuplicates) {
-                            await updateDoc(doc(db, 'users', userId, 'messages', existing.id), { 
-                                deleted: false, 
-                                title: item.title || '',
-                                category: item.category || 'Geral',
-                                updatedAt: Date.now() 
+                            operations.push({
+                                type: 'update',
+                                ref: doc(db, 'users', userId, 'messages', existing.id),
+                                data: {
+                                    deleted: false,
+                                    title: item.title || '',
+                                    category: item.category || 'Geral',
+                                    updatedAt: Date.now()
+                                }
                             });
                             added++;
                         }
                     } else {
-                        await addDoc(collection(db, 'users', userId, 'messages'), {
-                            text: item.text, 
-                            title: item.title || '', 
-                            category: item.category || 'Geral',
-                            order: item.order || 999, 
-                            deleted: false, 
-                            createdAt: Date.now()
+                        const newDocRef = doc(collection(db, 'users', userId, 'messages'));
+                        operations.push({
+                            type: 'set',
+                            ref: newDocRef,
+                            data: {
+                                text: item.text,
+                                title: item.title || '',
+                                category: item.category || 'Geral',
+                                order: item.order || 999,
+                                deleted: false,
+                                createdAt: Date.now()
+                            }
                         });
                         added++;
                     }
                 }
+
+                // Processa operações em lotes de no máximo 500 (limite do Firestore)
+                const BATCH_SIZE = 500;
+                for (let i = 0; i < operations.length; i += BATCH_SIZE) {
+                    const batch = writeBatch(db);
+                    const chunk = operations.slice(i, i + BATCH_SIZE);
+                    chunk.forEach(op => {
+                        if (op.type === 'update') {
+                            batch.update(op.ref, op.data);
+                        } else if (op.type === 'set') {
+                            batch.set(op.ref, op.data);
+                        }
+                    });
+                    await batch.commit();
+                }
+
                 showToast(`${added} mensagens processadas!`);
                 loadMessages(userId); updateTrashCount(userId);
             };
@@ -615,11 +648,11 @@ async function loadTrash(userId) {
             const row = document.createElement('div');
             row.className = 'user-row';
             row.innerHTML = `
-                <div style="flex:1; min-width:0;">
+                <div class="flex-1">
                     ${item.title ? `<span class="msg-title">${escapeHtml(item.title)}</span>` : ''}
                     <div>${escapeHtml(item.text)}</div>
                 </div>
-                <button class="btn ghost btn-restore"><i class="fa-solid fa-undo"></i></button>
+                <button class="btn ghost btn-restore" title="Restaurar mensagem" aria-label="Restaurar mensagem: ${escapeAttr(item.title || item.text)}"><i class="fa-solid fa-undo" aria-hidden="true"></i></button>
             `;
             row.querySelector('.btn-restore').onclick = async () => {
                 try {

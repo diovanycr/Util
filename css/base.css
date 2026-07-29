@@ -54,7 +54,20 @@ body {
   margin-bottom: 20px;
 }
 
-.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; }
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+.header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+@media (max-width: 992px) {
+  .header { margin-bottom: 20px; }
+  .header-actions { width: 100%; justify-content: flex-start; }
+  .header-actions .search-box { flex: 1; max-width: none !important; }
+}
+
+@media (max-width: 576px) {
+  .header-actions { gap: 6px; }
+  .header-actions .btn { padding: 8px 12px; font-size: 13px; }
+  .user-profile-badge { font-size: 13px; }
+}
 
 /* Utilitários */
 .hidden,
@@ -64,10 +77,15 @@ body {
 .grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
 .flex-end { display: flex; justify-content: flex-end; gap: 10px; }
 .center { text-align: center; }
+.mt-6 { margin-top: 6px; }
+.mt-8 { margin-top: 8px; }
 .mt-10 { margin-top: 10px; }
 .mt-12 { margin-top: 12px; }
 .mt-16 { margin-top: 16px; }
 .mt-20 { margin-top: 20px; }
+.flex-1 { flex: 1; min-width: 0; }
+.align-self-start { align-self: flex-start; }
+.full-width { width: 100%; }
 .border-danger { border-color: #fecaca; }
 
 .success-text { color: var(--success); font-size: 14px; font-weight: 600; text-align: center; padding: 8px 0; }
@@ -160,8 +178,6 @@ body {
   opacity: 1;
   color: var(--primary);
 }
-
-/* .hidden-by-search / .hidden-by-filter já definidos nos utilitários acima */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

@@ -62,6 +62,10 @@
 .help-contact-item > i { font-size: 20px; color: var(--primary); width: 28px; text-align: center; flex-shrink: 0; }
 .help-contact-item strong { display: block; margin-bottom: 2px; }
 
+.help-contact-link { text-decoration: none; color: inherit; transition: background 0.15s, border-color 0.15s; border: 1px solid transparent; }
+.help-contact-link:hover { background: var(--border); border-color: var(--primary); }
+
 [data-theme="dark"] .help-shortcut-row,
 [data-theme="dark"] .help-contact-item,
 [data-theme="dark"] .help-tip { background: #0f172a; }
+[data-theme="dark"] .help-contact-link:hover { background: #1e293b; border-color: var(--primary); }

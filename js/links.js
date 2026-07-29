@@ -19,7 +19,7 @@ import { showToast } from './toast.js';
 import { escapeHtml, escapeAttr, addKeyboardDragSupport } from './utils.js';
 
 let currentUserId = null;
-let allLinks = [];
+export let allLinks = [];
 let uiInitialized = false;
 let dragSrcLink = null;
 

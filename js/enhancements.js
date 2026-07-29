@@ -204,22 +204,29 @@ function setupCompactMode() {
         document.body.classList.add('compact-mode');
         btn.querySelector('i').className = 'fa-solid fa-expand';
         btn.title = 'Modo normal';
+        btn.setAttribute('aria-label', 'Desativar modo compacto');
+        btn.setAttribute('aria-pressed', 'true');
         btn.classList.add('active');
+    } else {
+        btn.setAttribute('aria-pressed', 'false');
     }
 
     btn.onclick = () => {
         compactMode = !compactMode;
         document.body.classList.toggle('compact-mode', compactMode);
         btn.classList.toggle('active', compactMode);
+        btn.setAttribute('aria-pressed', compactMode ? 'true' : 'false');
         
         const icon = btn.querySelector('i');
         if (compactMode) {
             icon.className = 'fa-solid fa-expand';
             btn.title = 'Modo normal';
+            btn.setAttribute('aria-label', 'Desativar modo compacto');
             showToast('Modo compacto ativado');
         } else {
             icon.className = 'fa-solid fa-compress';
             btn.title = 'Modo compacto';
+            btn.setAttribute('aria-label', 'Ativar modo compacto');
             showToast('Modo normal ativado');
         }
         
@@ -298,20 +305,31 @@ function setupFavorites() {
 }
 
 function addFavoriteStars() {
+    // helper para atualizar label e pressed ao alternar
+    function updateStarA11y(star, fav) {
+        const label = fav ? 'Remover dos favoritos' : 'Adicionar aos favoritos';
+        star.setAttribute('aria-label', label);
+        star.setAttribute('aria-pressed', fav ? 'true' : 'false');
+        star.title = label;
+    }
+
     // Mensagens
     document.querySelectorAll('#msgList .user-row').forEach(row => {
         if (row.querySelector('.btn-favorite')) return;
         const id = row.dataset.id;
         if (!id) return;
         
+        const fav = isFavorite(id);
         const star = document.createElement('button');
-        star.className = `btn ghost btn-favorite ${isFavorite(id) ? 'active' : ''}`;
-        star.innerHTML = '<i class="fa-solid fa-star"></i>';
-        star.title = 'Favoritar';
+        star.className = `btn ghost btn-favorite ${fav ? 'active' : ''}`;
+        star.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i>';
+        updateStarA11y(star, fav);
+
         star.onclick = (e) => {
             e.stopPropagation();
             toggleFavorite(id);
             star.classList.toggle('active');
+            updateStarA11y(star, isFavorite(id));
             
             // Reaplica filtro se estiver ativo
             if (filteringFavorites.msg) {
@@ -329,14 +347,17 @@ function addFavoriteStars() {
         const id = card.dataset.id;
         if (!id) return;
         
+        const fav = isFavorite(id);
         const star = document.createElement('button');
-        star.className = `btn ghost btn-favorite ${isFavorite(id) ? 'active' : ''}`;
-        star.innerHTML = '<i class="fa-solid fa-star"></i>';
-        star.title = 'Favoritar';
+        star.className = `btn ghost btn-favorite ${fav ? 'active' : ''}`;
+        star.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i>';
+        updateStarA11y(star, fav);
+
         star.onclick = (e) => {
             e.stopPropagation();
             toggleFavorite(id);
             star.classList.toggle('active');
+            updateStarA11y(star, isFavorite(id));
             
             if (filteringFavorites.problem) {
                 applyFavoriteFilter('problem', '#problemList .problem-card');
@@ -353,14 +374,17 @@ function addFavoriteStars() {
         const id = card.dataset.id;
         if (!id) return;
         
+        const fav = isFavorite(id);
         const star = document.createElement('button');
-        star.className = `btn ghost btn-favorite ${isFavorite(id) ? 'active' : ''}`;
-        star.innerHTML = '<i class="fa-solid fa-star"></i>';
-        star.title = 'Favoritar';
+        star.className = `btn ghost btn-favorite ${fav ? 'active' : ''}`;
+        star.innerHTML = '<i class="fa-solid fa-star" aria-hidden="true"></i>';
+        updateStarA11y(star, fav);
+
         star.onclick = (e) => {
             e.stopPropagation();
             toggleFavorite(id);
             star.classList.toggle('active');
+            updateStarA11y(star, isFavorite(id));
             
             if (filteringFavorites.link) {
                 applyFavoriteFilter('link', '#linkList .link-card', '#linkList .link-group');

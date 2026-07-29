@@ -128,7 +128,7 @@ export async function loadUsers() {
                         }
                     },
                     null,
-                    `Deseja realmente excluir "${u.username}"? Todas as mensagens, problemas e links serão perdidos.`
+                    `Deseja realmente excluir "${u.username}"? Todas as mensagens, problemas e links do Firestore serão removidos. Nota: Para liberar o e-mail no Firebase Auth, remova o usuário também pelo Console Firebase.`
                 );
             };
 
@@ -155,6 +155,10 @@ export function initAdminActions() {
         }
 
         try {
+            btn.disabled = true;
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Criando...';
+
             const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
             
             await setDoc(doc(db, 'users', cred.user.uid), {
@@ -185,6 +189,9 @@ export function initAdminActions() {
             } else {
                 showModal("Ocorreu um erro ao criar o usuário. Tente novamente.");
             }
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'Criar usuário';
         }
     };
 }
