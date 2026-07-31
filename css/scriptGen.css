@@ -1,0 +1,37 @@
+/* ============================================================
+   scriptGen.css — Gerador de Scripts & Comandos Dinâmicos
+   ============================================================ */
+
+.sg-template-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 10px;
+}
+
+.sg-template-btn {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 12px 14px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--bg); cursor: pointer; transition: all .15s;
+  text-align: left; font-family: inherit; position: relative;
+}
+.sg-template-btn:hover { border-color: var(--primary); background: #eff6ff; }
+
+.sg-template-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.sg-template-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+
+.sg-template-lang {
+  position: absolute; top: 10px; right: 10px;
+  font-family: 'Courier New', monospace; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px; letter-spacing: .3px;
+}
+.sg-lang-sql  { background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.sg-lang-bat  { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+.sg-lang-ps1  { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+.sg-vars { display: flex; flex-direction: column; gap: 10px; }
+.sg-var-row { display: flex; flex-direction: column; gap: 4px; }
+.sg-var-row .field-label { font-family: 'Courier New', monospace; font-size: 12px; font-weight: 600; color: var(--primary); }
+
+[data-theme="dark"] .sg-template-btn { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .sg-template-btn:hover { background: #1e3a5f; border-color: var(--primary); }
+[data-theme="dark"] .sg-lang-sql { background: #3b0764; color: #d8b4fe; border-color: #6d28d9; }
+[data-theme="dark"] .sg-lang-bat { background: #1e3a5f; color: #93c5fd; border-color: #1e40af; }
+[data-theme="dark"] .sg-lang-ps1 { background: #052e16; color: #4ade80; border-color: #166534; }

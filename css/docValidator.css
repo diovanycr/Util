@@ -1,0 +1,45 @@
+/* ============================================================
+   docValidator.css — Validador de Documentos Fiscais
+   ============================================================ */
+
+.dv-input-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.dv-input {
+  flex: 1; min-width: 220px;
+  padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'Courier New', monospace; font-size: 14px; font-weight: 600;
+  color: var(--text); background: var(--card); outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.dv-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+.dv-input::placeholder { font-family: 'Inter', sans-serif; font-weight: 400; }
+
+.dv-select {
+  width: 100%; max-width: 400px;
+  padding: 10px 14px; border: 1.5px solid var(--border); border-radius: 8px;
+  font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text);
+  background: var(--card); outline: none; cursor: pointer;
+  transition: border-color .2s, box-shadow .2s;
+}
+.dv-select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+
+.dv-result-status {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; border-radius: 10px; font-size: 14px; font-weight: 600; line-height: 1.5;
+}
+
+.dv-status-valid { background: #f0fdf4; border: 1px solid #bbf7d0; color: var(--success); }
+.dv-status-error  { background: #fef2f2; border: 1px solid #fecaca; color: var(--danger); }
+
+.dv-result-pre {
+  margin-top: 12px; padding: 12px 16px; border-radius: 8px;
+  background: var(--bg); font-family: 'Inter', sans-serif;
+  font-size: 13px; color: var(--muted); line-height: 1.6; white-space: pre-wrap;
+}
+
+/* Dark mode */
+[data-theme="dark"] .dv-input { background: var(--card); border-color: var(--border); color: var(--text); }
+[data-theme="dark"] .dv-select { background: var(--card); border-color: var(--border); color: var(--text); }
+[data-theme="dark"] .dv-status-valid { background: #052e16; border-color: #166534; }
+[data-theme="dark"] .dv-status-error  { background: #450a0a; border-color: #991b1b; }
+[data-theme="dark"] .dv-result-pre { background: #0f172a; }

@@ -1,0 +1,8 @@
+/* ============================================================
+   ticketSummary.css — Gerador de Sumário de Atendimento
+   ============================================================ */
+
+.ts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 600px) { .ts-grid { grid-template-columns: 1fr; } }
+
+.ts-observations { display: flex; flex-direction: column; gap: 8px; }

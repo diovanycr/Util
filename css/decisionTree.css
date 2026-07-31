@@ -1,0 +1,63 @@
+/* ============================================================
+   decisionTree.css — Árvore de Decisão & Triagem Interativa
+   ============================================================ */
+
+.dt-problem-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+
+.dt-problem-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; border-radius: 10px; border: 1.5px solid var(--border);
+  background: var(--bg); cursor: pointer; transition: all .15s;
+  text-align: left; font-family: inherit;
+}
+.dt-problem-btn:hover { border-color: var(--primary); background: #eff6ff; }
+.dt-problem-icon { font-size: 22px; flex-shrink: 0; }
+.dt-problem-title { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.3; }
+
+.dt-breadcrumb {
+  display: flex; align-items: center; gap: 6px; margin-bottom: 16px;
+  padding: 8px 12px; background: var(--bg); border-radius: 8px;
+}
+.dt-breadcrumb-title { font-size: 13px; font-weight: 600; color: var(--primary); }
+
+.dt-question h3 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 16px; line-height: 1.4; }
+
+.dt-options { display: flex; flex-direction: column; gap: 8px; }
+
+.dt-option-btn {
+  display: flex; align-items: center; gap: 10px; width: 100%;
+  padding: 12px 14px; border-radius: 8px; border: 1.5px solid var(--border);
+  background: var(--card); cursor: pointer; transition: all .15s;
+  text-align: left; font-family: inherit; font-size: 14px; color: var(--text);
+}
+.dt-option-btn:hover { border-color: var(--primary); background: #eff6ff; }
+.dt-option-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 22px; height: 22px; border-radius: 50%; background: var(--primary); color: #fff;
+  font-size: 12px; font-weight: 700; flex-shrink: 0;
+}
+.dt-option-btn span:not(.dt-option-num) { flex: 1; }
+.dt-option-arrow { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+.dt-option-btn:hover .dt-option-arrow { color: var(--primary); }
+
+.dt-actions { display: flex; gap: 8px; margin-top: 16px; }
+
+.dt-answer-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.dt-answer-icon { font-size: 24px; }
+.dt-answer-header h3 { font-size: 16px; font-weight: 700; color: var(--success); }
+
+.dt-solution-pre {
+  padding: 14px 16px; border-radius: 8px; background: var(--bg);
+  font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.7;
+  color: var(--text); white-space: pre-wrap; border: 1px solid var(--border);
+}
+
+#dtBtnBack:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Dark mode */
+[data-theme="dark"] .dt-problem-btn { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .dt-problem-btn:hover { background: #1e3a5f; border-color: var(--primary); }
+[data-theme="dark"] .dt-breadcrumb { background: #0f172a; }
+[data-theme="dark"] .dt-option-btn { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .dt-option-btn:hover { background: #1e3a5f; border-color: var(--primary); }
+[data-theme="dark"] .dt-solution-pre { background: #0f172a; border-color: var(--border); }

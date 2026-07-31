@@ -1,0 +1,49 @@
+/* ============================================================
+   statusChecker.css — Checador de Status SEFAZ & Gateways
+   ============================================================ */
+
+.sc-tab-btns { display: flex; gap: 0; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; max-width: 400px; }
+.sc-tab-btns .po-seg-btn { flex: 1; padding: 10px 14px; font-size: 13px; }
+
+.sc-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+
+.sc-disclaimer {
+  font-size: 12px; color: var(--muted); line-height: 1.5;
+  display: flex; align-items: flex-start; gap: 6px;
+  background: var(--bg); padding: 8px 12px; border-radius: 8px;
+}
+
+.sc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;
+}
+
+.sc-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; display: flex; flex-direction: column; gap: 4px;
+  transition: border-color .2s;
+}
+
+.sc-card-header { display: flex; align-items: center; justify-content: space-between; }
+.sc-label { font-size: 14px; font-weight: 700; color: var(--text); }
+.sc-sub { font-size: 11px; color: var(--muted); }
+.sc-time { font-family: 'Courier New', monospace; font-size: 11px; color: var(--muted); }
+
+.sc-status { font-size: 18px; line-height: 1; }
+.sc-status-unknown  { opacity: 0.5; }
+.sc-status-checking { animation: scSpin 0.8s linear infinite; }
+.sc-status-up   { color: var(--success); }
+.sc-status-down { color: var(--danger); }
+.sc-status-slow { color: #f59e0b; }
+
+@keyframes scSpin { to { transform: rotate(360deg); } }
+
+.sc-actions-row { display: flex; gap: 4px; margin-top: 6px; }
+.sc-actions-row .btn { padding: 5px 8px; font-size: 12px; }
+.sc-actions-row .sc-btn-link { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* Dark mode */
+[data-theme="dark"] .sc-card { background: var(--card); border-color: var(--border); }
+[data-theme="dark"] .sc-disclaimer { background: #0f172a; }
+[data-theme="dark"] .sc-status-up { color: #4ade80; }
+[data-theme="dark"] .sc-status-down { color: #f87171; }
+[data-theme="dark"] .sc-status-slow { color: #fbbf24; }

@@ -2,7 +2,15 @@
 //  portOpener.js — Port Opener integrado ao PainelAtende
 // ============================================================
 
-
+import { bindEscPosEvents, buildEscPosPanel } from './escPos.js';
+import { bindDocValidatorEvents, buildDocValidatorPanel } from './docValidatorUI.js';
+import { bindStatusCheckerEvents, buildStatusCheckerPanel } from './statusChecker.js';
+import { bindApiTesterEvents, buildApiTesterPanel } from './apiTester.js';
+import { bindFileValidatorEvents, buildFileValidatorPanel } from './fileValidator.js';
+import { bindTicketSummaryEvents, buildTicketSummaryPanel } from './ticketSummary.js';
+import { bindDecisionTreeEvents, buildDecisionTreePanel } from './decisionTree.js';
+import { bindNetworkDiagEvents, buildNetworkDiagPanel } from './networkDiag.js';
+import { bindScriptGenEvents, buildScriptGenPanel } from './scriptGen.js';
 
 const COMMON_PORTS = {
   20:'FTP Data',21:'FTP',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',
@@ -32,12 +40,30 @@ export function renderSistemasTab(container) {
     <div class="po-wrap">
       ${_buildToolSelector()}
       ${_buildPortOpenerPanel()}
+      ${buildEscPosPanel()}
+      ${buildDocValidatorPanel()}
+      ${buildStatusCheckerPanel()}
+      ${buildApiTesterPanel()}
+      ${buildFileValidatorPanel()}
+      ${buildTicketSummaryPanel()}
+      ${buildDecisionTreePanel()}
+      ${buildNetworkDiagPanel()}
+      ${buildScriptGenPanel()}
       ${_buildFuturaPanel()}
     </div><!-- /po-wrap -->
   `;
 
   _bindEvents(container);
   _renderQuickPorts();
+  bindEscPosEvents(container);
+  bindDocValidatorEvents(container);
+  bindStatusCheckerEvents(container);
+  bindApiTesterEvents(container);
+  bindFileValidatorEvents(container);
+  bindTicketSummaryEvents(container);
+  bindDecisionTreeEvents(container);
+  bindNetworkDiagEvents(container);
+  bindScriptGenEvents(container);
 
   const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
   const futContainer = document.getElementById('futuraSearchWidgetContainer');
@@ -63,6 +89,51 @@ function _buildToolSelector() {
           <span class="po-tool-icon">🔍</span>
           <span class="po-tool-name">Futura Search</span>
           <span class="po-tool-desc">Pesquise no manual e tire dúvidas do sistema com IA</span>
+        </button>
+        <button class="po-tool-btn" data-tool="escpos">
+          <span class="po-tool-icon">🖨️</span>
+          <span class="po-tool-name">ESC/POS</span>
+          <span class="po-tool-desc">Gera comandos brutos de corte, gaveta e avanço para impressoras térmicas</span>
+        </button>
+        <button class="po-tool-btn" data-tool="docvalidator">
+          <span class="po-tool-icon">📋</span>
+          <span class="po-tool-name">Documentos Fiscais</span>
+          <span class="po-tool-desc">Valide e gere CPF, CNPJ, PIS, IE e Chave NFe/NFCe</span>
+        </button>
+        <button class="po-tool-btn" data-tool="statuschecker">
+          <span class="po-tool-icon">🟢</span>
+          <span class="po-tool-name">Status SEFAZ & Gateways</span>
+          <span class="po-tool-desc">Verifica disponibilidade dos serviços SEFAZ e adquirentes</span>
+        </button>
+        <button class="po-tool-btn" data-tool="apitester">
+          <span class="po-tool-icon">🔌</span>
+          <span class="po-tool-name">Testes de APIs & Webhooks</span>
+          <span class="po-tool-desc">Teste endpoints REST/Webhooks: WooCommerce, VTEX, Mercado Livre</span>
+        </button>
+        <button class="po-tool-btn" data-tool="filevalidator">
+          <span class="po-tool-icon">📂</span>
+          <span class="po-tool-name">Arquivos Fiscais & Ponto</span>
+          <span class="po-tool-desc">Valide XML de NFe/NFCe, parse de AFD/AFDT e extração de CNPJ/IE</span>
+        </button>
+        <button class="po-tool-btn" data-tool="ticketsummary">
+          <span class="po-tool-icon">📝</span>
+          <span class="po-tool-name">Sumário de Atendimento</span>
+          <span class="po-tool-desc">Gere resumos padronizados para Tickets/CRM</span>
+        </button>
+        <button class="po-tool-btn" data-tool="decisiontree">
+          <span class="po-tool-icon">🌳</span>
+          <span class="po-tool-name">Árvore de Decisão</span>
+          <span class="po-tool-desc">Guias interativos para diagnosticar falhas em PDV, Impressora, Ponto e E-commerce</span>
+        </button>
+        <button class="po-tool-btn" data-tool="networkdiag">
+          <span class="po-tool-icon">🌐</span>
+          <span class="po-tool-name">Diagnóstico de Redes</span>
+          <span class="po-tool-desc">Calculadora IP/Subrede e testador de portas TCP para impressoras, balanças e REPs</span>
+        </button>
+        <button class="po-tool-btn" data-tool="scriptgen">
+          <span class="po-tool-icon">⚡</span>
+          <span class="po-tool-name">Scripts & Comandos</span>
+          <span class="po-tool-desc">Gere SQL, BAT e PowerShell com variáveis dinâmicas para suporte</span>
         </button>
       </div>
     </div>
@@ -316,8 +387,8 @@ function _bindEvents(container) {
   };
   // Navegação por setas entre abas de output
   container.addEventListener('keydown', e => {
-    if (!e.target.closest('.po-otab')) return;
-    const list = [...container.querySelectorAll('.po-otab')];
+    if (!e.target.closest('#poTool-portopener .po-otab')) return;
+    const list = [...container.querySelectorAll('#poTool-portopener .po-otab')];
     const idx = list.indexOf(e.target);
     let next = null;
     if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
@@ -328,7 +399,7 @@ function _bindEvents(container) {
   });
 
   container.addEventListener('click', e => {
-    const tab = e.target.closest('.po-otab');
+    const tab = e.target.closest('#poTool-portopener .po-otab');
     if (tab) _activateOutputTab(tab);
 
     // Copiar

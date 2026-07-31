@@ -1,0 +1,47 @@
+/* ============================================================
+   escPos.css — Gerador de Comandos ESC/POS
+   ============================================================ */
+
+.esc-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  color: var(--text);
+  background: var(--card);
+  resize: vertical;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.esc-textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
+
+.esc-checks { display: flex; flex-wrap: wrap; gap: 14px; }
+.esc-check {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 500; color: var(--text);
+  cursor: pointer; user-select: none;
+}
+.esc-check input[type="checkbox"] {
+  width: 18px; height: 18px; accent-color: var(--primary);
+  cursor: pointer;
+}
+.esc-check span { margin-top: 1px; }
+
+.esc-range {
+  width: 100%;
+  max-width: 300px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+/* Dark mode */
+[data-theme="dark"] .esc-textarea {
+  background: var(--card);
+  border-color: var(--border);
+  color: var(--text);
+}
+[data-theme="dark"] .esc-textarea::placeholder { color: var(--muted); }
+[data-theme="dark"] .esc-check { color: var(--text); }

@@ -1,0 +1,23 @@
+/* ============================================================
+   fileValidator.css — Validador de Arquivos Fiscais & Ponto
+   ============================================================ */
+
+.fv-input-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.fv-file-input { font-size: 14px; padding: 6px 0; color: var(--text); }
+
+.fv-file-input::file-selector-button {
+  padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--card); color: var(--text); font-family: inherit; font-size: 13px;
+  font-weight: 600; cursor: pointer; margin-right: 10px;
+  transition: background .15s, border-color .15s;
+}
+.fv-file-input::file-selector-button:hover { border-color: var(--primary); background: var(--bg); }
+
+.dv-result-status.dv-status-info {
+  background: #eff6ff; border: 1px solid #bfdbfe; color: var(--primary);
+}
+
+[data-theme="dark"] .dv-result-status.dv-status-info {
+  background: #1e3a5f; border-color: #1e40af;
+}
