@@ -6,10 +6,12 @@ import {
     deleteDoc,
     doc,
     setDoc,
+    writeBatch,
     createUserWithEmailAndPassword,
     signOut,
     sendPasswordResetEmail,
     query,
+    where,
     orderBy,
     limit,
     startAfter
@@ -127,14 +129,21 @@ export async function loadUsers(append = false) {
                             const msgsSnap  = await getDocs(collection(db, 'users', d.id, 'messages'));
                             const probsSnap = await getDocs(collection(db, 'users', d.id, 'problems'));
                             const linksSnap = await getDocs(collection(db, 'users', d.id, 'links'));
-                            
-                            const deletePromises = [
-                                ...msgsSnap.docs.map(m  => deleteDoc(doc(db, 'users', d.id, 'messages',  m.id))),
-                                ...probsSnap.docs.map(p  => deleteDoc(doc(db, 'users', d.id, 'problems',  p.id))),
-                                ...linksSnap.docs.map(l  => deleteDoc(doc(db, 'users', d.id, 'links',     l.id)))
+
+                            const allDeletions = [
+                                ...msgsSnap.docs.map(m => doc(db, 'users', d.id, 'messages', m.id)),
+                                ...probsSnap.docs.map(p => doc(db, 'users', d.id, 'problems', p.id)),
+                                ...linksSnap.docs.map(l => doc(db, 'users', d.id, 'links', l.id))
                             ];
-                            await Promise.all(deletePromises);
-                            
+
+                            // writeBatch aceita no máx. 500 ops por lote
+                            const BATCH_LIMIT = 500;
+                            for (let i = 0; i < allDeletions.length; i += BATCH_LIMIT) {
+                                const batch = writeBatch(db);
+                                for (const dRef of allDeletions.slice(i, i + BATCH_LIMIT)) batch.delete(dRef);
+                                await batch.commit();
+                            }
+
                             await deleteDoc(doc(db, 'users', d.id));
                             showToast("Usuário excluído!");
                             loadUsers();
@@ -177,6 +186,24 @@ export function initAdminActions() {
         if (!username || !email || !password) {
             showModal("Preencha todos os campos para continuar.");
             return;
+        }
+
+        // Validar unicidade de username/email no Firestore antes de criar
+        try {
+            const userQ = query(collection(db, 'users'), where('username', '==', username));
+            const userSnap = await getDocs(userQ);
+            if (!userSnap.empty) {
+                showModal("Este nome de usuário já está em uso. Escolha outro.");
+                return;
+            }
+            const emailQ = query(collection(db, 'users'), where('email', '==', email));
+            const emailSnap = await getDocs(emailQ);
+            if (!emailSnap.empty) {
+                showModal("Este e-mail já está cadastrado. Use outro e-mail.");
+                return;
+            }
+        } catch (e) {
+            console.warn("Falha ao validar unicidade (pode ser erro de rede):", e);
         }
 
         try {

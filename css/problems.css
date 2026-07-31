@@ -11,7 +11,7 @@
 .problem-tags { display: flex; flex-wrap: wrap; gap: 5px; margin: 6px 0 4px; }
 
 .problem-solution {
-  background: #f0fdf4; border: 1px solid #bbf7d0;
+  background: var(--success-bg); border: 1px solid var(--success-text);
   border-radius: 8px; padding: 14px 16px;
 }
 
@@ -30,13 +30,13 @@
 
 .solution-editor-item {
   border: 1px solid var(--border); border-radius: 10px;
-  padding: 14px; background: #f8fafc;
+  padding: 14px; background: var(--card);
 }
 
 .solution-editor-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-.solution-label-input { flex: 1; margin-bottom: 0; font-size: 13px; font-weight: 600; background: #fff; }
+.solution-label-input { flex: 1; margin-bottom: 0; font-size: 13px; font-weight: 600; background: var(--card); }
 .btn-remove-solution { flex-shrink: 0; padding: 8px 10px; color: var(--danger) !important; }
-.solution-rich-editor { background: #fff; margin-bottom: 0; }
+.solution-rich-editor { background: var(--card); margin-bottom: 0; }
 
 /* Campos de cópia rápida */
 .solution-copy-field {
@@ -44,7 +44,9 @@
   border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px;
   margin-top: 4px; cursor: pointer; transition: border-color 0.15s, background 0.15s;
 }
-.solution-copy-field:hover { border-color: var(--primary); background: var(--primary-light); }
+.solution-copy-field:hover,
+.solution-copy-field:focus-visible { border-color: var(--primary); background: var(--primary-light); outline: none; }
+.solution-copy-field:focus-visible { box-shadow: 0 0 0 2px rgba(26,86,219,0.35); }
 
 .solution-copy-field-text { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .solution-copy-field-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
@@ -75,17 +77,18 @@
   margin-left: 8px; vertical-align: middle;
 }
 
-.status-confirmed { background: #dcfce7; color: #15803d; }
-.status-testing   { background: #fef9c3; color: #a16207; }
-.status-obsolete  { background: #fee2e2; color: #b91c1c; }
+.status-confirmed { background: var(--success-bg); color: var(--success-text); }
+.status-testing   { background: var(--warning-bg); color: var(--warning-text); }
+.status-obsolete  { background: var(--danger); color: var(--primary-contrast); }
 
-[data-theme="dark"] .problem-solution { background: #052e16; border-color: #166534; }
-[data-theme="dark"] .solution-label { color: #4ade80; }
-[data-theme="dark"] .solution-copy-field { background: #0f172a; border-color: var(--border); }
-[data-theme="dark"] .solution-copy-field:hover { background: var(--primary-light); border-color: var(--primary); }
-[data-theme="dark"] .solution-editor-item { background: #1e293b; }
-[data-theme="dark"] .solution-label-input { background: #0f172a; }
-[data-theme="dark"] .solution-status-select { background: #1e293b; border-color: var(--border); color: var(--text); }
-[data-theme="dark"] .status-confirmed { background: #052e16; color: #4ade80; }
-[data-theme="dark"] .status-testing   { background: #422006; color: #fbbf24; }
-[data-theme="dark"] .status-obsolete  { background: #450a0a; color: #f87171; }
+[data-theme="dark"] .problem-solution { background: var(--success-bg); border-color: var(--success-text); }
+[data-theme="dark"] .solution-label { color: var(--success-text); }
+[data-theme="dark"] .solution-copy-field { background: var(--bg); border-color: var(--border); }
+[data-theme="dark"] .solution-copy-field:hover,
+[data-theme="dark"] .solution-copy-field:focus-visible { background: var(--primary-light); border-color: var(--primary); }
+[data-theme="dark"] .solution-editor-item { background: var(--card); }
+[data-theme="dark"] .solution-label-input { background: var(--bg); }
+[data-theme="dark"] .solution-status-select { background: var(--card); border-color: var(--border); color: var(--text); }
+[data-theme="dark"] .status-confirmed { background: var(--success-bg); color: var(--success-text); }
+[data-theme="dark"] .status-testing   { background: var(--warning-bg); color: var(--warning-text); }
+[data-theme="dark"] .status-obsolete  { background: var(--danger); color: var(--primary-contrast); }

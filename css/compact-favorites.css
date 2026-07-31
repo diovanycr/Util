@@ -41,7 +41,7 @@
 /* Favoritos */
 .btn-favorite { color: var(--muted); opacity: 0; transition: opacity 0.15s, color 0.15s; }
 .btn-favorite.active,
-.btn-favorite:hover { color: #fbbf24; opacity: 1; }
+.btn-favorite:hover { color: var(--warning); opacity: 1; }
 .user-row:hover .btn-favorite,
 .problem-card:hover .btn-favorite,
 .link-card:hover .btn-favorite { opacity: 1; }
@@ -49,14 +49,14 @@
 
 #btnFilterFavorites.active,
 #btnFilterFavoriteProblems.active,
-#btnFilterFavoriteLinks.active { background: #fef3c7; color: #d97706; border-color: #fbbf24; }
+#btnFilterFavoriteLinks.active { background: var(--warning-bg); color: var(--warning-text); border-color: var(--warning); }
 
 [data-theme="dark"] #btnFilterFavorites.active,
 [data-theme="dark"] #btnFilterFavoriteProblems.active,
-[data-theme="dark"] #btnFilterFavoriteLinks.active { background: #422006; color: #fbbf24; border-color: #d97706; }
+[data-theme="dark"] #btnFilterFavoriteLinks.active { background: var(--warning-bg); color: var(--warning-text); border-color: var(--warning); }
 
 [data-theme="dark"] .btn-favorite.active,
-[data-theme="dark"] .btn-favorite:hover { color: #fbbf24; }
+[data-theme="dark"] .btn-favorite:hover { color: var(--warning); }
 
 [data-theme="dark"] .compact-mode .user-row,
 [data-theme="dark"] .compact-mode .problem-card,

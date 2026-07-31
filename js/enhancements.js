@@ -71,13 +71,13 @@ function setupGlobalSearch() {
     
     if (!input || !clearBtn) return;
 
-    input.oninput = () => {
+    input.addEventListener('input', () => {
         const query = input.value.trim().toLowerCase();
         clearBtn.classList.toggle('hidden', !query);
         applyGlobalSearch(query);
-    };
+    });
 
-    input.onkeydown = (e) => {
+    input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
             copyFirstResult();
@@ -88,7 +88,7 @@ function setupGlobalSearch() {
             applyGlobalSearch('');
             input.blur();
         }
-    };
+    });
 
     clearBtn.onclick = () => {
         input.value = '';
@@ -211,7 +211,8 @@ function setupCompactMode() {
     const btn = el('btnCompactMode');
     if (!btn) return;
 
-    const savedMode = localStorage.getItem('compactMode') === 'true';
+    const storageKey = 'compactMode_' + (currentUserId || '');
+    const savedMode = localStorage.getItem(storageKey) === 'true';
     if (savedMode) {
         compactMode = true;
         document.body.classList.add('compact-mode');
@@ -243,7 +244,7 @@ function setupCompactMode() {
             showToast('Modo normal ativado');
         }
         
-        localStorage.setItem('compactMode', compactMode);
+        localStorage.setItem(storageKey, compactMode);
     };
 }
 

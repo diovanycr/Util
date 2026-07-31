@@ -219,3 +219,36 @@ export function normalizeSolutions(item) {
     return [];
 }
 
+/**
+ * Retorna o prefixo de saudação baseado na hora atual.
+ * < 12: "Bom dia", < 18: "Boa tarde", >= 18: "Boa noite".
+ * Centraliza a lógica que era duplicada em auth.js e messages.js.
+ */
+export function getGreetingPrefix(hour = new Date().getHours()) {
+    if (hour < 12) return 'Bom dia';
+    if (hour < 18) return 'Boa tarde';
+    return 'Boa noite';
+}
+
+/**
+ * Retorna a próxima faixa de saudação que entrará em vigor (para badges informativos).
+ */
+export function getNextGreetingChange(hour = new Date().getHours()) {
+    if (hour < 12) return 'Muda automaticamente para Boa tarde às 12:00';
+    if (hour < 18) return 'Muda automaticamente para Boa noite às 18:00';
+    return 'Muda automaticamente para Bom dia às 00:00';
+}
+
+/**
+ * Detecta se um item de mensagem é uma saudação automática (mensagens cuja
+ * categoria/título/texto contém termos típicos de saudação).
+ */
+export function isGreetingMessage(item) {
+    const cat = (item.category || '').toLowerCase();
+    const title = (item.title || '').toLowerCase();
+    const text = (item.text || '').toLowerCase();
+    return cat.includes('sauda') ||
+        title.includes('bom dia') || title.includes('boa tarde') || title.includes('boa noite') ||
+        text.includes('bom dia')  || text.includes('boa tarde')  || text.includes('boa noite');
+}
+

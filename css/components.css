@@ -80,7 +80,9 @@
   color: var(--text); letter-spacing: 0.2px; gap: 8px;
   text-align: left; transition: background 0.15s;
 }
-.accordion-trigger:hover { background: var(--bg); }
+.accordion-trigger:hover,
+.accordion-trigger:focus-visible { background: var(--bg); outline: none; }
+.accordion-trigger:focus-visible { box-shadow: 0 0 0 2px var(--primary); border-radius: 6px; }
 .accordion-trigger span { display: flex; align-items: center; gap: 6px; }
 
 .accordion-icon { font-size: 11px; transition: transform 0.2s ease; flex-shrink: 0; color: var(--muted); }
@@ -108,7 +110,8 @@ mark { background: #fef08a; color: #713f12; border-radius: 2px; padding: 0 1px; 
 [data-theme="dark"] .tabs { border-color: var(--border); }
 [data-theme="dark"] .tab:hover { background: #1e293b; }
 [data-theme="dark"] .accordion-item { background: var(--card); border-color: var(--border); }
-[data-theme="dark"] .accordion-trigger:hover { background: #0f172a; }
+[data-theme="dark"] .accordion-trigger:hover,
+[data-theme="dark"] .accordion-trigger:focus-visible { background: #0f172a; }
 [data-theme="dark"] .accordion-body .solution-text { background: #0f172a; color: var(--text); }
 [data-theme="dark"] mark { background: #854d0e; color: #fef9c3; }
 

@@ -6,7 +6,12 @@ import {
     updateDoc,
     deleteDoc,
     doc,
-    writeBatch
+    writeBatch,
+    query,
+    orderBy,
+    limit,
+    startAfter,
+    where
 } from './firebase.js';
 
 import { showModal, openConfirmModal } from './modal.js';
@@ -17,7 +22,9 @@ let currentUserId = null;
 export let allProblems   = [];
 let uiInitialized = false;
 let dragSrcProblem = null;
-let activeTagFilter = null; // tag selecionada no filtro
+let activeTagFilter = null;
+let _lastProblemDoc = null;
+const PROBLEM_PAGE_SIZE = 50; // tag selecionada no filtro
 
 const STATUS_LABELS = {
     confirmed: { label: 'Confirmada', icon: 'fa-circle-check', cls: 'status-confirmed' },
@@ -253,7 +260,7 @@ function addSolutionEditor(container, solution = null) {
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-        <div class="rich-editor solution-rich-editor" contenteditable="true"
+        <div class="rich-editor solution-rich-editor" contenteditable="true" role="textbox" aria-multiline="true"
              data-placeholder="Digite a solução... Cole imagens aqui">${solution ? sanitizeHtml(solution.text) : ''}</div>
         <div class="copy-texts-section">
             <label class="field-label mt-8">
@@ -293,24 +300,62 @@ function normalizeTags(item) {
 
 // --- CARREGAMENTO ---
 
-export async function loadProblems(userId) {
+export async function loadProblems(userId, append = false) {
     const list = el('problemList');
     if (!list) return;
-    list.innerHTML = `
-        <div class="loading-state">
-            <span class="spinner"></span>
-            <span>Carregando problemas...</span>
-        </div>
-    `;
+
+    if (!append) {
+        list.innerHTML = `
+            <div class="loading-state">
+                <span class="spinner"></span>
+                <span>Carregando problemas...</span>
+            </div>
+        `;
+        _lastProblemDoc = null;
+        allProblems = [];
+    }
+
     try {
-        const snap = await getDocs(collection(db, 'users', userId, 'problems'));
-        allProblems = snap.docs
+        let q = query(collection(db, 'users', userId, 'problems'), orderBy('createdAt', 'desc'), limit(PROBLEM_PAGE_SIZE));
+        if (_lastProblemDoc) q = query(collection(db, 'users', userId, 'problems'), orderBy('createdAt', 'desc'), startAfter(_lastProblemDoc), limit(PROBLEM_PAGE_SIZE));
+
+        const snap = await getDocs(q);
+
+        if (snap.empty && !append) {
+            list.innerHTML = '<p class="sub">Nenhum problema cadastrado.</p>';
+            updateTagFilterBar();
+            applyFilters();
+            const event = new CustomEvent('updateProblemCount', { detail: allProblems.length });
+            document.dispatchEvent(event);
+            return;
+        }
+
+        _lastProblemDoc = snap.docs[snap.docs.length - 1];
+
+        const newProblems = snap.docs
             .map(d => ({ id: d.id, ...d.data() }))
             .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999) || (b.createdAt || 0) - (a.createdAt || 0));
 
-        updateTagFilterBar();
-        applyFilters();
-        
+        allProblems.push(...newProblems);
+
+        if (append) {
+            // Adiciona apenas os novos cards ao DOM
+            newProblems.forEach(p => renderProblemCard(p, list, currentUserId));
+            // Reaplica filtros atuais
+            applyFilters();
+        } else {
+            renderProblems();
+        }
+
+        // Botão "Carregar mais" se houver mais registros
+        if (snap.docs.length === PROBLEM_PAGE_SIZE) {
+            const loadMoreBtn = document.createElement('div');
+            loadMoreBtn.style.cssText = 'display:flex;justify-content:center;margin-top:12px;';
+            loadMoreBtn.innerHTML = '<button class="btn ghost" id="btnLoadMoreProblems"><i class="fa-solid fa-chevron-down"></i> Carregar mais problemas</button>';
+            list.appendChild(loadMoreBtn);
+            loadMoreBtn.querySelector('#btnLoadMoreProblems').onclick = () => { loadMoreBtn.remove(); loadProblems(currentUserId, true); };
+        }
+
         // Atualiza contador na aba
         const event = new CustomEvent('updateProblemCount', { detail: allProblems.length });
         document.dispatchEvent(event);
@@ -374,7 +419,148 @@ function applyFilters() {
     renderProblems(filtered);
 }
 
-function renderProblems(problems) {
+function renderProblemCard(item, list, userId) {
+        const solutions = normalizeSolutions(item);
+        const tags      = normalizeTags(item);
+        const card      = document.createElement('div');
+        card.className  = 'problem-card card';
+        card.draggable  = true;
+        card.dataset.id = item.id;
+
+        const solutionsHtml = solutions.map((s, i) => {
+            const st = STATUS_LABELS[s.status] || STATUS_LABELS.confirmed;
+            const accordionId = `problem-${item.id}-sol-${i}`;
+            return `
+                <div class="accordion-item">
+                    <button class="accordion-trigger" data-index="${i}" aria-expanded="false" aria-controls="${accordionId}">
+                        <span>
+                            <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
+                            ${escapeHtml(s.label || `Solução ${i + 1}`)}
+                            <span class="solution-status-badge ${st.cls}">
+                                <i class="fa-solid ${st.icon}" aria-hidden="true"></i> ${st.label}
+                            </span>
+                        </span>
+                        <i class="fa-solid fa-chevron-down accordion-icon" aria-hidden="true"></i>
+                    </button>
+                    <div id="${accordionId}" class="accordion-body">
+                        <div class="solution-text">${sanitizeHtml(s.text)}</div>
+                        <div class="solution-copy-fields">
+                        ${(() => {
+                            const cts = s.copyTexts?.length ? s.copyTexts
+                                      : s.copyText          ? [s.copyText]
+                                      : [];
+                            if (cts.length === 0) return `
+                                <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="0" tabindex="0" role="button" aria-label="Copiar texto da solução">
+                                    <i class="fa-solid fa-copy copy-field-icon" aria-hidden="true"></i>
+                                    <span class="solution-copy-field-text">Clique para copiar o texto completo</span>
+                                    <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i></span>
+                                </div>`;
+                            return cts.map((ct, ci) => `
+                                <div class="solution-copy-field" data-sol-index="${i}" data-ct-index="${ci}" tabindex="0" role="button" aria-label="Copiar ${ct.label ? escapeAttr(ct.label) : 'texto'}">
+                                    <i class="fa-solid fa-copy copy-field-icon" aria-hidden="true"></i>
+                                    <div class="solution-copy-field-info">
+                                        ${ct.label ? `<span class="solution-copy-field-label">${escapeHtml(ct.label)}</span>` : ''}
+                                        <span class="solution-copy-field-text">${escapeHtml(ct.text)}</span>
+                                    </div>
+                                    <span class="solution-copy-field-hint"><i class="fa-solid fa-hand-pointer" aria-hidden="true"></i> Copiar</span>
+                                </div>`).join('');
+                        })()}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        const tagsHtml = tags.length
+            ? `<div class="problem-tags">${tags.map(t => `<span class="tag-pill tag-pill-sm ${getTagColor(t)}">${escapeHtml(t)}</span>`).join('')}</div>`
+            : '';
+
+        card.innerHTML = `
+            <div class="problem-header">
+                <h3 class="problem-title">${escapeHtml(item.title)}</h3>
+                <div class="problem-actions">
+                    <button class="btn ghost problem-drag-handle" title="Reordenar problema"><i class="fa-solid fa-grip-lines" aria-hidden="true"></i></button>
+                    <button class="btn ghost btn-edit-problem" aria-label="Editar problema"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
+                    <button class="btn ghost btn-del-problem" aria-label="Excluir problema"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
+                </div>
+            </div>
+            ${item.description ? `<p class="problem-desc">${escapeHtml(item.description)}</p>` : ''}
+            ${tagsHtml}
+            <div class="accordion">${solutionsHtml}</div>
+        `;
+
+        card.querySelectorAll('.accordion-trigger').forEach(trigger => {
+            trigger.onclick = () => {
+                const body   = trigger.nextElementSibling;
+                const icon   = trigger.querySelector('.accordion-icon');
+                const isOpen = body.classList.contains('open');
+                body.classList.toggle('open', !isOpen);
+                icon.classList.toggle('rotated', !isOpen);
+                trigger.setAttribute('aria-expanded', !isOpen);
+            };
+        });
+
+        card.querySelectorAll('.solution-copy-field').forEach((field) => {
+            const doCopy = async () => {
+                const si  = parseInt(field.dataset.solIndex ?? 0);
+                const ci  = parseInt(field.dataset.ctIndex  ?? 0);
+                const s   = solutions[si];
+                const cts = s?.copyTexts?.length ? s.copyTexts : [];
+                const textToCopy = (typeof cts[ci] === 'object' ? cts[ci]?.text : cts[ci])
+                                 ?? s?.text.replace(/<[^>]*>/g, '').trim()
+                                 ?? '';
+                if (textToCopy) {
+                    try { await navigator.clipboard.writeText(textToCopy); showToast("Copiado!"); }
+                    catch (err) { console.error(err); }
+                }
+            };
+            field.onclick = doCopy;
+            field.onkeydown = (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    doCopy();
+                }
+            };
+        });
+
+        card.querySelector('.btn-edit-problem').onclick = () => enterEditMode(card, item, currentUserId, solutions, tags);
+        card.querySelector('.btn-del-problem').onclick  = () => {
+            openConfirmModal(
+                async () => {
+                    try {
+                        await deleteDoc(doc(db, 'users', currentUserId, 'problems', item.id));
+                        showToast("Problema excluído!");
+                        loadProblems(currentUserId);
+                    } catch (err) { showModal("Erro ao excluir o problema."); }
+                },
+                null,
+                `Deseja realmente excluir o problema "${item.title}"? Esta ação não poderá ser desfeita.`
+            );
+        };
+
+        card.ondragstart = () => { dragSrcProblem = card; card.classList.add('dragging'); };
+        card.ondragend   = () => { card.classList.remove('dragging'); saveProblemOrder(currentUserId); };
+        card.ondragover  = (e) => {
+            e.preventDefault();
+            const rect  = card.getBoundingClientRect();
+            const after = e.clientY > rect.top + rect.height / 2;
+            list.insertBefore(dragSrcProblem, after ? card.nextSibling : card);
+        };
+
+        // Drag-and-drop (teclado)
+        const dragHandle = card.querySelector('.problem-drag-handle');
+        if (dragHandle) {
+            addKeyboardDragSupport(
+                dragHandle,
+                () => [...list.querySelectorAll('.problem-card')],
+                () => saveProblemOrder(currentUserId)
+            );
+        }
+
+        list.appendChild(card);
+    }
+
+    function renderProblems(problems) {
     const list = el('problemList');
     list.innerHTML = '';
 
@@ -578,6 +764,13 @@ function enterEditMode(card, item, userId, solutions, tags) {
         if (!title) return showModal("O título do problema é obrigatório.");
         if (newSolutions.length === 0) return showModal("Adicione pelo menos uma solução.");
 
+        const saveBtn = card.querySelector('.btn-save-edit');
+        const cancelBtn = card.querySelector('.btn-cancel-edit');
+        const originalSaveText = saveBtn.innerHTML;
+        saveBtn.disabled = true;
+        cancelBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Salvando...';
+
         try {
             await updateDoc(doc(db, 'users', userId, 'problems', item.id), {
                 title, description, tags: newTags, solutions: newSolutions,
@@ -585,7 +778,12 @@ function enterEditMode(card, item, userId, solutions, tags) {
             });
             showToast("Problema atualizado!");
             loadProblems(userId);
-        } catch (err) { showModal("Erro ao atualizar o problema."); }
+        } catch (err) {
+            showModal("Erro ao atualizar o problema.");
+            saveBtn.disabled = false;
+            cancelBtn.disabled = false;
+            saveBtn.innerHTML = originalSaveText;
+        }
     };
 
     card.querySelector('.btn-cancel-edit').onclick = () => loadProblems(userId);
@@ -613,10 +811,15 @@ async function importProblems(e, userId) {
     openConfirmModal(
         async () => {
             try {
+                // Deduplica por título: ignora itens cujo título já existe na lista atual
+                const existingTitles = new Set(allProblems.map(p => (p.title || '').toLowerCase()));
+                const newItems = data.filter(item => !existingTitles.has((item.title || '').toLowerCase()));
+                const duplicated = data.length - newItems.length;
+
                 const BATCH_SIZE = 500;
-                for (let i = 0; i < data.length; i += BATCH_SIZE) {
+                for (let i = 0; i < newItems.length; i += BATCH_SIZE) {
                     const batch = writeBatch(db);
-                    data.slice(i, i + BATCH_SIZE).forEach(item => {
+                    newItems.slice(i, i + BATCH_SIZE).forEach(item => {
                         const ref = doc(collection(db, 'users', userId, 'problems'));
                         batch.set(ref, {
                             title:       item.title       || '',
@@ -629,7 +832,10 @@ async function importProblems(e, userId) {
                     });
                     await batch.commit();
                 }
-                showToast(`${data.length} problema(s) importado(s)!`);
+                
+                let msg = `${newItems.length} problema(s) importado(s)!`;
+                if (duplicated > 0) msg += ` ${duplicated} item(ns) já existiam e foram ignorados.`;
+                showToast(msg);
                 loadProblems(userId);
             } catch (err) {
                 console.error(err);
@@ -637,7 +843,7 @@ async function importProblems(e, userId) {
             }
         },
         null,
-        `Importar ${data.length} problema(s) do arquivo "${file.name}"? Eles serão adicionados à sua lista atual.`
+        `Importar ${data.length} problema(s) do arquivo "${file.name}"? Itens duplicados (mesmo título) serão ignorados.`
     );
 }
 
@@ -674,13 +880,22 @@ function clearProblemForm() {
     el('solutionEditorsList').innerHTML = '';
 }
 
+// Limite de tamanho para imagens coladas (base64 vira ~1.33x o tamanho do arquivo)
+// 800KB no arquivo -> ~1MB no Firestore (limite do doc é 1MB)
+const MAX_PASTE_IMAGE_SIZE = 800 * 1024;
+
 function setupRichEditor(editor) {
     editor.addEventListener('paste', (e) => {
         const items = (e.clipboardData || e.originalEvent.clipboardData).items;
         for (const item of items) {
             if (item.type.startsWith('image/')) {
                 e.preventDefault();
-                const file   = item.getAsFile();
+                const file = item.getAsFile();
+                if (!file) return;
+                if (file.size > MAX_PASTE_IMAGE_SIZE) {
+                    showModal(`Imagem muito grande (${Math.round(file.size / 1024)}KB). Limite: ${MAX_PASTE_IMAGE_SIZE / 1024}KB. Comprima antes de colar.`);
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const img = document.createElement('img');

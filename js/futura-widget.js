@@ -20,34 +20,50 @@ class FuturaSearchWidget {
   }
 
   loadDependencies() {
-    const deps = [
+    const cssDeps = [
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css",
-      "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;400;500&display=swap",
+      "https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;400;500&display=swap"
+    ];
+    const jsDeps = [
       "https://cdn.jsdelivr.net/npm/marked/marked.min.js",
       "https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.8/purify.min.js"
     ];
-    
-    deps.forEach(dep => {
+
+    cssDeps.forEach(dep => {
       try {
-        if (dep.includes("css")) {
-          const fontAwesomeExists = dep.includes("font-awesome") && document.querySelector('link[href*="font-awesome"]');
-          if (!fontAwesomeExists && !document.querySelector(`link[href="${dep}"]`)) {
-            const link = document.createElement("link");
-            link.rel = "stylesheet";
-            link.href = dep;
-            document.head.appendChild(link);
-          }
-        } else if (dep.includes("js")) {
-          if (!document.querySelector(`script[src="${dep}"]`)) {
-            const script = document.createElement("script");
-            script.src = dep;
-            document.head.appendChild(script);
-          }
+        const fontAwesomeExists = dep.includes("font-awesome") && document.querySelector('link[href*="font-awesome"]');
+        if (!fontAwesomeExists && !document.querySelector(`link[href="${dep}"]`)) {
+          const link = document.createElement("link");
+          link.rel = "stylesheet";
+          link.href = dep;
+          document.head.appendChild(link);
         }
       } catch (e) {
-        console.error("FuturaSearchWidget: Error loading dependency", e);
+        console.error("FuturaSearchWidget: Error loading CSS dependency", e);
       }
     });
+
+    // Load JS dependencies with onload awareness
+    const pendingScripts = [];
+    jsDeps.forEach(dep => {
+      try {
+        const existing = document.querySelector(`script[src="${dep}"]`);
+        if (!existing) {
+          const promise = new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = dep;
+            script.onload = () => resolve();
+            script.onerror = () => reject(new Error("Failed to load " + dep));
+            document.head.appendChild(script);
+          });
+          pendingScripts.push(promise);
+        }
+      } catch (e) {
+        console.error("FuturaSearchWidget: Error loading JS dependency", e);
+      }
+    });
+
+    this._depsReady = Promise.all(pendingScripts);
   }
 
   init() {
@@ -1818,8 +1834,11 @@ async function performSearch(query) {
     const cacheKey = query.toLowerCase().trim();
     if (searchCache.has(cacheKey)) {
       const cached = searchCache.get(cacheKey);
+      // refresh LRU: move to end
+      searchCache.delete(cacheKey);
+      searchCache.set(cacheKey, cached);
       showToast("Carregado instantaneamente do cache local.", "success");
-      currentResults = cached.results; // Salva referências para citações
+      currentResults = cached.results;
       if (cached.results.length > 0) renderResults(cached.results);
       showExplanation(query, cached.explanation);
       return;
@@ -1905,8 +1924,12 @@ async function searchWithAPI(query) {
     setLoader(false);
     if (!response.explanation && response.results.length === 0) { renderNoResults(query); return; }
     
-    // Armazenar resposta no cache local
+    // Armazenar resposta no cache local (LRU: max 100 entries)
     searchCache.set(query.toLowerCase().trim(), response);
+    if (searchCache.size > 100) {
+      const oldest = searchCache.keys().next().value;
+      searchCache.delete(oldest);
+    }
     currentResults = response.results; // Salva referências para citações
 
     if (response.results.length > 0) renderResults(response.results);
@@ -1958,13 +1981,14 @@ async function callOpenAI(query) {
 function showExplanation(query, text) {
   queryLabel.textContent = `"${query}"`;
   aiBlock.classList.remove("fw-hidden");
+  // formatResponse já tem fallback para marked/DOMPurify não prontos
   summaryContent.innerHTML = formatResponse(text);
   aiBlock.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function formatResponse(text) {
   text = text.replace(/\*\*Páginas encontradas:\*\*[\s\S]*$/i, "").trim();
-  
+
   // Converter marcas de citação tipo [1], [^1^] ou [^1] em badges
   text = text.replace(/\[\^?(\d+)\^?\]/g, (match, num) => {
     const idx = parseInt(num, 10) - 1;
@@ -1975,9 +1999,16 @@ function formatResponse(text) {
     return match;
   });
 
+  // Se marked/DOMPurify não estiverem prontos ainda, retornar texto plano escapado
+  if (typeof marked === "undefined" || typeof DOMPurify === "undefined") {
+    const div = document.createElement("div");
+    div.innerText = text;
+    return div.innerHTML;
+  }
+
   // Utilizar marked para converter de Markdown para HTML
   let rawHtml = marked.parse(text);
-  
+
   // Adicionar botão de cópia aos blocos de código
   rawHtml = rawHtml.replace(/<pre><code(.*?)>([\s\S]*?)<\/code><\/pre>/g, (match, attrs, code) => {
     return `<pre><code${attrs}>${code}</code><button class="copy-code-btn"><i class="fa-solid fa-copy"></i> <span>Copiar</span></button></pre>`;
@@ -2233,12 +2264,11 @@ searchInput.focus();
       });
 
     })( 
-      {
+      { 
         getElementById: (id) => widgetScope.querySelector("#" + id),
         querySelector: (sel) => widgetScope.querySelector(sel),
         querySelectorAll: (sel) => widgetScope.querySelectorAll(sel),
         addEventListener: (event, handler, opts) => {
-          document.removeEventListener(event, handler);
           document.addEventListener(event, handler, opts);
         },
         body: widgetScope,

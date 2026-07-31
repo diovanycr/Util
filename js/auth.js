@@ -20,6 +20,7 @@ import { initProblems, resetProblems, loadProblems } from './problems.js';
 import { initSearch } from './search.js';
 import { initLinks, resetLinks } from './links.js';
 import { initEnhancements, resetEnhancements } from './enhancements.js';
+import { getGreetingPrefix } from './utils.js';
 
 let messagesInitialized = false;
 let problemsInitialized = false;
@@ -171,6 +172,12 @@ async function doLogin() {
             return;
         }
 
+        if (snap.size > 1) {
+            console.error("Múltiplos usuários com mesmo username:", username);
+            showModal("Erro: múltiplos usuários com este nome. Contate o administrador.");
+            return;
+        }
+
         const email = snap.docs[0].data().email;
         await signInWithEmailAndPassword(auth, email, password);
 
@@ -256,17 +263,8 @@ export function updateHeaderProfileGreeting(name) {
     if (name) activeUserDisplayName = name;
     if (!activeUserDisplayName) return;
 
-    const now = new Date();
-    const currentHour = now.getHours();
-
-    let greetingPrefix = 'Bom dia';
-    if (currentHour < 12) {
-        greetingPrefix = 'Bom dia';
-    } else if (currentHour < 18) {
-        greetingPrefix = 'Boa tarde';
-    } else {
-        greetingPrefix = 'Boa noite';
-    }
+    const currentHour = new Date().getHours();
+    let greetingPrefix = getGreetingPrefix(currentHour);
 
     const loggedUserEl = el('loggedUser');
     if (loggedUserEl) {

@@ -23,7 +23,9 @@
   color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
   margin-bottom: -1px; transition: color 0.15s, border-color 0.15s; white-space: nowrap;
 }
-.help-tab:hover { color: var(--text); }
+.help-tab:hover,
+.help-tab:focus-visible { color: var(--text); outline: none; }
+.help-tab:focus-visible { border-bottom-color: var(--primary); }
 .help-tab.active { color: var(--primary); border-bottom-color: var(--primary); }
 
 .help-panel { padding: 20px; overflow-y: auto; flex: 1; }
@@ -47,7 +49,7 @@
 .help-tutorial-item { display: flex; gap: 14px; align-items: flex-start; }
 .help-tutorial-icon {
   width: 36px; height: 36px; border-radius: 8px; background: var(--primary);
-  color: #fff; display: flex; align-items: center; justify-content: center;
+  color: var(--primary-contrast, #fff); display: flex; align-items: center; justify-content: center;
   font-size: 15px; flex-shrink: 0;
 }
 .help-tutorial-item strong { display: block; font-size: 14px; margin-bottom: 3px; }

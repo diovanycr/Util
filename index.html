@@ -142,15 +142,15 @@
       <div class="tabs" role="tablist" aria-label="Navegação do painel">
         <button class="tab active" data-tab="tabMessages" id="tab-messages" role="tab" aria-selected="true" aria-controls="tabMessages" title="Mensagens">
           <i class="fa-solid fa-message" aria-hidden="true"></i> <span class="tab-text">Mensagens</span>
-          <span id="msgCount" class="tab-badge">0</span>
+          <span id="msgCount" class="tab-badge" aria-live="polite" aria-label="Total de mensagens">0</span>
         </button>
         <button class="tab" data-tab="tabProblems" id="tab-problems" role="tab" aria-selected="false" aria-controls="tabProblems" title="Problemas / Soluções">
           <i class="fa-solid fa-wrench" aria-hidden="true"></i> <span class="tab-text">Problemas / Soluções</span>
-          <span id="problemCount" class="tab-badge">0</span>
+          <span id="problemCount" class="tab-badge" aria-live="polite" aria-label="Total de problemas">0</span>
         </button>
         <button class="tab" data-tab="tabLinks" id="tab-links" role="tab" aria-selected="false" aria-controls="tabLinks" title="Links Úteis">
           <i class="fa-solid fa-link" aria-hidden="true"></i> <span class="tab-text">Links Úteis</span>
-          <span id="linkCount" class="tab-badge">0</span>
+          <span id="linkCount" class="tab-badge" aria-live="polite" aria-label="Total de links">0</span>
         </button>
         <!-- ✅ NOVA ABA: Sistemas -->
         <button class="tab" data-tab="tabSistemas" id="tab-sistemas" role="tab" aria-selected="false" aria-controls="tabSistemas" title="Sistemas">
@@ -187,8 +187,8 @@
             <textarea id="msgText" rows="4" placeholder="Ex: Bom dia, {usuario}! Como posso te ajudar hoje?"></textarea>
           </div>
           <div class="flex-end mt-10">
-            <button id="btnCancelMsg" class="btn ghost">Cancelar</button>
-            <button id="btnAddMsg" class="btn primary">Salvar mensagem</button>
+            <button type="button" id="btnCancelMsg" class="btn ghost">Cancelar</button>
+            <button type="button" id="btnAddMsg" class="btn primary">Salvar mensagem</button>
           </div>
         </div>
 
@@ -196,7 +196,7 @@
 
         <div class="center mt-12">
           <button id="btnTrashToggle" class="btn ghost" aria-label="Ver Lixeira">
-            <i class="fa-solid fa-trash" aria-hidden="true"></i> Ver Lixeira <span id="trashCount" class="badge">0</span>
+            <i class="fa-solid fa-trash" aria-hidden="true"></i> Ver Lixeira <span id="trashCount" class="badge" aria-live="polite">0</span>
           </button>
         </div>
 
@@ -255,7 +255,7 @@
               <option value="obsolete">❌ Obsoleta</option>
             </select>
           </div>
-          <div id="problemSolution" class="rich-editor" contenteditable="true" aria-labelledby="problemSolutionLabelHeading" data-placeholder="Digite a solução... Cole imagens aqui"></div>
+          <div id="problemSolution" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="problemSolutionLabelHeading" data-placeholder="Digite a solução... Cole imagens aqui"></div>
           <div class="copy-texts-section" id="simpleCopyTextsSection">
             <label class="field-label mt-8">
               Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
@@ -268,12 +268,12 @@
 
           <div id="solutionEditorsList" class="solution-editors-list hidden"></div>
 
-          <button id="btnAddSolution" class="btn ghost align-self-start mt-8">
+          <button type="button" id="btnAddSolution" class="btn ghost align-self-start mt-8">
             <i class="fa-solid fa-plus"></i> Adicionar solução
           </button>
           <div class="flex-end mt-10">
-            <button id="btnCancelProblem" class="btn ghost">Cancelar</button>
-            <button id="btnAddProblem" class="btn primary">Salvar</button>
+            <button type="button" id="btnCancelProblem" class="btn ghost">Cancelar</button>
+            <button type="button" id="btnAddProblem" class="btn primary">Salvar</button>
           </div>
         </div>
 
@@ -307,8 +307,8 @@
             <input id="linkCategory" type="text" placeholder="Categoria (ex: Sistemas, Ferramentas...)" />
           </div>
           <div class="flex-end mt-10">
-            <button id="btnCancelLink" class="btn ghost">Cancelar</button>
-            <button id="btnAddLink" class="btn primary">Salvar</button>
+            <button type="button" id="btnCancelLink" class="btn ghost">Cancelar</button>
+            <button type="button" id="btnAddLink" class="btn primary">Salvar</button>
           </div>
         </div>
 
@@ -324,23 +324,23 @@
   </div>
 
   <!-- Modal de confirmação -->
-  <div id="confirmModal" class="modal-overlay hidden">
+  <div id="confirmModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="confirmMessage">
     <div class="modal-box card">
       <h3>Tem certeza?</h3>
       <p id="confirmMessage" class="sub mt-10">Esta ação não poderá ser desfeita.</p>
       <div class="flex-end mt-20">
-        <button id="modalCancel" class="btn ghost">Cancelar</button>
-        <button id="modalConfirm" class="btn danger">Confirmar</button>
+        <button type="button" id="modalCancel" class="btn ghost">Cancelar</button>
+        <button type="button" id="modalConfirm" class="btn danger">Confirmar</button>
       </div>
     </div>
   </div>
 
   <!-- Modal de alerta -->
-  <div id="modalOverlay" class="modal-overlay hidden">
+  <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalMessage">
     <div class="modal-box card center">
       <h3>Aviso</h3>
       <p id="modalMessage" class="mt-10"></p>
-      <button id="btnModalAlertOk" class="btn primary mt-16" style="width:100%">OK</button>
+      <button type="button" id="btnModalAlertOk" class="btn primary mt-16" style="width:100%">OK</button>
     </div>
   </div>
 
@@ -351,14 +351,14 @@
       <p class="sub mt-10">Escolha o formato do arquivo de backup:</p>
       <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px; width: 100%; text-align: left;">
         <div style="display:flex; flex-direction:column; gap:4px;">
-          <button id="btnExportFormatJson" class="btn primary" style="width:100%"><i class="fa-solid fa-file-code"></i> Formato JSON (Completo)</button>
+          <button type="button" id="btnExportFormatJson" class="btn primary" style="width:100%"><i class="fa-solid fa-file-code"></i> Formato JSON (Completo)</button>
           <span style="font-size: 11px; color: var(--muted); padding-left: 4px;">Recomendado. Mantém títulos, categorias e ordenação.</span>
         </div>
         <div style="display:flex; flex-direction:column; gap:4px;">
-          <button id="btnExportFormatTxt" class="btn ghost" style="width:100%"><i class="fa-solid fa-file-lines"></i> Formato TXT (Legado)</button>
+          <button type="button" id="btnExportFormatTxt" class="btn ghost" style="width:100%"><i class="fa-solid fa-file-lines"></i> Formato TXT (Legado)</button>
           <span style="font-size: 11px; color: var(--muted); padding-left: 4px;">Apenas o texto das mensagens, uma por linha.</span>
         </div>
-        <button id="btnCancelExportFormat" class="btn ghost" style="width:100%; margin-top: 5px;">Cancelar</button>
+        <button type="button" id="btnCancelExportFormat" class="btn ghost" style="width:100%; margin-top: 5px;">Cancelar</button>
       </div>
     </div>
   </div>

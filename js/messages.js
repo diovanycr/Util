@@ -6,17 +6,20 @@ import {
     updateDoc,
     deleteDoc,
     doc,
-    writeBatch
+    writeBatch,
+    query,
+    where
 } from './firebase.js';
 
 import { openConfirmModal, showModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr, addKeyboardDragSupport } from './utils.js';
+import { escapeHtml, escapeAttr, addKeyboardDragSupport, getGreetingPrefix, getNextGreetingChange, isGreetingMessage } from './utils.js';
 import { addToHistory, initHistory, renderHistoryPanel } from './history.js';
 
 let currentUserId = null;
 let dragSrc = null;
 let uiInitialized = false;
+let isLoadingMessages = false;
 export let allMessages = [];
 let activeCategoryFilter = null;
 let lastCheckedHour = new Date().getHours();
@@ -176,7 +179,18 @@ function setupUserInterface() {
     };
     el('btnCancelTrash').onclick = () => el('trashBox').classList.add('hidden');
     el('btnEmptyTrash').onclick = () => openConfirmModal(
-        () => emptyTrash(currentUserId), null,
+        async () => {
+            const btn = el('btnEmptyTrash');
+            const originalText = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Limpando...';
+            try {
+                await emptyTrash(currentUserId);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        }, null,
         "Todas as mensagens da lixeira serão excluídas permanentemente."
     );
 }
@@ -244,6 +258,9 @@ function applyCategoryFilter() {
 // --- CARREGAMENTO E RENDERIZAÇÃO ---
 
 export async function loadMessages(userId) {
+    if (isLoadingMessages) return;
+    isLoadingMessages = true;
+
     const list = el('msgList');
     if (!list) return;
     list.innerHTML = `
@@ -256,22 +273,24 @@ export async function loadMessages(userId) {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
         let allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-        // Se o usuário nunca teve saudações criadas e a coleção estiver vazia, cria as saudações padrão iniciais
-        const seedKey = `painelAtende_seeded_${userId}`;
-        const hasSeeded = localStorage.getItem(seedKey) === 'true';
-
-        if (allDocs.length === 0 && !hasSeeded) {
-            const defaultGreetings = [
-                { title: 'Saudação - Bom dia', category: 'Saudação', text: 'Bom dia, {usuario}! Como posso te ajudar hoje?', order: 1, deleted: false, createdAt: Date.now() },
-                { title: 'Saudação - Boa tarde', category: 'Saudação', text: 'Boa tarde, {usuario}! Como posso te ajudar hoje?', order: 2, deleted: false, createdAt: Date.now() },
-                { title: 'Saudação - Boa noite', category: 'Saudação', text: 'Boa noite, {usuario}! Como posso te ajudar hoje?', order: 3, deleted: false, createdAt: Date.now() }
-            ];
-            for (const g of defaultGreetings) {
-                await addDoc(collection(db, 'users', userId, 'messages'), g);
+        // Se a coleção estiver vazia, cria as saudações padrão iniciais (verifica no Firestore)
+        if (allDocs.length === 0) {
+            // Verifica se já existem saudações padrão (por título) para evitar duplicação
+            const greetingsSnap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('category', '==', 'Saudação')));
+            if (greetingsSnap.empty) {
+                const defaultGreetings = [
+                    { title: 'Saudação - Bom dia', category: 'Saudação', text: 'Bom dia, {usuario}! Como posso te ajudar hoje?', order: 1, deleted: false, createdAt: Date.now() },
+                    { title: 'Saudação - Boa tarde', category: 'Saudação', text: 'Boa tarde, {usuario}! Como posso te ajudar hoje?', order: 2, deleted: false, createdAt: Date.now() },
+                    { title: 'Saudação - Boa noite', category: 'Saudação', text: 'Boa noite, {usuario}! Como posso te ajudar hoje?', order: 3, deleted: false, createdAt: Date.now() }
+                ];
+                const batch = writeBatch(db);
+                for (const g of defaultGreetings) {
+                    batch.set(doc(collection(db, 'users', userId, 'messages')), g);
+                }
+                await batch.commit();
+                const newSnap = await getDocs(collection(db, 'users', userId, 'messages'));
+                allDocs = newSnap.docs.map(d => ({ id: d.id, ...d.data() }));
             }
-            localStorage.setItem(seedKey, 'true');
-            const newSnap = await getDocs(collection(db, 'users', userId, 'messages'));
-            allDocs = newSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         }
 
         _updateTrashBadge(allDocs);
@@ -288,6 +307,8 @@ export async function loadMessages(userId) {
     } catch (err) {
         console.error("Erro ao carregar mensagens:", err);
         list.innerHTML = `<div class="empty-state-container"><i class="fa-solid fa-triangle-exclamation empty-state-icon"></i><p class="empty-state-title">Erro ao carregar mensagens</p></div>`;
+    } finally {
+        isLoadingMessages = false;
     }
 }
 
@@ -355,24 +376,11 @@ items.forEach(item => {
             row.dataset.id = item.id;
             row.dataset.category = item.category || 'Geral';
 
-            const isGreeting = (item.category || '').toLowerCase().includes('sauda') ||
-                               (item.title || '').toLowerCase().includes('bom dia') ||
-                               (item.title || '').toLowerCase().includes('boa tarde') ||
-                               (item.title || '').toLowerCase().includes('boa noite') ||
-                               (item.text || '').toLowerCase().includes('bom dia') ||
-                               (item.text || '').toLowerCase().includes('boa tarde') ||
-                               (item.text || '').toLowerCase().includes('boa noite');
+            const isGreeting = isGreetingMessage(item);
 
             let timeBadgeHtml = '';
             if (isGreeting) {
-                let changeInfo = '';
-                if (currentHour < 12) {
-                    changeInfo = 'Muda automaticamente para Boa tarde às 12:00';
-                } else if (currentHour < 18) {
-                    changeInfo = 'Muda automaticamente para Boa noite às 18:00';
-                } else {
-                    changeInfo = 'Muda automaticamente para Bom dia às 00:00';
-                }
+                const changeInfo = getNextGreetingChange(currentHour);
                 timeBadgeHtml = `<span class="greeting-auto-badge" title="${changeInfo}"><i class="fa-regular fa-clock"></i> ${changeInfo}</span>`;
             }
 
@@ -489,9 +497,12 @@ function enterEditMode(row, item, userId) {
     row.innerHTML = `
         <span class="drag-handle">&#9776;</span>
         <div class="msg-edit-fields">
-            <input class="edit-msg-title"    type="text" value="${escapeAttr(item.title || '')}"    placeholder="Título (opcional)..." />
-            <input class="edit-msg-category" type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." />
-            <textarea class="edit-msg-text" rows="3">${escapeHtml(item.text)}</textarea>
+            <label for="edit-msg-title" class="sr-only">Título da mensagem (opcional)</label>
+            <input id="edit-msg-title" class="edit-msg-title"    type="text" value="${escapeAttr(item.title || '')}"    placeholder="Título (opcional)..." aria-label="Título da mensagem (opcional)" />
+            <label for="edit-msg-category" class="sr-only">Categoria</label>
+            <input id="edit-msg-category" class="edit-msg-category" type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." aria-label="Categoria da mensagem" />
+            <label for="edit-msg-text" class="sr-only">Texto da mensagem</label>
+            <textarea id="edit-msg-text" class="edit-msg-text" rows="3" aria-label="Texto da mensagem">${escapeHtml(item.text)}</textarea>
         </div>
         ${actionsHtml}
     `;
@@ -613,6 +624,9 @@ async function importFromTxt(event, userId) {
                         }
                     });
                     await batch.commit();
+                    // Toast de progresso
+                    const processed = Math.min(i + BATCH_SIZE, operations.length);
+                    showToast(`Importando... ${processed}/${operations.length}`);
                 }
 
                 showToast(`${added} mensagens processadas!`);
@@ -630,42 +644,32 @@ async function importFromTxt(event, userId) {
     reader.readAsText(file);
 }
 
-async function exportToTxt(userId) {
+function exportAsFile(content, filename, mimeType) {
     try {
-        if (allMessages.length === 0) return showModal("Não há mensagens para exportar.");
-        
-        // Exporta como TXT, escapando quebras de linha para manter cada mensagem em uma linha no arquivo
-        const lines = allMessages.map(d => d.text.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
-        const blob = new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' });
+        const blob = new Blob([content], { type: mimeType });
         const url = URL.createObjectURL(blob);
-        
         const a = document.createElement('a');
         a.href = url;
-        a.download = `backup_mensagens_${new Date().toISOString().slice(0, 10)}.txt`;
+        a.download = filename;
         a.click();
-        
         URL.revokeObjectURL(url);
-        showToast("Exportado como TXT!");
     } catch (e) { showModal("Erro ao exportar."); }
 }
 
+async function exportToTxt(userId) {
+    if (allMessages.length === 0) return showModal("Não há mensagens para exportar.");
+    const lines = allMessages.map(d => d.text.replace(/\n/g, '\\n').replace(/\r/g, '\\r'));
+    const filename = `backup_mensagens_${new Date().toISOString().slice(0, 10)}.txt`;
+    exportAsFile(lines.join('\n'), filename, 'text/plain;charset=utf-8');
+    showToast("Exportado como TXT!");
+}
+
 async function exportToJson(userId) {
-    try {
-        if (allMessages.length === 0) return showModal("Não há mensagens para exportar.");
-        
-        // Exporta o backup completo com títulos e categorias
-        const exportData = allMessages.map(({ text, title, category }) => ({ text, title: title || '', category: category || 'Geral' }));
-        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `backup_mensagens_${new Date().toISOString().slice(0, 10)}.json`;
-        a.click();
-        
-        URL.revokeObjectURL(url);
-        showToast("Exportado como JSON!");
-    } catch (e) { showModal("Erro ao exportar."); }
+    if (allMessages.length === 0) return showModal("Não há mensagens para exportar.");
+    const exportData = allMessages.map(({ text, title, category }) => ({ text, title: title || '', category: category || 'Geral' }));
+    const filename = `backup_mensagens_${new Date().toISOString().slice(0, 10)}.json`;
+    exportAsFile(JSON.stringify(exportData, null, 2), filename, 'application/json;charset=utf-8');
+    showToast("Exportado como JSON!");
 }
 
 // --- LIXEIRA ---
@@ -685,13 +689,29 @@ async function loadTrash(userId) {
                     ${item.title ? `<span class="msg-title">${escapeHtml(item.title)}</span>` : ''}
                     <div>${escapeHtml(item.text)}</div>
                 </div>
-                <button class="btn ghost btn-restore" title="Restaurar mensagem" aria-label="Restaurar mensagem: ${escapeAttr(item.title || item.text)}"><i class="fa-solid fa-undo" aria-hidden="true"></i></button>
+                <div style="display:flex;gap:8px;">
+                    <button class="btn ghost btn-restore" title="Restaurar mensagem" aria-label="Restaurar mensagem: ${escapeAttr(item.title || item.text)}"><i class="fa-solid fa-undo" aria-hidden="true"></i></button>
+                    <button class="btn ghost btn-delete-permanent" title="Excluir permanentemente" aria-label="Excluir permanentemente: ${escapeAttr(item.title || item.text)}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
+                </div>
             `;
             row.querySelector('.btn-restore').onclick = async () => {
                 try {
                     await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: false });
                     loadMessages(userId); loadTrash(userId); updateTrashCount(userId);
                 } catch (err) { showModal("Erro ao restaurar a mensagem."); }
+            };
+            row.querySelector('.btn-delete-permanent').onclick = () => {
+                openConfirmModal(
+                    async () => {
+                        try {
+                            await deleteDoc(doc(db, 'users', userId, 'messages', item.id));
+                            showToast("Mensagem excluída permanentemente!");
+                            loadTrash(userId); updateTrashCount(userId);
+                        } catch (err) { showModal("Erro ao excluir a mensagem."); }
+                    },
+                    null,
+                    `Deseja realmente excluir esta mensagem permanentemente? Esta ação não poderá ser desfeita.`
+                );
             };
             list.appendChild(row);
         });
@@ -717,13 +737,20 @@ async function saveOrder(userId) {
     const list = el('msgList');
     const rows = [...list.querySelectorAll('.user-row')];
     try {
+        // Apenas inclui no batch mensagens cuja order ou category realmente mudou
         const batch = writeBatch(db);
+        let changes = 0;
         rows.forEach((row, i) => {
             const id = row.dataset.id;
             const category = row.closest('.msg-group')?.dataset.category || 'Geral';
-            if (id) batch.update(doc(db, 'users', userId, 'messages', id), { order: i + 1, category });
+            if (!id) return;
+            const msg = allMessages.find(m => m.id === id);
+            const newOrder = i + 1;
+            if (msg && msg.order === newOrder && msg.category === category) return;
+            batch.update(doc(db, 'users', userId, 'messages', id), { order: newOrder, category });
+            changes++;
         });
-        await batch.commit();
+        if (changes > 0) await batch.commit();
 
         // Atualiza a lista local allMessages com a nova ordem e categorias
         rows.forEach((row, i) => {
@@ -746,7 +773,18 @@ async function emptyTrash(userId) {
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
         const toDelete = snap.docs.filter(d => d.data().deleted);
-        await Promise.all(toDelete.map(d => deleteDoc(doc(db, 'users', userId, 'messages', d.id))));
+        
+        // Processa em batches de 500 com feedback de progresso
+        const BATCH_SIZE = 500;
+        for (let i = 0; i < toDelete.length; i += BATCH_SIZE) {
+            const batch = writeBatch(db);
+            const chunk = toDelete.slice(i, i + BATCH_SIZE);
+            chunk.forEach(d => batch.delete(doc(db, 'users', userId, 'messages', d.id)));
+            await batch.commit();
+            const processed = Math.min(i + BATCH_SIZE, toDelete.length);
+            showToast(`Limpando... ${processed}/${toDelete.length}`);
+        }
+        
         showToast("Lixeira limpa!");
         updateTrashCount(userId); loadTrash(userId);
     } catch (err) { showModal("Erro ao esvaziar a lixeira."); }
