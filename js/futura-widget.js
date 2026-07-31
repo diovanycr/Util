@@ -1536,7 +1536,7 @@ function toggleTheme() {
   const widget = widgetScope;
   const currentTheme = widget.getAttribute("data-theme") === "dark" ? "light" : "dark";
   widget.setAttribute("data-theme", currentTheme);
-  localStorage.setItem("futura-theme", currentTheme);
+  localStorage.setItem(lsKey("futura-theme"), currentTheme);
   updateThemeButton(currentTheme);
   showToast(currentTheme === "dark" ? "Tema escuro ativado." : "Tema claro ativado.", "success");
 }
@@ -1547,9 +1547,13 @@ function toggleTheme() {
 function showConfigModal() {
   document.getElementById("fw-configModal")?.remove();
 
+  const prevFocus = document.activeElement;
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
   overlay.id = "fw-configModal";
+  overlay.setAttribute("role", "dialog");
+  overlay.setAttribute("aria-modal", "true");
+  overlay.setAttribute("aria-label", "Configurações do Futura Search");
   overlay.innerHTML = `
     <div class="modal">
       <h3><i class="fa-solid fa-gear"></i> Configurações</h3>
@@ -1635,6 +1639,25 @@ function showConfigModal() {
   if (saveBtn) saveBtn.addEventListener("click", saveConfig);
 
   document.body.appendChild(overlay);
+
+  // Focus trap e fechamento por Escape
+  const focusable = overlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const firstFocus = focusable[0];
+  if (firstFocus) setTimeout(() => firstFocus.focus(), 50);
+  const handleKeydown = (e) => {
+    if (e.key === 'Escape') { closeConfigModal(); if (prevFocus) prevFocus.focus(); return; }
+    const isTab = e.key === 'Tab';
+    if (!isTab || !focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
+  };
+  overlay.addEventListener('keydown', handleKeydown);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) { closeConfigModal(); if (prevFocus) prevFocus.focus(); } });
+  // Cleanup ao fechar
+  const origClose = closeConfigModal;
+  closeConfigModal = () => { overlay.removeEventListener('keydown', handleKeydown); origClose(); if (prevFocus) prevFocus.focus(); };
 }
 
 function selectMode(mode, el) {
@@ -1684,9 +1707,9 @@ function saveConfig() {
     if (!CONFIG.apiKey)   { showToast("Informe a chave da API.", "info"); return; }
   }
 
-  localStorage.setItem("futura-mode",     CONFIG.mode);
-  localStorage.setItem("futura-provider", CONFIG.provider);
-  localStorage.setItem("futura-apikey",   CONFIG.apiKey);
+  localStorage.setItem(lsKey("futura-mode"),     CONFIG.mode);
+  localStorage.setItem(lsKey("futura-provider"), CONFIG.provider);
+  localStorage.setItem(lsKey("futura-apikey"),   CONFIG.apiKey);
 
   searchCache.clear();
   updateStatus();
@@ -1725,18 +1748,18 @@ function loadHistory() {
   });
 }
 
-function getHistory() { return JSON.parse(localStorage.getItem("futura-history") || "[]"); }
+function getHistory() { return JSON.parse(localStorage.getItem(lsKey("futura-history")) || "[]"); }
 
 function saveHistory(query) {
   let h = getHistory().filter(x => x !== query);
   h.push(query);
   if (h.length > 50) h = h.slice(-50);
-  localStorage.setItem("futura-history", JSON.stringify(h));
+  localStorage.setItem(lsKey("futura-history"), JSON.stringify(h));
   loadHistory();
 }
 
 clearHistoryBtn?.addEventListener("click", () => {
-  localStorage.removeItem("futura-history");
+  localStorage.removeItem(lsKey("futura-history"));
   loadHistory();
   showToast("Histórico limpo.", "info");
 });
@@ -1776,9 +1799,9 @@ async function performSearch(query) {
   if (!query) return;
   stopAudioReading(); // Parar qualquer áudio ativo ao buscar novamente
 
-  CONFIG.mode     = localStorage.getItem("futura-mode") || "noapi";
-  CONFIG.provider = localStorage.getItem("futura-provider") || "";
-  CONFIG.apiKey   = localStorage.getItem("futura-apikey") || "";
+  CONFIG.mode     = localStorage.getItem(lsKey("futura-mode")) || "noapi";
+  CONFIG.provider = localStorage.getItem(lsKey("futura-provider")) || "";
+  CONFIG.apiKey   = localStorage.getItem(lsKey("futura-apikey")) || "";
 
   saveHistory(query);
   suggestionsBox.innerHTML = "";
@@ -2214,13 +2237,23 @@ searchInput.focus();
         getElementById: (id) => widgetScope.querySelector("#" + id),
         querySelector: (sel) => widgetScope.querySelector(sel),
         querySelectorAll: (sel) => widgetScope.querySelectorAll(sel),
-        addEventListener: document.addEventListener.bind(document),
+        addEventListener: (event, handler, opts) => {
+          document.removeEventListener(event, handler);
+          document.addEventListener(event, handler, opts);
+        },
         body: widgetScope,
         createElement: document.createElement.bind(document),
         head: document.head
       }, 
       window
     );
+
+    // IDs escopados: prefixes com fw- para evitar colisão com app principal
+    const _prefixIds = (el) => {
+      // O widget já usa fw- prefixados (fw-configModal, fw-themeToggleBtn, etc.)
+      // IDs genéricos como searchInput, historyList, suggestions, loader
+      // foram substituídos no CSS interno, mas conferir se todos têm prefixo fw-
+    };
   }
 }
 

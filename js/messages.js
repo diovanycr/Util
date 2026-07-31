@@ -187,7 +187,7 @@ function clearMsgForm() {
     el('msgCategory').value = '';
 }
 
-// --- FILTRO DE CATEGORIAS ---
+// --- FILTRO DE CATEGORIAS (sem re-renderizar DOM, aplica hidden-by-filter) ---
 
 function updateCategoryFilterBar() {
     const bar = el('msgCategoryFilterBar');
@@ -203,7 +203,7 @@ function updateCategoryFilterBar() {
     allChip.className = `tag-filter-chip ${!activeCategoryFilter ? 'active' : ''}`;
     allChip.textContent = 'Todas';
     allChip.setAttribute('aria-pressed', !activeCategoryFilter ? 'true' : 'false');
-    allChip.onclick = () => { activeCategoryFilter = null; updateCategoryFilterBar(); renderMessages(); };
+    allChip.onclick = () => { activeCategoryFilter = null; updateCategoryFilterBar(); applyCategoryFilter(); };
     bar.appendChild(allChip);
 
     cats.forEach(cat => {
@@ -214,10 +214,31 @@ function updateCategoryFilterBar() {
         chip.onclick = () => {
             activeCategoryFilter = activeCategoryFilter === cat ? null : cat;
             updateCategoryFilterBar();
-            renderMessages();
+            applyCategoryFilter();
         };
         bar.appendChild(chip);
     });
+}
+
+function applyCategoryFilter() {
+    const list = el('msgList');
+    const rows = list.querySelectorAll('.user-row');
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+        const cat = row.dataset.category || 'Geral';
+        const visible = !activeCategoryFilter || cat === activeCategoryFilter;
+        row.classList.toggle('hidden-by-filter', !visible);
+        if (visible) visibleCount++;
+    });
+
+    document.querySelectorAll('#msgList .msg-group').forEach(group => {
+        const hasVisible = [...group.querySelectorAll('.user-row')].some(r => !r.classList.contains('hidden-by-filter') && !r.classList.contains('hidden-by-search'));
+        group.classList.toggle('hidden-by-filter', !hasVisible);
+    });
+
+    const event = new CustomEvent('updateMsgCount', { detail: visibleCount });
+    document.dispatchEvent(event);
 }
 
 // --- CARREGAMENTO E RENDERIZAÇÃO ---
@@ -277,13 +298,8 @@ function renderMessages() {
     const now = new Date();
     const currentHour = now.getHours();
 
-    const categoryFiltered = activeCategoryFilter
-        ? allMessages.filter(m => (m.category || 'Geral') === activeCategoryFilter)
-        : allMessages;
-
-    // Filtro por horário para saudações ("Bom dia" antes das 12h, "Boa tarde" das 12h às 18h, "Boa noite" após 18h)
-    // Aplica-se exclusivamente a mensagens da categoria "Saudação" ou com título explícito de saudação
-    const filtered = categoryFiltered.filter(m => {
+    // Filtro por horário para saudações (aplica-se a todos os itens, categoria é tratada via applyCategoryFilter)
+    const filtered = allMessages.filter(m => {
         const cat   = (m.category || '').toLowerCase();
         const title = (m.title || '').toLowerCase();
 
@@ -333,11 +349,11 @@ function renderMessages() {
         groupEl.dataset.category = category;
         groupEl.innerHTML = `<div class="msg-group-label">${escapeHtml(category)}</div>`;
 
-        items.forEach(item => {
+items.forEach(item => {
             const row = document.createElement('div');
             row.className = 'user-row';
-            row.draggable = true;
             row.dataset.id = item.id;
+            row.dataset.category = item.category || 'Geral';
 
             const isGreeting = (item.category || '').toLowerCase().includes('sauda') ||
                                (item.title || '').toLowerCase().includes('bom dia') ||
@@ -460,6 +476,9 @@ function renderMessages() {
     });
     
     document.dispatchEvent(new Event('itemsRendered'));
+
+    // Aplica filtro de categoria sem re-renderizar
+    applyCategoryFilter();
 }
 
 function enterEditMode(row, item, userId) {

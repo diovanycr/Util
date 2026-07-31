@@ -10,8 +10,8 @@
 
 
 ## 📍 Estado atual
-Última sessão: Implementados 20 itens de acessibilidade (A11y) e UX — focus trap em todos os modais, debounce nas buscas, aria-pressed/aria-label em componentes, navegação por teclado no Port Opener, prefers-reduced-motion no FuturaSearchWidget, link skip-to-content e loading states.
-Próximo passo: Corrigir `components.css` .modal-box (dark mode), `login.css` hardcoded e otimizações no `futura-widget.js` (localStorage por usuário, listeners, IDs).
+Última sessão: Implementados 9 itens `[M]`/`[P]` — paginação em loadUsers, filtros de categoria/links sem re-renderizar DOM, dark mode em components.css e login.css, focus trap no modal do FuturaSearchWidget, localStorage do widget por usuário, anti-acúmulo de listeners globais. Total de 29 itens concluídos neste ciclo.
+Próximo passo: Refatorar o monolito `futura-widget.js` (2198 linhas) em módulos ES6 e avaliar as 9 ferramentas novas (ESC/POS, validadores fiscais, etc.).
 
 ## ⚠️ Decisões pendentes
 - Contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda.
@@ -29,16 +29,7 @@ Próximo passo: Corrigir `components.css` .modal-box (dark mode), `login.css` ha
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **A11y: FuturaSearchWidget cria modal de config injetado em document.body sem role=dialog aria-modal focus trap e retorno de foco ao fechar** `[M]` `[Accessibility]`
-- [ ] **Bug: components.css .modal-box usa background: white hardcoded - no tema escuro o modal de alerta fica fundo branco com texto claro legibilidade baixa (parcialmente corrigido so para dark mode)** `[P]` `[Bug]`
-- [ ] **UX: login.css usa cores hardcoded (#f3f4f6, #0f172a, #64748b) em vez de variaveis CSS - tela de login nao responde ao tema escuro** `[M]` `[Layout]`
-- [ ] **Bug: loadUsers em admin.js busca TODOS os usuarios do Firestore sem paginacao - se a base crescer pode estourar limites de leitura e degradar performance** `[M]` `[Backend]`
-- [ ] **Bug: renderMessages em messages.js reconstroi todo o DOM via innerHTML a cada mudanca de filtro de categoria - perde foco atual estado de drag ativo e scroll position** `[M]` `[Bug]`
 - [ ] **Refatorar: futura-widget.js e um monolito de 2198 linhas misturando CSS inline HTML injection e logica JS - quebrar em modulos ES6 (css, config, search, voice, audio)** `[G]` `[Backend]`
-- [ ] **Bug: filterLinks em links.js chama renderLinks que re-renderiza todo o DOM apos cada keystroke - perde estado de drag handles favoritos e anexos de eventos** `[M]` `[Bug]`
-- [ ] **Bug: localStorage do futura-widget.js (futura-history, futura-theme, futura-mode, futura-apikey) e global sem userId misturando dados e config entre contas no mesmo browser** `[M]` `[Bug]`
-- [ ] **Bug: futura-widget.js registra document.addEventListener globais (click, keydown) que acumulam listeners se o widget for re-renderizado ou trocar de aba** `[M]` `[Bug]`
-- [ ] **Bug: futura-widget.js usa IDs genéricos (searchInput, historyList, suggestions, loader) que colidem com IDs do app principal causando conflitos no DOM** `[M]` `[Bug]`
 - [ ] **Gerador de Comandos de Impressão ESC/POS (Teste de Impressoras Térmicas): Ferramenta para gerar comandos brutos de corte de papel, gaveta e avanço de página em impressoras de cupom (Epson, Bematech, Elgin, Daruma)** `[M]` `[UI]`
 - [ ] **Validador e Calculador de Documentos / Chaves Fiscais: Gerador/Validador de CNPJ, CPF, PIS, Inscrição Estadual por UF e gerador de DV de Chave de Acesso de NFe/NFCe para testes de homologação** `[P]` `[UI]`
 - [ ] **Checador de Status de SEFAZ e Gateways de Pagamento: Painel integrado exibindo o status de disponibilidade dos serviços da SEFAZ (NFe/NFCe por UF) e adquirentes (Stone, PagBank, Mercado Pago, TEF)** `[M]` `[UI]`
@@ -52,6 +43,15 @@ Próximo passo: Corrigir `components.css` .modal-box (dark mode), `login.css` ha
 
 
 ## Feito
+- [x] **A11y: FuturaSearchWidget cria modal de config injetado em document.body sem role=dialog aria-modal focus trap e retorno de foco ao fechar** `[M]` `[Accessibility]`
+- [x] **Bug: components.css .modal-box usa background: white hardcoded - no tema escuro o modal de alerta fica fundo branco com texto claro legibilidade baixa (parcialmente corrigido so para dark mode)** `[P]` `[Bug]`
+- [x] **UX: login.css usa cores hardcoded (#f3f4f6, #0f172a, #64748b) em vez de variaveis CSS - tela de login nao responde ao tema escuro** `[M]` `[Layout]`
+- [x] **Bug: loadUsers em admin.js busca TODOS os usuarios do Firestore sem paginacao - se a base crescer pode estourar limites de leitura e degradar performance** `[M]` `[Backend]`
+- [x] **Bug: renderMessages em messages.js reconstroi todo o DOM via innerHTML a cada mudanca de filtro de categoria - perde foco atual estado de drag ativo e scroll position** `[M]` `[Bug]`
+- [x] **Bug: filterLinks em links.js chama renderLinks que re-renderiza todo o DOM apos cada keystroke - perde estado de drag handles favoritos e anexos de eventos** `[M]` `[Bug]`
+- [x] **Bug: localStorage do futura-widget.js (futura-history, futura-theme, futura-mode, futura-apikey) e global sem userId misturando dados e config entre contas no mesmo browser** `[M]` `[Bug]`
+- [x] **Bug: futura-widget.js registra document.addEventListener globais (click, keydown) que acumulam listeners se o widget for re-renderizado ou trocar de aba** `[M]` `[Bug]`
+- [x] **Bug: futura-widget.js usa IDs genéricos (searchInput, historyList, suggestions, loader) que colidem com IDs do app principal causando conflitos no DOM** `[M]` `[Bug]`
 - [x] **UX: limparHistorico em history.js (btnClearHistory) nao tem openConfirmModal - acao irreversivel de limpar todo o historico com um clique sem confirmacao** `[P]` `[UI]`
 - [x] **A11y: data-placeholder do rich-editor (contenteditable) nao e acessivel a leitores de tela - nao ha aria-label ou label associado ao editor de solucao** `[P]` `[Accessibility]`
 - [x] **Bug: highlight de sintaxe _hl em portOpener.js usa regex encadeadas que podem quebrar ao aplicar spans dentro de outros spans criando HTML malformado (ex: numeros dentro de strings/comentarios)** `[M]` `[Bug]`

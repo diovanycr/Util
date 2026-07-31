@@ -23,6 +23,9 @@ import {
     setDoc,
     query,
     where,
+    orderBy,
+    limit,
+    startAfter,
     writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -66,5 +69,8 @@ export {
     setDoc,
     query,
     where,
+    orderBy,
+    limit,
+    startAfter,
     writeBatch
 };

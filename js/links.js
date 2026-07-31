@@ -325,16 +325,26 @@ async function saveLinkOrder(userId) {
 
 function filterLinks(query) {
     const list = el('linkList');
+    const cards = list.querySelectorAll('.link-card');
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const id = card.dataset.id;
+        const item = allLinks.find(l => l.id === id);
+        if (!item) return;
+        const visible = !query || `${item.title} ${item.url} ${item.category}`.toLowerCase().includes(query);
+        card.classList.toggle('hidden-by-search', !visible);
+        if (visible) visibleCount++;
+    });
+
+    // Oculta grupos vazios
+    list.querySelectorAll('.link-group').forEach(group => {
+        const hasVisible = [...group.querySelectorAll('.link-card')].some(c => !c.classList.contains('hidden-by-search'));
+        group.classList.toggle('hidden-by-search', !hasVisible);
+    });
+
+    // Se não houver query e todos visíveis, garante que nenhum grupo fique oculto
     if (!query) {
-        renderLinks(list, allLinks);
-        return;
-    }
-    const filtered = allLinks.filter(l =>
-        `${l.title} ${l.url} ${l.category}`.toLowerCase().includes(query)
-    );
-    if (filtered.length === 0) {
-        list.innerHTML = '<p class="sub center">Nenhum link encontrado.</p>';
-    } else {
-        renderLinks(list, filtered);
+        list.querySelectorAll('.link-group').forEach(g => g.classList.remove('hidden-by-search'));
     }
 }

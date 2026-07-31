@@ -8,27 +8,43 @@ import {
     setDoc,
     createUserWithEmailAndPassword,
     signOut,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    query,
+    orderBy,
+    limit,
+    startAfter
 } from './firebase.js';
 
 import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';
 import { escapeHtml, escapeAttr } from './utils.js';
 
-export async function loadUsers() {
+let _lastUserDoc = null;
+const PAGE_SIZE = 50;
+
+export async function loadUsers(append = false) {
     const userList = el('userList');
     if (!userList) return;
-    
-    userList.innerHTML = '<p class="sub">Carregando usuários...</p>';
-    
-    try {
-        const snap = await getDocs(collection(db, 'users'));
-        userList.innerHTML = ''; 
 
-        if (snap.empty) {
+    if (!append) {
+        userList.innerHTML = '<p class="sub">Carregando usuários...</p>';
+        _lastUserDoc = null;
+    }
+
+    try {
+        let q = query(collection(db, 'users'), orderBy('username'), limit(PAGE_SIZE));
+        if (_lastUserDoc) q = query(collection(db, 'users'), orderBy('username'), startAfter(_lastUserDoc), limit(PAGE_SIZE));
+
+        const snap = await getDocs(q);
+
+        if (snap.empty && !append) {
             userList.innerHTML = '<p class="sub">Nenhum usuário cadastrado.</p>';
             return;
         }
+
+        if (!append) userList.innerHTML = '';
+
+        _lastUserDoc = snap.docs[snap.docs.length - 1];
 
         snap.forEach(d => {
             const u = d.data();
@@ -134,6 +150,15 @@ export async function loadUsers() {
 
             userList.appendChild(row);
         });
+
+        // Botão "Carregar mais" se houver mais registros
+        if (snap.docs.length === PAGE_SIZE) {
+            const loadMoreBtn = document.createElement('div');
+            loadMoreBtn.style.cssText = 'display:flex;justify-content:center;margin-top:12px;';
+            loadMoreBtn.innerHTML = '<button class="btn ghost" id="btnLoadMoreUsers"><i class="fa-solid fa-chevron-down"></i> Carregar mais usuários</button>';
+            userList.appendChild(loadMoreBtn);
+            loadMoreBtn.querySelector('#btnLoadMoreUsers').onclick = () => { loadMoreBtn.remove(); loadUsers(true); };
+        }
     } catch (e) {
         console.error("Erro ao carregar lista:", e);
         userList.innerHTML = '<p class="sub">Erro ao carregar usuários.</p>';
