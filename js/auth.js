@@ -19,7 +19,7 @@ import { initMessages, resetMessages, loadMessages, updateTrashCount } from './m
 import { initProblems, resetProblems, loadProblems } from './problems.js';
 import { initSearch } from './search.js';
 import { initLinks, resetLinks } from './links.js';
-import { initEnhancements } from './enhancements.js';
+import { initEnhancements, resetEnhancements } from './enhancements.js';
 
 let messagesInitialized = false;
 let problemsInitialized = false;
@@ -121,6 +121,7 @@ export function initAuth() {
             resetMessages();
             resetProblems();
             resetLinks();
+            resetEnhancements();
 
             el('app').classList.add('hidden');
             el('loginBox').classList.remove('hidden');
@@ -189,7 +190,15 @@ async function doLogin() {
 }
 
 async function doGoogleLogin() {
+    const btnGoogle = el('btnGoogleLogin');
+    const originalText = btnGoogle ? btnGoogle.innerHTML : 'Entrar com Google';
+
     try {
+        if (btnGoogle) {
+            btnGoogle.disabled = true;
+            btnGoogle.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;"></span> Entrando...';
+        }
+
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
 
@@ -227,6 +236,11 @@ async function doGoogleLogin() {
             return;
         }
         showModal("Erro ao entrar com Google. Tente novamente.");
+    } finally {
+        if (btnGoogle) {
+            btnGoogle.disabled = false;
+            btnGoogle.innerHTML = originalText;
+        }
     }
 }
 

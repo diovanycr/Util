@@ -22,6 +22,16 @@ export function initEnhancements(uid) {
     loadFavoritesFromStorage();
 }
 
+export function resetEnhancements() {
+    currentUserId = null;
+    favorites = new Set();
+    filteringFavorites = { msg: false, problem: false, link: false };
+    if (compactMode) {
+        compactMode = false;
+        document.body.classList.remove('compact-mode');
+    }
+}
+
 // --- CONTADORES ---
 
 function setupCounterListeners() {
@@ -184,9 +194,12 @@ function copyFirstResult() {
             .find(isDomVisible);
         if (firstLink) {
             const link = firstLink.querySelector('.link-main');
-            if (link?.href) {
-                window.open(link.href, '_blank');
+            const href = link?.getAttribute('href');
+            if (href) {
+                window.open(href, '_blank', 'noopener,noreferrer');
                 showToast('Link aberto!');
+            } else {
+                showToast('Link indisponível.');
             }
         }
     }
@@ -240,9 +253,11 @@ function setupFavoriteFilters() {
     // Filtro de mensagens
     const btnMsg = el('btnFilterFavorites');
     if (btnMsg) {
+        btnMsg.setAttribute('aria-pressed', 'false');
         btnMsg.onclick = () => {
             filteringFavorites.msg = !filteringFavorites.msg;
             btnMsg.classList.toggle('active', filteringFavorites.msg);
+            btnMsg.setAttribute('aria-pressed', filteringFavorites.msg ? 'true' : 'false');
             applyFavoriteFilter('msg', '#msgList .user-row', '#msgList .msg-group');
         };
     }
@@ -250,9 +265,11 @@ function setupFavoriteFilters() {
     // Filtro de problemas
     const btnProb = el('btnFilterFavoriteProblems');
     if (btnProb) {
+        btnProb.setAttribute('aria-pressed', 'false');
         btnProb.onclick = () => {
             filteringFavorites.problem = !filteringFavorites.problem;
             btnProb.classList.toggle('active', filteringFavorites.problem);
+            btnProb.setAttribute('aria-pressed', filteringFavorites.problem ? 'true' : 'false');
             applyFavoriteFilter('problem', '#problemList .problem-card');
         };
     }
@@ -260,9 +277,11 @@ function setupFavoriteFilters() {
     // Filtro de links
     const btnLink = el('btnFilterFavoriteLinks');
     if (btnLink) {
+        btnLink.setAttribute('aria-pressed', 'false');
         btnLink.onclick = () => {
             filteringFavorites.link = !filteringFavorites.link;
             btnLink.classList.toggle('active', filteringFavorites.link);
+            btnLink.setAttribute('aria-pressed', filteringFavorites.link ? 'true' : 'false');
             applyFavoriteFilter('link', '#linkList .link-card', '#linkList .link-group');
         };
     }

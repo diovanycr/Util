@@ -30,11 +30,13 @@
 .link-url { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .link-open-icon { font-size: 12px; color: var(--muted); flex-shrink: 0; }
 
-.link-del-btn { flex-shrink: 0; padding: 8px 10px; color: var(--danger) !important; opacity: 0; transition: opacity 0.15s; }
-.link-card:hover .link-del-btn { opacity: 1; }
+.link-del-btn { flex-shrink: 0; padding: 8px 10px; color: var(--danger) !important; opacity: 0.7; transition: opacity 0.15s; }
+.link-card:hover .link-del-btn,
+.link-del-btn:focus-visible { opacity: 1; }
 
-.link-edit-btn { flex-shrink: 0; padding: 8px 10px; opacity: 0; transition: opacity 0.15s; }
-.link-card:hover .link-edit-btn { opacity: 1; }
+.link-edit-btn { flex-shrink: 0; padding: 8px 10px; opacity: 0.7; transition: opacity 0.15s; }
+.link-card:hover .link-edit-btn,
+.link-edit-btn:focus-visible { opacity: 1; }
 
 .link-edit-form { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 

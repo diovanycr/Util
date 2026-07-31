@@ -134,19 +134,19 @@ function _buildOptions() {
       <p class="po-section-label">Opções</p>
       <div class="po-opts-grid">
         <div class="po-opt-group">
-          <p class="po-opt-label">Protocolo</p>
-          <div class="po-seg" id="poSegProto">
-            <button class="po-seg-btn active" data-v="TCP">TCP</button>
-            <button class="po-seg-btn" data-v="UDP">UDP</button>
-            <button class="po-seg-btn" data-v="BOTH">Ambos</button>
+          <p class="po-opt-label" id="poProtoLabel">Protocolo</p>
+          <div class="po-seg" id="poSegProto" role="radiogroup" aria-labelledby="poProtoLabel">
+            <button class="po-seg-btn active" role="radio" aria-checked="true" tabindex="0" data-v="TCP">TCP</button>
+            <button class="po-seg-btn" role="radio" aria-checked="false" tabindex="-1" data-v="UDP">UDP</button>
+            <button class="po-seg-btn" role="radio" aria-checked="false" tabindex="-1" data-v="BOTH">Ambos</button>
           </div>
         </div>
         <div class="po-opt-group">
-          <p class="po-opt-label">Direção</p>
-          <div class="po-seg" id="poSegDir">
-            <button class="po-seg-btn active" data-v="IN">Entrada</button>
-            <button class="po-seg-btn" data-v="OUT">Saída</button>
-            <button class="po-seg-btn" data-v="BOTH">Ambas</button>
+          <p class="po-opt-label" id="poDirLabel">Direção</p>
+          <div class="po-seg" id="poSegDir" role="radiogroup" aria-labelledby="poDirLabel">
+            <button class="po-seg-btn active" role="radio" aria-checked="true" tabindex="0" data-v="IN">Entrada</button>
+            <button class="po-seg-btn" role="radio" aria-checked="false" tabindex="-1" data-v="OUT">Saída</button>
+            <button class="po-seg-btn" role="radio" aria-checked="false" tabindex="-1" data-v="BOTH">Ambas</button>
           </div>
         </div>
       </div>
@@ -182,11 +182,11 @@ function _buildOutputSection() {
       </div>
 
       <!-- Abas de output -->
-      <div class="tabs po-output-tabs">
-        <button class="tab active po-otab" data-pane="bat">.BAT</button>
-        <button class="tab po-otab" data-pane="ps1">PowerShell</button>
-        <button class="tab po-otab" data-pane="netsh">netsh</button>
-        <button class="tab po-otab" data-pane="undo">Remover</button>
+      <div class="tabs po-output-tabs" role="tablist" aria-label="Formatos de script">
+        <button class="tab active po-otab" role="tab" id="po-tab-bat" aria-selected="true" aria-controls="poPane-bat" tabindex="0" data-pane="bat">.BAT</button>
+        <button class="tab po-otab" role="tab" id="po-tab-ps1" aria-selected="false" aria-controls="poPane-ps1" tabindex="-1" data-pane="ps1">PowerShell</button>
+        <button class="tab po-otab" role="tab" id="po-tab-netsh" aria-selected="false" aria-controls="poPane-netsh" tabindex="-1" data-pane="netsh">netsh</button>
+        <button class="tab po-otab" role="tab" id="po-tab-undo" aria-selected="false" aria-controls="poPane-undo" tabindex="-1" data-pane="undo">Remover</button>
       </div>
 
       ${_buildCodePane('bat',   'Script executável',    'po-badge-blue',   'abrir-portas.bat',   true)}
@@ -214,7 +214,7 @@ function _buildCodePane(key, title, badgeCls, dlName, hidden) {
     : '';
 
   return `
-    <div id="poPane-${key}" class="po-pane${hidden ? ' hidden' : ''}">
+    <div id="poPane-${key}" class="po-pane${hidden ? ' hidden' : ''}" role="tabpanel" aria-labelledby="po-tab-${key}">
       <div class="card" style="padding:0;overflow:hidden;">
         <div class="po-code-header">
           <span class="po-code-title">${title} <span class="po-badge ${badgeCls}">${badge}</span></span>
@@ -268,32 +268,68 @@ function _bindEvents(container) {
     if (v.endsWith(',') || v.endsWith(' ')) _tryAdd(v.replace(/[, ]/g,'').trim());
   });
 
-  // Segmented controls
-  document.getElementById('poSegProto').addEventListener('click', e => {
-    const btn = e.target.closest('.po-seg-btn'); if (!btn) return;
-    document.getElementById('poSegProto').querySelectorAll('.po-seg-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    poProto = btn.dataset.v;
-  });
-  document.getElementById('poSegDir').addEventListener('click', e => {
-    const btn = e.target.closest('.po-seg-btn'); if (!btn) return;
-    document.getElementById('poSegDir').querySelectorAll('.po-seg-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    poDir = btn.dataset.v;
-  });
+  // Segmented controls (radiogroup): clique + navegação por setas + aria-checked
+  function _setupSegmented(groupId, setter) {
+    const group = document.getElementById(groupId);
+    if (!group) return;
+    const radios = () => [...group.querySelectorAll('.po-seg-btn')];
+    const select = (btn) => {
+      radios().forEach(b => {
+        const active = b === btn;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-checked', active ? 'true' : 'false');
+        b.setAttribute('tabindex', active ? '0' : '-1');
+      });
+      setter(btn.dataset.v);
+      btn.focus();
+    };
+    group.addEventListener('click', e => { const btn = e.target.closest('.po-seg-btn'); if (btn) select(btn); });
+    group.addEventListener('keydown', e => {
+      const list = radios();
+      const idx = list.indexOf(document.activeElement);
+      let next = null;
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
+      else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
+      else if (e.key === 'Home') next = list[0];
+      else if (e.key === 'End') next = list[list.length - 1];
+      if (next) { e.preventDefault(); select(next); }
+    });
+  }
+  _setupSegmented('poSegProto', v => poProto = v);
+  _setupSegmented('poSegDir',   v => poDir   = v);
 
   // Gerar
   document.getElementById('poBtnGenerate').addEventListener('click', _generate);
 
-  // Output tabs (delegação)
+  // Output tabs (delegação) com aria-selected e tabindex
+  const _activateOutputTab = (tab) => {
+    container.querySelectorAll('.po-otab').forEach(t => {
+      const active = t === tab;
+      t.classList.toggle('active', active);
+      t.setAttribute('aria-selected', active ? 'true' : 'false');
+      t.setAttribute('tabindex', active ? '0' : '-1');
+    });
+    container.querySelectorAll('.po-pane').forEach(p => p.classList.add('hidden'));
+    tab.classList.add('active');
+    document.getElementById(`poPane-${tab.dataset.pane}`)?.classList.remove('hidden');
+    tab.focus();
+  };
+  // Navegação por setas entre abas de output
+  container.addEventListener('keydown', e => {
+    if (!e.target.closest('.po-otab')) return;
+    const list = [...container.querySelectorAll('.po-otab')];
+    const idx = list.indexOf(e.target);
+    let next = null;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
+    else if (e.key === 'Home') next = list[0];
+    else if (e.key === 'End') next = list[list.length - 1];
+    if (next) { e.preventDefault(); _activateOutputTab(next); }
+  });
+
   container.addEventListener('click', e => {
     const tab = e.target.closest('.po-otab');
-    if (tab) {
-      container.querySelectorAll('.po-otab').forEach(t => t.classList.remove('active'));
-      container.querySelectorAll('.po-pane').forEach(p => p.classList.add('hidden'));
-      tab.classList.add('active');
-      document.getElementById(`poPane-${tab.dataset.pane}`)?.classList.remove('hidden');
-    }
+    if (tab) _activateOutputTab(tab);
 
     // Copiar
     const copyBtn = e.target.closest('.po-btn-copy');
@@ -325,12 +361,14 @@ function _bindEvents(container) {
 function _renderQuickPorts() {
   const grid = document.getElementById('poQuickGrid');
   if (!grid) return;
-  grid.innerHTML = QUICK_PORTS.map(p => `
-    <button class="po-quick-btn ${poPorts.find(x=>x.num===p.port)?'active':''}" data-port="${p.port}" data-label="${p.label}">
+  grid.innerHTML = QUICK_PORTS.map(p => {
+    const isActive = !!poPorts.find(x => x.num === p.port);
+    return `
+    <button class="po-quick-btn ${isActive ? 'active' : ''}" role="button" aria-pressed="${isActive}" data-port="${p.port}" data-label="${p.label}">
       <span class="po-q-num">${p.port}</span>
       <span class="po-q-label">${p.label}</span>
-    </button>
-  `).join('');
+    </button>`;
+  }).join('');
 
   grid.querySelectorAll('.po-quick-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -343,7 +381,9 @@ function _renderQuickPorts() {
 
 function _syncQuick() {
   document.querySelectorAll('.po-quick-btn').forEach(btn => {
-    btn.classList.toggle('active', !!poPorts.find(p=>p.num===parseInt(btn.dataset.port)));
+    const isActive = !!poPorts.find(p => p.num === parseInt(btn.dataset.port));
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   });
 }
 
@@ -369,7 +409,7 @@ function _renderTags() {
   pills.innerHTML = poPorts.map(p => `
     <span class="po-tag-pill">
       ${p.num}${p.label ? ` <span class="po-tag-name">${p.label}</span>` : ''}
-      <button class="po-tag-remove" data-num="${p.num}">×</button>
+      <button class="po-tag-remove" data-num="${p.num}" aria-label="Remover porta ${p.num}${p.label ? ` (${p.label})` : ''}">×</button>
     </span>
   `).join('');
   pills.querySelectorAll('.po-tag-remove').forEach(btn =>
@@ -479,17 +519,40 @@ function _generate() {
 
 
 // ── Highlight de sintaxe ──────────────────────────────────────────────────
+// Tokens são extraídos primeiro (com placeholders), para que regex posteriores
+// não apliquem spans DENTRO de spans já criados (HTML malformado).
+const _HL_TOKEN_COUNT = 8;
 function _hl(code) {
-  const e = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  return e(code)
-    .replace(/((?:^|\n)(:: ?.*|# .*|@echo off))/g, m=>`<span class="po-c-cmt">${m}</span>`)
-    .replace(/\b(netsh|advfirewall|firewall|add|delete|rule|New-NetFirewallRule|Remove-NetFirewallRule|Write-Host|Write-Error|net|session|if|exit|pause|echo)\b/g,
-      '<span class="po-c-cmd">$1</span>')
-    .replace(/\b(action|allow|block|dir|in|out|protocol|localport|enable|yes|profile|any|TCP|UDP|Inbound|Outbound|True|False|Allow)\b/g,
-      '<span class="po-c-kw">$1</span>')
-    .replace(/"([^"]*)"/g,'<span class="po-c-str">"$1"</span>')
-    .replace(/\b(\d{2,5})\b/g,'<span class="po-c-num">$1</span>')
-    .replace(/(\$[\w.[[\]]+)/g,'<span class="po-c-var">$1</span>');
+  const tokens = [];
+  const stash = html => `\u0000${tokens.push(html) - 1}\u0000`;
+  const e = s => s.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');
+  let src = e(code);
+
+  // 1) Comentários (linha iniciando com :: , # , @echo off)
+  src = src.replace(/(^|\n)(:: ?.*|# .*|@echo off)/g, (m, p, c) => `${p}${stash(`<span class="po-c-cmt">${c}</span>`)}`);
+
+  // 2) Strings "..."
+  src = src.replace(/"([^"]*)"/g, (m) => stash(`<span class="po-c-str">${m}</span>`));
+
+  // 3) Variáveis PowerShell ($var)
+  src = src.replace(/(\$[\w.[\]]+)/g, (m) => stash(`<span class="po-c-var">${m}</span>`));
+
+  // 4) Comandos (palavras-chave)
+  src = src.replace(/\b(netsh|advfirewall|firewall|add|delete|rule|New-NetFirewallRule|Remove-NetFirewallRule|Write-Host|Write-Error|net|session|if|exit|pause|echo)\b/g,
+    m => stash(`<span class="po-c-cmd">${m}</span>`));
+
+  // 5) Argumentos/valores
+  src = src.replace(/\b(action|allow|block|dir|in|out|protocol|localport|enable|yes|profile|any|TCP|UDP|Inbound|Outbound|True|False|Allow)\b/g,
+    m => stash(`<span class="po-c-kw">${m}</span>`));
+
+  // 6) Números (portas)
+  src = src.replace(/\b(\d{1,5})\b/g, m => stash(`<span class="po-c-num">${m}</span>`));
+
+  // Restaura tokens na ordem inversa de inserção (placeholders estáveis)
+  for (let i = tokens.length - 1; i >= 0; i--) {
+    src = src.replace(`\u0000${i}\u0000`, tokens[i]);
+  }
+  return src;
 }
 
 function _setCode(id, text) {

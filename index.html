@@ -26,6 +26,8 @@
 
 </head>
 <body>
+  <!-- Skip to content link (acessibilidade) -->
+  <a href="#app" class="skip-link">Ir para o conteúdo principal</a>
 
   <div id="loginBox">
     <div class="card login-card-box">
@@ -334,7 +336,7 @@
   </div>
 
   <!-- Modal de Formato de Exportação -->
-  <div id="exportFormatModal" class="modal-overlay hidden">
+  <div id="exportFormatModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Exportar Mensagens">
     <div class="modal-box card center" style="max-width: 400px;">
       <h3>Exportar Mensagens</h3>
       <p class="sub mt-10">Escolha o formato do arquivo de backup:</p>

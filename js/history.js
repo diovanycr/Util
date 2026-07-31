@@ -2,7 +2,9 @@
 //  history.js — Histórico de cópias (localStorage, por usuário)
 // ============================================================
 
-import { escapeHtml } from './utils.js';
+import { escapeHtml, getTagColor } from './utils.js';
+import { openConfirmModal } from './modal.js';
+import { showToast } from './toast.js';
 
 const HISTORY_KEY_BASE = 'painelAtende_copyHistory';
 const MAX_HISTORY  = 20;
@@ -90,8 +92,16 @@ function _injectPanel() {
 
     document.getElementById('btnCloseHistory').onclick = closeHistoryPanel;
     document.getElementById('btnClearHistory').onclick = () => {
-        clearHistory();
-        renderHistoryPanel();
+        if (getHistory().length === 0) return;
+        openConfirmModal(
+            () => {
+                clearHistory();
+                renderHistoryPanel();
+                showToast('Histórico limpo.');
+            },
+            null,
+            'Deseja realmente limpar todo o histórico de cópias? Esta ação não poderá ser desfeita.'
+        );
     };
 }
 
@@ -146,7 +156,7 @@ export function renderHistoryPanel() {
             ? `<span class="history-item-title">${escapeHtml(item.title)}</span>`
             : '';
         const catHtml = item.category && item.category !== 'Geral'
-            ? `<span class="history-item-cat">${escapeHtml(item.category)}</span>`
+            ? `<span class="history-item-cat ${getTagColor(item.category)}">${escapeHtml(item.category)}</span>`
             : '';
 
         row.innerHTML = `

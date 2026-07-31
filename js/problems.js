@@ -11,7 +11,7 @@ import {
 
 import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr, sanitizeHtml, addKeyboardDragSupport } from './utils.js';
+import { escapeHtml, escapeAttr, sanitizeHtml, addKeyboardDragSupport, normalizeSolutions, getTagColor, debounce } from './utils.js';
 
 let currentUserId = null;
 export let allProblems   = [];
@@ -24,28 +24,6 @@ const STATUS_LABELS = {
     testing:   { label: 'Em teste',   icon: 'fa-flask',        cls: 'status-testing'   },
     obsolete:  { label: 'Obsoleta',   icon: 'fa-circle-xmark', cls: 'status-obsolete'  }
 };
-
-// Paleta de cores para tags (cicla automaticamente)
-const TAG_COLORS = [
-    'tag-blue', 'tag-green', 'tag-purple', 'tag-orange',
-    'tag-pink', 'tag-teal', 'tag-red', 'tag-indigo'
-];
-const TAG_STORAGE_KEY = 'painelAtende_tagColors';
-let tagColorMap = {};
-try {
-    tagColorMap = JSON.parse(localStorage.getItem(TAG_STORAGE_KEY) || '{}');
-} catch { tagColorMap = {}; }
-
-function getTagColor(tag) {
-    if (!tagColorMap[tag]) {
-        const keys = Object.keys(tagColorMap);
-        tagColorMap[tag] = TAG_COLORS[keys.length % TAG_COLORS.length];
-        try {
-            localStorage.setItem(TAG_STORAGE_KEY, JSON.stringify(tagColorMap));
-        } catch {}
-    }
-    return tagColorMap[tag];
-}
 
 export function initProblems(uid) {
     currentUserId = uid;
@@ -140,7 +118,7 @@ function setupProblemInterface() {
         }
     };
 
-    el('problemSearch').oninput = () => applyFilters();
+    el('problemSearch').oninput = debounce(() => applyFilters(), 200);
     el('btnExportProblems').onclick = () => exportProblems();
     el('btnImportProblems').onclick = () => el('importProblemsInput').click();
     el('importProblemsInput').onchange = (e) => importProblems(e, currentUserId);
@@ -307,20 +285,6 @@ function addSolutionEditor(container, solution = null) {
 
 // --- NORMALIZAÇÃO ---
 
-function normalizeSolutions(item) {
-    if (item.solutions && Array.isArray(item.solutions)) {
-        // Normaliza copyTexts: converte strings legadas para {label, text}
-        return item.solutions.map(s => ({
-            ...s,
-            copyTexts: (s.copyTexts || (s.copyText ? [s.copyText] : [])).map(ct =>
-                typeof ct === 'string' ? { label: '', text: ct } : ct
-            )
-        }));
-    }
-    if (item.solution) return [{ label: 'Solução 1', text: item.solution, status: 'confirmed', copyTexts: [] }];
-    return [];
-}
-
 function normalizeTags(item) {
     if (Array.isArray(item.tags)) return item.tags;
     if (item.category && item.category !== 'Geral') return [item.category.toLowerCase()];
@@ -377,6 +341,7 @@ function updateTagFilterBar() {
     const allChip = document.createElement('button');
     allChip.className = `tag-filter-chip ${!activeTagFilter ? 'active' : ''}`;
     allChip.textContent = 'Todas';
+    allChip.setAttribute('aria-pressed', !activeTagFilter ? 'true' : 'false');
     allChip.onclick = () => { activeTagFilter = null; updateTagFilterBar(); applyFilters(); };
     bar.appendChild(allChip);
 
@@ -384,6 +349,7 @@ function updateTagFilterBar() {
         const chip = document.createElement('button');
         chip.className = `tag-filter-chip ${getTagColor(tag)} ${activeTagFilter === tag ? 'active' : ''}`;
         chip.textContent = tag;
+        chip.setAttribute('aria-pressed', activeTagFilter === tag ? 'true' : 'false');
         chip.onclick = () => {
             activeTagFilter = activeTagFilter === tag ? null : tag;
             updateTagFilterBar();

@@ -116,6 +116,7 @@ function setupUserInterface() {
             modal.style.display = 'flex';
             el('btnExportFormatJson')?.focus();
         }
+        modal._exportLastFocus = document.activeElement;
     };
 
     el('btnCancelExportFormat').onclick = () => {
@@ -123,6 +124,7 @@ function setupUserInterface() {
         if (modal) {
             modal.classList.add('hidden');
             modal.style.display = 'none';
+            if (modal._exportLastFocus) { modal._exportLastFocus.focus(); modal._exportLastFocus = null; }
         }
     };
 
@@ -131,6 +133,7 @@ function setupUserInterface() {
         if (modal) {
             modal.classList.add('hidden');
             modal.style.display = 'none';
+            if (modal._exportLastFocus) { modal._exportLastFocus.focus(); modal._exportLastFocus = null; }
         }
         exportToTxt(currentUserId);
     };
@@ -140,10 +143,18 @@ function setupUserInterface() {
         if (modal) {
             modal.classList.add('hidden');
             modal.style.display = 'none';
+            if (modal._exportLastFocus) { modal._exportLastFocus.focus(); modal._exportLastFocus = null; }
         }
         exportToJson(currentUserId);
     };
 
+    el('exportFormatModal').addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            el('exportFormatModal').classList.add('hidden');
+            el('exportFormatModal').style.display = 'none';
+            el('btnExport')?.focus();
+        }
+    });
     el('exportFormatModal').addEventListener('click', (e) => {
         if (e.target === el('exportFormatModal')) {
             el('exportFormatModal').classList.add('hidden');
@@ -191,6 +202,7 @@ function updateCategoryFilterBar() {
     const allChip = document.createElement('button');
     allChip.className = `tag-filter-chip ${!activeCategoryFilter ? 'active' : ''}`;
     allChip.textContent = 'Todas';
+    allChip.setAttribute('aria-pressed', !activeCategoryFilter ? 'true' : 'false');
     allChip.onclick = () => { activeCategoryFilter = null; updateCategoryFilterBar(); renderMessages(); };
     bar.appendChild(allChip);
 
@@ -198,6 +210,7 @@ function updateCategoryFilterBar() {
         const chip = document.createElement('button');
         chip.className = `tag-filter-chip ${activeCategoryFilter === cat ? 'active' : ''}`;
         chip.textContent = cat;
+        chip.setAttribute('aria-pressed', activeCategoryFilter === cat ? 'true' : 'false');
         chip.onclick = () => {
             activeCategoryFilter = activeCategoryFilter === cat ? null : cat;
             updateCategoryFilterBar();
@@ -640,6 +653,7 @@ async function exportToJson(userId) {
 
 async function loadTrash(userId) {
     const list = el('trashList');
+    list.innerHTML = '<div class="loading-state"><span class="spinner"></span><span>Carregando lixeira...</span></div>';
     try {
         const snap = await getDocs(collection(db, 'users', userId, 'messages'));
         const docs = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.deleted);

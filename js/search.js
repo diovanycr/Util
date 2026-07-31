@@ -80,6 +80,7 @@ async function runSearch(query) {
             msgMatches.slice(0, 5).forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'search-result-item';
+                row.setAttribute('role', 'option');
                 row.innerHTML = `
                     <span class="search-result-text">${highlight(item.text, query)}</span>
                     <button class="btn ghost search-copy-btn" title="Copiar"><i class="fa-solid fa-copy"></i></button>
@@ -106,6 +107,7 @@ async function runSearch(query) {
             probMatches.slice(0, 5).forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'search-result-item';
+                row.setAttribute('role', 'option');
                 row.innerHTML = `
                     <div>
                         <span class="search-result-title">${highlight(item.title, query)}</span>
@@ -135,6 +137,7 @@ async function runSearch(query) {
             linkMatches.slice(0, 5).forEach(item => {
                 const row = document.createElement('div');
                 row.className = 'search-result-item';
+                row.setAttribute('role', 'option');
                 row.innerHTML = `
                     <div>
                         <span class="search-result-title">${highlight(item.title || item.url, query)}</span>
@@ -160,6 +163,17 @@ async function runSearch(query) {
             });
             results.appendChild(section);
         }
+
+        // Adiciona navegação por setas + aria-selected nos resultados
+        let focusIdx = -1;
+        const items = results.querySelectorAll('[role="option"]');
+        items.forEach((item, i) => {
+            item.setAttribute('aria-selected', 'false');
+            item.addEventListener('click', () => {
+                items.forEach(el => el.setAttribute('aria-selected', 'false'));
+                item.setAttribute('aria-selected', 'true');
+            });
+        });
 
     } catch (err) {
         console.error("Erro na busca global:", err);

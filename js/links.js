@@ -16,7 +16,7 @@ import {
 
 import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr, addKeyboardDragSupport } from './utils.js';
+import { escapeHtml, escapeAttr, addKeyboardDragSupport, debounce } from './utils.js';
 
 let currentUserId = null;
 export let allLinks = [];
@@ -85,9 +85,9 @@ function setupLinksInterface() {
         }
     };
 
-    el('linkSearch').oninput = () => {
+    el('linkSearch').oninput = debounce(() => {
         filterLinks(el('linkSearch').value.trim().toLowerCase());
-    };
+    }, 200);
 }
 
 function extractDomain(url) {

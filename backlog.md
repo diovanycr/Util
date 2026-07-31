@@ -10,8 +10,8 @@
 
 
 ## 📍 Estado atual
-Última sessão: Auditoria completa do código (HTML/CSS/JS) — 40 itens adicionados ao backlog.
-Próximo passo: Priorizar e implementar os bugs críticos de segurança/XSS e o placeholder `{usuario}`.
+Última sessão: Implementados 20 itens de acessibilidade (A11y) e UX — focus trap em todos os modais, debounce nas buscas, aria-pressed/aria-label em componentes, navegação por teclado no Port Opener, prefers-reduced-motion no FuturaSearchWidget, link skip-to-content e loading states.
+Próximo passo: Corrigir `components.css` .modal-box (dark mode), `login.css` hardcoded e otimizações no `futura-widget.js` (localStorage por usuário, listeners, IDs).
 
 ## ⚠️ Decisões pendentes
 - Contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda.
@@ -29,35 +29,15 @@ Próximo passo: Priorizar e implementar os bugs críticos de segurança/XSS e o 
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **UX: historico de copias (history.js) nao tem indicador de qual categoria o item pertencia visualmente - carrega cat no DOM mas sem distingue cores porCategoria** `[P]` `[UI]`
-- [ ] **Bug: copyFirstResult em enhancements.js para links usa firstLink.querySelector('.link-main') e verifica link.href mas .link-main e uma tag <a> nem sempre tem href direto - pode falhar ao abrir link** `[P]` `[Bug]`
 - [ ] **A11y: FuturaSearchWidget cria modal de config injetado em document.body sem role=dialog aria-modal focus trap e retorno de foco ao fechar** `[M]` `[Accessibility]`
 - [ ] **Bug: components.css .modal-box usa background: white hardcoded - no tema escuro o modal de alerta fica fundo branco com texto claro legibilidade baixa (parcialmente corrigido so para dark mode)** `[P]` `[Bug]`
 - [ ] **UX: login.css usa cores hardcoded (#f3f4f6, #0f172a, #64748b) em vez de variaveis CSS - tela de login nao responde ao tema escuro** `[M]` `[Layout]`
-- [ ] **UX: limparHistorico em history.js (btnClearHistory) nao tem openConfirmModal - acao irreversivel de limpar todo o historico com um clique sem confirmacao** `[P]` `[UI]`
-- [ ] **Bug: portOpener.js cria instancia new FuturaSearchWidget() no DOMContentLoaded antes de saber se o usuario esta logado - widget inicializa desnecessariamente para admins e tela de login** `[M]` `[Bug]`
-- [ ] **A11y: data-placeholder do rich-editor (contenteditable) nao e acessivel a leitores de tela - nao ha aria-label ou label associado ao editor de solucao** `[P]` `[Accessibility]`
-- [ ] **Bug: highlight de sintaxe _hl em portOpener.js usa regex encadeadas que podem quebrar ao aplicar spans dentro de outros spans criando HTML malformado (ex: numeros dentro de strings/comentarios)** `[M]` `[Bug]`
 - [ ] **Bug: loadUsers em admin.js busca TODOS os usuarios do Firestore sem paginacao - se a base crescer pode estourar limites de leitura e degradar performance** `[M]` `[Backend]`
-- [ ] **UX: busca em problems.js (problemSearch) e links.js (linkSearch) nao tem debounce - dispara filtragem a cada keystroke causando re-render desnecessario** `[P]` `[UI]`
-- [ ] **A11y: botoes de editar e excluir de links (link-edit-btn, link-del-btn) usam opacity:0 so aparecem no hover - inacessiveis em dispositivos touch e teclado** `[P]` `[Accessibility]`
 - [ ] **Bug: renderMessages em messages.js reconstroi todo o DOM via innerHTML a cada mudanca de filtro de categoria - perde foco atual estado de drag ativo e scroll position** `[M]` `[Bug]`
 - [ ] **Refatorar: futura-widget.js e um monolito de 2198 linhas misturando CSS inline HTML injection e logica JS - quebrar em modulos ES6 (css, config, search, voice, audio)** `[G]` `[Backend]`
 - [ ] **Bug: filterLinks em links.js chama renderLinks que re-renderiza todo o DOM apos cada keystroke - perde estado de drag handles favoritos e anexos de eventos** `[M]` `[Bug]`
-- [ ] **UX: loadTrash nao tem loading state - ao abrir a lixeira mostra conteudo anterior ou vazio durante o carregamento Firebase sem spinner** `[P]` `[UI]`
-- [ ] **UX: Botao de login com Google (btnGoogleLogin) nao tem estado de loading/disabled durante autenticacao - permite double-click e nao da feedback visual** `[P]` `[UI]`
-- [ ] **A11y: po-quick-btn (botoes de portas rapidas) sem aria-pressed para indicar estado ativo/selecionado** `[P]` `[Accessibility]`
-- [ ] **A11y: po-tag-remove (botao remover porta) sem aria-label descritivo - so tem o caractere x sem texto acessivel para leitores de tela** `[P]` `[Accessibility]`
-- [ ] **A11y: Segmented controls do portOpener (po-seg-btn de protocolo e direcao) sem role=radiogroup/radio e aria-checked para indicar selecao** `[P]` `[Accessibility]`
-- [ ] **A11y: Abas do portOpener (po-otab) sem role=tab, aria-selected e sem navegacao por teclado (setas) - leitores de tela nao reconhecem como tablist** `[M]` `[Accessibility]`
-- [ ] **A11y: Modal de exportacao (exportFormatModal) nao fecha com tecla Escape nem tem role=dialog/aria-modal - inconsistente com outros modais** `[P]` `[Accessibility]`
-- [ ] **A11y: futura-widget.js nao respeita prefers-reduced-motion - varias animacoes inline (slide, fadeUp, shimmer, pulseMic) ignoram a preferencia de reducao de movimento** `[P]` `[Accessibility]`
-- [ ] **Refatorar: normalizeSolutions duplicado em utils.js e problems.js com implementacoes divergentes - o de utils.js nao normaliza copyTexts e o de problems.js sim unificar** `[P]` `[Backend]`
-- [ ] **Bug: copyFirstResult em enhancements.js copia o textContent cru da mensagem ignorando a substituicao do placeholder {usuario} - copia texto nao processado** `[P]` `[Bug]`
 - [ ] **Bug: localStorage do futura-widget.js (futura-history, futura-theme, futura-mode, futura-apikey) e global sem userId misturando dados e config entre contas no mesmo browser** `[M]` `[Bug]`
 - [ ] **Bug: futura-widget.js registra document.addEventListener globais (click, keydown) que acumulam listeners se o widget for re-renderizado ou trocar de aba** `[M]` `[Bug]`
-- [ ] **Bug: logout nao reseta modulo enhancements (filteringFavorites e estado compacto) permitindo vazamento de estado entre sessoes de usuarios diferentes** `[M]` `[Bug]`
-- [ ] **Bug: escapeQ em futura-widget.js e incompleto nao escapa <, >, & permitindo XSS em data-query dos botoes de provider** `[M]` `[Bug]`
 - [ ] **Bug: futura-widget.js usa IDs genéricos (searchInput, historyList, suggestions, loader) que colidem com IDs do app principal causando conflitos no DOM** `[M]` `[Bug]`
 - [ ] **Gerador de Comandos de Impressão ESC/POS (Teste de Impressoras Térmicas): Ferramenta para gerar comandos brutos de corte de papel, gaveta e avanço de página em impressoras de cupom (Epson, Bematech, Elgin, Daruma)** `[M]` `[UI]`
 - [ ] **Validador e Calculador de Documentos / Chaves Fiscais: Gerador/Validador de CNPJ, CPF, PIS, Inscrição Estadual por UF e gerador de DV de Chave de Acesso de NFe/NFCe para testes de homologação** `[P]` `[UI]`
@@ -68,17 +48,37 @@ Próximo passo: Priorizar e implementar os bugs críticos de segurança/XSS e o 
 - [ ] **Árvore de Decisão & Triagem Interativa: Guias passo a passo interativos para diagnosticar falhas comuns (ex: PDV não conecta no banco, Impressora não corta papel, Ponto não coleta marcação, E-commerce não sincroniza estoque)** `[G]` `[UI]`
 - [ ] **Utilitário de Diagnóstico de Redes & Dispositivos PDV/Ponto: Calculadora IP/Subrede e testador de porta/comunicação (Port Opener/Socket check) para impressoras térmicas, balanças, leitores e relógios de ponto (REP)** `[M]` `[UI]`
 - [ ] **Gerador de Scripts & Comandos Dinâmicos: Gerador de comandos SQL (reset de caixa, liberação de terminal, correção de status de NFe/NFCe/Ponto) e comandos CMD/PowerShell com variáveis dinâmicas (ex: {ip_pdv}, {cnpj}, {porta_impressora})** `[G]` `[UI]`
-- [ ] **A11y: falta link skip-to-content e preferências prefers-reduced-motion nos estilos de animação** `[P]` `[Accessibility]`
-- [ ] **A11y: chips de filtro de categoria/tags sem aria-pressed para indicar filtro ativo** `[P]` `[Accessibility]`
-- [ ] **A11y: modal de busca global sem role=dialog, aria-modal e resultados sem navegação anunciada (listbox/option)** `[M]` `[Accessibility]`
-- [ ] **A11y: modais (alerta, confirmação, export, logout) sem focus trap, retorno de foco e fechamento por Escape/overlay** `[M]` `[Accessibility]`
-- [ ] **A11y: estrelas de favorito (enhancements.js) sem aria-label nem aria-pressed para estado favoritado** `[P]` `[Accessibility]`
-- [ ] **A11y: botões só com ícone no header (tema, compacto, busca, ajuda, limpar busca) sem aria-label descritivo** `[P]` `[Accessibility]`
-- [ ] **A11y: tabs.js não atualiza aria-selected nem tabindex ao trocar abas — leitores de tela não refletem a aba ativa** `[M]` `[Accessibility]`
 
 
 
 ## Feito
+- [x] **UX: limparHistorico em history.js (btnClearHistory) nao tem openConfirmModal - acao irreversivel de limpar todo o historico com um clique sem confirmacao** `[P]` `[UI]`
+- [x] **A11y: data-placeholder do rich-editor (contenteditable) nao e acessivel a leitores de tela - nao ha aria-label ou label associado ao editor de solucao** `[P]` `[Accessibility]`
+- [x] **Bug: highlight de sintaxe _hl em portOpener.js usa regex encadeadas que podem quebrar ao aplicar spans dentro de outros spans criando HTML malformado (ex: numeros dentro de strings/comentarios)** `[M]` `[Bug]`
+- [x] **UX: busca em problems.js (problemSearch) e links.js (linkSearch) nao tem debounce - dispara filtragem a cada keystroke causando re-render desnecessario** `[P]` `[UI]`
+- [x] **A11y: botoes de editar e excluir de links (link-edit-btn, link-del-btn) usam opacity:0 so aparecem no hover - inacessiveis em dispositivos touch e teclado** `[P]` `[Accessibility]`
+- [x] **UX: loadTrash nao tem loading state - ao abrir a lixeira mostra conteudo anterior ou vazio durante o carregamento Firebase sem spinner** `[P]` `[UI]`
+- [x] **UX: Botao de login com Google (btnGoogleLogin) nao tem estado de loading/disabled durante autenticacao - permite double-click e nao da feedback visual** `[P]` `[UI]`
+- [x] **A11y: po-quick-btn (botoes de portas rapidas) sem aria-pressed para indicar estado ativo/selecionado** `[P]` `[Accessibility]`
+- [x] **A11y: po-tag-remove (botao remover porta) sem aria-label descritivo - so tem o caractere x sem texto acessivel para leitores de tela** `[P]` `[Accessibility]`
+- [x] **A11y: Segmented controls do portOpener (po-seg-btn de protocolo e direcao) sem role=radiogroup/radio e aria-checked para indicar selecao** `[P]` `[Accessibility]`
+- [x] **A11y: Abas do portOpener (po-otab) sem role=tab, aria-selected e sem navegacao por teclado (setas) - leitores de tela nao reconhecem como tablist** `[M]` `[Accessibility]`
+- [x] **A11y: Modal de exportacao (exportFormatModal) nao fecha com tecla Escape nem tem role=dialog/aria-modal - inconsistente com outros modais** `[P]` `[Accessibility]`
+- [x] **A11y: futura-widget.js nao respeita prefers-reduced-motion - varias animacoes inline (slide, fadeUp, shimmer, pulseMic) ignoram a preferencia de reducao de movimento** `[P]` `[Accessibility]`
+- [x] **A11y: falta link skip-to-content e preferências prefers-reduced-motion nos estilos de animação** `[P]` `[Accessibility]`
+- [x] **A11y: chips de filtro de categoria/tags sem aria-pressed para indicar filtro ativo** `[P]` `[Accessibility]`
+- [x] **A11y: modal de busca global sem role=dialog, aria-modal e resultados sem navegação anunciada (listbox/option)** `[M]` `[Accessibility]`
+- [x] **A11y: modais (alerta, confirmação, export, logout) sem focus trap, retorno de foco e fechamento por Escape/overlay** `[M]` `[Accessibility]`
+- [x] **A11y: estrelas de favorito (enhancements.js) sem aria-label nem aria-pressed para estado favoritado** `[P]` `[Accessibility]`
+- [x] **A11y: botões só com ícone no header (tema, compacto, busca, ajuda, limpar busca) sem aria-label descritivo** `[P]` `[Accessibility]`
+- [x] **A11y: tabs.js não atualiza aria-selected nem tabindex ao trocar abas — leitores de tela não refletem a aba ativa** `[M]` `[Accessibility]`
+- [x] **UX: historico de copias (history.js) nao tem indicador de qual categoria o item pertencia visualmente - carrega cat no DOM mas sem distingue cores porCategoria** `[P]` `[UI]`
+- [x] **Bug: portOpener.js cria instancia new FuturaSearchWidget() no DOMContentLoaded antes de saber se o usuario esta logado - widget inicializa desnecessariamente para admins e tela de login** `[M]` `[Bug]`
+- [x] **Refatorar: normalizeSolutions duplicado em utils.js e problems.js com implementacoes divergentes - o de utils.js nao normaliza copyTexts e o de problems.js sim unificar** `[P]` `[Backend]`
+- [x] **Bug: escapeQ em futura-widget.js e incompleto nao escapa <, >, & permitindo XSS em data-query dos botoes de provider** `[M]` `[Bug]`
+- [x] **Bug: logout nao reseta modulo enhancements (filteringFavorites e estado compacto) permitindo vazamento de estado entre sessoes de usuarios diferentes** `[M]` `[Bug]`
+- [x] **Bug: copyFirstResult em enhancements.js copia o textContent cru da mensagem ignorando a substituicao do placeholder {usuario} - copia texto nao processado** `[P]` `[Bug]`
+- [x] **Bug: copyFirstResult em enhancements.js para links usa firstLink.querySelector('.link-main') e verifica link.href mas .link-main e uma tag <a> nem sempre tem href direto - pode falhar ao abrir link** `[P]` `[Bug]`
 - [x] **UX: busca global (Ctrl+K) não inclui Links Úteis — apenas mensagens e problemas** `[M]` `[UI]`
 - [x] **UX: formulários de login e criação de usuário sem estado de loading/disabled anti double-submit no admin** `[P]` `[UI]`
 - [x] **UX: painel de Ajuda/Suporte lista WhatsApp e e-mail sem contatos reais ou links acionáveis** `[P]` `[UI]`

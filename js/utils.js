@@ -155,12 +155,67 @@ export function addKeyboardDragSupport(handle, getItems, onReorder) {
 }
 
 /**
+ * Cria uma versão "debounce" de uma função: só executa após `delay` ms
+ * sem novas invocações. Útil para inputs de busca que re-renderizam DOM.
+ *
+ * @param {Function} fn  Função a debouncar
+ * @param {number}    delay Tempo de espera em ms (padrão: 250)
+ * @returns {Function} Função debouncada com método .flush() para disparar imediato
+ */
+export function debounce(fn, delay = 250) {
+    let timer = null;
+    function debounced(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => { timer = null; fn.apply(this, args); }, delay);
+        debounced._pending = () => !!timer;
+    }
+    debounced.flush = function (...args) {
+        if (timer) { clearTimeout(timer); timer = null; fn.apply(this, args); }
+    };
+    return debounced;
+}
+
+/**
+ * Paleta de cores para tags/categorias (cicla automaticamente).
+ * As classes .tag-blue, .tag-green, etc. estão definidas em css/tags.css
+ * e funcionam em light/dark mode.
+ */
+const TAG_COLORS = [
+    'tag-blue', 'tag-green', 'tag-purple', 'tag-orange',
+    'tag-pink', 'tag-teal', 'tag-red', 'tag-indigo'
+];
+const TAG_STORAGE_KEY = 'painelAtende_tagColors';
+let _tagColorMap = {};
+try {
+    _tagColorMap = JSON.parse(localStorage.getItem(TAG_STORAGE_KEY) || '{}');
+} catch { _tagColorMap = {}; }
+
+export function getTagColor(tag) {
+    if (!_tagColorMap[tag]) {
+        const keys = Object.keys(_tagColorMap);
+        _tagColorMap[tag] = TAG_COLORS[keys.length % TAG_COLORS.length];
+        try {
+            localStorage.setItem(TAG_STORAGE_KEY, JSON.stringify(_tagColorMap));
+        } catch {}
+    }
+    return _tagColorMap[tag];
+}
+
+/**
  * Normaliza o formato de soluções de um problema para garantir
  * que um array válido seja sempre retornado.
+ * Converte strings legadas de copyText em objetos { label, text }.
  */
 export function normalizeSolutions(item) {
-    if (item.solutions && Array.isArray(item.solutions)) return item.solutions;
-    if (item.solution) return [{ label: 'Solução 1', text: item.solution }];
+    if (item.solutions && Array.isArray(item.solutions)) {
+        return item.solutions.map(s => ({
+            ...s,
+            copyTexts: (s.copyTexts || (s.copyText ? [s.copyText] : [])).map(ct =>
+                typeof ct === 'string' ? { label: '', text: ct } : ct
+            )
+        }));
+    }
+    if (item.solution) return [{ label: 'Solução 1', text: item.solution, status: 'confirmed', copyTexts: [] }];
     return [];
 }
 

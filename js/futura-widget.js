@@ -2,6 +2,7 @@
 class FuturaSearchWidget {
   constructor(options) {
     this.containerId = options.containerId;
+    this.userId = options.userId || '';
     this.container = document.getElementById(this.containerId);
     if (!this.container) {
       console.error("FuturaSearchWidget: Container " + this.containerId + " not found.");
@@ -12,6 +13,10 @@ class FuturaSearchWidget {
     this.loadDependencies();
     // Render UI immediately
     this.init();
+  }
+
+  _lsKey(key) {
+    return this.userId ? key + '_' + this.userId : key;
   }
 
   loadDependencies() {
@@ -367,7 +372,7 @@ class FuturaSearchWidget {
   flex-shrink: 0;
 }
 
-#searchInput {
+#fw-searchInput {
   flex: 1;
   background: transparent;
   border: none;
@@ -379,9 +384,9 @@ class FuturaSearchWidget {
   font-weight: 400;
 }
 
-#searchInput::placeholder { color: #b8b5ae; }
+#fw-searchInput::placeholder { color: #b8b5ae; }
 
-#searchBtn {
+#fw-searchBtn {
   background: var(--blue);
   color: white;
   border: none;
@@ -398,8 +403,8 @@ class FuturaSearchWidget {
   white-space: nowrap;
 }
 
-#searchBtn:hover { background: var(--blue-mid); }
-#searchBtn:active { transform: scale(0.98); }
+#fw-searchBtn:hover { background: var(--blue-mid); }
+#fw-searchBtn:active { transform: scale(0.98); }
 
 /* Quick tags */
 .quick-tags {
@@ -1279,6 +1284,21 @@ class FuturaSearchWidget {
   height: 100%;
   overflow-y: auto;
 }
+
+/* Respeita preferência de redução de movimento */
+@media (prefers-reduced-motion: reduce) {
+  .futura-search-widget *,
+  .futura-search-widget *::before,
+  .futura-search-widget *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .futura-search-widget .result-card {
+    animation: none !important;
+    opacity: 1 !important;
+  }
+}
 `;
       document.head.appendChild(style);
     }
@@ -1302,17 +1322,17 @@ class FuturaSearchWidget {
     <div class="sidebar-history">
       <div class="sidebar-history-header">
         <span class="nav-label">Histórico</span>
-        <button id="clearFuturaHistory" class="clear-btn" title="Limpar histórico"><i class="fa-solid fa-trash-can"></i></button>
+        <button id="fw-clearFuturaHistory" class="clear-btn" title="Limpar histórico"><i class="fa-solid fa-trash-can"></i></button>
       </div>
-      <div id="historyList" class="history-list"></div>
+      <div id="fw-historyList" class="history-list"></div>
     </div>
 
     <div class="sidebar-footer">
-      <button class="config-btn" id="themeToggleBtn" style="margin-bottom: 6px;">
+      <button class="config-btn" id="fw-themeToggleBtn" style="margin-bottom: 6px;">
         <i class="fa-solid fa-moon"></i>
         <span>Tema Escuro</span>
       </button>
-      <button class="config-btn" id="configBtn">
+      <button class="config-btn" id="fw-configBtn">
         <i class="fa-solid fa-gear"></i>
         <span>Configurações</span>
       </button>
@@ -1326,9 +1346,9 @@ class FuturaSearchWidget {
         <h1 class="page-title">Manual <em>Futura Sistemas</em></h1>
       </div>
       <div class="topbar-right">
-        <div id="statusPill" class="status-pill">
+        <div id="fw-statusPill" class="status-pill">
           <div class="status-dot"></div>
-          <span id="statusLabel">Não configurado</span>
+          <span id="fw-statusLabel">Não configurado</span>
         </div>
       </div>
     </header>
@@ -1343,17 +1363,17 @@ class FuturaSearchWidget {
             <i class="fa-solid fa-magnifying-glass field-icon"></i>
             <input
               type="text"
-              id="searchInput"
+              id="fw-searchInput"
               placeholder="Como faço uma remessa de mercadoria?"
               autocomplete="off"
               spellcheck="false"
             />
-            <button id="voiceSearchBtn" class="voice-search-btn" title="Pesquisar por voz">
+            <button id="fw-voiceSearchBtn" class="voice-search-btn" title="Pesquisar por voz">
               <i class="fa-solid fa-microphone"></i>
             </button>
-            <button id="searchBtn">Pesquisar</button>
+            <button id="fw-searchBtn">Pesquisar</button>
           </div>
-          <div id="suggestions" class="suggestions"></div>
+          <div id="fw-suggestions" class="suggestions"></div>
         </div>
 
         <div class="quick-tags">
@@ -1365,12 +1385,12 @@ class FuturaSearchWidget {
         </div>
       </section>
 
-      <div id="loader" class="loader fw-hidden">
+      <div id="fw-loader" class="loader fw-hidden">
         <div class="loader-bar"><div class="loader-fill"></div></div>
-        <p id="loaderText">Pesquisando no manual...</p>
+        <p id="fw-loaderText">Pesquisando no manual...</p>
       </div>
 
-      <div id="skeletonLoader" class="skeleton-loader fw-hidden">
+      <div id="fw-skeletonLoader" class="skeleton-loader fw-hidden">
         <div class="skeleton-ai-card">
           <div class="skeleton-header">
             <div class="skeleton-shimmer skeleton-tag"></div>
@@ -1398,18 +1418,18 @@ class FuturaSearchWidget {
         </div>
       </div>
 
-      <section id="aiBlock" class="ai-block fw-hidden">
+      <section id="fw-aiBlock" class="ai-block fw-hidden">
         <div class="ai-block-header">
           <div class="ai-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> Resposta</div>
-          <span id="queryLabel" class="query-chip"></span>
-          <button id="audioReadBtn" class="audio-read-btn" title="Ouvir resposta">
+          <span id="fw-queryLabel" class="query-chip"></span>
+          <button id="fw-audioReadBtn" class="audio-read-btn" title="Ouvir resposta">
             <i class="fa-solid fa-volume-high"></i> <span>Ouvir</span>
           </button>
         </div>
-        <div id="summaryContent" class="summary-body"></div>
+        <div id="fw-summaryContent" class="summary-body"></div>
       </section>
 
-      <section id="results" class="results"></section>
+      <section id="fw-results" class="results"></section>
 
     </div>
   </main>
@@ -1422,6 +1442,8 @@ class FuturaSearchWidget {
 
   initLogic() {
     const widgetScope = this.container;
+    const lsUserId = this.userId || '';
+    const lsKey = (k) => k + (lsUserId ? '_' + lsUserId : '');
     
     // Encapsulate original JS logic, scoped to widgetScope
     (function(document, window) {
@@ -1434,9 +1456,9 @@ class FuturaSearchWidget {
 const TARGET_DOMAIN = "manual.futurasistemas.com.br";
 
 let CONFIG = {
-  mode:     localStorage.getItem("futura-mode") || "noapi",
-  provider: localStorage.getItem("futura-provider") || "",
-  apiKey:   localStorage.getItem("futura-apikey") || "",
+  mode:     localStorage.getItem(lsKey("futura-mode")) || "noapi",
+  provider: localStorage.getItem(lsKey("futura-provider")) || "",
+  apiKey:   localStorage.getItem(lsKey("futura-apikey")) || "",
 };
 
 const SUGGESTIONS = [
@@ -1452,22 +1474,22 @@ const SUGGESTIONS = [
   "sangria de caixa","reforço de caixa","pedido de compra",
 ];
 
-const searchInput      = document.getElementById("searchInput");
-const searchBtn        = document.getElementById("searchBtn");
-const resultsContainer = document.getElementById("results");
-const loaderEl         = document.getElementById("loader");
-const loaderText       = document.getElementById("loaderText");
-const skeletonLoader   = document.getElementById("skeletonLoader");
-const voiceSearchBtn   = document.getElementById("voiceSearchBtn");
-const audioReadBtn     = document.getElementById("audioReadBtn");
-const historyList      = document.getElementById("historyList");
-const clearHistoryBtn  = document.getElementById("clearFuturaHistory");
-const suggestionsBox   = document.getElementById("suggestions");
-const aiBlock          = document.getElementById("aiBlock");
-const summaryContent   = document.getElementById("summaryContent");
-const queryLabel       = document.getElementById("queryLabel");
-const statusPill       = document.getElementById("statusPill");
-const statusLabel      = document.getElementById("statusLabel");
+const searchInput      = document.getElementById("fw-searchInput");
+const searchBtn        = document.getElementById("fw-searchBtn");
+const resultsContainer = document.getElementById("fw-results");
+const loaderEl         = document.getElementById("fw-loader");
+const loaderText       = document.getElementById("fw-loaderText");
+const skeletonLoader   = document.getElementById("fw-skeletonLoader");
+const voiceSearchBtn   = document.getElementById("fw-voiceSearchBtn");
+const audioReadBtn     = document.getElementById("fw-audioReadBtn");
+const historyList      = document.getElementById("fw-historyList");
+const clearHistoryBtn  = document.getElementById("fw-clearFuturaHistory");
+const suggestionsBox   = document.getElementById("fw-suggestions");
+const aiBlock          = document.getElementById("fw-aiBlock");
+const summaryContent   = document.getElementById("fw-summaryContent");
+const queryLabel       = document.getElementById("fw-queryLabel");
+const statusPill       = document.getElementById("fw-statusPill");
+const statusLabel      = document.getElementById("fw-statusLabel");
 
 const searchCache      = new Map();
 let currentResults     = [];
@@ -1491,13 +1513,13 @@ function updateStatus() {
 ===================================================== */
 function initTheme() {
   const widget = widgetScope;
-  const currentTheme = localStorage.getItem("futura-theme") || "light";
+  const currentTheme = localStorage.getItem(lsKey("futura-theme")) || "light";
   widget.setAttribute("data-theme", currentTheme);
   updateThemeButton(currentTheme);
 }
 
 function updateThemeButton(theme) {
-  const themeBtn = document.getElementById("themeToggleBtn");
+  const themeBtn = document.getElementById("fw-themeToggleBtn");
   if (!themeBtn) return;
   const icon = themeBtn.querySelector("i");
   const text = themeBtn.querySelector("span");
@@ -1523,11 +1545,11 @@ function toggleTheme() {
    MODAL DE CONFIGURAÇÃO
 ===================================================== */
 function showConfigModal() {
-  document.getElementById("configModal")?.remove();
+  document.getElementById("fw-configModal")?.remove();
 
   const overlay = document.createElement("div");
   overlay.className = "modal-overlay";
-  overlay.id = "configModal";
+  overlay.id = "fw-configModal";
   overlay.innerHTML = `
     <div class="modal">
       <h3><i class="fa-solid fa-gear"></i> Configurações</h3>
@@ -1547,7 +1569,7 @@ function showConfigModal() {
         </div>
       </div>
 
-      <div id="api-section" style="display:${CONFIG.mode === 'api' ? 'block' : 'none'}">
+      <div id="fw-api-section" style="display:${CONFIG.mode === 'api' ? 'block' : 'none'}">
         <div style="border-top:1px solid var(--border);margin:4px 0 20px"></div>
 
         <label class="modal-label">Provedor de IA</label>
@@ -1566,16 +1588,16 @@ function showConfigModal() {
 
         <label class="modal-label">Chave da API</label>
         <div style="position:relative">
-          <input type="password" id="inp-apikey"
+          <input type="password" id="fw-inp-apikey"
             placeholder="${CONFIG.provider === 'openai' ? 'sk-...' : 'AIzaSy...'}"
             value="${CONFIG.apiKey}"
             style="padding-right:46px;margin-bottom:4px" />
-          <button type="button" id="toggleKeyBtn"
+          <button type="button" id="fw-toggleKeyBtn"
             style="position:absolute;right:12px;top:12px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px">
             <i class="fa-solid fa-eye"></i>
           </button>
         </div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:16px" id="key-hint">
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px" id="fw-key-hint">
           ${CONFIG.provider === 'openai'
             ? 'Obtenha em: <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--blue)">platform.openai.com</a>'
             : 'Obtenha em: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">aistudio.google.com</a>'}
@@ -1583,8 +1605,8 @@ function showConfigModal() {
       </div>
 
       <div class="modal-btns">
-        <button class="btn-secondary" id="cancelConfigBtn">Cancelar</button>
-        <button class="btn-primary" id="saveConfigBtn">
+        <button class="btn-secondary" id="fw-cancelConfigBtn">Cancelar</button>
+        <button class="btn-primary" id="fw-saveConfigBtn">
           <i class="fa-solid fa-floppy-disk"></i> Salvar
         </button>
       </div>
@@ -1601,15 +1623,15 @@ function showConfigModal() {
     card.addEventListener("click", () => selectProvider(card.dataset.provider, card));
   });
 
-  const toggleKeyBtn = overlay.querySelector("#toggleKeyBtn");
+  const toggleKeyBtn = overlay.querySelector("#fw-toggleKeyBtn");
   if (toggleKeyBtn) {
-    toggleKeyBtn.addEventListener("click", () => toggleKey("inp-apikey", toggleKeyBtn));
+    toggleKeyBtn.addEventListener("click", () => toggleKey("fw-inp-apikey", toggleKeyBtn));
   }
 
-  const cancelBtn = overlay.querySelector("#cancelConfigBtn");
+  const cancelBtn = overlay.querySelector("#fw-cancelConfigBtn");
   if (cancelBtn) cancelBtn.addEventListener("click", closeConfigModal);
 
-  const saveBtn = overlay.querySelector("#saveConfigBtn");
+  const saveBtn = overlay.querySelector("#fw-saveConfigBtn");
   if (saveBtn) saveBtn.addEventListener("click", saveConfig);
 
   document.body.appendChild(overlay);
@@ -1618,16 +1640,16 @@ function showConfigModal() {
 function selectMode(mode, el) {
   document.querySelectorAll(".mode-card").forEach(c => c.classList.remove("selected"));
   el.classList.add("selected");
-  const sec = document.getElementById("api-section");
+  const sec = document.getElementById("fw-api-section");
   if (sec) sec.style.display = mode === "api" ? "block" : "none";
 }
 
 function selectProvider(provider, el) {
   document.querySelectorAll(".provider-card").forEach(c => c.classList.remove("selected"));
   el.classList.add("selected");
-  const inp = document.getElementById("inp-apikey");
+  const inp = document.getElementById("fw-inp-apikey");
   if (inp) { inp.placeholder = provider === "openai" ? "sk-..." : "AIzaSy..."; inp.value = ""; }
-  const hint = document.getElementById("key-hint");
+  const hint = document.getElementById("fw-key-hint");
   if (hint) hint.innerHTML = provider === "openai"
     ? 'Obtenha em: <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--blue)">platform.openai.com</a>'
     : 'Obtenha em: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">aistudio.google.com</a>';
@@ -1641,7 +1663,7 @@ function toggleKey(id, btn) {
   btn.innerHTML = hidden ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
 }
 
-function closeConfigModal() { document.getElementById("configModal")?.remove(); }
+function closeConfigModal() { document.getElementById("fw-configModal")?.remove(); }
 
 function saveConfig() {
   const modeEl     = document.querySelector(".mode-card.selected");
@@ -1657,7 +1679,7 @@ function saveConfig() {
     CONFIG.provider = providerEl
       ? (providerEl === provCards[0] ? "gemini" : "openai")
       : CONFIG.provider;
-    CONFIG.apiKey = document.getElementById("inp-apikey")?.value.trim() || "";
+    CONFIG.apiKey = document.getElementById("fw-inp-apikey")?.value.trim() || "";
     if (!CONFIG.provider) { showToast("Selecione Gemini ou ChatGPT.", "info"); return; }
     if (!CONFIG.apiKey)   { showToast("Informe a chave da API.", "info"); return; }
   }
@@ -1739,7 +1761,7 @@ searchInput.addEventListener("input", () => {
   });
 });
 
-document.addEventListener("click", e => { if (!e.target.closest(".search-wrap")) suggestionsBox.innerHTML = ""; });
+widgetScope.addEventListener("click", e => { if (!e.target.closest(".search-wrap")) suggestionsBox.innerHTML = ""; });
 searchInput.addEventListener("keydown", e => {
   if (e.key === "Enter")  { suggestionsBox.innerHTML = ""; performSearch(searchInput.value.trim()); }
   if (e.key === "Escape") suggestionsBox.innerHTML = "";
@@ -1791,7 +1813,14 @@ function buildPrompt(query) {
   return `Pesquise APENAS no site ${TARGET_DOMAIN} e responda a seguinte dúvida sobre o ERP Futura Sistemas:\n\n"${query}"\n\nLeia os artigos encontrados e responda de forma clara e objetiva:\n\n**Resposta direta:** (responda a pergunta)\n\n**Como funciona no sistema:** (passo a passo)\n\n**Onde configurar:** (Menu > Módulo > Tela)\n\n**Dicas importantes:** (pontos de atenção e boas práticas)\n\nResponda em português brasileiro.`;
 }
 
-function escapeQ(str) { return str.replace(/'/g, "\\'").replace(/"/g, "&quot;"); }
+function escapeQ(str) {
+  return String(str)
+    .replace(/&/g, '&')
+    .replace(/</g, '<')
+    .replace(/>/g, '>')
+    .replace(/'/g, '&#39;')
+    .replace(/"/g, '"');
+}
 function openChatGPT(q)    { window.open("https://chatgpt.com/?q=" + encodeURIComponent(buildPrompt(q)), "_blank"); }
 function openPerplexity(q) { window.open("https://www.perplexity.ai/search?q=" + encodeURIComponent(buildPrompt(q)), "_blank"); }
 
@@ -2145,7 +2174,7 @@ function resetAudioReaderState() {
 searchBtn.addEventListener("click", () => { const q = searchInput.value.trim(); if (q) performSearch(q); });
 statusPill?.addEventListener("click", showConfigModal);
 
-document.addEventListener("click", e => {
+widgetScope.addEventListener("click", e => {
   const btn = e.target.closest(".copy-code-btn");
   if (btn) copyCode(btn);
 });
@@ -2159,7 +2188,7 @@ searchInput.focus();
 
 
       // Theme toggle (sincronizado com o PainelAtende global)
-      const _themeBtn = document.getElementById("themeToggleBtn");
+      const _themeBtn = document.getElementById("fw-themeToggleBtn");
       if (_themeBtn) {
         _themeBtn.addEventListener("click", () => {
           const globalThemeBtn = document.getElementById("btnTheme");
@@ -2172,7 +2201,7 @@ searchInput.focus();
       }
 
       // Config modal
-      const _configBtn = document.getElementById("configBtn");
+      const _configBtn = document.getElementById("fw-configBtn");
       if (_configBtn) _configBtn.addEventListener("click", showConfigModal);
 
       // Quick-tag buttons
