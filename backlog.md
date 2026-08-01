@@ -18,9 +18,7 @@ Próximo passo: Refatorar o monolito `futura-widget.js` (2198 linhas) em módulo
 - Escopo da Cloud Function para exclusão completa de usuário no Firebase Auth.
 
 ## 🐛 Bugs conhecidos
-- XSS em admin.js e search.js (escape incompleto).
-- Placeholder `{usuario}` injeta saudação do header.
-- `sanitizeHtml` aceita `src` inseguro em imagens.
+*(Nenhum bug conhecido no momento — auditoria recente confirmou falsos positivos e corrigiu os reais)*
 
 ---
 
@@ -29,12 +27,27 @@ Próximo passo: Refatorar o monolito `futura-widget.js` (2198 linhas) em módulo
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **Refatorar: problems.js com 719 linhas misturando UI/render/tags/editor/dnd - quebrar em módulos** `[G]` `[Backend]`
+- [ ] **Refatorar: futura-widget.js 2198 linhas como IIFE gigante com proxy document/window - quebrar em metodos de classe nomeados** `[G]` `[Backend]`
+- [ ] **A11y: shortcuts.js buscard resultados nao seta aria-activedescendant/aria-selected ao navegar com setas - leitores nao anunciam item destacado** `[M]` `[Accessibility]`
+- [ ] **Bug: theme.js initTheme apos DOMContentLoaded causa flash de tema errado (FOUC) - comment diz que previne mas o call e deferido** `[M]` `[UI]`
+- [ ] **Bug: enhancements.js copyFirstResult chama navigator.clipboard.writeText sem await/catch - toast 'Copiado!' aparece mesmo quando falha** `[P]` `[Bug]`
+- [ ] **Bug: shortcuts.js _searchIndex desincroniza quando results re-renderizam async (debounce 200ms) - TypeError ao apertar seta durante re-render** `[P]` `[Bug]`
+- [ ] **Bug: modal.js callback async (confirm/cancel) sem try/catch - rejeicao nao tratada deixa modal preso e callback permanente** `[M]` `[Bug]`
+- [ ] **Bug: links.js enterEditMode destroi star de favoritos/edit/del via innerHTML - se loadLinks falhar apos save, card trava em edit form** `[M]` `[Bug]`
+- [ ] **Bug: links.js drag cross-group move DOM mas nao persiste category - usuario acha que re-categorizou mas volta ao recarregar (silencioso)** `[M]` `[Bug]`
 *(Nenhum item pendente)*
 
 
 
 ## Feito
+- [x] **Bug: futura-widget.js escapeQ() e no-op (cada replace troca char por ele mesmo) - nao escapa aspas/angle brackets em atributo data-query** `[P]` `[Bug]`
+- [x] **Bug: futura-widget.js renderResults injeta title/description/link da API Gemini sem escape (XSS em AI data)** `[M]` `[Bug]`
+- [x] **Bug: futura-widget.js showProviderChoice injeta query do usuario sem escape no prompt preview (XSS via voz/quick-tag)** `[M]` `[Bug]`
+- [x] **Bug: futura-widget.js loadDependencies() async nunca aguardado - search roda antes de marked/DOMPurify carregarem, cai em fallback vulneravel** `[M]` `[Bug]`
+- [x] **Bug: escPos.js regex de variável captura comentários Python (# comentário) como variável** `[P]` `[Bug]`
+- [x] **Bug: apiTester.js listener duplicado no btnSend - envia requisição 2x (duplicate event handler)** `[P]` `[Bug]`
+- [x] **Bug: fileValidator.js Destinatário lê CNPJ do emitente em vez do destino** `[P]` `[Bug]`
+- [x] **Refatorar: problems.js com 719 linhas misturando UI/render/tags/editor/dnd - quebrar em módulos** `[G]` `[Backend]`
 - [x] **Modal de alerta/confirmação não implementa focus trap completo (foco pode vazar para background)** `[M]` `[Accessibility]`
 - [x] **Contenteditable #problemSolution sem role=textbox e aria-multiline para leitores de tela** `[M]` `[Accessibility]`
 - [x] **Abas não suportam navegação por setas (ArrowLeft/Right) entre tabs, apenas click/Enter** `[M]` `[Accessibility]`

@@ -1460,9 +1460,10 @@ class FuturaSearchWidget {
     const widgetScope = this.container;
     const lsUserId = this.userId || '';
     const lsKey = (k) => k + (lsUserId ? '_' + lsUserId : '');
+    const depsReady = this._depsReady || Promise.reject(new Error("Dependencies not loaded"));
     
     // Encapsulate original JS logic, scoped to widgetScope
-    (function(document, window) {
+    (function(document, window, $$depsReady) {
 /* =====================================================
    FUTURA SEARCH AI — script.js
    Modo 1: Sem API — abre ChatGPT ou Perplexity
@@ -1470,6 +1471,20 @@ class FuturaSearchWidget {
 ===================================================== */
 
 const TARGET_DOMAIN = "manual.futurasistemas.com.br";
+
+function _escHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = String(text ?? "");
+  return div.innerHTML;
+}
+function _escAttr(text) {
+  return String(text ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 let CONFIG = {
   mode:     localStorage.getItem(lsKey("futura-mode")) || "noapi",
@@ -1813,7 +1828,7 @@ function fillSearch(term) { searchInput.value = term; searchInput.focus(); }
 ===================================================== */
 async function performSearch(query) {
   if (!query) return;
-  stopAudioReading(); // Parar qualquer áudio ativo ao buscar novamente
+  stopAudioReading();
 
   CONFIG.mode     = localStorage.getItem(lsKey("futura-mode")) || "noapi";
   CONFIG.provider = localStorage.getItem(lsKey("futura-provider")) || "";
@@ -1827,25 +1842,33 @@ async function performSearch(query) {
   if (CONFIG.mode === "noapi") {
     showProviderChoice(query);
     aiBlock.scrollIntoView({ behavior: "smooth", block: "nearest" });
-  } else {
-    if (!CONFIG.provider || !CONFIG.apiKey) { showConfigModal(); showToast("Configure a API primeiro.", "info"); return; }
-    
-    // Checagem de Cache Local
-    const cacheKey = query.toLowerCase().trim();
-    if (searchCache.has(cacheKey)) {
-      const cached = searchCache.get(cacheKey);
-      // refresh LRU: move to end
-      searchCache.delete(cacheKey);
-      searchCache.set(cacheKey, cached);
-      showToast("Carregado instantaneamente do cache local.", "success");
-      currentResults = cached.results;
-      if (cached.results.length > 0) renderResults(cached.results);
-      showExplanation(query, cached.explanation);
-      return;
-    }
-
-    await searchWithAPI(query);
+    return;
   }
+
+  if (!CONFIG.provider || !CONFIG.apiKey) { showConfigModal(); showToast("Configure a API primeiro.", "info"); return; }
+
+  // Garante que marked/DOMPurify carregaram antes de processar resposta
+  try { await depsReady; }
+  catch {
+    showToast("Falha ao carregar recursos de formatação.", "error");
+    return;
+  }
+
+  // Checagem de Cache Local
+  const cacheKey = query.toLowerCase().trim();
+  if (searchCache.has(cacheKey)) {
+    const cached = searchCache.get(cacheKey);
+    // refresh LRU: move to end
+    searchCache.delete(cacheKey);
+    searchCache.set(cacheKey, cached);
+    showToast("Carregado instantaneamente do cache local.", "success");
+    currentResults = cached.results;
+    if (cached.results.length > 0) renderResults(cached.results);
+    showExplanation(query, cached.explanation);
+    return;
+  }
+
+  await searchWithAPI(query);
 }
 
 /* =====================================================
@@ -1855,26 +1878,19 @@ function buildPrompt(query) {
   return `Pesquise APENAS no site ${TARGET_DOMAIN} e responda a seguinte dúvida sobre o ERP Futura Sistemas:\n\n"${query}"\n\nLeia os artigos encontrados e responda de forma clara e objetiva:\n\n**Resposta direta:** (responda a pergunta)\n\n**Como funciona no sistema:** (passo a passo)\n\n**Onde configurar:** (Menu > Módulo > Tela)\n\n**Dicas importantes:** (pontos de atenção e boas práticas)\n\nResponda em português brasileiro.`;
 }
 
-function escapeQ(str) {
-  return String(str)
-    .replace(/&/g, '&')
-    .replace(/</g, '<')
-    .replace(/>/g, '>')
-    .replace(/'/g, '&#39;')
-    .replace(/"/g, '"');
-}
 function openChatGPT(q)    { window.open("https://chatgpt.com/?q=" + encodeURIComponent(buildPrompt(q)), "_blank"); }
 function openPerplexity(q) { window.open("https://www.perplexity.ai/search?q=" + encodeURIComponent(buildPrompt(q)), "_blank"); }
 
 function showProviderChoice(query) {
   queryLabel.textContent = `"${query}"`;
   aiBlock.classList.remove("fw-hidden");
+  const safeQuery = _escHtml(query);
   summaryContent.innerHTML = `
     <p style="font-size:13.5px;color:var(--muted);margin-bottom:18px">
       Escolha onde pesquisar. A pergunta já vai formatada para buscar no manual da Futura:
     </p>
     <div class="provider-choice">
-      <div class="provider-btn-card" data-action="open-chatgpt" data-query="${escapeQ(query)}">
+      <div class="provider-btn-card" data-action="open-chatgpt" data-query="${_escAttr(query)}">
         <div class="provider-btn-icon chatgpt-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073z"/></svg>
         </div>
@@ -1884,7 +1900,7 @@ function showProviderChoice(query) {
         </div>
         <i class="fa-solid fa-arrow-up-right-from-square provider-btn-arrow"></i>
       </div>
-      <div class="provider-btn-card" data-action="open-perplexity" data-query="${escapeQ(query)}">
+      <div class="provider-btn-card" data-action="open-perplexity" data-query="${_escAttr(query)}">
         <div class="provider-btn-icon perplexity-icon">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M22.3977 8.1417H17.676L12.6978 3.1236V8.1417H11.3023V3.1236L6.324 8.1417H1.6023v7.7144h3.3488v4.9975H8.63l3.0678-3.103 3.0701 3.103h3.6812v-4.9997h3.3488V8.1439zM7.1995 3.9l4.0905 4.2417H3.2545zm9.601 0 3.945 4.2417h-8.036zM2.9977 9.5394h8.3046v5.0189H2.9977zm5.6326 9.8232V15.254l2.4282 2.454zm2.9697-2.4984 2.4009-2.4286v4.927zm3.8034 2.4984-2.4282-1.6546 2.4282-2.454zm1.5977-4.8232H8.6977V9.5394h8.3034z"/></svg>
         </div>
@@ -1897,7 +1913,7 @@ function showProviderChoice(query) {
     </div>
     <div class="prompt-preview">
       <div class="prompt-preview-header"><i class="fa-solid fa-eye"></i> Pergunta que será enviada</div>
-      <div class="prompt-preview-body">${buildPrompt(query).replace(/\n/g,"<br>").replace(/\*\*(.*?)\*\*/g,"<strong>$1</strong>")}</div>
+      <div class="prompt-preview-body">${_escHtml(buildPrompt(query)).replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")}</div>
     </div>`;
 
   // Bind provider buttons after rendering
@@ -1989,22 +2005,24 @@ function showExplanation(query, text) {
 function formatResponse(text) {
   text = text.replace(/\*\*Páginas encontradas:\*\*[\s\S]*$/i, "").trim();
 
-  // Converter marcas de citação tipo [1], [^1^] ou [^1] em badges
+  // Se marked/DOMPurify não estiverem prontos ainda, retornar texto plano escapado (sem badges)
+  if (typeof marked === "undefined" || typeof DOMPurify === "undefined") {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Converter marcas de citação tipo [1], [^1^] ou [^1] em badges (só seguro com DOMPurify disponível)
   text = text.replace(/\[\^?(\d+)\^?\]/g, (match, num) => {
     const idx = parseInt(num, 10) - 1;
     if (currentResults && currentResults[idx]) {
       const article = currentResults[idx];
-      return `<a href="${article.link}" target="_blank" class="citation-badge" title="${article.title}">${num}</a>`;
+      const safeLink = /^https?:\/\//i.test(article.link || "") ? article.link : "#";
+      const safeTitle = _escAttr(article.title || "");
+      return `<a href="${safeLink}" target="_blank" class="citation-badge" title="${safeTitle}">${num}</a>`;
     }
     return match;
   });
-
-  // Se marked/DOMPurify não estiverem prontos ainda, retornar texto plano escapado
-  if (typeof marked === "undefined" || typeof DOMPurify === "undefined") {
-    const div = document.createElement("div");
-    div.innerText = text;
-    return div.innerHTML;
-  }
 
   // Utilizar marked para converter de Markdown para HTML
   let rawHtml = marked.parse(text);
@@ -2046,22 +2064,25 @@ function renderResults(results) {
   results.forEach((r, i) => {
     const card = document.createElement("div");
     card.className = "result-card"; card.style.animationDelay = `${i*0.06}s`;
+    const safeTitle = _escHtml(r.title || "");
+    const safeDesc  = _escHtml(r.description || "");
     let bc = ""; try { bc = new URL(r.link).pathname.split("/").filter(Boolean).join(" › "); } catch {}
+    const safeLink = /^https?:\/\//i.test(r.link || "") ? r.link : "#";
     card.innerHTML = `
-      <div class="card-meta"><div class="card-source"><i class="fa-solid fa-book-open"></i> ${bc||TARGET_DOMAIN}</div></div>
-      <h3>${r.title}</h3>
-      ${r.description?`<p>${r.description}</p>`:""}
-      <a class="card-link" href="${r.link}" target="_blank" rel="noopener">Abrir artigo <i class="fa-solid fa-arrow-up-right-from-square"></i></a>`;
+      <div class="card-meta"><div class="card-source"><i class="fa-solid fa-book-open"></i> ${_escHtml(bc||TARGET_DOMAIN)}</div></div>
+      <h3>${safeTitle}</h3>
+      ${r.description?`<p>${safeDesc}</p>`:""}
+      <a class="card-link" href="${_escAttr(safeLink)}" target="_blank" rel="noopener noreferrer">Abrir artigo <i class="fa-solid fa-arrow-up-right-from-square"></i></a>`;
     resultsContainer.appendChild(card);
   });
 }
 
 function renderNoResults(query) {
-  resultsContainer.innerHTML = `<div class="no-results"><i class="fa-solid fa-magnifying-glass"></i><p>Nenhum resultado encontrado para <strong>"${query}"</strong>.</p></div>`;
+  resultsContainer.innerHTML = `<div class="no-results"><i class="fa-solid fa-magnifying-glass"></i><p>Nenhum resultado encontrado para <strong>"${_escHtml(query)}"</strong>.</p></div>`;
 }
 
 function renderError(query, msg) {
-  resultsContainer.innerHTML = `<div class="no-results"><i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i><p>Erro ao pesquisar <strong>"${query}"</strong>.<br><small style="color:var(--muted)">${msg}</small></p></div>`;
+  resultsContainer.innerHTML = `<div class="no-results"><i class="fa-solid fa-circle-exclamation" style="color:var(--danger)"></i><p>Erro ao pesquisar <strong>"${_escHtml(query)}"</strong>.<br><small style="color:var(--muted)">${_escHtml(msg)}</small></p></div>`;
 }
 
 function setLoader(visible, msg="Aguarde...") {
@@ -2275,7 +2296,8 @@ searchInput.focus();
         createElement: document.createElement.bind(document),
         head: document.head
       }, 
-      window
+      window,
+      depsReady
     );
 
     // IDs escopados: prefixes com fw- para evitar colisão com app principal

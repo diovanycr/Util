@@ -160,7 +160,7 @@ function _processXML(container, content, filename) {
 
         if (dest) {
             info.push('── DESTINATÁRIO ──');
-            info.push(`CNPJ/CPF: ${emit.querySelector('CNPJ')?.textContent || dest.querySelector('CPF')?.textContent || '-'}`);
+            info.push(`CNPJ/CPF: ${dest.querySelector('CNPJ')?.textContent || dest.querySelector('CPF')?.textContent || '-'}`);
             info.push(`Nome: ${dest.querySelector('xNome')?.textContent || '-'}`);
             info.push('');
         }

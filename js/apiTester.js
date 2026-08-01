@@ -104,8 +104,7 @@ export function bindApiTesterEvents(container) {
         }
     });
 
-    container.querySelector('#atBtnSend')?.addEventListener('click', () => _send(container));
-}
+    }
 
 function _clear(container) {
     container.querySelector('#atUrl').value = '';

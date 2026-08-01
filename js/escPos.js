@@ -456,11 +456,8 @@ function _hlEsc(code) {
     src = src.replace(/(^|\n)(:: ?.*|# .*|@echo off)/g, (m, p, c) => `${p}${stash(`<span class="po-c-cmt">${c}</span>`)}`);
     // Strings
     src = src.replace(/"([^"]*)"/g, m => stash(`<span class="po-c-str">${m}</span>`));
-    // Variáveis PowerShell/Python
-    src = src.replace(/(\$[\w.[\]]+|#[A-Za-z_]\w*)/g, (m, g1) => {
-        if (g1.startsWith('#') && src.indexOf(m) < 0) return m;
-        return stash(`<span class="po-c-var">${m}</span>`);
-    });
+    // Variáveis PowerShell
+    src = src.replace(/(\$[\w.[\]]+)/g, m => stash(`<span class="po-c-var">${m}</span>`));
     // Hex bytes (XX XX XX ...)
     src = src.replace(/\b([0-9A-Fa-f]{2}(?: [0-9A-Fa-f]{2})+)\b/g, m => stash(`<span class="po-c-num">${m}</span>`));
     // Números
