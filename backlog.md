@@ -10,8 +10,8 @@
 
 
 ## 📍 Estado atual
-Última sessão: Refatorado o monolito `futura-widget.js` (2312 linhas) em 9 módulos ES6 — `futura-widget.js` agora tem 275 linhas como orquestrador fino, CSS movido para `css/futura-widget.css` (linkado no index.html), IIFE gigante e `document` proxy removidos, lógica distribuída em módulos nomeados (template, config, utils, theme, search, render, modal, audio). Total de 30 itens concluídos neste ciclo.
-Próximo passo: Backlog vazio — novo ciclo de auditoria pode identificar novos itens.
+Última sessão: Nova auditoria completa (HTML/CSS/JS) populou o backlog com 36 itens — bugs de XSS (scriptGen, apiTester, docValidatorUI), paginação ausente (messages/links/admin), vazamento de listeners (auth, enhancements, search, messages), dark mode inconsistente em ferramentas novas, e oportunidades de refatoração (messages.js 791 linhas, portOpener.js 635, escPos.js 473, funções duplicadas).
+Próximo passo: Implementar os 36 itens do backlog, priorizando bugs de XSS e paginação.
 
 ## ⚠️ Decisões pendentes
 - Contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda.
@@ -27,6 +27,9 @@ Próximo passo: Backlog vazio — novo ciclo de auditoria pode identificar novos
 *(Nenhum item em andamento)*
 
 ## Próximo
+- [ ] **UX: botoes da toolbar (Importar/Novo problema/Novo link) sem title descritivo - inconsistente com botoes da aba Mensagens** `[P]` `[UI]`
+- [ ] **UX: login sem feedback de loading no botao Entrar/Entrar com Google durante autenticacao - usuario nao sabe se clicou** `[P]` `[UI]`
+- [ ] **Bug: dark mode inconsistente em ferramentas novas - cores hardcoded (#eff6ff, #bfdbfe, #374151, etc) em apiTester, users, portOpener, decisionTree, docValidator, fileValidator, networkDiag, scriptGen, forms, history, links, tags, search CSS** `[G]` `[Layout]`
 - [ ] **Bug: escPos.js _hlEsc e portOpener.js _hl nao escapam > corretamente - geram HTML invalido em highlight de sintaxe** `[P]` `[Bug]`
 - [ ] **Bug: problems/problem-io.js saveProblemOrder reescreve todos os cards no batch sem verificar mudanca - otimizar diff** `[M]` `[Backend]`
 - [ ] **Bug: links.js saveLinkOrder reescreve TODOS os links no batch mesmo os que nao mudaram - pesado em reordenacao grande** `[M]` `[Backend]`
@@ -56,7 +59,6 @@ Próximo passo: Backlog vazio — novo ciclo de auditoria pode identificar novos
 - [ ] **Bug: scriptGen.js _generate nao escapa valores das variaveis antes de inserir no template (XSS/injecao)** `[M]` `[Bug]`
 - [ ] **Bug: admin.js deleteUser carrega TODAS as subcolecoes sem paginacao (messages/problems/links) - pode exceder memoria** `[M]` `[Backend]`
 - [ ] **Bug: links.js loadLinks sem paginacao/limite - getDocs carrega todos os links do usuario** `[M]` `[Backend]`
-- [ ] **Bug: messages.js btnAddMsg carrega TODAS as mensagens via getDocs so para calcular maxOrder - usar orderBy+limit 1** `[M]` `[Backend]`
 - [ ] **Bug: messages.js btnAddMsg carrega TODAS as mensagens via getDocs so para calcular maxOrder - usar orderBy+limit 1** `[M]` `[Backend]`
 - [ ] **Bug: messages.js importFromTxt carrega TODA a colecao para dedup sem where/limite - pesado em bases grandes** `[M]` `[Backend]`
 - [ ] **Bug: messages.js updateTrashCount carrega TODA a colecao messages so para contar deletados - usar aggregate query ou counter** `[M]` `[Backend]`
