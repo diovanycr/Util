@@ -7,7 +7,7 @@ import { el } from './firebase.js';
 import { allMessages } from './messages.js';
 import { allProblems } from './problems.js';
 import { allLinks } from './links.js';
-import { openSearch, closeSearch } from './shortcuts.js';
+import { openSearch, closeSearch, resetSearchIndex } from './shortcuts.js';
 import { showToast } from './toast.js';
 import { escapeHtml, normalizeSolutions } from './utils.js';
 
@@ -44,6 +44,7 @@ async function runSearch(query) {
     const results = el('globalSearchResults');
     if (!query || query.length < 2) {
         results.innerHTML = '<p class="search-hint">Digite pelo menos 2 caracteres...</p>';
+        resetSearchIndex();
         return;
     }
 
@@ -69,10 +70,13 @@ async function runSearch(query) {
 
         if (msgMatches.length === 0 && probMatches.length === 0 && linkMatches.length === 0) {
             results.innerHTML = '<p class="search-hint">Nenhum resultado encontrado.</p>';
+            resetSearchIndex();
             return;
         }
 
         results.innerHTML = '';
+        // Sincroniza o índice da navegação com a nova lista de resultados
+        resetSearchIndex();
 
         if (msgMatches.length > 0) {
             const section = document.createElement('div');
@@ -164,15 +168,11 @@ async function runSearch(query) {
             results.appendChild(section);
         }
 
-        // Adiciona navegação por setas + aria-selected nos resultados
-        let focusIdx = -1;
+        // Adiciona IDs únicos e aria-selected inicial nos resultados
         const items = results.querySelectorAll('[role="option"]');
         items.forEach((item, i) => {
+            item.id = `search-result-${i}`;
             item.setAttribute('aria-selected', 'false');
-            item.addEventListener('click', () => {
-                items.forEach(el => el.setAttribute('aria-selected', 'false'));
-                item.setAttribute('aria-selected', 'true');
-            });
         });
 
     } catch (err) {

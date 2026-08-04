@@ -95,16 +95,16 @@ export function initModalListeners() {
 
   // Botão CANCELAR do confirm modal
   el('modalCancel')?.addEventListener('click', async () => {
-    if (modalCancelCallback) await modalCancelCallback();
-    resetCallbacks();
-    closeConfirmModal();
+    try { if (modalCancelCallback) await modalCancelCallback(); }
+    catch (e) { console.error("Erro no callback de cancelamento:", e); }
+    finally { resetCallbacks(); closeConfirmModal(); }
   });
 
   // Botão CONFIRMAR do confirm modal
   el('modalConfirm')?.addEventListener('click', async () => {
-    if (modalConfirmCallback) await modalConfirmCallback();
-    resetCallbacks();
-    closeConfirmModal();
+    try { if (modalConfirmCallback) await modalConfirmCallback(); }
+    catch (e) { console.error("Erro no callback de confirmação:", e); }
+    finally { resetCallbacks(); closeConfirmModal(); }
   });
 
   // Botão OK do modal de alerta

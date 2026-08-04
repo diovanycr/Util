@@ -210,7 +210,8 @@ function renderLinks(container, links) {
                 );
             };
 
-            // Drag-and-drop (mouse)
+            // Drag-and-drop (mouse) — restrito ao mesmo grupo para evitar
+            // recategorização silenciosa não persistida
             card.draggable = true;
             card.dataset.id = item.id;
             card.ondragstart = (e) => {
@@ -226,11 +227,12 @@ function renderLinks(container, links) {
                 e.preventDefault();
                 e.dataTransfer.dropEffect = 'move';
                 if (!dragSrcLink || dragSrcLink === card) return;
+                // Bloqueia drop entre grupos diferentes — recategorização
+                // deve ser feita via edição explícita do campo categoria.
+                if (dragSrcLink.parentNode !== card.parentNode) return;
                 const rect  = card.getBoundingClientRect();
                 const after = e.clientY > rect.top + rect.height / 2;
-                // Insere no pai direto do card de destino
-                const parent = card.parentNode;
-                parent.insertBefore(dragSrcLink, after ? card.nextSibling : card);
+                card.parentNode.insertBefore(dragSrcLink, after ? card.nextSibling : card);
             };
 
             // Drag-and-drop (teclado)
@@ -254,24 +256,47 @@ function renderLinks(container, links) {
 }
 
 function enterEditMode(card, item) {
-    card.innerHTML = `
-        <div class="link-edit-form">
-            <input class="edit-link-url"   type="url"  value="${escapeAttr(item.url)}"   placeholder="URL..." />
-            <input class="edit-link-title" type="text" value="${escapeAttr(item.title)}" placeholder="Título..." />
-            <input class="edit-link-cat"   type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." />
-            <div class="flex-end mt-10">
-                <button class="btn ghost btn-cancel-link-edit">Cancelar</button>
-                <button class="btn primary btn-save-link-edit">Salvar</button>
-            </div>
+    // Preserva a estrutura original: apenas esconde os botões de edição/exclusão
+    // e injeta o form no lugar do conteúdo principal. Cancelar/Salvar chama loadLinks,
+    // que re-renderiza a lista e restaura tudo.
+    const mainEl  = card.querySelector('.link-main');
+    const editBtn = card.querySelector('.link-edit-btn');
+    const delBtn  = card.querySelector('.link-del-btn');
+    const dragBtn = card.querySelector('.link-drag-handle');
+    if (!mainEl) return;
+
+    const form = document.createElement('div');
+    form.className = 'link-edit-form';
+    form.innerHTML = `
+        <input class="edit-link-url"   type="url"  value="${escapeAttr(item.url)}"   placeholder="URL..." />
+        <input class="edit-link-title" type="text" value="${escapeAttr(item.title)}" placeholder="Título..." />
+        <input class="edit-link-cat"   type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." />
+        <div class="flex-end mt-10">
+            <button class="btn ghost btn-cancel-link-edit">Cancelar</button>
+            <button class="btn primary btn-save-link-edit">Salvar</button>
         </div>
     `;
 
-    card.querySelector('.edit-link-url').focus();
+    mainEl.replaceWith(form);
+    if (editBtn) editBtn.style.display = 'none';
+    if (delBtn)  delBtn.style.display  = 'none';
+    if (dragBtn) dragBtn.style.display = 'none';
+    card.draggable = false;
+
+    form.querySelector('.edit-link-url').focus();
+
+    const restoreView = () => {
+        form.replaceWith(mainEl);
+        if (editBtn) editBtn.style.display = '';
+        if (delBtn)  delBtn.style.display  = '';
+        if (dragBtn) dragBtn.style.display = '';
+        card.draggable = true;
+    };
 
     const saveLinkEdit = async () => {
-        let url   = card.querySelector('.edit-link-url').value.trim();
-        const title    = card.querySelector('.edit-link-title').value.trim();
-        const category = card.querySelector('.edit-link-cat').value.trim();
+        let url   = form.querySelector('.edit-link-url').value.trim();
+        const title    = form.querySelector('.edit-link-title').value.trim();
+        const category = form.querySelector('.edit-link-cat').value.trim();
 
         if (!url) return showModal("A URL é obrigatória.");
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
@@ -287,13 +312,16 @@ function enterEditMode(card, item) {
             loadLinks(currentUserId);
         } catch (err) {
             showModal("Erro ao atualizar o link.");
+            restoreView();
         }
     };
 
-    card.querySelector('.btn-cancel-link-edit').onclick = () => loadLinks(currentUserId);
-    card.querySelector('.btn-save-link-edit').onclick = saveLinkEdit;
+    form.querySelector('.btn-cancel-link-edit').onclick = () => {
+        restoreView();
+    };
+    form.querySelector('.btn-save-link-edit').onclick = saveLinkEdit;
 
-    card.querySelectorAll('input').forEach(input => {
+    form.querySelectorAll('input').forEach(input => {
         input.onkeydown = (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();

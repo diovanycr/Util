@@ -169,7 +169,7 @@ function isDomVisible(node) {
     return true;
 }
 
-function copyFirstResult() {
+async function copyFirstResult() {
     const activeTab = document.querySelector('.tab.active')?.dataset.tab;
     
     if (activeTab === 'tabMessages') {
@@ -178,8 +178,13 @@ function copyFirstResult() {
         if (firstMsg) {
             const textEl = firstMsg.querySelector('.msg-text');
             if (textEl) {
-                navigator.clipboard.writeText(textEl.textContent.trim());
-                showToast('Primeira mensagem copiada!');
+                try {
+                    await navigator.clipboard.writeText(textEl.textContent.trim());
+                    showToast('Primeira mensagem copiada!');
+                } catch (err) {
+                    console.error('Falha ao copiar mensagem:', err);
+                    showToast('Não foi possível copiar.');
+                }
             }
         }
     } else if (activeTab === 'tabProblems') {

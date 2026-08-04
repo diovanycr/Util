@@ -110,18 +110,32 @@ export function initShortcuts() {
 // Navega para cima ou baixo nos resultados
 function _navigateResults(dir) {
     const items = document.querySelectorAll('#globalSearchResults .search-result-item');
-    if (!items.length) return;
+    const count = items.length;
+    if (!count) return;
 
-    // Remove seleção atual
-    items.forEach(i => i.classList.remove('search-selected'));
+    // Garante consistência: se o índice aponta para uma lista que foi re-renderizada
+    // (debounce async), revalida o limite antes de navegar.
+    if (!items[_searchIndex] || !items[_searchIndex].classList.contains('search-selected')) {
+        _searchIndex = -1;
+    }
+
+    items.forEach(i => {
+        i.classList.remove('search-selected');
+        i.setAttribute('aria-selected', 'false');
+    });
 
     _searchIndex += dir;
-    if (_searchIndex < 0) _searchIndex = items.length - 1;
-    if (_searchIndex >= items.length) _searchIndex = 0;
+    if (_searchIndex < 0) _searchIndex = count - 1;
+    if (_searchIndex >= count) _searchIndex = 0;
 
     const selected = items[_searchIndex];
     selected.classList.add('search-selected');
+    selected.setAttribute('aria-selected', 'true');
     selected.scrollIntoView({ block: 'nearest' });
+
+    // Sincroniza aria-activedescendant no listbox
+    const listbox = el('globalSearchResults');
+    if (listbox) listbox.setAttribute('aria-activedescendant', selected.id || '');
 }
 
 // Aciona o botão principal do item selecionado (copiar ou ir)
@@ -162,12 +176,18 @@ let _searchIndexResetBound = false;
 
 function _resetSearchIndex() {
     _searchIndex = -1;
+    const listbox = el('globalSearchResults');
+    if (listbox) listbox.removeAttribute('aria-activedescendant');
+}
+
+export function resetSearchIndex() {
+    _resetSearchIndex();
 }
 
 export function openSearch() {
     const modal = el('globalSearchModal');
     if (!modal) return;
-    _searchIndex = -1; // reseta índice ao abrir
+    _resetSearchIndex(); // reseta índice e aria-activedescendant ao abrir
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
     const input = el('globalSearchInput');
@@ -184,7 +204,7 @@ export function openSearch() {
 export function closeSearch() {
     const modal = el('globalSearchModal');
     if (!modal) return;
-    _searchIndex = -1;
+    _resetSearchIndex();
     modal.classList.add('hidden');
     modal.style.display = 'none';
 }

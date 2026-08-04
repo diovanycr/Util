@@ -11,6 +11,7 @@ import { bindTicketSummaryEvents, buildTicketSummaryPanel } from './ticketSummar
 import { bindDecisionTreeEvents, buildDecisionTreePanel } from './decisionTree.js';
 import { bindNetworkDiagEvents, buildNetworkDiagPanel } from './networkDiag.js';
 import { bindScriptGenEvents, buildScriptGenPanel } from './scriptGen.js';
+import { FuturaSearchWidget } from './futura-widget.js';
 
 const COMMON_PORTS = {
   20:'FTP Data',21:'FTP',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',

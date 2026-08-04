@@ -8,6 +8,16 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎧</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    // Aplica o tema salvo antes da renderização para evitar flash (FOUC).
+    // Script inline síncrono no <head>: roda antes do <body> ser pintado.
+    (function () {
+      try {
+        var saved = localStorage.getItem('painelAtende_theme') || 'light';
+        document.documentElement.setAttribute('data-theme', saved);
+      } catch (e) { /* localStorage indisponível — usa tema claro padrão */ }
+    })();
+  </script>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/forms.css">
   <link rel="stylesheet" href="css/components.css">
@@ -21,6 +31,7 @@
   <link rel="stylesheet" href="css/help.css">
   <link rel="stylesheet" href="css/compact-favorites.css">
   <link rel="stylesheet" href="css/portOpener.css">
+  <link rel="stylesheet" href="css/futura-widget.css">
 
   <link rel="stylesheet" href="css/history.css">
   <link rel="stylesheet" href="css/escPos.css">
@@ -523,7 +534,6 @@
     </div>
   </div>
 
-  <script src="js/futura-widget.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>

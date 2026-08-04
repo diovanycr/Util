@@ -1,5 +1,11 @@
 /**
  * theme.js — Modo escuro com persistência em localStorage
+ *
+ * A prevenção primária de FOUC (flash of unstyled content) é um script inline
+ * síncrono no <head> do index.html, que aplica data-theme antes do <body>
+ * ser renderizado. initTheme() roda em DOMContentLoaded (via app.js, módulo
+ * deferred) e cuida apenas do botão de alternância e de re-sincronizar o
+ * estado caso o script inline falhe (ex: localStorage bloqueado).
  */
 
 const THEME_KEY = 'painelAtende_theme';

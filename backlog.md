@@ -10,8 +10,8 @@
 
 
 ## 📍 Estado atual
-Última sessão: Implementados 9 itens `[M]`/`[P]` — paginação em loadUsers, filtros de categoria/links sem re-renderizar DOM, dark mode em components.css e login.css, focus trap no modal do FuturaSearchWidget, localStorage do widget por usuário, anti-acúmulo de listeners globais. Total de 29 itens concluídos neste ciclo.
-Próximo passo: Refatorar o monolito `futura-widget.js` (2198 linhas) em módulos ES6 e avaliar as 9 ferramentas novas (ESC/POS, validadores fiscais, etc.).
+Última sessão: Refatorado o monolito `futura-widget.js` (2312 linhas) em 9 módulos ES6 — `futura-widget.js` agora tem 275 linhas como orquestrador fino, CSS movido para `css/futura-widget.css` (linkado no index.html), IIFE gigante e `document` proxy removidos, lógica distribuída em módulos nomeados (template, config, utils, theme, search, render, modal, audio). Total de 30 itens concluídos neste ciclo.
+Próximo passo: Backlog vazio — novo ciclo de auditoria pode identificar novos itens.
 
 ## ⚠️ Decisões pendentes
 - Contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda.
@@ -27,19 +27,19 @@ Próximo passo: Refatorar o monolito `futura-widget.js` (2198 linhas) em módulo
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **Refatorar: futura-widget.js 2198 linhas como IIFE gigante com proxy document/window - quebrar em metodos de classe nomeados** `[G]` `[Backend]`
-- [ ] **A11y: shortcuts.js buscard resultados nao seta aria-activedescendant/aria-selected ao navegar com setas - leitores nao anunciam item destacado** `[M]` `[Accessibility]`
-- [ ] **Bug: theme.js initTheme apos DOMContentLoaded causa flash de tema errado (FOUC) - comment diz que previne mas o call e deferido** `[M]` `[UI]`
-- [ ] **Bug: enhancements.js copyFirstResult chama navigator.clipboard.writeText sem await/catch - toast 'Copiado!' aparece mesmo quando falha** `[P]` `[Bug]`
-- [ ] **Bug: shortcuts.js _searchIndex desincroniza quando results re-renderizam async (debounce 200ms) - TypeError ao apertar seta durante re-render** `[P]` `[Bug]`
-- [ ] **Bug: modal.js callback async (confirm/cancel) sem try/catch - rejeicao nao tratada deixa modal preso e callback permanente** `[M]` `[Bug]`
-- [ ] **Bug: links.js enterEditMode destroi star de favoritos/edit/del via innerHTML - se loadLinks falhar apos save, card trava em edit form** `[M]` `[Bug]`
-- [ ] **Bug: links.js drag cross-group move DOM mas nao persiste category - usuario acha que re-categorizou mas volta ao recarregar (silencioso)** `[M]` `[Bug]`
 *(Nenhum item pendente)*
 
 
 
 ## Feito
+- [x] **Refatorar: futura-widget.js 2198 linhas como IIFE gigante com proxy document/window - quebrar em metodos de classe nomeados** `[G]` `[Backend]`
+- [x] **A11y: shortcuts.js buscard resultados nao seta aria-activedescendant/aria-selected ao navegar com setas - leitores nao anunciam item destacado** `[M]` `[Accessibility]`
+- [x] **Bug: theme.js initTheme apos DOMContentLoaded causa flash de tema errado (FOUC) - comment diz que previne mas o call e deferido** `[M]` `[UI]`
+- [x] **Bug: shortcuts.js _searchIndex desincroniza quando results re-renderizam async (debounce 200ms) - TypeError ao apertar seta durante re-render** `[P]` `[Bug]`
+- [x] **Bug: enhancements.js copyFirstResult chama navigator.clipboard.writeText sem await/catch - toast 'Copiado!' aparece mesmo quando falha** `[P]` `[Bug]`
+- [x] **Bug: modal.js callback async (confirm/cancel) sem try/catch - rejeicao nao tratada deixa modal preso e callback permanente** `[M]` `[Bug]`
+- [x] **Bug: links.js enterEditMode destroi star de favoritos/edit/del via innerHTML - se loadLinks falhar apos save, card trava em edit form** `[M]` `[Bug]`
+- [x] **Bug: links.js drag cross-group move DOM mas nao persiste category - usuario acha que re-categorizou mas volta ao recarregar (silencioso)** `[M]` `[Bug]`
 - [x] **Bug: futura-widget.js escapeQ() e no-op (cada replace troca char por ele mesmo) - nao escapa aspas/angle brackets em atributo data-query** `[P]` `[Bug]`
 - [x] **Bug: futura-widget.js renderResults injeta title/description/link da API Gemini sem escape (XSS em AI data)** `[M]` `[Bug]`
 - [x] **Bug: futura-widget.js showProviderChoice injeta query do usuario sem escape no prompt preview (XSS via voz/quick-tag)** `[M]` `[Bug]`
