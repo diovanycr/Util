@@ -5,6 +5,8 @@
 //  correção de status de NFe/NFCe/Ponto) e CMD/PowerShell com
 //  variáveis dinâmicas ({ip_pdv}, {cnpj}, {porta_impressora})
 
+import { escapeHtml, escapeAttr } from './utils.js';
+
 const TEMPLATES = {
     sql_reset_caixa: {
         name: 'SQL — Reset de Caixa (PDV)',
@@ -354,10 +356,13 @@ function _renderEditor(container, key) {
 
     varsEl.innerHTML = tpl.vars.map(v => {
         const [name, defaultVal] = v.split(':');
+        const safeName = escapeHtml(name);
+        const safeAttr = escapeAttr(name);
+        const safeDefault = escapeAttr(defaultVal || '');
         return `
           <div class="sg-var-row">
-            <label class="field-label">{${name}}</label>
-            <input type="text" class="dv-input sg-var-input" data-var="${name}" value="${defaultVal || ''}" placeholder="${name}" />
+            <label class="field-label">{${safeName}}</label>
+            <input type="text" class="dv-input sg-var-input" data-var="${safeAttr}" value="${safeDefault}" placeholder="${safeAttr}" />
           </div>
         `;
     }).join('');

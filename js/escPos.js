@@ -449,7 +449,7 @@ function _setCode(id, text) {
 function _hlEsc(code) {
     const tokens = [];
     const stash = html => `\u0000${tokens.push(html) - 1}\u0000`;
-    const e = s => s.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+    const e = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     let src = e(code);
 
     // Comentários

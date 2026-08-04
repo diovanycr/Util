@@ -12,6 +12,12 @@ import { showToast } from './toast.js';
 import { escapeHtml, normalizeSolutions } from './utils.js';
 
 let currentUserId = null;
+let searchInitialized = false;
+
+export function resetSearch() {
+    searchInitialized = false;
+    currentUserId = null;
+}
 
 export function initSearch(uid) {
     currentUserId = uid;
@@ -21,6 +27,9 @@ export function initSearch(uid) {
     const modal = el('globalSearchModal');
 
     if (!input || !modal) return;
+
+    if (searchInitialized) return;
+    searchInitialized = true;
 
     // Fecha ao clicar fora
     modal.addEventListener('click', (e) => {

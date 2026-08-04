@@ -4,6 +4,8 @@
 //  Testador rápido de endpoints REST/Webhooks para verificar
 //  integrações com WooCommerce, VTEX, Mercado Livre, APIs Mobile
 
+import { escapeHtml, escapeAttr } from './utils.js';
+
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
 const PRESETS = [
@@ -203,11 +205,11 @@ function _addToHistory(container, method, url, status, time) {
     section.classList.remove('hidden');
     list.innerHTML = atHistory.map(h => `
         <div class="at-history-item">
-            <span class="at-h-method">${h.method}</span>
-            <span class="at-h-status ${h.status >= 200 && h.status < 300 ? 'at-status-ok-text' : 'at-status-error-text'}">${h.status}</span>
-            <span class="at-h-url" title="${h.url}">${h.url}</span>
-            <span class="at-h-time">${h.time}ms</span>
-            <span class="at-h-ts">${h.timestamp}</span>
+            <span class="at-h-method">${escapeHtml(h.method)}</span>
+            <span class="at-h-status ${h.status >= 200 && h.status < 300 ? 'at-status-ok-text' : 'at-status-error-text'}">${escapeHtml(h.status)}</span>
+            <span class="at-h-url" title="${escapeAttr(h.url)}">${escapeHtml(h.url)}</span>
+            <span class="at-h-time">${escapeHtml(h.time)}ms</span>
+            <span class="at-h-ts">${escapeHtml(h.timestamp)}</span>
         </div>
     `).join('');
 }

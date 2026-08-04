@@ -9,6 +9,7 @@ import {
     calculateNFeDV, generateNFeChave, formatNFeChave,
     validateIE, IE_FORMATS
 } from './docValidator.js';
+import { escapeHtml } from './utils.js';
 
 export function buildDocValidatorPanel() {
     return `
@@ -157,14 +158,14 @@ function _doValidate(container, type) {
         case 'cpf': {
             valid = validateCPF(value);
             info = valid
-                ? `CPF ${formatCPF(value)} é <strong>VÁLIDO</strong>.`
+                ? `CPF ${escapeHtml(formatCPF(value))} é <strong>VÁLIDO</strong>.`
                 : `CPF informado é <strong>INVÁLIDO</strong>.`;
             break;
         }
         case 'cnpj': {
             valid = validateCNPJ(value);
             info = valid
-                ? `CNPJ ${formatCNPJ(value)} é <strong>VÁLIDO</strong>.`
+                ? `CNPJ ${escapeHtml(formatCNPJ(value))} é <strong>VÁLIDO</strong>.`
                 : `CNPJ informado é <strong>INVÁLIDO</strong>.`;
             break;
         }
@@ -180,14 +181,14 @@ function _doValidate(container, type) {
             const ieResult = validateIE(value, uf);
             valid = ieResult.valid;
             info = valid
-                ? `Inscrição Estadual é <strong>VÁLIDA</strong>. ${ieResult.message}`
-                : `<strong>INVÁLIDA</strong>. ${ieResult.message}`;
+                ? `Inscrição Estadual é <strong>VÁLIDA</strong>. ${escapeHtml(ieResult.message)}`
+                : `<strong>INVÁLIDA</strong>. ${escapeHtml(ieResult.message)}`;
             break;
         }
         case 'nfe': {
             const digits = value.replace(/\D/g, '');
             if (digits.length < 44) {
-                info = `Chave deve ter 44 dígitos (atual: ${digits.length}).`;
+                info = `Chave deve ter 44 dígitos (atual: ${escapeHtml(String(digits.length))}).`;
             } else {
                 const dv = calculateNFeDV(digits.substring(0, 43));
                 const providedDV = parseInt(digits[43]);
@@ -197,7 +198,7 @@ function _doValidate(container, type) {
                     valid = true;
                     info = `Chave NFe <strong>VÁLIDA</strong> (DV ${dv} confere).`;
                 } else {
-                    info = `Chave <strong>INVÁLIDA</strong>. DV calculado: ${dv}, DV informado: ${providedDV}.`;
+                    info = `Chave <strong>INVÁLIDA</strong>. DV calculado: ${escapeHtml(String(dv))}, DV informado: ${escapeHtml(String(providedDV))}.`;
                 }
             }
             break;

@@ -17,10 +17,10 @@ import { showModal, openConfirmModal } from './modal.js';
 import { loadUsers } from './admin.js';
 import { initMessages, resetMessages, loadMessages, updateTrashCount } from './messages.js';
 import { initProblems, resetProblems, loadProblems } from './problems.js';
-import { initSearch } from './search.js';
+import { initSearch, resetSearch } from './search.js';
 import { initLinks, resetLinks } from './links.js';
 import { initEnhancements, resetEnhancements } from './enhancements.js';
-import { getGreetingPrefix } from './utils.js';
+import { getGreetingPrefix, setTagColorUser } from './utils.js';
 
 let messagesInitialized = false;
 let problemsInitialized = false;
@@ -67,7 +67,8 @@ export function initAuth() {
                 const displayName = data.username || data.email;
                 
                 updateHeaderProfileGreeting(displayName);
-                
+                setTagColorUser(user.uid);
+
                 const userAvatar = el('userAvatar');
                 if (userAvatar) {
                     userAvatar.textContent = displayName.charAt(0).toUpperCase();
@@ -117,8 +118,10 @@ export function initAuth() {
             }
         } else {
             clearHeaderGreetingInterval();
+            setTagColorUser('');
             messagesInitialized = false;
             problemsInitialized = false;
+            resetSearch();
             resetMessages();
             resetProblems();
             resetLinks();

@@ -10,15 +10,19 @@ let compactMode = false;
 let favorites = new Set();
 let filteringFavorites = { msg: false, problem: false, link: false };
 let currentUserId = null;
+let enhancementsInitialized = false;
 
 export function initEnhancements(uid) {
     currentUserId = uid;
-    setupGlobalSearch();
-    setupNumericShortcuts();
-    setupCounterListeners();
-    setupCompactMode();
-    setupFavorites();
-    setupFavoriteFilters();
+    if (!enhancementsInitialized) {
+        enhancementsInitialized = true;
+        setupGlobalSearch();
+        setupNumericShortcuts();
+        setupCounterListeners();
+        setupCompactMode();
+        setupFavorites();
+        setupFavoriteFilters();
+    }
     loadFavoritesFromStorage();
 }
 
@@ -26,6 +30,7 @@ export function resetEnhancements() {
     currentUserId = null;
     favorites = new Set();
     filteringFavorites = { msg: false, problem: false, link: false };
+    enhancementsInitialized = false;
     if (compactMode) {
         compactMode = false;
         document.body.classList.remove('compact-mode');

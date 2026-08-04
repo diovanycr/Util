@@ -174,7 +174,7 @@ export function renderHistoryPanel() {
         `;
 
         row.querySelector('.history-copy-btn').onclick = async () => {
-            await navigator.clipboard.writeText(item.text);
+            try { await navigator.clipboard.writeText(item.text); } catch {}
             addToHistory(item.text, item.title, item.category);
             // Feedback visual
             const btn = row.querySelector('.history-copy-btn');

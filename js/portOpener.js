@@ -12,6 +12,7 @@ import { bindDecisionTreeEvents, buildDecisionTreePanel } from './decisionTree.j
 import { bindNetworkDiagEvents, buildNetworkDiagPanel } from './networkDiag.js';
 import { bindScriptGenEvents, buildScriptGenPanel } from './scriptGen.js';
 import { FuturaSearchWidget } from './futura-widget.js';
+import { auth } from './firebase.js';
 
 const COMMON_PORTS = {
   20:'FTP Data',21:'FTP',22:'SSH',23:'Telnet',25:'SMTP',53:'DNS',
@@ -70,7 +71,7 @@ export function renderSistemasTab(container) {
   const futContainer = document.getElementById('futuraSearchWidgetContainer');
   if (futContainer) futContainer.setAttribute('data-theme', currentTheme);
 
-  new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer' });
+  new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer', userId: auth.currentUser?.uid || '' });
 }
 
 // ── Sub-funções de construção do HTML ─────────────────────────────────────
@@ -597,7 +598,7 @@ const _HL_TOKEN_COUNT = 8;
 function _hl(code) {
   const tokens = [];
   const stash = html => `\u0000${tokens.push(html) - 1}\u0000`;
-  const e = s => s.replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>');
+  const e = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   let src = e(code);
 
   // 1) Comentários (linha iniciando com :: , # , @echo off)

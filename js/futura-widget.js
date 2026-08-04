@@ -267,6 +267,15 @@ class FuturaSearchWidget {
     widgetScope.querySelectorAll(".qtag").forEach(btn => {
       btn.addEventListener("click", () => fillSearch(btn.textContent.trim()));
     });
+
+    /* Guarda referência para destroy() */
+    this._searchCache = searchCache;
+  }
+
+  destroy() {
+    if (this._searchCache) this._searchCache.clear();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (this.container) this.container.innerHTML = '';
   }
 }
 

@@ -184,18 +184,27 @@ const TAG_COLORS = [
     'tag-blue', 'tag-green', 'tag-purple', 'tag-orange',
     'tag-pink', 'tag-teal', 'tag-red', 'tag-indigo'
 ];
-const TAG_STORAGE_KEY = 'painelAtende_tagColors';
+let _tagUserId = '';
+let _tagStorageKey = 'painelAtende_tagColors';
 let _tagColorMap = {};
 try {
-    _tagColorMap = JSON.parse(localStorage.getItem(TAG_STORAGE_KEY) || '{}');
+    _tagColorMap = JSON.parse(localStorage.getItem(_tagStorageKey) || '{}');
 } catch { _tagColorMap = {}; }
+
+export function setTagColorUser(uid) {
+    _tagUserId = uid || '';
+    _tagStorageKey = _tagUserId ? `painelAtende_tagColors_${_tagUserId}` : 'painelAtende_tagColors';
+    try {
+        _tagColorMap = JSON.parse(localStorage.getItem(_tagStorageKey) || '{}');
+    } catch { _tagColorMap = {}; }
+}
 
 export function getTagColor(tag) {
     if (!_tagColorMap[tag]) {
         const keys = Object.keys(_tagColorMap);
         _tagColorMap[tag] = TAG_COLORS[keys.length % TAG_COLORS.length];
         try {
-            localStorage.setItem(TAG_STORAGE_KEY, JSON.stringify(_tagColorMap));
+            localStorage.setItem(_tagStorageKey, JSON.stringify(_tagColorMap));
         } catch {}
     }
     return _tagColorMap[tag];
