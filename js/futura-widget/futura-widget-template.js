@@ -62,6 +62,7 @@ export const WIDGET_HTML = `
               placeholder="Como faço uma remessa de mercadoria?"
               autocomplete="off"
               spellcheck="false"
+              aria-label="Pesquisar no manual Futura"
             />
             <button id="fw-voiceSearchBtn" class="voice-search-btn" title="Pesquisar por voz">
               <i class="fa-solid fa-microphone"></i>

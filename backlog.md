@@ -27,22 +27,12 @@ Próximo passo: Implementar os 36 itens do backlog, priorizando bugs de XSS e pa
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **UX: botoes da toolbar (Importar/Novo problema/Novo link) sem title descritivo - inconsistente com botoes da aba Mensagens** `[P]` `[UI]`
-- [ ] **UX: login sem feedback de loading no botao Entrar/Entrar com Google durante autenticacao - usuario nao sabe se clicou** `[P]` `[UI]`
 - [ ] **Bug: dark mode inconsistente em ferramentas novas - cores hardcoded (#eff6ff, #bfdbfe, #374151, etc) em apiTester, users, portOpener, decisionTree, docValidator, fileValidator, networkDiag, scriptGen, forms, history, links, tags, search CSS** `[G]` `[Layout]`
-- [ ] **Bug: problems/problem-io.js saveProblemOrder reescreve todos os cards no batch sem verificar mudanca - otimizar diff** `[M]` `[Backend]`
-- [ ] **Bug: links.js saveLinkOrder reescreve TODOS os links no batch mesmo os que nao mudaram - pesado em reordenacao grande** `[M]` `[Backend]`
-- [ ] **A11y: .compact-favorites .btn-favorite com opacity:0 em estado normal - invisivel para navegacao por teclado** `[P]` `[Accessibility]`
-- [ ] **A11y: animacoes (spinner, modalIn, fadeIn, poShake, poTagIn, ndSpin, scSpin) sem prefers-reduced-motion em 6 arquivos CSS** `[P]` `[Accessibility]`
-- [ ] **A11y: futura-widget-template input de busca sem label ou aria-label - leitores nao anunciam proposito do campo** `[P]` `[Accessibility]`
-- [ ] **A11y: help.js nao restaura foco ao fechar modal de ajuda - leitor perde contexto** `[P]` `[Accessibility]`
-- [ ] **A11y: toast.js nao usa role=status ou aria-live - screen readers nao anunciam toast** `[P]` `[Accessibility]`
 - [ ] **Refatorar: funcao segmented control (seg) duplicada em 6 arquivos (escPos, docValidatorUI, fileValidator, networkDiag, statusChecker, portOpener) - extrair helper compartilhado** `[P]` `[Backend]`
 - [ ] **Refatorar: funcao _setCode + _hl (highlight de sintaxe) duplicada entre escPos.js e portOpener.js - extrair modulo compartilhado** `[P]` `[Backend]`
 - [ ] **Refatorar: escPos.js 473 linhas com HTML/bind/geracao misturados - modularizar** `[M]` `[Backend]`
 - [ ] **Refatorar: portOpener.js 635 linhas misturando HTML build/bind events/geracao de scripts - quebrar em modulos** `[M]` `[Backend]`
 - [ ] **Refatorar: messages.js 791 linhas misturando setup/render/import-export/lixeira - quebrar em modulos** `[G]` `[Backend]`
-- [ ] **Bug: escPos.js variaveis de estado globais (escPrinter, escText) nao resetadas ao reabrir aba - estado stale** `[P]` `[Bug]`
 - [ ] **Bug: admin.js deleteUser carrega TODAS as subcolecoes sem paginacao (messages/problems/links) - pode exceder memoria** `[M]` `[Backend]`
 - [ ] **Bug: links.js loadLinks sem paginacao/limite - getDocs carrega todos os links do usuario** `[M]` `[Backend]`
 - [ ] **Bug: messages.js btnAddMsg carrega TODAS as mensagens via getDocs so para calcular maxOrder - usar orderBy+limit 1** `[M]` `[Backend]`
@@ -54,6 +44,16 @@ Próximo passo: Implementar os 36 itens do backlog, priorizando bugs de XSS e pa
 
 
 ## Feito
+- [x] **Bug: problems/problem-io.js saveProblemOrder reescreve todos os cards no batch sem verificar mudanca - otimizar diff** `[M]` `[Backend]`
+- [x] **Bug: links.js saveLinkOrder reescreve TODOS os links no batch mesmo os que nao mudaram - pesado em reordenacao grande** `[M]` `[Backend]`
+- [x] **Bug: escPos.js variaveis de estado globais (escPrinter, escText) nao resetadas ao reabrir aba - estado stale** `[P]` `[Bug]`
+- [x] **UX: login sem feedback de loading no botao Entrar/Entrar com Google durante autenticacao - usuario nao sabe se clicou** `[P]` `[UI]`
+- [x] **UX: botoes da toolbar (Importar/Novo problema/Novo link) sem title descritivo - inconsistente com botoes da aba Mensagens** `[P]` `[UI]`
+- [x] **A11y: animacoes (spinner, modalIn, fadeIn, poShake, poTagIn, ndSpin, scSpin) sem prefers-reduced-motion em 6 arquivos CSS** `[P]` `[Accessibility]`
+- [x] **A11y: .compact-favorites .btn-favorite com opacity:0 em estado normal - invisivel para navegacao por teclado** `[P]` `[Accessibility]`
+- [x] **A11y: futura-widget-template input de busca sem label ou aria-label - leitores nao anunciam proposito do campo** `[P]` `[Accessibility]`
+- [x] **A11y: help.js nao restaura foco ao fechar modal de ajuda - leitor perde contexto** `[P]` `[Accessibility]`
+- [x] **A11y: toast.js nao usa role=status ou aria-live - screen readers nao anunciam toast** `[P]` `[Accessibility]`
 - [x] **Bug: utils.js getTagColor armazena mapa de tags em localStorage global sem prefixo de usuario - vaza entre contas** `[P]` `[Bug]`
 - [x] **Bug: futura-widget searchCache cresce ate 100 entries mas nunca limpo no logout/troca de usuario - dados de sessao anterior vazam** `[M]` `[Bug]`
 - [x] **Bug: portOpener.js instancia FuturaSearchWidget sem userId (lsKey vazio) - localStorage do widget compartilhado entre contas no mesmo browser** `[M]` `[Bug]`

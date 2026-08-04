@@ -337,14 +337,20 @@ async function saveLinkOrder(userId) {
     const cards = [...list.querySelectorAll('.link-card')];
     try {
         const batch = writeBatch(db);
+        const newOrder = {};
+        let changed = 0;
         cards.forEach((card, i) => {
             const id = card.dataset.id;
-            if (id) batch.update(doc(db, 'users', userId, 'links', id), { order: i + 1 });
+            const newOrd = i + 1;
+            if (id) newOrder[id] = newOrd;
+            const existing = allLinks.find(l => l.id === id);
+            if (existing && existing.order !== newOrd) {
+                batch.update(doc(db, 'users', userId, 'links', id), { order: newOrd });
+                changed++;
+            }
         });
-        await batch.commit();
+        if (changed > 0) await batch.commit();
         // Atualiza allLinks com nova ordem para manter consistência
-        const newOrder = {};
-        cards.forEach((card, i) => { if (card.dataset.id) newOrder[card.dataset.id] = i + 1; });
         allLinks.forEach(l => { if (newOrder[l.id] !== undefined) l.order = newOrder[l.id]; });
     } catch (err) {
         console.error("Erro ao salvar ordem dos links:", err);

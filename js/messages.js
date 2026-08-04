@@ -8,7 +8,8 @@ import {
     doc,
     writeBatch,
     query,
-    where
+    where,
+    limit
 } from './firebase.js';
 
 import { openConfirmModal, showModal } from './modal.js';
@@ -270,7 +271,7 @@ export async function loadMessages(userId) {
         </div>
     `;
     try {
-        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
+        const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), limit(500)));
         let allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
         // Se a coleção estiver vazia, cria as saudações padrão iniciais (verifica no Firestore)
@@ -288,7 +289,7 @@ export async function loadMessages(userId) {
                     batch.set(doc(collection(db, 'users', userId, 'messages')), g);
                 }
                 await batch.commit();
-                const newSnap = await getDocs(collection(db, 'users', userId, 'messages'));
+                const newSnap = await getDocs(query(collection(db, 'users', userId, 'messages'), limit(500)));
                 allDocs = newSnap.docs.map(d => ({ id: d.id, ...d.data() }));
             }
         }

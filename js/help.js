@@ -14,10 +14,14 @@ export function initHelp() {
 
     if (!btn || !modal) return;
 
+    let _helpPreviousFocus = null;
+
     btn.addEventListener('click', () => {
+        _helpPreviousFocus = document.activeElement;
         modal.classList.remove('hidden');
         // Ativa primeira aba por padrão
         switchHelpTab('shortcuts');
+        btnClose?.focus();
     });
 
     btnClose?.addEventListener('click', closeHelp);
@@ -27,13 +31,14 @@ export function initHelp() {
         if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeHelp();
     });
 
+    function closeHelp() {
+        document.getElementById('helpModal')?.classList.add('hidden');
+        if (_helpPreviousFocus) { _helpPreviousFocus.focus(); _helpPreviousFocus = null; }
+    }
+
     tabs.forEach(tab => {
         tab.addEventListener('click', () => switchHelpTab(tab.dataset.panel));
     });
-}
-
-function closeHelp() {
-    document.getElementById('helpModal')?.classList.add('hidden');
 }
 
 function switchHelpTab(panelId) {

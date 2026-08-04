@@ -7,6 +7,8 @@ export function showToast(message) {
     if (old) old.remove();
     const t = document.createElement('div');
     t.className = 'toast-success';
+    t.setAttribute('role', 'status');
+    t.setAttribute('aria-live', 'polite');
     t.innerText = message;
     document.body.appendChild(t);
     setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 2000);

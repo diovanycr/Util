@@ -45,6 +45,7 @@
 .user-row:hover .btn-favorite,
 .problem-card:hover .btn-favorite,
 .link-card:hover .btn-favorite { opacity: 1; }
+.btn-favorite:focus-visible { opacity: 1; outline: 2px solid var(--primary); outline-offset: 2px; }
 .btn-favorite.active { opacity: 1 !important; }
 
 #btnFilterFavorites.active,

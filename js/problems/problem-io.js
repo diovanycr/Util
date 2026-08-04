@@ -5,6 +5,7 @@ import {
 
 import { showModal, openConfirmModal } from '../modal.js';
 import { showToast } from '../toast.js';
+import { allProblems } from '../problems.js';
 
 /**
  * Importa problemas de um arquivo JSON.
@@ -97,10 +98,16 @@ export async function saveProblemOrder(userId) {
     const cards = [...list.querySelectorAll('.problem-card')];
     try {
         const batch = writeBatch(db);
+        let changed = 0;
         cards.forEach((card, i) => {
             const id = card.dataset.id;
-            if (id) batch.update(doc(db, 'users', userId, 'problems', id), { order: i + 1 });
+            const newOrd = i + 1;
+            const existing = allProblems.find(p => p.id === id);
+            if (existing && existing.order !== newOrd) {
+                batch.update(doc(db, 'users', userId, 'problems', id), { order: newOrd });
+                changed++;
+            }
         });
-        await batch.commit();
+        if (changed > 0) await batch.commit();
     } catch (err) { console.error("Erro ao salvar ordem:", err); }
 }
