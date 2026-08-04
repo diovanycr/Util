@@ -2,6 +2,64 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.6] - 04/08/2026
+* **Refatorar: futura-widget.js 2198 linhas como IIFE gigante com proxy document/window - quebrar em metodos de classe nomeados** `[G]` `[Backend]`
+* **A11y: shortcuts.js buscard resultados nao seta aria-activedescendant/aria-selected ao navegar com setas - leitores nao anunciam item destacado** `[M]` `[Accessibility]`
+* **Bug: theme.js initTheme apos DOMContentLoaded causa flash de tema errado (FOUC) - comment diz que previne mas o call e deferido** `[M]` `[UI]`
+* **Bug: shortcuts.js _searchIndex desincroniza quando results re-renderizam async (debounce 200ms) - TypeError ao apertar seta durante re-render** `[P]` `[Bug]`
+* **Bug: enhancements.js copyFirstResult chama navigator.clipboard.writeText sem await/catch - toast 'Copiado!' aparece mesmo quando falha** `[P]` `[Bug]`
+* **Bug: modal.js callback async (confirm/cancel) sem try/catch - rejeicao nao tratada deixa modal preso e callback permanente** `[M]` `[Bug]`
+* **Bug: links.js enterEditMode destroi star de favoritos/edit/del via innerHTML - se loadLinks falhar apos save, card trava em edit form** `[M]` `[Bug]`
+* **Bug: links.js drag cross-group move DOM mas nao persiste category - usuario acha que re-categorizou mas volta ao recarregar (silencioso)** `[M]` `[Bug]`
+* **Bug: futura-widget.js escapeQ() e no-op (cada replace troca char por ele mesmo) - nao escapa aspas/angle brackets em atributo data-query** `[P]` `[Bug]`
+* **Bug: futura-widget.js renderResults injeta title/description/link da API Gemini sem escape (XSS em AI data)** `[M]` `[Bug]`
+* **Bug: futura-widget.js showProviderChoice injeta query do usuario sem escape no prompt preview (XSS via voz/quick-tag)** `[M]` `[Bug]`
+* **Bug: futura-widget.js loadDependencies() async nunca aguardado - search roda antes de marked/DOMPurify carregarem, cai em fallback vulneravel** `[M]` `[Bug]`
+* **Bug: escPos.js regex de variável captura comentários Python (# comentário) como variável** `[P]` `[Bug]`
+* **Bug: apiTester.js listener duplicado no btnSend - envia requisição 2x (duplicate event handler)** `[P]` `[Bug]`
+* **Bug: fileValidator.js Destinatário lê CNPJ do emitente em vez do destino** `[P]` `[Bug]`
+* **Refatorar: problems.js com 719 linhas misturando UI/render/tags/editor/dnd - quebrar em módulos** `[G]` `[Backend]`
+* **Modal de alerta/confirmação não implementa focus trap completo (foco pode vazar para background)** `[M]` `[Accessibility]`
+* **Contenteditable #problemSolution sem role=textbox e aria-multiline para leitores de tela** `[M]` `[Accessibility]`
+* **Abas não suportam navegação por setas (ArrowLeft/Right) entre tabs, apenas click/Enter** `[M]` `[Accessibility]`
+* **Backend: import de problemas não deduplica por título - gera lista com mesmos títulos** `[P]` `[Backend]`
+* **Contador #trashCount e badges de aba sem aria-live para anunciar mudanças dinâmicas** `[P]` `[Accessibility]`
+* **Refatorar: lógica de saudação por horário (Bom dia/tarde/noite) duplicada em messages.js renderMessages e isGreeting - extrair para utils.js** `[P]` `[Backend]`
+* **Bug: FuturaSearchWidget mock addEventListener no IIFE chama document.removeEventListener() antes de addEventListener() - remove listeners legítimos** `[G]` `[Bug]`
+* **Busca global (Ctrl+K) abre modal mas não foca automaticamente no input ao abrir** `[P]` `[UI]`
+* **Botões sem type=button no HTML causam submissão acidental de formulários (default submit em <form>)** `[P]` `[Accessibility]`
+* **A11y: tabs.js não implementa padrão ARIA completo - falta role=tablist/tab/tabpanel com aria-controls** `[M]` `[Accessibility]`
+* **Refatorar: enhancements.js usa input.oninput/onkeydown (sobrescreve) em vez de addEventListener - listeners perdidos em multi-init** `[P]` `[Bug]`
+* **UX: mensagens na lixeira sem botão de exclusão definitiva individual - só 'Esvaziar lixeira' deleta** `[P]` `[UI]`
+* **Bug: rich-editor aceita qualquer imagem como dataURL base64 - 10MB vira string de 13MB no Firestore (doc max 1MB)** `[G]` `[Bug]`
+* **UX: nenhum feedback de progresso durante emptyTrash em mensagens - usuário não sabe se processo está rodando** `[P]` `[UI]`
+* **Backend: loadProblems sem paginação - getDocs de toda coleção degrada performance em bases grandes** `[M]` `[Backend]`
+* **Bug: openSearch em shortcuts.js registra listener de input a cada abertura - vazamento de listeners (ainda pendente após refatoração anterior)** `[P]` `[Bug]`
+* **Backend: saveOrder usa writeBatch mas reescreve TODAS as rows mesmo as que não mudaram - pesado em reordenação grande** `[P]` `[Backend]`
+* **Cores hardcoded em problems.css/tags.css/compact-favorites.css/help.css em vez de variáveis CSS - dark mode inconsistente** `[M]` `[Layout]`
+* **UX: import de arquivo grande não mostra progresso - batch em chunks de 500 sem feedback X de Y** `[M]` `[UI]`
+* **Refatorar: exportToTxt e exportToJson quase idênticos - extrair helper exportAsFile(content, filename, mimeType)** `[P]` `[UI]`
+* **Refatorar: search.js reimplementa escapeHtml em highlight() - utils.js já exporta escapeHtml - duplicação** `[P]` `[Backend]`
+* **Race condition: loadMessages async pode ser disparado várias vezes (clique duplo em Editar/Salvar) gerando render inconsistente** `[M]` `[Bug]`
+* **UX: emptyTrash deleta vários docs sem desabilitar botão nem spinner - usuário pode clicar várias vezes** `[P]` `[UI]`
+* **Bug: seed inicial de saudações usa localStorage flag - se usuário limpar localStorage as saudações duplicam - usar query Firestore** `[P]` `[Bug]`
+* **UX: btnCreateUser finally sempre define innerHTML='Criar usuário' mesmo se texto era outro - perde estado original** `[P]` `[UI]`
+* **Admin não valida username/email únicos antes de criar usuário - pode haver duplicatas comprometendo login** `[M]` `[Bug]`
+* **Bug: username lookup em doLogin usa snap.docs[0] sem validar unicidade - duplicatas permitem autenticar com email arbitrário** `[M]` `[Bug]`
+* **A11y: enterEditMode foca em .edit-msg-text sem anunciar contexto (sem aria-label/aria-describedby) ao screen reader** `[P]` `[Accessibility]`
+* **Bug: futura-widget.js loadDependencies() não aguarda onload de marked/DOMPurify - falha silenciosa em CDNs lentos** `[M]` `[Bug]`
+* **Refatorar: enhancements.js usa compactMode no localStorage sem prefixo de usuário - vaza entre contas no mesmo browser** `[M]` `[Bug]`
+* **Refatorar: FuturaSearchWidget injeta ~1300 linhas de CSS inline a cada instância sem cache - mover para arquivo .css compartilhado** `[M]` `[Backend]`
+* **A11y: .modal-overlay sem role=dialog/aria-modal/aria-labelledby em modal.js - screen readers não reconhecem como diálogo** `[P]` `[Accessibility]`
+* **Bug: searchCache Map em futura-widget.js cresce sem limite (memory leak) - sem LRU, max-size ou TTL** `[M]` `[Bug]`
+* **UX: loading state ausente em enterEditMode/saveEdit de problems - nenhum feedback durante gravação** `[P]` `[UI]`
+* **Layout: :hover sem :focus-visible em .tag-filter-chip, .solution-copy-field, .help-tab, .accordion-trigger - teclado sem feedback visual** `[P]` `[Layout]`
+* **Backend: deleteDoc do admin não é atômico - Promise.all com deleteDoc individuais deixa estado parcial se uma falha** `[M]` `[Backend]`
+* **Refatorar: futura-widget.js duplica showToast (existe em toast.js) e initTheme/toggleTheme (existe em theme.js) - usar módulos compartilhados** `[P]` `[Backend]`
+
+*(Nenhum item concluído neste ciclo ainda)*
+
+
 ## [v1.1.5] - 31/07/2026
 * **Gerador de Scripts & Comandos Dinâmicos: Gerador de comandos SQL (reset de caixa, liberação de terminal, correção de status de NFe/NFCe/Ponto) e comandos CMD/PowerShell com variáveis dinâmicas (ex: {ip_pdv}, {cnpj}, {porta_impressora})** `[G]` `[UI]`
 * **Utilitário de Diagnóstico de Redes & Dispositivos PDV/Ponto: Calculadora IP/Subrede e testador de porta/comunicação (Port Opener/Socket check) para impressoras térmicas, balanças, leitores e relógios de ponto (REP)** `[M]` `[UI]`
