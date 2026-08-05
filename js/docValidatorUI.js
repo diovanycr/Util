@@ -9,7 +9,7 @@ import {
     calculateNFeDV, generateNFeChave, formatNFeChave,
     validateIE, IE_FORMATS
 } from './docValidator.js';
-import { escapeHtml } from './utils.js';
+import { escapeHtml, setupSegmented } from './utils.js';
 
 export function buildDocValidatorPanel() {
     return `
@@ -82,34 +82,7 @@ function _buildInputSection(type) {
 export function bindDocValidatorEvents(container) {
     let currentType = 'cpf';
 
-    const seg = (groupId, setter) => {
-        const group = container.querySelector(groupId);
-        if (!group) return;
-        const radios = () => [...group.querySelectorAll('.po-seg-btn')];
-        const select = (btn) => {
-            radios().forEach(b => {
-                const active = b === btn;
-                b.classList.toggle('active', active);
-                b.setAttribute('aria-checked', active ? 'true' : 'false');
-                b.setAttribute('tabindex', active ? '0' : '-1');
-            });
-            setter(btn);
-            btn.focus();
-        };
-        group.addEventListener('click', e => { const btn = e.target.closest('.po-seg-btn'); if (btn) select(btn); });
-        group.addEventListener('keydown', e => {
-            const list = radios();
-            const idx = list.indexOf(document.activeElement);
-            let next = null;
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
-            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
-            else if (e.key === 'Home') next = list[0];
-            else if (e.key === 'End') next = list[list.length - 1];
-            if (next) { e.preventDefault(); select(next); }
-        });
-    };
-
-    seg('#dvSegType', btn => {
+    setupSegmented(container.querySelector('#dvSegType'), btn => {
         currentType = btn.dataset.dtype;
         _rebuildInput(container, currentType);
     });

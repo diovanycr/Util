@@ -126,22 +126,18 @@ export async function loadUsers(append = false) {
                 openConfirmModal(
                     async () => {
                         try {
-                            const msgsSnap  = await getDocs(collection(db, 'users', d.id, 'messages'));
-                            const probsSnap = await getDocs(collection(db, 'users', d.id, 'problems'));
-                            const linksSnap = await getDocs(collection(db, 'users', d.id, 'links'));
-
-                            const allDeletions = [
-                                ...msgsSnap.docs.map(m => doc(db, 'users', d.id, 'messages', m.id)),
-                                ...probsSnap.docs.map(p => doc(db, 'users', d.id, 'problems', p.id)),
-                                ...linksSnap.docs.map(l => doc(db, 'users', d.id, 'links', l.id))
-                            ];
-
-                            // writeBatch aceita no máx. 500 ops por lote
-                            const BATCH_LIMIT = 500;
-                            for (let i = 0; i < allDeletions.length; i += BATCH_LIMIT) {
-                                const batch = writeBatch(db);
-                                for (const dRef of allDeletions.slice(i, i + BATCH_LIMIT)) batch.delete(dRef);
-                                await batch.commit();
+                            // Busca e remove cada subcoleção em páginas para não estourar a memória
+                            const SUBCOL_PAGE = 500;
+                            const subcols = ['messages', 'problems', 'links'];
+                            for (const sub of subcols) {
+                                for (;;) {
+                                    const page = await getDocs(query(collection(db, 'users', d.id, sub), limit(SUBCOL_PAGE)));
+                                    if (page.empty) break;
+                                    const batch = writeBatch(db);
+                                    page.docs.forEach(docSnap => batch.delete(doc(db, 'users', d.id, sub, docSnap.id)));
+                                    await batch.commit();
+                                    if (page.docs.length < SUBCOL_PAGE) break;
+                                }
                             }
 
                             await deleteDoc(doc(db, 'users', d.id));

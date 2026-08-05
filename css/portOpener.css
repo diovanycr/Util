@@ -62,10 +62,10 @@
   to   { opacity: 1; transform: scale(1); }
 }
 
-.po-tag-name { font-family: 'Inter', sans-serif; font-size: 11px; color: #6b7280; font-weight: 400; }
+.po-tag-name { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--muted); font-weight: 400; }
 
 .po-tag-remove {
-  background: none; border: none; cursor: pointer; color: #93c5fd;
+  background: none; border: none; cursor: pointer; color: var(--primary);
   font-size: 16px; line-height: 1; padding: 0 2px;
   display: flex; align-items: center; border-radius: 3px;
   transition: color .15s; font-family: inherit;

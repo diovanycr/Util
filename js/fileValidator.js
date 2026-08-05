@@ -4,6 +4,8 @@
 //  Validador rápido de XML de NFe/NFCe, parser de arquivos AFD/AFDT
 //  de relógio de ponto e extrator de CNPJ/Inscrição Estadual
 
+import { setupSegmented } from './utils.js';
+
 export function buildFileValidatorPanel() {
     return `
       <div id="poTool-filevalidator" class="po-tool-panel hidden">
@@ -49,32 +51,7 @@ export function bindFileValidatorEvents(container) {
     let currentType = 'xml';
     let fileContent = null;
 
-    const seg = (groupId, setter) => {
-        const group = container.querySelector(groupId);
-        if (!group) return;
-        const radios = () => [...group.querySelectorAll('.po-seg-btn')];
-        const select = (btn) => {
-            radios().forEach(b => {
-                const active = b === btn;
-                b.classList.toggle('active', active);
-                b.setAttribute('aria-checked', active ? 'true' : 'false');
-                b.setAttribute('tabindex', active ? '0' : '-1');
-            });
-            setter(btn);
-            btn.focus();
-        };
-        group.addEventListener('click', e => { const btn = e.target.closest('.po-seg-btn'); if (btn) select(btn); });
-        group.addEventListener('keydown', e => {
-            const list = radios();
-            const idx = list.indexOf(document.activeElement);
-            let next = null;
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
-            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
-            if (next) { e.preventDefault(); select(next); }
-        });
-    };
-
-    seg('#fvSegType', btn => {
+    setupSegmented(container.querySelector('#fvSegType'), btn => {
         currentType = btn.dataset.ftype;
         _showResult(container, 'info', 'Selecione um arquivo ou cole o conteúdo para processar.', '');
     });

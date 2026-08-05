@@ -105,6 +105,7 @@ body {
 .align-self-start { align-self: flex-start; }
 .full-width { width: 100%; }
 .border-danger { border-color: #fecaca; }
+[data-theme="dark"] .border-danger { border-color: #7f1d1d; }
 
 .success-text { color: var(--success); font-size: 14px; font-weight: 600; text-align: center; padding: 8px 0; }
 

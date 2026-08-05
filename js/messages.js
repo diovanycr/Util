@@ -9,6 +9,7 @@ import {
     writeBatch,
     query,
     where,
+    orderBy,
     limit
 } from './firebase.js';
 
@@ -97,8 +98,9 @@ function setupUserInterface() {
         const category = el('msgCategory').value.trim() || 'Geral';
         if (!text) return showModal("A mensagem não pode estar vazia.");
         try {
-            const snap = await getDocs(collection(db, 'users', currentUserId, 'messages'));
-            const maxOrder = snap.docs.reduce((m, d) => Math.max(m, d.data().order || 0), 0);
+            // Busca somente o maior order em vez de carregar toda a coleção
+            const lastSnap = await getDocs(query(collection(db, 'users', currentUserId, 'messages'), orderBy('order', 'desc'), limit(1)));
+            const maxOrder = lastSnap.empty ? 0 : (lastSnap.docs[0].data().order || 0);
             await addDoc(collection(db, 'users', currentUserId, 'messages'), {
                 text, title, category,
                 order: maxOrder + 1, deleted: false, createdAt: Date.now()
@@ -570,7 +572,9 @@ async function importFromTxt(event, userId) {
 
             if (messagesToImport.length === 0) return showModal("O arquivo está vazio ou inválido.");
 
-            const snap = await getDocs(collection(db, 'users', userId, 'messages'));
+            // Limita a busca de duplicatas a 500 registros para não degradar em bases grandes.
+            // Caso a base tenha >500 mensagens, duplicatas além desse limite podem passar despercebidas.
+            const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), limit(500)));
             const existingItems = snap.docs.map(d => ({ id: d.id, text: d.data().text }));
             const duplicates = messagesToImport.filter(item => existingItems.some(ext => ext.text === item.text));
 
@@ -679,8 +683,8 @@ async function loadTrash(userId) {
     const list = el('trashList');
     list.innerHTML = '<div class="loading-state"><span class="spinner"></span><span>Carregando lixeira...</span></div>';
     try {
-        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.deleted);
+        const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('deleted', '==', true)));
+        const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         list.innerHTML = docs.length ? '' : '<p class="sub center">Lixeira vazia.</p>';
         docs.forEach(item => {
             const row = document.createElement('div');
@@ -729,8 +733,13 @@ function _updateTrashBadge(allDocs) {
 
 export async function updateTrashCount(userId) {
     try {
-        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-        _updateTrashBadge(snap.docs.map(d => d.data()));
+        const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('deleted', '==', true)));
+        const count = snap.size;
+        const badge = el('trashCount');
+        if (badge) {
+            badge.textContent = count;
+            badge.style.display = count > 0 ? 'inline-block' : 'none';
+        }
     } catch (err) { console.error("Erro ao atualizar contagem da lixeira:", err); }
 }
 
@@ -772,8 +781,8 @@ async function saveOrder(userId) {
 
 async function emptyTrash(userId) {
     try {
-        const snap = await getDocs(collection(db, 'users', userId, 'messages'));
-        const toDelete = snap.docs.filter(d => d.data().deleted);
+        const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('deleted', '==', true)));
+        const toDelete = snap.docs;
         
         // Processa em batches de 500 com feedback de progresso
         const BATCH_SIZE = 500;

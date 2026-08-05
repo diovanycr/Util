@@ -74,3 +74,7 @@
 [data-theme="dark"] .tag-teal   { background: #042f2e; color: #5eead4; }
 [data-theme="dark"] .tag-red    { background: var(--danger); color: var(--primary-contrast); }
 [data-theme="dark"] .tag-indigo { background: #1e1b4b; color: #a5b4fc; }
+[data-theme="dark"] .tag-filter-chip.tag-purple { background: #3b0764; color: #d8b4fe; border-color: #6d28d9; }
+[data-theme="dark"] .tag-filter-chip.tag-pink   { background: #500724; color: #f9a8d4; border-color: #be185d; }
+[data-theme="dark"] .tag-filter-chip.tag-teal   { background: #042f2e; color: #5eead4; border-color: #0f766e; }
+[data-theme="dark"] .tag-filter-chip.tag-indigo { background: #1e1b4b; color: #a5b4fc; border-color: #4338ca; }

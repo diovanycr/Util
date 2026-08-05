@@ -11,7 +11,10 @@ import {
     deleteDoc,
     doc,
     writeBatch,
-    updateDoc
+    updateDoc,
+    query,
+    orderBy,
+    limit
 } from './firebase.js';
 
 import { showModal, openConfirmModal } from './modal.js';
@@ -109,7 +112,7 @@ async function loadLinks(userId) {
     if (!list) return;
 
     try {
-        const snap = await getDocs(collection(db, 'users', userId, 'links'));
+        const snap = await getDocs(query(collection(db, 'users', userId, 'links'), orderBy('createdAt'), limit(500)));
         list.innerHTML = '';
 
         allLinks = snap.docs

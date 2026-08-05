@@ -261,3 +261,92 @@ export function isGreetingMessage(item) {
         text.includes('bom dia')  || text.includes('boa tarde')  || text.includes('boa noite');
 }
 
+/**
+ * Inicializa um segmented control (radiogroup) acessível.
+ * Gerencia clique, setas (ArrowRight/Left/Up/Down), Home/End,
+ * atualiza aria-checked, tabindex e a classe .active.
+ *
+ * @param {HTMLElement} group - Container do segmented (role="radiogroup")
+ * @param {(btn: HTMLButtonElement) => void} onSelect - Callback ao selecionar um botão
+ * @param {string} [btnSelector='.po-seg-btn'] - Seletor dos botões internos
+ */
+export function setupSegmented(group, onSelect, btnSelector = '.po-seg-btn') {
+    if (!group) return null;
+    const radios = () => [...group.querySelectorAll(btnSelector)];
+    const select = (btn) => {
+        radios().forEach(b => {
+            const active = b === btn;
+            b.classList.toggle('active', active);
+            b.setAttribute('aria-checked', active ? 'true' : 'false');
+            b.setAttribute('tabindex', active ? '0' : '-1');
+        });
+        onSelect(btn);
+        btn.focus();
+    };
+    group.addEventListener('click', e => {
+        const btn = e.target.closest(btnSelector);
+        if (btn) select(btn);
+    });
+    group.addEventListener('keydown', e => {
+        const list = radios();
+        const idx = list.indexOf(document.activeElement);
+        let next = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
+        else if (e.key === 'Home') next = list[0];
+        else if (e.key === 'End') next = list[list.length - 1];
+        if (next) { e.preventDefault(); select(next); }
+    });
+    return { select, radios };
+}
+
+/**
+ * Cria uma função de highlight de sintaxe reutilizável.
+ *
+ * O algoritmo escapa HTML primeiro, depois aplica cada regra em ordem
+ * "stashando" os spans em placeholders para que regex posteriores não
+ * apliquem spans dentro de spans já criados.
+ *
+ * @param {Array<{regex: RegExp, cls?: string, transform?: (match: string, ...groups: string[]) => string}>} rules
+ *   Lista de regras (aplicadas em ordem). Se `cls` for informado, o match
+ *   inteiro ganha `<span class="po-c-cls">`. Se `transform` for informado,
+ *   ele recebe (match, ...groups) e devolve o HTML (use o helper `span`).
+ * @returns {(code: string) => string} Função que recebe código e devolve HTML.
+ */
+export function createHighlighter(rules) {
+    const span = (cls, content) => `<span class="po-c-${cls}">${content}</span>`;
+    return (code) => {
+        const tokens = [];
+        const stash = html => `\u0000${tokens.push(html) - 1}\u0000`;
+        const e = s => s.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+        let src = e(code);
+        for (const { regex, cls, transform } of rules) {
+            src = src.replace(regex, (...args) => {
+                const match = args[0];
+                if (typeof transform === 'function') return transform(match, ...args.slice(1, -2), stash, span);
+                if (cls) return stash(span(cls, match));
+                return match;
+            });
+        }
+        for (let i = tokens.length - 1; i >= 0; i--) {
+            src = src.replace(`\u0000${i}\u0000`, tokens[i]);
+        }
+        return src;
+    };
+}
+
+/**
+ * Define o conteúdo de um <pre> de código, guardando o texto cru em `el._raw`
+ * e aplicando realce de sintaxe através do highlighter informado.
+ *
+ * @param {string} id - id do elemento <pre>
+ * @param {string} text - código a exibir
+ * @param {(code: string) => string} highlighter - função retornada por createHighlighter
+ */
+export function setCode(id, text, highlighter) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el._raw = text;
+    el.innerHTML = highlighter(text);
+}
+

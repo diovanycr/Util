@@ -42,4 +42,7 @@
 
 [data-theme="dark"] .user-row { background: #1e293b; border-color: var(--border); }
 [data-theme="dark"] .user-row:hover { border-color: #475569; }
+[data-theme="dark"] .user-row.dragging { background: var(--bg); }
 [data-theme="dark"] .user-row.blocked { background: #1c0a0a; border-color: #7f1d1d; }
+[data-theme="dark"] .user-row.blocked .user-name { color: #fca5a5; }
+[data-theme="dark"] .btnReset:hover { background: var(--warning-bg) !important; border-color: var(--warning) !important; }

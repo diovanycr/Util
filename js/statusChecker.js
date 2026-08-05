@@ -4,6 +4,8 @@
 //  Verifica disponibilidade de serviços SEFAZ (NFe/NFCe por UF)
 //  e gateways de pagamento (Stone, PagBank, Mercado Pago, TEF)
 
+import { setupSegmented } from './utils.js';
+
 const SEFAZ_SERVICES = [
     { uf: 'AC', url: 'https://www.sefaznet.ac.gov.br/nfe/nfe_app.aspx', name: 'SEFAZ-AC' },
     { uf: 'AL', url: 'https://www.sefaz.al.gov.br/nfe/nfe_app.aspx', name: 'SEFAZ-AL' },
@@ -110,29 +112,10 @@ export function bindStatusCheckerEvents(container) {
 
     // Abas categoria
     const tabs = container.querySelector('#scTabBtns');
-    if (tabs) {
-        const radios = () => [...tabs.querySelectorAll('.po-seg-btn')];
-        const select = (btn) => {
-            radios().forEach(b => {
-                const active = b === btn;
-                b.classList.toggle('active', active);
-                b.setAttribute('aria-checked', active ? 'true' : 'false');
-                b.setAttribute('tabindex', active ? '0' : '-1');
-            });
-            currentCat = btn.dataset.cat;
-            _renderGrid(currentCat);
-            btn.focus();
-        };
-        tabs.addEventListener('click', e => { const btn = e.target.closest('.po-seg-btn'); if (btn) select(btn); });
-        tabs.addEventListener('keydown', e => {
-            const list = radios();
-            const idx = list.indexOf(document.activeElement);
-            let next = null;
-            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
-            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
-            if (next) { e.preventDefault(); select(next); }
-        });
-    }
+    setupSegmented(tabs, btn => {
+        currentCat = btn.dataset.cat;
+        _renderGrid(currentCat);
+    });
 
     container.querySelector('#scBtnCheckAll')?.addEventListener('click', () => {
         const items = currentCat === 'sefaz' ? SEFAZ_SERVICES : GATEWAYS;
