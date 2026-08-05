@@ -15,6 +15,7 @@ import {
 } from '../utils.js';
 import { addToHistory, renderHistoryPanel } from '../history.js';
 import { state, allMessages } from './state.js';
+import { updateTrashCount } from './trash.js';
 
 // --- FILTRO DE CATEGORIAS (sem re-renderizar DOM, aplica hidden-by-filter) ---
 
@@ -256,7 +257,6 @@ export function renderMessages() {
                         try {
                             await updateDoc(doc(db, 'users', state.currentUserId, 'messages', item.id), { deleted: true });
                             loadMessages(state.currentUserId);
-                            const { updateTrashCount } = await import('./trash.js');
                             updateTrashCount(state.currentUserId);
                             showToast('Mensagem movida para a lixeira.');
                         } catch (err) { showModal('Erro ao mover para a lixeira.'); }

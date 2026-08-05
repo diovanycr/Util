@@ -27,12 +27,12 @@ Próximo passo: Implementar os 36 itens do backlog, priorizando bugs de XSS e pa
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **Refatorar: messages.js 791 linhas misturando setup/render/import-export/lixeira - quebrar em modulos** `[G]` `[Backend]`
 *(Nenhum item pendente)*
 
 
 
 ## Feito
+- [x] **Refatorar: messages.js 791 linhas misturando setup/render/import-export/lixeira - quebrar em modulos** `[G]` `[Backend]`
 - [x] **Bug: messages.js loadMessages/getDocs carrega TODAS as mensagens sem paginacao - degrada em bases grandes** `[M]` `[Backend]`
 - [x] **Bug: messages.js updateTrashCount carrega TODA a colecao messages so para contar deletados - usar aggregate query ou counter** `[M]` `[Backend]`
 - [x] **Bug: messages.js importFromTxt carrega TODA a colecao para dedup sem where/limite - pesado em bases grandes** `[M]` `[Backend]`
