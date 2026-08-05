@@ -3,7 +3,7 @@
 // ============================================================
 //  CNPJ, CPF, PIS, Inscrição Estadual (por UF), DV Chave NFe/NFCe
 
-const IE_FORMATS = {
+export const IE_FORMATS = {
     'AC': { name: 'Acre', mask: '##.###.###/####-##' },
     'AL': { name: 'Alagoas', mask: '#########' },
     'AP': { name: 'Amapá', mask: '#######' },

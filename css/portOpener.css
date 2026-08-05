@@ -10,21 +10,46 @@
 
 .po-tool-selector { margin-bottom: 0; }
 .po-selector-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muted); margin-bottom: 12px; }
-.po-tools-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+.po-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
 
 .po-tool-btn {
-  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
-  padding: 14px 18px; border-radius: 10px; border: 1.5px solid var(--border);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 14px 16px; border-radius: 10px; border: 1.5px solid var(--border);
   background: var(--bg); cursor: pointer; transition: all 0.15s;
-  min-width: 180px; text-align: left; font-family: inherit;
+  text-align: left; font-family: inherit; height: 100%;
 }
 .po-tool-btn:hover { border-color: var(--primary); background: #eff6ff; }
 .po-tool-btn.active { border-color: var(--primary); background: #eff6ff; box-shadow: 0 0 0 3px rgba(37,99,235,.1); }
 .po-tool-soon { opacity: 0.45; cursor: default; }
 .po-tool-soon:hover { border-color: var(--border); background: var(--bg); box-shadow: none; }
-.po-tool-icon { font-size: 22px; }
+.po-tool-icon { font-size: 22px; line-height: 1; }
 .po-tool-name { font-size: 14px; font-weight: 700; color: var(--text); }
-.po-tool-desc { font-size: 12px; color: var(--muted); line-height: 1.4; }
+.po-tool-desc { font-size: 11.5px; color: var(--muted); line-height: 1.35; min-height: 32px; }
+
+/* Modal de ferramenta */
+.po-modal-box {
+  background: var(--card); padding: 0; border-radius: 14px;
+  max-width: 720px; width: 92%; max-height: 88vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); overflow: hidden;
+  animation: modalIn 0.2s ease-out;
+}
+.po-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.po-modal-title { font-size: 16px; font-weight: 700; color: var(--text); margin: 0; }
+.po-modal-close {
+  background: none; border: none; cursor: pointer; color: var(--muted);
+  font-size: 18px; padding: 4px 8px; border-radius: 6px; line-height: 1;
+  transition: background .15s, color .15s; font-family: inherit;
+}
+.po-modal-close:hover { background: var(--bg); color: var(--danger); }
+.po-modal-body { padding: 20px; overflow-y: auto; }
 
 .po-tool-panel { display: flex; flex-direction: column; gap: 0; }
 .po-tool-panel.hidden { display: none; }

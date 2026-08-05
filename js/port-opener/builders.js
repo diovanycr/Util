@@ -153,7 +153,7 @@ export function buildFuturaPanel() {
 /** Painel principal do Port Opener (entrada de portas, opções e output) */
 export function buildPortOpenerPanel() {
   return `
-    <div id="poTool-portopener" class="po-tool-panel">
+    <div id="poTool-portopener" class="po-tool-panel hidden">
       ${buildPortOpenerHeader()}
       ${buildPortInput()}
       ${buildQuickPorts()}

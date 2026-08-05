@@ -30,6 +30,20 @@ import {
 // Estado mutável da sessão (Port Opener)
 const state = { ...DEFAULT_STATE };
 
+const TOOL_TITLES = {
+  portopener: '🛡️ Port Opener',
+  futura: '🔍 Futura Search',
+  escpos: '🖨️ ESC/POS',
+  docvalidator: '📋 Documentos Fiscais',
+  statuschecker: '🟢 Status SEFAZ & Gateways',
+  apitester: '🔌 Testes de APIs & Webhooks',
+  filevalidator: '📂 Arquivos Fiscais & Ponto',
+  ticketsummary: '📝 Sumário de Atendimento',
+  decisiontree: '🌳 Árvore de Decisão',
+  networkdiag: '🌐 Diagnóstico de Redes',
+  scriptgen: '⚡ Scripts & Comandos'
+};
+
 // ── Seletor de ferramentas ────────────────────────────────────────────────
 function _buildToolSelector() {
   return `
@@ -93,6 +107,17 @@ function _buildToolSelector() {
         </button>
       </div>
     </div>
+    <div id="poToolModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Ferramenta">
+      <div class="po-modal-box card">
+        <div class="po-modal-header">
+          <h3 id="poModalTitle" class="po-modal-title">Ferramenta</h3>
+          <button type="button" id="poModalClose" class="po-modal-close" aria-label="Fechar ferramenta">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
+        <div id="poModalBody" class="po-modal-body"></div>
+      </div>
+    </div>
   `;
 }
 
@@ -153,6 +178,57 @@ function _handleToggleQuick() {
   };
 }
 
+// ── Modal de ferramentas ──────────────────────────────────────────────────
+let _toolModalReturnFocus = null;
+
+function _openToolModal(tool, btnEl) {
+  const modal = document.getElementById('poToolModal');
+  const body = document.getElementById('poModalBody');
+  const titleEl = document.getElementById('poModalTitle');
+  if (!modal || !body) return;
+
+  _toolModalReturnFocus = btnEl;
+  titleEl.textContent = TOOL_TITLES[tool] || 'Ferramenta';
+
+  // Move o painel da ferramenta para dentro do corpo do modal (preserva listeners)
+  const panel = document.getElementById(`poTool-${tool}`);
+  if (panel) {
+    // Devolve painel anterior ao container original (se houver)
+    const wrap = document.querySelector('.po-wrap');
+    if (body._currentPanel && wrap) {
+      body._currentPanel.classList.add('hidden');
+      wrap.appendChild(body._currentPanel);
+    }
+    panel.classList.remove('hidden');
+    body.appendChild(panel);
+    body._currentPanel = panel;
+  }
+
+  modal.classList.remove('hidden');
+  modal.style.display = 'flex';
+}
+
+function _closeToolModal(container) {
+  const modal = document.getElementById('poToolModal');
+  const body = document.getElementById('poModalBody');
+  if (!modal) return;
+
+  // Devolve o painel ao container original (oculto)
+  const wrap = document.querySelector('.po-wrap');
+  if (body._currentPanel && wrap) {
+    body._currentPanel.classList.add('hidden');
+    wrap.appendChild(body._currentPanel);
+    body._currentPanel = null;
+  }
+
+  modal.classList.add('hidden');
+  modal.style.display = 'none';
+  // Desmarca ativo no seletor
+  container.querySelectorAll('.po-tool-btn').forEach(b => b.classList.remove('active'));
+  if (_toolModalReturnFocus) _toolModalReturnFocus.focus();
+  _toolModalReturnFocus = null;
+}
+
 // ── Bind de eventos ───────────────────────────────────────────────────────
 function _bindEvents(container) {
 
@@ -160,10 +236,21 @@ function _bindEvents(container) {
   container.querySelectorAll('.po-tool-btn[data-tool]').forEach(btn => {
     btn.addEventListener('click', () => {
       container.querySelectorAll('.po-tool-btn').forEach(b => b.classList.remove('active'));
-      container.querySelectorAll('.po-tool-panel').forEach(p => p.classList.add('hidden'));
       btn.classList.add('active');
-      document.getElementById(`poTool-${btn.dataset.tool}`)?.classList.remove('hidden');
+      _openToolModal(btn.dataset.tool, btn);
     });
+  });
+
+  // Fecha modal: botão X, clique no overlay, Escape
+  document.getElementById('poModalClose').addEventListener('click', () => _closeToolModal(container));
+  document.getElementById('poToolModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) _closeToolModal(container);
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      const modal = document.getElementById('poToolModal');
+      if (modal && !modal.classList.contains('hidden')) _closeToolModal(container);
+    }
   });
 
   // Tag field: click foca input
