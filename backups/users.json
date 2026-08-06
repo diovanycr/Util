@@ -1,0 +1,10 @@
+[
+  {
+    "uid": "admin-demo",
+    "username": "admin",
+    "email": "admin@painelatende.local",
+    "role": "admin",
+    "blocked": false,
+    "createdAt": "2026-08-06T19:10:09.643Z"
+  }
+]

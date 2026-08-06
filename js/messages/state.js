@@ -38,7 +38,6 @@ export const state = {
 };
 
 export function resetState() {
-    uiInitialized = false;
     currentUserId = null;
     activeCategoryFilter = null;
     allMessages.length = 0;

@@ -12,6 +12,10 @@ let filteringFavorites = { msg: false, problem: false, link: false };
 let currentUserId = null;
 let enhancementsInitialized = false;
 
+let _counterHandlers = {};
+let _favoritesHandler = null;
+let _ctrlFHandler = null;
+
 export function initEnhancements(uid) {
     currentUserId = uid;
     if (!enhancementsInitialized) {
@@ -35,25 +39,42 @@ export function resetEnhancements() {
         compactMode = false;
         document.body.classList.remove('compact-mode');
     }
+
+    Object.entries(_counterHandlers).forEach(([event, handler]) => {
+        document.removeEventListener(event, handler);
+    });
+    _counterHandlers = {};
+
+    if (_favoritesHandler) {
+        document.removeEventListener('itemsRendered', _favoritesHandler);
+        _favoritesHandler = null;
+    }
+    if (_ctrlFHandler) {
+        document.removeEventListener('keydown', _ctrlFHandler);
+        _ctrlFHandler = null;
+    }
 }
 
 // --- CONTADORES ---
 
 function setupCounterListeners() {
-    document.addEventListener('updateMsgCount', (e) => {
+    _counterHandlers.updateMsgCount = (e) => {
         counts.msg = e.detail;
         if (!filteringFavorites.msg) updateBadge('msgCount', counts.msg);
-    });
-    
-    document.addEventListener('updateProblemCount', (e) => {
+    };
+    document.addEventListener('updateMsgCount', _counterHandlers.updateMsgCount);
+
+    _counterHandlers.updateProblemCount = (e) => {
         counts.problem = e.detail;
         if (!filteringFavorites.problem) updateBadge('problemCount', counts.problem);
-    });
-    
-    document.addEventListener('updateLinkCount', (e) => {
+    };
+    document.addEventListener('updateProblemCount', _counterHandlers.updateProblemCount);
+
+    _counterHandlers.updateLinkCount = (e) => {
         counts.link = e.detail;
         if (!filteringFavorites.link) updateBadge('linkCount', counts.link);
-    });
+    };
+    document.addEventListener('updateLinkCount', _counterHandlers.updateLinkCount);
 }
 
 function updateBadge(id, count) {
@@ -103,13 +124,14 @@ function setupGlobalSearch() {
     };
 
     // Ctrl+F
-    document.addEventListener('keydown', (e) => {
+    _ctrlFHandler = (e) => {
         if (e.ctrlKey && e.key === 'f') {
             e.preventDefault();
             input.focus();
             input.select();
         }
-    });
+    };
+    document.addEventListener('keydown', _ctrlFHandler);
 }
 
 function applyGlobalSearch(query) {
@@ -331,7 +353,8 @@ function applyFavoriteFilter(type, itemSelector, groupSelector) {
 // --- FAVORITOS ---
 
 function setupFavorites() {
-    document.addEventListener('itemsRendered', addFavoriteStars);
+    _favoritesHandler = () => addFavoriteStars();
+    document.addEventListener('itemsRendered', _favoritesHandler);
 }
 
 function addFavoriteStars() {

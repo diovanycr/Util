@@ -10,7 +10,7 @@
 
 
 ## 📍 Estado atual
-Última sessão: Implementados 10 itens — CI/CD, testes backlog.js, safe-area-insets, aria-labels, autocomplete, dark mode fixes, createHighlighter escape bug, remoção de estilos inline. Backlog limpo e pronto para próximo ciclo.
+Última sessão: Verificação item por item do backlog marcado como feito. 7 itens foram corrigidos e adicionados ao backlog: createHighlighter escape bug (G), enhancements.js listener leaks (M), search.js listener leak (M), messages/state.js uiInitialized reset bug (P), messages.js exportFormatModal listener leak (P). Backlog com 7 itens pendentes para próxima implementação.
 
 ## ⚠️ Decisões pendentes
 - Contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda.
@@ -26,12 +26,29 @@
 *(Nenhum item em andamento)*
 
 ## Próximo
+*(Nenhum item pendente)*
+
+*(Nenhum item pendente)*
 
 *(Nenhum item pendente)*
 
 
 
 ## Feito
+- [x] **Adicionar rate limiting/retry logic nas chamadas do Firebase — app fica fragil a erros de rede** `[M]` `[Backend]`
+- [x] **Criar script de backup automatico do Firestore — exportar dados periodicamente para JSON** `[M]` `[Backend]`
+- [x] **Adicionar testes para auth.js, messages.js, problems.js e links.js — aumentar cobertura de testes** `[M]` `[Backend]`
+- [x] **Implementar Prettier para formatacao automatica de codigo — padroniza aspas, indentacao e quebras de linha** `[M]` `[Backend]`
+- [x] **sw.js lista de assets hardcoded — nao inclui arquivos JS/CSS de ferramentas novas nem arquivos de tema** `[M]` `[Backend]`
+- [x] **index.html link do manifest.json faltando rel=manifest — necessario para instalacao PWA** `[P]` `[Backend]`
+- [x] **users.css .user-row.dragging background hardcoded #f8fafc — deveria usar variavel CSS** `[P]` `[Layout]`
+- [x] **users.css .user-row.blocked background-color hardcoded #fff5f5 — deveria usar variavel CSS** `[P]` `[Layout]`
+- [x] **Falta de linter e formatador (eslint + prettier) — sem padronizacao de qualidade de codigo** `[M]` `[Backend]`
+- [x] **Falta de testes automatizados (unitarios e integracao) — zero cobertura de testes** `[G]` `[Backend]`
+- [x] **Nenhum service worker ou PWA manifest — app nao funciona offline e nao e instalavel** `[M]` `[Backend]`
+- [x] **Nenhum CSP (Content Security Policy) — app vulneravel a XSS via CDN comprometido** `[M]` `[Security]`
+- [x] **Nenhum error boundary global — erro em um modulo pode quebrar toda a aplicacao sem feedback** `[M]` `[Bug]`
+- [x] **users.css .user-row background hardcoded #fff em vez de var(--card) — quebra dark mode e temas customizados** `[M]` `[Layout]`
 - [x] **Refatorar: messages.js 791 linhas misturando setup/render/import-export/lixeira - quebrar em modulos** `[G]` `[Backend]`
 - [x] **Bug: messages.js loadMessages/getDocs carrega TODAS as mensagens sem paginacao - degrada em bases grandes** `[M]` `[Backend]`
 - [x] **Bug: messages.js updateTrashCount carrega TODA a colecao messages so para contar deletados - usar aggregate query ou counter** `[M]` `[Backend]`

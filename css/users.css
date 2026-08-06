@@ -11,8 +11,8 @@
   gap: 12px; transition: transform 0.1s;
 }
 .user-row:hover { border-color: #cbd5e1; }
-.user-row.dragging { opacity: 0.5; background: #f8fafc; border: 2px dashed var(--primary); }
-.user-row.blocked { background-color: #fff5f5; border-color: #feb2b2; }
+.user-row.dragging { opacity: 0.5; background: var(--bg); border: 2px dashed var(--primary); }
+.user-row.blocked { background-color: var(--error-bg); border-color: var(--error); }
 .user-row.blocked .user-name { color: #c53030; font-weight: 600; }
 .user-row .actions { display: flex; gap: 8px; }
 

@@ -13,8 +13,22 @@ import { escapeHtml, normalizeSolutions } from './utils.js';
 
 let currentUserId = null;
 let searchInitialized = false;
+let _searchHandlers = {};
 
 export function resetSearch() {
+    if (_searchHandlers.modalClick) {
+        const modal = el('globalSearchModal');
+        if (modal) modal.removeEventListener('click', _searchHandlers.modalClick);
+    }
+    if (_searchHandlers.inputInput) {
+        const input = el('globalSearchInput');
+        if (input) input.removeEventListener('input', _searchHandlers.inputInput);
+    }
+    if (_searchHandlers.inputKeydown) {
+        const input = el('globalSearchInput');
+        if (input) input.removeEventListener('keydown', _searchHandlers.inputKeydown);
+    }
+    _searchHandlers = {};
     searchInitialized = false;
     currentUserId = null;
 }
@@ -32,21 +46,24 @@ export function initSearch(uid) {
     searchInitialized = true;
 
     // Fecha ao clicar fora
-    modal.addEventListener('click', (e) => {
+    _searchHandlers.modalClick = (e) => {
         if (e.target === modal) closeSearch();
-    });
+    };
+    modal.addEventListener('click', _searchHandlers.modalClick);
 
     // Busca ao digitar (debounce 200ms)
     let debounceTimer;
-    input.addEventListener('input', () => {
+    _searchHandlers.inputInput = () => {
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(() => runSearch(input.value.trim()), 200);
-    });
+    };
+    input.addEventListener('input', _searchHandlers.inputInput);
 
     // Fecha com Esc
-    input.addEventListener('keydown', (e) => {
+    _searchHandlers.inputKeydown = (e) => {
         if (e.key === 'Escape') closeSearch();
-    });
+    };
+    input.addEventListener('keydown', _searchHandlers.inputKeydown);
 }
 
 async function runSearch(query) {

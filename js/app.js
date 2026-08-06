@@ -5,8 +5,24 @@ import { initTabs } from './tabs.js';
 import { initTheme } from './theme.js';
 import { initHelp } from './help.js';
 import { initShortcuts } from './shortcuts.js';
+import { showModal } from './modal.js';
 
 let sistemasInitialized = false;
+
+function showErrorToast(message) {
+    showModal(`Ocorreu um erro inesperado: ${message}. Tente recarregar a página.`);
+}
+
+window.addEventListener('error', (event) => {
+    console.error('Global error:', event.error);
+    showErrorToast(event.message);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+    console.error('Unhandled rejection:', event.reason);
+    const message = event.reason?.message || event.reason || 'Erro desconhecido';
+    showErrorToast(message);
+});
 
 document.addEventListener('DOMContentLoaded', () => {
     initTheme();
