@@ -240,7 +240,7 @@ class FuturaSearchWidget {
     });
 
     updateStatus(ctx);
-    theme.initTheme(ctx);
+    initTheme(ctx);
     initVoiceSearch(ctx);
     initAudioReader(ctx);
     renderHistory(ctx);
@@ -254,7 +254,7 @@ class FuturaSearchWidget {
         if (globalThemeBtn) {
           globalThemeBtn.click();
         } else {
-          theme.toggleTheme(ctx);
+          toggleTheme(ctx);
         }
       });
     }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'painelatende-v1';
+const CACHE_NAME = 'painelatende-v3';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -63,7 +63,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME && key !== CACHE_NAME + '-static').map((key) => caches.delete(key)))
+      Promise.all(keys.filter((key) => key !== CACHE_NAME && key !== CACHE_NAME + '-static').map((key) => caches.delete(key))          )
     )
   );
   self.clients.claim();
