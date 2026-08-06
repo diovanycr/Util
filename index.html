@@ -4,17 +4,16 @@
   <meta charset="UTF-8" />
   <title>PainelAtende</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://www.googleapis.com https://generativelanguage.googleapis.com; frame-src 'self' https://accounts.google.com;" />
-
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com; connect-src 'self' https://*.firebaseio.com https://www.googleapis.com https://generativelanguage.googleapis.com https://identitytoolkit.googleapis.com https://firestore.googleapis.com https://securetoken.googleapis.com wss://*.firebaseio.com; frame-src 'self' https://accounts.google.com;" />
   <link rel="manifest" href="./manifest.json" />
-<meta name="theme-color" content="#2563eb" />
-<script type="module">
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
-  }
-</script>
+  <meta name="theme-color" content="#2563eb" />
+  <script type="module">
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+    }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#2563eb" />
   <script>
     // Aplica o tema salvo antes da renderização para evitar flash (FOUC).
     // Script inline síncrono no <head>: roda antes do <body> ser pintado.
@@ -39,7 +38,6 @@
   <link rel="stylesheet" href="css/compact-favorites.css">
   <link rel="stylesheet" href="css/portOpener.css">
   <link rel="stylesheet" href="css/futura-widget.css">
-
   <link rel="stylesheet" href="css/history.css">
   <link rel="stylesheet" href="css/escPos.css">
   <link rel="stylesheet" href="css/docValidator.css">
@@ -50,12 +48,10 @@
   <link rel="stylesheet" href="css/decisionTree.css">
   <link rel="stylesheet" href="css/networkDiag.css">
   <link rel="stylesheet" href="css/scriptGen.css">
-
 </head>
 <body>
   <!-- Skip to content link (acessibilidade) -->
   <a href="#app" class="skip-link">Ir para o conteúdo principal</a>
-
   <div id="loginBox">
     <div class="card login-card-box">
       <div class="login-header">
@@ -65,37 +61,33 @@
         <h2>PainelAtende</h2>
         <p class="login-subtitle">Gerenciador de respostas e soluções</p>
       </div>
-
       <div class="login-form-group">
         <label for="loginUser">Usuário</label>
         <input id="loginUser" type="text" placeholder="Nome de usuário" autocomplete="username" />
       </div>
-
       <div class="login-form-group">
         <label for="loginPass">Senha</label>
         <input id="loginPass" type="password" placeholder="Sua senha" autocomplete="current-password" />
       </div>
-
       <button id="btnLogin" class="btn primary full-width">Entrar</button>
       
       <div class="login-divider">
         <span>ou</span>
       </div>
-
       <button id="btnGoogleLogin" class="btn btn-google">
         <svg width="18" height="18" viewBox="0 0 48 48">
           <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
           <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19"/>
+          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19"/>
         </svg>
         Entrar com Google
       </button>
     </div>
   </div>
-
   <div id="app" class="container hidden">
-    
+    <!-- Header -->
     <div class="header">
       <div class="header-logo-section">
         <h1>PainelAtende</h1>
@@ -105,15 +97,13 @@
           <div class="user-avatar" id="userAvatar">-</div>
           <span id="loggedUser" class="username-display"></span>
         </div>
-
-<div class="search-box">
-           <i class="fa-solid fa-search" aria-hidden="true"></i>
-           <input id="globalSearch" type="text" placeholder="Filtrar nesta página..." aria-label="Filtrar itens nesta página" />
-           <button id="btnClearGlobalSearch" class="btn-clear-search hidden" aria-label="Limpar filtro da página">
-             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-           </button>
-         </div>
-
+        <div class="search-box">
+          <i class="fa-solid fa-search" aria-hidden="true"></i>
+          <input id="globalSearch" type="text" placeholder="Filtrar nesta página..." aria-label="Filtrar itens nesta página" />
+          <button id="btnClearGlobalSearch" class="btn-clear-search hidden" aria-label="Limpar filtro da página">
+            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+          </button>
+        </div>
         <button id="btnSearch" class="btn ghost" title="Busca global (Ctrl+K)" aria-label="Busca global (Ctrl+K)">
           <i class="fa-solid fa-search" aria-hidden="true"></i>
           <span class="search-shortcut-hint">Ctrl+K</span>
@@ -130,7 +120,6 @@
         <button id="btnLogout" class="btn danger-outline" title="Sair do sistema" aria-label="Sair do sistema"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sair</button>
       </div>
     </div>
-
     <div id="adminArea" class="hidden">
       <h2>Administração</h2>
       <div class="card">
@@ -149,398 +138,274 @@
           </div>
           <button id="btnCreateUser" class="btn primary align-self-end" aria-label="Criar usuário">Criar usuário</button>
         </div>
+        <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso!</p>
+        <h2 class="mt-16">Usuários Cadastrados</h2>
+        <div class="list" id="userList"></div>
       </div>
-      <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso!</p>
-
-      <h2 class="mt-16">Usuários Cadastrados</h2>
-      <div class="list" id="userList"></div>
-    </div>
-
-    <div id="userArea" class="hidden">
-      <div class="tabs" role="tablist" aria-label="Navegação do painel">
-        <button class="tab active" data-tab="tabMessages" id="tab-messages" role="tab" aria-selected="true" aria-controls="tabMessages" title="Mensagens">
-          <i class="fa-solid fa-message" aria-hidden="true"></i> <span class="tab-text">Mensagens</span>
-          <span id="msgCount" class="tab-badge" aria-live="polite" aria-label="Total de mensagens">0</span>
-        </button>
-        <button class="tab" data-tab="tabProblems" id="tab-problems" role="tab" aria-selected="false" aria-controls="tabProblems" title="Problemas / Soluções">
-          <i class="fa-solid fa-wrench" aria-hidden="true"></i> <span class="tab-text">Problemas / Soluções</span>
-          <span id="problemCount" class="tab-badge" aria-live="polite" aria-label="Total de problemas">0</span>
-        </button>
-        <button class="tab" data-tab="tabLinks" id="tab-links" role="tab" aria-selected="false" aria-controls="tabLinks" title="Links Úteis">
-          <i class="fa-solid fa-link" aria-hidden="true"></i> <span class="tab-text">Links Úteis</span>
-          <span id="linkCount" class="tab-badge" aria-live="polite" aria-label="Total de links">0</span>
-        </button>
-        <!-- ✅ NOVA ABA: Sistemas -->
-        <button class="tab" data-tab="tabSistemas" id="tab-sistemas" role="tab" aria-selected="false" aria-controls="tabSistemas" title="Sistemas">
-          <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> <span class="tab-text">Sistemas</span>
-        </button>
-      </div>
-
-      <!-- ABA: Mensagens -->
-      <div id="tabMessages" class="tab-content" role="tabpanel" aria-labelledby="tab-messages">
-        <div class="card toolbar">
-          <button id="btnFilterFavorites" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas mensagens favoritas" aria-pressed="false">
-            <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
+      <div id="userArea" class="hidden">
+        <div class="tabs" role="tablist" aria-label="Navegação do painel">
+          <button class="tab active" data-tab="tabMessages" id="tab-messages" role="tab" aria-selected="true" aria-controls="tabMessages" title="Mensagens">
+            <i class="fa-solid fa-message" aria-hidden="true"></i> <span class="tab-text">Mensagens</span>
+            <span id="msgCount" class="tab-badge" aria-live="polite" aria-label="Total de mensagens">0</span>
           </button>
-<button id="btnImport" class="btn ghost" title="Importar mensagens de arquivo" aria-label="Importar mensagens de arquivo"><i class="fa-solid fa-file-import"></i> Importar</button>
-	         <button id="btnExport" class="btn ghost" title="Exportar mensagens" aria-label="Exportar mensagens"><i class="fa-solid fa-file-export"></i> Exportar</button>
-	         <button id="btnNewMsg" class="btn primary ml-auto" title="Criar nova mensagem" aria-label="Criar nova mensagem"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
-        </div>
-
-        <div id="msgCategoryFilterBar" class="tag-filter-bar hidden"></div>
-
-        <div id="newMsgBox" class="card hidden mt-16">
-          <div class="msg-meta-fields">
-            <div class="form-field">
-              <label class="field-label" for="msgTitle">Título <span class="sub">(opcional)</span></label>
-              <input id="msgTitle" type="text" placeholder="Ex: Saudação inicial" />
-            </div>
-            <div class="form-field">
-              <label class="field-label" for="msgCategory">Categoria</label>
-              <input id="msgCategory" type="text" placeholder="Ex: Saudação, Suporte, Cobrança..." />
-            </div>
-          </div>
-          <div class="form-field mt-10">
-            <label class="field-label" for="msgText">Texto da mensagem <span class="sub">(Dica: use {usuario} para inserir o nome do usuário)</span></label>
-            <textarea id="msgText" rows="4" placeholder="Ex: Bom dia, {usuario}! Como posso te ajudar hoje?"></textarea>
-          </div>
-          <div class="flex-end mt-10">
-<button type="button" id="btnCancelMsg" class="btn ghost" aria-label="Cancelar nova mensagem">Cancelar</button>
-	             <button type="button" id="btnAddMsg" class="btn primary" aria-label="Salvar mensagem">Salvar mensagem</button>
-          </div>
-        </div>
-
-        <div class="list mt-16" id="msgList"></div>
-
-        <div class="center mt-12">
-          <button id="btnTrashToggle" class="btn ghost" aria-label="Ver Lixeira">
-            <i class="fa-solid fa-trash" aria-hidden="true"></i> Ver Lixeira <span id="trashCount" class="badge" aria-live="polite">0</span>
+          <button class="tab" data-tab="tabProblems" id="tab-problems" role="tab" aria-selected="false" aria-controls="tabProblems" title="Problemas / Soluções">
+            <i class="fa-solid fa-wrench" aria-hidden="true"></i> <span class="tab-text">Problemas / Soluções</span>
+            <span id="problemCount" class="tab-badge" aria-live="polite" aria-label="Total de problemas">0</span>
+          </button>
+          <button class="tab" data-tab="tabLinks" id="tab-links" role="tab" aria-selected="false" aria-controls="tabLinks" title="Links Úteis">
+            <i class="fa-solid fa-link" aria-hidden="true"></i> <span class="tab-text">Links Úteis</span>
+            <span id="linkCount" class="tab-badge" aria-live="polite" aria-label="Total de links">0</span>
+          </button>
+          <!-- ✅ NOVA ABA: Sistemas -->
+          <button class="tab" data-tab="tabSistemas" id="tab-sistemas" role="tab" aria-selected="false" aria-controls="tabSistemas" title="Sistemas">
+            <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> <span class="tab-text">Sistemas</span>
           </button>
         </div>
-
-        <div id="trashBox" class="card hidden mt-16 border-danger">
-          <h3><i class="fa-solid fa-trash" aria-hidden="true"></i> Lixeira</h3>
-          <p class="sub">Mensagens deletadas aparecem aqui antes da exclusão definitiva.</p>
-          <div class="list mt-10" id="trashList"></div>
-          <div class="flex-end mt-12">
-            <button id="btnCancelTrash" class="btn ghost">Fechar</button>
-            <button id="btnEmptyTrash" class="btn danger" aria-label="Esvaziar lixeira definitivamente"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Esvaziar lixeira</button>
+        <div id="tabMessages" class="tab-content" role="tabpanel" aria-labelledby="tab-messages">
+          <div class="card toolbar">
+            <button id="btnFilterFavorites" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas mensagens favoritas" aria-pressed="false">
+              <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
+            </button>
+            <button id="btnImport" class="btn ghost" title="Importar mensagens de arquivo" aria-label="Importar mensagens de arquivo"><i class="fa-solid fa-file-import"></i> Importar</button>
+            <button id="btnExport" class="btn ghost" title="Exportar mensagens" aria-label="Exportar mensagens"><i class="fa-solid fa-file-export"></i> Exportar</button>
+            <button id="btnNewMsg" class="btn primary ml-auto" title="Criar nova mensagem" aria-label="Criar nova mensagem"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
           </div>
-        </div>
-      </div>
-
-      <!-- ABA: Problemas / Soluções -->
-      <div id="tabProblems" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-problems">
-        <div class="card toolbar">
-          <div class="search-box">
-            <i class="fa-solid fa-search" aria-hidden="true"></i>
-            <input id="problemSearch" type="text" placeholder="Pesquisar problemas..." aria-label="Pesquisar problemas" />
-          </div>
-          <button id="btnFilterFavoriteProblems" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas problemas favoritos" aria-pressed="false">
-            <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
-          </button>
-          <button id="btnExportProblems" class="btn ghost" aria-label="Exportar problemas como JSON"><i class="fa-solid fa-file-export" aria-hidden="true"></i> Exportar</button>
-          <button id="btnImportProblems" class="btn ghost" aria-label="Importar problemas de arquivo JSON"><i class="fa-solid fa-file-import" aria-hidden="true"></i> Importar</button>
-          <input id="importProblemsInput" type="file" accept=".json" class="hidden" aria-hidden="true" />
-          <button id="btnNewProblem" class="btn primary" title="Criar novo problema" aria-label="Criar novo problema"><i class="fa-solid fa-plus"></i> Novo problema</button>
-        </div>
-
-        <div id="tagFilterBar" class="tag-filter-bar hidden"></div>
-
-        <div id="newProblemBox" class="card hidden mt-16">
-          <div class="form-field">
-            <label class="field-label" for="problemTitle">Título do problema</label>
-            <input id="problemTitle" type="text" placeholder="Ex: Erro ao gerar boleto" />
-          </div>
-          <div class="form-field mt-10">
-            <label class="field-label" for="problemDesc">Descrição <span class="sub">(opcional)</span></label>
-            <textarea id="problemDesc" rows="3" placeholder="Contexto ou detalhes do problema..."></textarea>
-          </div>
-          <div class="form-field mt-10">
-            <label class="field-label" for="problemTagInput">Tags <span class="sub">(Enter ou vírgula para confirmar)</span></label>
-            <div class="tag-input-wrapper" id="tagInputWrapper">
-              <div id="tagPillsCreate" class="tag-pills-inline"></div>
-              <input id="problemTagInput" type="text" placeholder="Ex: boleto, financeiro..." autocomplete="off" />
+          <div id="msgCategoryFilterBar" class="tag-filter-bar hidden"></div>
+          <div id="newMsgBox" class="card hidden mt-16">
+            <div class="msg-meta-fields">
+              <div class="form-field">
+                <label class="field-label" for="msgTitle">Título <span class="sub">(opcional)</span></label>
+                <input id="msgTitle" type="text" placeholder="Ex: Saudação inicial" />
+              </div>
+              <div class="form-field">
+                <label class="field-label" for="msgCategory">Categoria</label>
+                <input id="msgCategory" type="text" placeholder="Ex: Saudação, Suporte, Cobrança..." />
+              </div>
+            </div>
+            <div class="form-field mt-10">
+              <label class="field-label" for="msgText">Texto da mensagem <span class="sub">(Dica: use {usuario} para inserir o nome do usuário)</span></label>
+              <textarea id="msgText" rows="4" placeholder="Ex: Bom dia, {usuario}! Como posso te ajudar hoje?"></textarea>
+            </div>
+            <div class="flex-end mt-10">
+              <button type="button" id="btnCancelMsg" class="btn ghost" aria-label="Cancelar nova mensagem">Cancelar</button>
+              <button type="button" id="btnAddMsg" class="btn primary" aria-label="Salvar mensagem">Salvar mensagem</button>
             </div>
           </div>
-          <label class="field-label" id="problemSolutionLabelHeading">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
-
-          <div class="solution-editor-header" id="problemSolutionHeader">
-            <input type="text" value="Solução 1" id="problemSolutionLabel" placeholder="Título da solução..." aria-label="Título da solução" />
-            <select id="problemSolutionStatus" class="solution-status-select" aria-label="Status da solução">
-              <option value="confirmed">✅ Confirmada</option>
-              <option value="testing">🧪 Em teste</option>
-              <option value="obsolete">❌ Obsoleta</option>
-            </select>
-          </div>
-          <div id="problemSolution" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="problemSolutionLabelHeading" data-placeholder="Digite a solução... Cole imagens aqui"></div>
-          <div class="copy-texts-section" id="simpleCopyTextsSection">
-            <label class="field-label mt-8">
-              Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
-            </label>
-            <div id="simpleCopyTextsList" class="copy-texts-list"></div>
-            <button id="btnAddSimpleCopyText" class="btn ghost align-self-start mt-6">
-              <i class="fa-solid fa-plus"></i> Adicionar texto para copiar
+          <div class="list mt-16" id="msgList"></div>
+          <div class="center mt-12">
+            <button id="btnTrashToggle" class="btn ghost" aria-label="Ver Lixeira">
+              <i class="fa-solid fa-trash" aria-hidden="true"></i> Ver Lixeira <span id="trashCount" class="badge" aria-live="polite">0</span>
             </button>
           </div>
-
-          <div id="solutionEditorsList" class="solution-editors-list hidden"></div>
-
-<button type="button" id="btnAddSolution" class="btn ghost align-self-start mt-8" aria-label="Adicionar solução">
-	           <i class="fa-solid fa-plus"></i> Adicionar solução
-	         </button>
-	         <div class="flex-end mt-10">
-	           <button type="button" id="btnCancelProblem" class="btn ghost" aria-label="Cancelar novo problema">Cancelar</button>
-	           <button type="button" id="btnAddProblem" class="btn primary" aria-label="Salvar problema">Salvar</button>
-	         </div>
-        </div>
-
-        <div class="list mt-16" id="problemList"></div>
-      </div>
-
-      <!-- ABA: Links Úteis -->
-      <div id="tabLinks" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-links">
-        <div class="card toolbar">
-          <div class="search-box">
-            <i class="fa-solid fa-search" aria-hidden="true"></i>
-            <input id="linkSearch" type="text" placeholder="Pesquisar links..." aria-label="Pesquisar links" />
+          <div id="trashBox" class="card hidden mt-16 border-danger">
+            <h3><i class="fa-solid fa-trash" aria-hidden="true"></i> Lixeira</h3>
+            <p class="sub">Mensagens deletadas aparecem aqui antes da exclusão definitiva.</p>
+            <div class="list mt-10" id="trashList"></div>
+            <div class="flex-end mt-12">
+              <button id="btnCancelTrash" class="btn ghost">Fechar</button>
+              <button id="btnEmptyTrash" class="btn danger" aria-label="Esvaziar lixeira definitivamente"><i class="fa-solid fa-trash-can" aria-hidden="true"></i> Esvaziar lixeira</button>
+            </div>
           </div>
-          <button id="btnFilterFavoriteLinks" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas links favoritos" aria-pressed="false">
-            <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
+        </div>
+        <div id="tabProblems" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-problems">
+          <div class="card toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-search" aria-hidden="true"></i>
+              <input id="problemSearch" type="text" placeholder="Pesquisar problemas..." aria-label="Pesquisar problemas" />
+            </div>
+            <button id="btnFilterFavoriteProblems" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas problemas favoritos" aria-pressed="false">
+              <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
+            </button>
+            <button id="btnExportProblems" class="btn ghost" aria-label="Exportar problemas como JSON"><i class="fa-solid fa-file-export" aria-hidden="true"></i> Exportar</button>
+            <button id="btnImportProblems" class="btn ghost" aria-label="Importar problemas de arquivo JSON"><i class="fa-solid fa-file-import" aria-hidden="true"></i> Importar</button>
+            <input id="importProblemsInput" type="file" accept=".json" class="hidden" aria-hidden="true" />
+            <button id="btnNewProblem" class="btn primary" title="Criar novo problema" aria-label="Criar novo problema"><i class="fa-solid fa-plus"></i> Novo problema</button>
+          </div>
+          <div id="tagFilterBar" class="tag-filter-bar hidden"></div>
+          <div id="newProblemBox" class="card hidden mt-16">
+            <div class="form-field">
+              <label class="field-label" for="problemTitle">Título do problema</label>
+              <input id="problemTitle" type="text" placeholder="Ex: Erro ao gerar boleto" />
+            </div>
+            <div class="form-field mt-10">
+              <label class="field-label" for="problemDesc">Descrição <span class="sub">(opcional)</span></label>
+              <textarea id="problemDesc" rows="3" placeholder="Contexto ou detalhes do problema..."></textarea>
+            </div>
+            <div class="form-field mt-10">
+              <label class="field-label" for="problemTagInput">Tags <span class="sub">(Enter ou vírgula para confirmar)</span></label>
+              <div class="tag-input-wrapper" id="tagInputWrapper">
+                <div id="tagPillsCreate" class="tag-pills-inline"></div>
+                <input id="problemTagInput" type="text" placeholder="Ex: boleto, financeiro..." autocomplete="off" />
+              </div>
+            </div>
+            <label class="field-label" id="problemSolutionLabelHeading">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
+            <div class="solution-editor-header" id="problemSolutionHeader">
+              <input type="text" value="Solução 1" id="problemSolutionLabel" placeholder="Título da solução..." aria-label="Título da solução" />
+              <select id="problemSolutionStatus" class="solution-status-select" aria-label="Status da solução">
+                <option value="confirmed">✅ Confirmada</option>
+                <option value="testing">🧪 Em teste</option>
+                <option value="obsolete">❌ Obsoleta</option>
+              </select>
+            </div>
+            <div id="problemSolution" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="problemSolutionLabelHeading" data-placeholder="Digite a solução... Cole imagens aqui"></div>
+            <div class="copy-texts-section" id="simpleCopyTextsSection">
+              <label class="field-label mt-8">
+                Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
+              </label>
+              <div id="simpleCopyTextsList" class="copy-texts-list"></div>
+              <button id="btnAddSimpleCopyText" class="btn ghost align-self-start mt-6">
+                <i class="fa-solid fa-plus"></i> Adicionar texto para copiar
+              </button>
+            </div>
+            <div id="solutionEditorsList" class="solution-editors-list hidden"></div>
+            <button type="button" id="btnAddSolution" class="btn ghost align-self-start mt-8" aria-label="Adicionar solução">
+              <i class="fa-solid fa-plus"></i> Adicionar solução
+            </button>
+            <div class="flex-end mt-10">
+              <button type="button" id="btnCancelProblem" class="btn ghost" aria-label="Cancelar novo problema">Cancelar</button>
+              <button type="button" id="btnAddProblem" class="btn primary" aria-label="Salvar problema">Salvar</button>
+            </div>
+          </div>
+          <div class="list mt-16" id="problemList"></div>
+        </div>
+        <div id="tabLinks" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-links">
+          <div class="card toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-search" aria-hidden="true"></i>
+              <input id="linkSearch" type="text" placeholder="Pesquisar links..." aria-label="Pesquisar links" />
+            </div>
+            <button id="btnFilterFavoriteLinks" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas links favoritos" aria-pressed="false">
+              <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
+            </button>
+            <button id="btnNewLink" class="btn primary" title="Adicionar novo link" aria-label="Adicionar novo link"><i class="fa-solid fa-plus"></i> Novo link</button>
+          </div>
+          <div id="newLinkBox" class="card hidden mt-16">
+            <div class="form-field">
+              <label class="field-label" for="linkUrl">URL do link</label>
+              <input id="linkUrl" type="url" placeholder="URL (ex: https://site.com.br)" />
+            </div>
+            <div class="form-field mt-10">
+              <label class="field-label" for="linkTitle">Título <span class="sub">(opcional)</span></label>
+              <input id="linkTitle" type="text" placeholder="Título (opcional — usa o domínio se vazio)" />
+            </div>
+            <div class="form-field mt-10">
+              <label class="field-label" for="linkCategory">Categoria</label>
+              <input id="linkCategory" type="text" placeholder="Categoria (ex: Sistemas, Ferramentas...)" />
+            </div>
+            <div class="flex-end mt-10">
+              <button type="button" id="btnCancelLink" class="btn ghost" aria-label="Cancelar novo link">Cancelar</button>
+              <button type="button" id="btnAddLink" class="btn primary" aria-label="Salvar link">Salvar</button>
+            </div>
+          </div>
+          <div class="list mt-16" id="linkList"></div>
+        </div>
+        <!-- ✅ ABA: Sistemas -->
+        <div id="tabSistemas" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-sistemas">
+          <!-- O conteúdo é injetado pelo portOpener.js via renderSistemasTab() -->
+        </div>
+      </div>
+    </div>
+    <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalMessage">
+      <div class="modal-box card center">
+        <h3>Aviso</h3>
+        <p id="modalMessage" class="mt-10"></p>
+        <button type="button" id="btnModalAlertOk" class="btn primary mt-16 full-width">OK</button>
+      </div>
+    </div>
+    <div id="exportFormatModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Exportar Mensagens">
+      <div class="modal-box card center small">
+        <h3>Exportar Mensagens</h3>
+        <p class="sub mt-10">Escolha o formato do arquivo de backup:</p>
+        <div class="export-format-options">
+          <div class="export-format-option">
+            <button type="button" id="btnExportFormatJson" class="btn primary full-width"><i class="fa-solid fa-file-code"></i> Formato JSON (Completo)</button>
+            <span class="export-format-hint">Recomendado. Mantém títulos, categorias e ordenação.</span>
+          </div>
+          <div class="export-format-option">
+            <button type="button" id="btnExportFormatTxt" class="btn ghost full-width"><i class="fa-solid fa-file-lines"></i> Formato TXT (Legado)</button>
+            <span class="export-format-hint">Apenas o texto das mensagens, uma por linha.</span>
+          </div>
+          <button type="button" id="btnCancelExportFormat" class="btn ghost full-width mt-10">Cancelar</button>
+        </div>
+      </div>
+    </div>
+    <div id="helpModal" class="modal-overlay hidden">
+      <div class="help-box card">
+        <div class="help-header">
+          <h3><i class="fa-solid fa-circle-question"></i> Ajuda</h3>
+          <button id="btnCloseHelp" class="btn ghost"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="help-tabs">
+          <button class="help-tab active" data-panel="shortcuts">
+            <i class="fa-solid fa-keyboard"></i> Atalhos
           </button>
-          <button id="btnNewLink" class="btn primary" title="Adicionar novo link" aria-label="Adicionar novo link"><i class="fa-solid fa-plus"></i> Novo link</button>
+          <button class="help-tab" data-panel="tutorial">
+            <i class="fa-solid fa-book-open"></i> Como usar
+          </button>
+          <button class="help-tab" data-panel="contact">
+            <i class="fa-solid fa-headset"></i> Suporte
+          </button>
         </div>
-
-        <div id="newLinkBox" class="card hidden mt-16">
-          <div class="form-field">
-            <label class="field-label" for="linkUrl">URL do link</label>
-            <input id="linkUrl" type="url" placeholder="URL (ex: https://site.com.br)" />
-          </div>
-          <div class="form-field mt-10">
-            <label class="field-label" for="linkTitle">Título <span class="sub">(opcional)</span></label>
-            <input id="linkTitle" type="text" placeholder="Título (opcional — usa o domínio se vazio)" />
-          </div>
-          <div class="form-field mt-10">
-            <label class="field-label" for="linkCategory">Categoria</label>
-            <input id="linkCategory" type="text" placeholder="Categoria (ex: Sistemas, Ferramentas...)" />
-          </div>
-          <div class="flex-end mt-10">
-<button type="button" id="btnCancelLink" class="btn ghost" aria-label="Cancelar novo link">Cancelar</button>
-	             <button type="button" id="btnAddLink" class="btn primary" aria-label="Salvar link">Salvar</button>
-          </div>
-        </div>
-
-        <div class="list mt-16" id="linkList"></div>
-      </div>
-
-      <!-- ✅ ABA: Sistemas -->
-      <div id="tabSistemas" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-sistemas">
-        <!-- O conteúdo é injetado pelo portOpener.js via renderSistemasTab() -->
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Modal de confirmação -->
-  <div id="confirmModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="confirmMessage">
-    <div class="modal-box card">
-      <h3>Tem certeza?</h3>
-      <p id="confirmMessage" class="sub mt-10">Esta ação não poderá ser desfeita.</p>
-      <div class="flex-end mt-20">
-        <button type="button" id="modalCancel" class="btn ghost">Cancelar</button>
-        <button type="button" id="modalConfirm" class="btn danger">Confirmar</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal de alerta -->
-  <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalMessage">
-    <div class="modal-box card center">
-      <h3>Aviso</h3>
-      <p id="modalMessage" class="mt-10"></p>
-      <button type="button" id="btnModalAlertOk" class="btn primary mt-16 full-width">OK</button>
-    </div>
-  </div>
-
-  <!-- Modal de Formato de Exportação -->
-<div id="exportFormatModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Exportar Mensagens">
-     <div class="modal-box card center small">
-       <h3>Exportar Mensagens</h3>
-       <p class="sub mt-10">Escolha o formato do arquivo de backup:</p>
-       <div class="export-format-options">
-         <div class="export-format-option">
-           <button type="button" id="btnExportFormatJson" class="btn primary full-width"><i class="fa-solid fa-file-code"></i> Formato JSON (Completo)</button>
-           <span class="export-format-hint">Recomendado. Mantém títulos, categorias e ordenação.</span>
-         </div>
-         <div class="export-format-option">
-           <button type="button" id="btnExportFormatTxt" class="btn ghost full-width"><i class="fa-solid fa-file-lines"></i> Formato TXT (Legado)</button>
-           <span class="export-format-hint">Apenas o texto das mensagens, uma por linha.</span>
-         </div>
-         <button type="button" id="btnCancelExportFormat" class="btn ghost full-width mt-10">Cancelar</button>
-       </div>
-     </div>
-   </div>
-
-  <!-- Modal de ajuda -->
-  <div id="helpModal" class="modal-overlay hidden">
-    <div class="help-box card">
-      <div class="help-header">
-        <h3><i class="fa-solid fa-circle-question"></i> Ajuda</h3>
-        <button id="btnCloseHelp" class="btn ghost"><i class="fa-solid fa-xmark"></i></button>
-      </div>
-
-      <div class="help-tabs">
-        <button class="help-tab active" data-panel="shortcuts">
-          <i class="fa-solid fa-keyboard"></i> Atalhos
-        </button>
-        <button class="help-tab" data-panel="tutorial">
-          <i class="fa-solid fa-book-open"></i> Como usar
-        </button>
-        <button class="help-tab" data-panel="contact">
-          <i class="fa-solid fa-headset"></i> Suporte
-        </button>
-      </div>
-
-      <!-- Painel: Atalhos -->
-      <div id="help-shortcuts" class="help-panel">
-        <div class="help-shortcut-list">
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>Ctrl</kbd><span>+</span><kbd>K</kbd></div>
-            <span>Abrir busca global (modal)</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>Ctrl</kbd><span>+</span><kbd>F</kbd></div>
-            <span>Focar na barra de busca do header</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>Enter</kbd></div>
-            <span>Copiar/abrir primeiro resultado da busca</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>1</kbd></div>
-            <span>Ir para aba Mensagens</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>2</kbd></div>
-            <span>Ir para aba Problemas/Soluções</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>3</kbd></div>
-            <span>Ir para aba Links Úteis</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>4</kbd></div>
-            <span>Ir para aba Sistemas</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>N</kbd></div>
-            <span>Nova mensagem (na aba Mensagens)</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>P</kbd></div>
-            <span>Novo problema (na aba Problemas/Soluções)</span>
-          </div>
-          <div class="help-shortcut-row">
-            <div class="help-shortcut-keys"><kbd>Esc</kbd></div>
-            <span>Fechar formulário ou modal aberto</span>
-          </div>
-        </div>
-        <p class="help-tip"><i class="fa-solid fa-lightbulb"></i> Os atalhos de letras (N, P) e números (1, 2, 3, 4) só funcionam quando você não está digitando em nenhum campo.</p>
-      </div>
-
-      <!-- Painel: Tutorial -->
-      <div id="help-tutorial" class="help-panel hidden">
-        <div class="help-tutorial-list">
-          <div class="help-tutorial-item">
-            <div class="help-tutorial-icon"><i class="fa-solid fa-message"></i></div>
-            <div>
-              <strong>Mensagens</strong>
-              <p>Cadastre respostas prontas para usar no atendimento. Clique no texto para copiar instantaneamente. Arraste para reordenar.</p>
+        <div id="help-shortcuts" class="help-panel">
+          <div class="help-shortcut-list">
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>Ctrl</kbd><span>+</span><kbd>K</kbd></div>
+              <span>Abrir busca global (modal)</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>Ctrl</kbd><span>+</span><kbd>F</kbd></div>
+              <span>Focar na barra de busca do header</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>Enter</kbd></div>
+              <span>Copiar/abrir primeiro resultado da busca</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>1</kbd></div>
+              <span>Ir para aba Mensagens</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>2</kbd></div>
+              <span>Ir para aba Problemas/Soluções</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>3</kbd></div>
+              <span>Ir para aba Links Úteis</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>4</kbd></div>
+              <span>Ir para aba Sistemas</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>N</kbd></div>
+              <span>Nova mensagem (na aba Mensagens)</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>P</kbd></div>
+              <span>Novo problema (na aba Problemas/Soluções)</span>
+            </div>
+            <div class="help-shortcut-row">
+              <div class="help-shortcut-keys"><kbd>Esc</kbd></div>
+              <span>Fechar formulário ou modal aberto</span>
             </div>
           </div>
-          <div class="help-tutorial-item">
-            <div class="help-tutorial-icon"><i class="fa-solid fa-wrench"></i></div>
-            <div>
-              <strong>Problemas / Soluções</strong>
-              <p>Cadastre problemas recorrentes e suas soluções. Cada problema pode ter múltiplas soluções. Clique na solução para copiar. Arraste para reordenar.</p>
-            </div>
-          </div>
-          <div class="help-tutorial-item">
-            <div class="help-tutorial-icon"><i class="fa-solid fa-image"></i></div>
-            <div>
-              <strong>Imagens nas soluções</strong>
-              <p>Cole imagens diretamente no editor de solução com <kbd>Ctrl+V</kbd>. Útil para prints de tela.</p>
-            </div>
-          </div>
-          <div class="help-tutorial-item">
-            <div class="help-tutorial-icon"><i class="fa-solid fa-search"></i></div>
-            <div>
-              <strong>Busca global</strong>
-              <p>Use <kbd>Ctrl+K</kbd> para buscar em mensagens e problemas ao mesmo tempo. Clique no resultado para copiar ou navegar.</p>
-            </div>
-          </div>
-          <div class="help-tutorial-item">
-            <div class="help-tutorial-icon"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-            <div>
-              <strong>Sistemas</strong>
-              <p>Ferramentas utilitárias integradas. Inclui o <strong>Port Opener</strong> para gerar scripts de abertura de portas no Firewall do Windows.</p>
-            </div>
-          </div>
-          <div class="help-tutorial-item">
-            <div class="help-tutorial-icon"><i class="fa-solid fa-trash"></i></div>
-            <div>
-              <strong>Lixeira</strong>
-              <p>Mensagens deletadas vão para a lixeira antes da exclusão definitiva. Acesse pelo botão na aba Mensagens.</p>
-            </div>
-          </div>
+          <p class="help-tip"><i class="fa-solid fa-lightbulb"></i> Os atalhos de letras (N, P) e números (1, 2, 3, 4) só funcionam quando você não está digitando em nenhum campo.</p>
         </div>
       </div>
-
-      <!-- Painel: Suporte -->
-      <div id="help-contact" class="help-panel hidden">
-        <div class="help-contact-list">
-          <a href="https://wa.me/5518999999999" target="_blank" rel="noopener noreferrer" class="help-contact-item help-contact-link">
-            <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
-            <div>
-              <strong>WhatsApp Suporte</strong>
-              <span class="sub">Clique para abrir conversa no WhatsApp</span>
-            </div>
-          </a>
-          <a href="mailto:suporte@painelatende.com.br" class="help-contact-item help-contact-link">
-            <i class="fa-solid fa-envelope" aria-hidden="true"></i>
-            <div>
-              <strong>E-mail de Suporte</strong>
-              <span class="sub">suporte@painelatende.com.br</span>
-            </div>
-          </a>
-          <div class="help-contact-item">
-            <i class="fa-solid fa-clock" aria-hidden="true"></i>
-            <div>
-              <strong>Horário de Atendimento</strong>
-              <span class="sub">Segunda a sexta, das 8h às 18h</span>
-            </div>
-          </div>
+    </div>
+    <div id="globalSearchModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Busca global">
+      <div class="global-search-box">
+        <div class="global-search-header">
+          <i class="fa-solid fa-search" aria-hidden="true"></i>
+          <input id="globalSearchInput" type="text" placeholder="Buscar em mensagens, problemas e links..." autocomplete="off" aria-label="Buscar em mensagens, problemas e links" />
+          <kbd>Esc</kbd>
         </div>
-        <p class="help-tip"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Para reportar bugs ou solicitar suporte, utilize os canais acima.</p>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Modal de busca global (Ctrl+K) -->
-  <div id="globalSearchModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Busca global">
-    <div class="global-search-box">
-      <div class="global-search-header">
-        <i class="fa-solid fa-search" aria-hidden="true"></i>
-        <input id="globalSearchInput" type="text" placeholder="Buscar em mensagens, problemas e links..." autocomplete="off" aria-label="Buscar em mensagens, problemas e links" />
-        <kbd>Esc</kbd>
-      </div>
-      <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Resultados da busca">
-        <p class="search-hint">Digite para buscar...</p>
+        <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Resultados da busca">
+          <p class="search-hint">Digite para buscar...</p>
+        </div>
       </div>
     </div>
-  </div>
-
-  <script type="module" src="js/app.js"></script>
-</body>
+    <script type="module" src="js/app.js"></script>
+  </body>
 </html>
+</content>
