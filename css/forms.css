@@ -98,4 +98,6 @@ button:focus-visible,
 [data-theme="dark"] input,
 [data-theme="dark"] textarea,
 [data-theme="dark"] .rich-editor { background: #1e293b; color: var(--text); border-color: var(--border); }
+
+.btn.full-width { width: 100%; }
 [data-theme="dark"] kbd { background: #1e293b; border-color: #475569; color: var(--text); }

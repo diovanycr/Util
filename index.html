@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>PainelAtende</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎧</text></svg>">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -61,15 +61,15 @@
 
       <div class="login-form-group">
         <label for="loginUser">Usuário</label>
-        <input id="loginUser" type="text" placeholder="Nome de usuário" />
+        <input id="loginUser" type="text" placeholder="Nome de usuário" autocomplete="username" />
       </div>
 
       <div class="login-form-group">
         <label for="loginPass">Senha</label>
-        <input id="loginPass" type="password" placeholder="Sua senha" />
+        <input id="loginPass" type="password" placeholder="Sua senha" autocomplete="current-password" />
       </div>
 
-      <button id="btnLogin" class="btn primary" style="width:100%">Entrar</button>
+      <button id="btnLogin" class="btn primary full-width">Entrar</button>
       
       <div class="login-divider">
         <span>ou</span>
@@ -99,13 +99,13 @@
           <span id="loggedUser" class="username-display"></span>
         </div>
 
-        <div class="search-box" style="max-width: 200px; margin-right: 8px;">
-          <i class="fa-solid fa-search" aria-hidden="true"></i>
-          <input id="globalSearch" type="text" placeholder="Filtrar nesta página..." aria-label="Filtrar itens nesta página" style="padding-right: 32px;" />
-          <button id="btnClearGlobalSearch" class="btn-clear-search hidden" aria-label="Limpar filtro da página" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
-            <i class="fa-solid fa-xmark" aria-hidden="true"></i>
-          </button>
-        </div>
+<div class="search-box">
+           <i class="fa-solid fa-search" aria-hidden="true"></i>
+           <input id="globalSearch" type="text" placeholder="Filtrar nesta página..." aria-label="Filtrar itens nesta página" />
+           <button id="btnClearGlobalSearch" class="btn-clear-search hidden" aria-label="Limpar filtro da página">
+             <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+           </button>
+         </div>
 
         <button id="btnSearch" class="btn ghost" title="Busca global (Ctrl+K)" aria-label="Busca global (Ctrl+K)">
           <i class="fa-solid fa-search" aria-hidden="true"></i>
@@ -140,7 +140,7 @@
             <label class="field-label" for="newPass">Senha inicial</label>
             <input id="newPass" type="password" placeholder="Mínimo 6 caracteres" />
           </div>
-          <button id="btnCreateUser" class="btn primary" style="align-self: flex-end;">Criar usuário</button>
+          <button id="btnCreateUser" class="btn primary align-self-end" aria-label="Criar usuário">Criar usuário</button>
         </div>
       </div>
       <p id="createSuccess" class="hidden success-text">Usuário criado com sucesso!</p>
@@ -175,9 +175,9 @@
           <button id="btnFilterFavorites" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas mensagens favoritas" aria-pressed="false">
             <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
           </button>
-          <button id="btnImport" class="btn ghost" title="Importar mensagens de arquivo"><i class="fa-solid fa-file-import"></i> Importar</button>
-          <button id="btnExport" class="btn ghost" title="Exportar mensagens"><i class="fa-solid fa-file-export"></i> Exportar</button>
-          <button id="btnNewMsg" class="btn primary" title="Criar nova mensagem" style="margin-left: auto;"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
+<button id="btnImport" class="btn ghost" title="Importar mensagens de arquivo" aria-label="Importar mensagens de arquivo"><i class="fa-solid fa-file-import"></i> Importar</button>
+	         <button id="btnExport" class="btn ghost" title="Exportar mensagens" aria-label="Exportar mensagens"><i class="fa-solid fa-file-export"></i> Exportar</button>
+	         <button id="btnNewMsg" class="btn primary ml-auto" title="Criar nova mensagem" aria-label="Criar nova mensagem"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
         </div>
 
         <div id="msgCategoryFilterBar" class="tag-filter-bar hidden"></div>
@@ -198,8 +198,8 @@
             <textarea id="msgText" rows="4" placeholder="Ex: Bom dia, {usuario}! Como posso te ajudar hoje?"></textarea>
           </div>
           <div class="flex-end mt-10">
-            <button type="button" id="btnCancelMsg" class="btn ghost">Cancelar</button>
-            <button type="button" id="btnAddMsg" class="btn primary">Salvar mensagem</button>
+<button type="button" id="btnCancelMsg" class="btn ghost" aria-label="Cancelar nova mensagem">Cancelar</button>
+	             <button type="button" id="btnAddMsg" class="btn primary" aria-label="Salvar mensagem">Salvar mensagem</button>
           </div>
         </div>
 
@@ -235,7 +235,7 @@
           <button id="btnExportProblems" class="btn ghost" aria-label="Exportar problemas como JSON"><i class="fa-solid fa-file-export" aria-hidden="true"></i> Exportar</button>
           <button id="btnImportProblems" class="btn ghost" aria-label="Importar problemas de arquivo JSON"><i class="fa-solid fa-file-import" aria-hidden="true"></i> Importar</button>
           <input id="importProblemsInput" type="file" accept=".json" class="hidden" aria-hidden="true" />
-          <button id="btnNewProblem" class="btn primary" title="Criar novo problema"><i class="fa-solid fa-plus"></i> Novo problema</button>
+          <button id="btnNewProblem" class="btn primary" title="Criar novo problema" aria-label="Criar novo problema"><i class="fa-solid fa-plus"></i> Novo problema</button>
         </div>
 
         <div id="tagFilterBar" class="tag-filter-bar hidden"></div>
@@ -279,13 +279,13 @@
 
           <div id="solutionEditorsList" class="solution-editors-list hidden"></div>
 
-          <button type="button" id="btnAddSolution" class="btn ghost align-self-start mt-8">
-            <i class="fa-solid fa-plus"></i> Adicionar solução
-          </button>
-          <div class="flex-end mt-10">
-            <button type="button" id="btnCancelProblem" class="btn ghost">Cancelar</button>
-            <button type="button" id="btnAddProblem" class="btn primary">Salvar</button>
-          </div>
+<button type="button" id="btnAddSolution" class="btn ghost align-self-start mt-8" aria-label="Adicionar solução">
+	           <i class="fa-solid fa-plus"></i> Adicionar solução
+	         </button>
+	         <div class="flex-end mt-10">
+	           <button type="button" id="btnCancelProblem" class="btn ghost" aria-label="Cancelar novo problema">Cancelar</button>
+	           <button type="button" id="btnAddProblem" class="btn primary" aria-label="Salvar problema">Salvar</button>
+	         </div>
         </div>
 
         <div class="list mt-16" id="problemList"></div>
@@ -301,7 +301,7 @@
           <button id="btnFilterFavoriteLinks" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas links favoritos" aria-pressed="false">
             <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
           </button>
-          <button id="btnNewLink" class="btn primary" title="Adicionar novo link"><i class="fa-solid fa-plus"></i> Novo link</button>
+          <button id="btnNewLink" class="btn primary" title="Adicionar novo link" aria-label="Adicionar novo link"><i class="fa-solid fa-plus"></i> Novo link</button>
         </div>
 
         <div id="newLinkBox" class="card hidden mt-16">
@@ -318,8 +318,8 @@
             <input id="linkCategory" type="text" placeholder="Categoria (ex: Sistemas, Ferramentas...)" />
           </div>
           <div class="flex-end mt-10">
-            <button type="button" id="btnCancelLink" class="btn ghost">Cancelar</button>
-            <button type="button" id="btnAddLink" class="btn primary">Salvar</button>
+<button type="button" id="btnCancelLink" class="btn ghost" aria-label="Cancelar novo link">Cancelar</button>
+	             <button type="button" id="btnAddLink" class="btn primary" aria-label="Salvar link">Salvar</button>
           </div>
         </div>
 
@@ -351,28 +351,28 @@
     <div class="modal-box card center">
       <h3>Aviso</h3>
       <p id="modalMessage" class="mt-10"></p>
-      <button type="button" id="btnModalAlertOk" class="btn primary mt-16" style="width:100%">OK</button>
+      <button type="button" id="btnModalAlertOk" class="btn primary mt-16 full-width">OK</button>
     </div>
   </div>
 
   <!-- Modal de Formato de Exportação -->
-  <div id="exportFormatModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Exportar Mensagens">
-    <div class="modal-box card center" style="max-width: 400px;">
-      <h3>Exportar Mensagens</h3>
-      <p class="sub mt-10">Escolha o formato do arquivo de backup:</p>
-      <div style="display:flex; flex-direction:column; gap:16px; margin-top:20px; width: 100%; text-align: left;">
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <button type="button" id="btnExportFormatJson" class="btn primary" style="width:100%"><i class="fa-solid fa-file-code"></i> Formato JSON (Completo)</button>
-          <span style="font-size: 11px; color: var(--muted); padding-left: 4px;">Recomendado. Mantém títulos, categorias e ordenação.</span>
-        </div>
-        <div style="display:flex; flex-direction:column; gap:4px;">
-          <button type="button" id="btnExportFormatTxt" class="btn ghost" style="width:100%"><i class="fa-solid fa-file-lines"></i> Formato TXT (Legado)</button>
-          <span style="font-size: 11px; color: var(--muted); padding-left: 4px;">Apenas o texto das mensagens, uma por linha.</span>
-        </div>
-        <button type="button" id="btnCancelExportFormat" class="btn ghost" style="width:100%; margin-top: 5px;">Cancelar</button>
-      </div>
-    </div>
-  </div>
+<div id="exportFormatModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Exportar Mensagens">
+     <div class="modal-box card center small">
+       <h3>Exportar Mensagens</h3>
+       <p class="sub mt-10">Escolha o formato do arquivo de backup:</p>
+       <div class="export-format-options">
+         <div class="export-format-option">
+           <button type="button" id="btnExportFormatJson" class="btn primary full-width"><i class="fa-solid fa-file-code"></i> Formato JSON (Completo)</button>
+           <span class="export-format-hint">Recomendado. Mantém títulos, categorias e ordenação.</span>
+         </div>
+         <div class="export-format-option">
+           <button type="button" id="btnExportFormatTxt" class="btn ghost full-width"><i class="fa-solid fa-file-lines"></i> Formato TXT (Legado)</button>
+           <span class="export-format-hint">Apenas o texto das mensagens, uma por linha.</span>
+         </div>
+         <button type="button" id="btnCancelExportFormat" class="btn ghost full-width mt-10">Cancelar</button>
+       </div>
+     </div>
+   </div>
 
   <!-- Modal de ajuda -->
   <div id="helpModal" class="modal-overlay hidden">

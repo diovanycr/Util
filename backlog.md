@@ -10,8 +10,7 @@
 
 
 ## 📍 Estado atual
-Última sessão: Nova auditoria completa (HTML/CSS/JS) populou o backlog com 36 itens — bugs de XSS (scriptGen, apiTester, docValidatorUI), paginação ausente (messages/links/admin), vazamento de listeners (auth, enhancements, search, messages), dark mode inconsistente em ferramentas novas, e oportunidades de refatoração (messages.js 791 linhas, portOpener.js 635, escPos.js 473, funções duplicadas).
-Próximo passo: Implementar os 36 itens do backlog, priorizando bugs de XSS e paginação.
+Última sessão: Implementados 10 itens — CI/CD, testes backlog.js, safe-area-insets, aria-labels, autocomplete, dark mode fixes, createHighlighter escape bug, remoção de estilos inline. Backlog limpo e pronto para próximo ciclo.
 
 ## ⚠️ Decisões pendentes
 - Contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda.
@@ -27,41 +26,7 @@ Próximo passo: Implementar os 36 itens do backlog, priorizando bugs de XSS e pa
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **scripts/backlog.js nao possui testes — CLI core do projeto sem cobertura** `[P]` `[Backend]`
-- [ ] **Nenhum error boundary ou handler global para erros nao tratados — crash silencioso do app** `[M]` `[Bug]`
-- [ ] **futura-widget.js CSS injetado como string de 1300 linhas deveria estar em arquivo CSS separado para cache e manutenibilidade** `[M]` `[Refactor]`
-- [ ] **Nenhum PWA manifest.json ou service worker — app nao e instalavel e nao funciona offline** `[M]` `[Backend]`
-- [ ] **futura-widget.js FunturaSearchWidget nao tem metodo destroy para limpar listeners, timers e CSS injetado** `[M]` `[Bug]`
-- [ ] **futura-widget.js loadDependencies nao verifica se marked e DOMPurify carregaram antes de usar em formatResponse** `[M]` `[Bug]`
-- [ ] **Nenhum service worker ou modo offline — app nao funciona sem conexao com a internet** `[M]` `[Backend]`
-- [ ] **Nenhum CSP (Content Security Policy) header ou meta tag — app vulneravel a XSS via CDN comprometido** `[M]` `[Security]`
-- [ ] **futura-widget.js renderResults e outras funcoes nao verificam se elementos DOM existem antes de acessar** `[P]` `[Bug]`
-- [ ] **futura-widget.js loadDependencies nao trata falha de CDN — marked/DOMPurify podem nao carregar** `[M]` `[Bug]`
-- [ ] **futura-widget.js escapeQ() escape HTML incompleto para atributos — risco de XSS em data-query** `[M]` `[Bug]`
-- [ ] **futura-widget.js closeConfigModal redefine recursivamente — cadeia de closures fragil e confusa** `[P]` `[Refactor]`
-- [ ] **futura-widget.js injectCSS insere ~1300 linhas de CSS inline a cada instancia — sem cache ou deduplicacao** `[M]` `[Refactor]`
-- [ ] **Nenhum pipeline de CI/CD — sem GitHub Actions para lint, test e deploy automatico** `[M]` `[Backend]`
-- [ ] **futura-widget.js CONFIG recarregado do localStorage a cada performSearch — hot path desnecessario** `[P]` `[Refactor]`
-- [ ] **getTagColor localStorage sem prefixo de usuario — cores de tags vazam entre contas** `[M]` `[Bug]`
-- [ ] **compactMode localStorage sem prefixo de usuario — modo compacto vaza entre contas no mesmo browser** `[M]` `[Bug]`
-- [ ] **Animacoes CSS sem prefers-reduced-motion em 6 arquivos — acessibilidade para usuarios com vestibuloes** `[P]` `[Accessibility]`
-- [ ] **help.js nao restaura foco ao fechar modal de ajuda — leitores de tela perdem contexto** `[P]` `[Accessibility]`
-- [ ] **futura-widget.js sem metodo destroy/dispose — nao limpa listeners, timers, CSS injetado nem cache** `[M]` `[Bug]`
-- [ ] **portOpener.js instancia FuturaSearchWidget sem userId — localStorage do widget vaza entre contas** `[M]` `[Bug]`
-- [ ] **history.js _formatTime nao exportado — utilitario de formatacao relativa poderia ser compartilhado** `[P]` `[Refactor]`
-- [ ] **utils.js isSafeImageSrc nao exportado — poderia ser reutilizado em validadores de imagem** `[P]` `[Refactor]`
-- [ ] **futura-widget.js showToast duplicado — deveria usar o modulo compartilhado toast.js** `[P]` `[Refactor]`
-- [ ] **search.js highlight() reimplementa escapeHtml ja existente em utils.js — duplicacao de logica** `[P]` `[Refactor]`
-- [ ] **futura-widget.js initTheme/toggleTheme duplicados — deveria sincronizar com theme.js** `[P]` `[Refactor]`
-- [ ] **enhancements.js input.oninput/onkeydown sobrescrevem handlers — deveria usar addEventListener** `[P]` `[Bug]`
-- [ ] **futura-widget.js searchCache cresce sem limite TTL/max-size — memory leak em uso prolongado** `[M]` `[Bug]`
-- [ ] **futura-widget.js window.marked e DOMPurify assumidos sem verificacao — falha se CDN bloqueado** `[M]` `[Bug]`
-- [ ] **futura-widget.js _prefixIds() codigo morto — nunca e chamado** `[P]` `[Refactor]`
-- [ ] **futura-widget.js mock addEventListener remove listeners legítimos do document de outros modulos — bug critico** `[G]` `[Bug]`
-- [ ] **futura-widget.js funcoes internas (buildPrompt, callGemini, formatResponse) nao exportadas — dificulta testes e extensao** `[M]` `[Refactor]`
-- [ ] **futura-widget.js loadDependencies nao aguarda carregamento de marked/DOMPurify — falha silenciosa se CDN lento** `[M]` `[Bug]`
-- [ ] **Falta de linter e formatador (eslint + prettier) — sem padronização de qualidade de código** `[M]` `[Backend]`
-- [ ] **Falta de testes automatizados (unitários e integração) — zero cobertura de testes** `[G]` `[Backend]`
+
 *(Nenhum item pendente)*
 
 
@@ -102,7 +67,8 @@ Próximo passo: Implementar os 36 itens do backlog, priorizando bugs de XSS e pa
 - [x] **Bug: search.js initSearch registra input listener a cada chamada - acumulo se initSearch roda multiplas vezes** `[P]` `[Bug]`
 - [x] **Bug: messages.js exportFormatModal keydown listener registra novo handler a cada setupUserInterface (acumulo em re-login)** `[P]` `[Accessibility]`
 - [x] **Bug: auth.js headerTimeInterval e listener focus nao sao limpos se onAuthStateChanged dispara multiplas vezes (acumulo de timer/listeners)** `[M]` `[Bug]`
-- [x] **Bug: auth.js onAuthStateChanged nao desabilita botoes durante loading - clique duplo chama doLogin/doGoogleLogin (race condition)** `[M]` `[Bug]`
+- [x] **Nenhum pipeline de CI/CD (GitHub Actions) — sem lint, test e deploy automatico** `[M]` `[Backend]`
+- [x] **scripts/backlog.js nao possui testes — CLI core do projeto sem cobertura** `[P]` `[Backend]`
 
 *(Nenhum item concluído neste ciclo ainda)*
 

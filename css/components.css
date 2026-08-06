@@ -15,6 +15,7 @@
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
   animation: modalIn 0.2s ease-out;
 }
+.modal-box.small { max-width: 400px; }
 
 @keyframes modalIn {
   from { transform: scale(0.95); opacity: 0; }
@@ -184,3 +185,8 @@ mark { background: #fef08a; color: #713f12; border-radius: 2px; padding: 0 1px; 
   max-width: 340px;
   line-height: 1.5;
 }
+
+/* Export Format Modal */
+.export-format-options { display: flex; flex-direction: column; gap: 16px; margin-top: 20px; width: 100%; text-align: left; }
+.export-format-option { display: flex; flex-direction: column; gap: 4px; }
+.export-format-hint { font-size: 11px; color: var(--muted); padding-left: 4px; margin-top: 4px; }

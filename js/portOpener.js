@@ -30,6 +30,8 @@ import {
 // Estado mutável da sessão (Port Opener)
 const state = { ...DEFAULT_STATE };
 
+let _escapeHandler = null;
+
 const TOOL_TITLES = {
   portopener: '🛡️ Port Opener',
   futura: '🔍 Futura Search',
@@ -157,6 +159,8 @@ export function renderSistemasTab(container) {
   if (futContainer) futContainer.setAttribute('data-theme', currentTheme);
 
   new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer', userId: auth.currentUser?.uid || '' });
+
+  document.addEventListener('user-logout', cleanupPortOpener);
 }
 
 // ── Atualização visual das portas (chamado sempre que state.ports muda) ────
@@ -246,12 +250,13 @@ function _bindEvents(container) {
   document.getElementById('poToolModal').addEventListener('click', (e) => {
     if (e.target === e.currentTarget) _closeToolModal(container);
   });
-  document.addEventListener('keydown', (e) => {
+  _escapeHandler = (e) => {
     if (e.key === 'Escape') {
       const modal = document.getElementById('poToolModal');
       if (modal && !modal.classList.contains('hidden')) _closeToolModal(container);
     }
-  });
+  };
+  document.addEventListener('keydown', _escapeHandler);
 
   // Tag field: click foca input
   document.getElementById('poTagField').addEventListener('click', () =>
@@ -331,6 +336,13 @@ function _bindEvents(container) {
       a.click(); URL.revokeObjectURL(a.href);
     }
   });
+}
+
+export function cleanupPortOpener() {
+  if (_escapeHandler) {
+    document.removeEventListener('keydown', _escapeHandler);
+    _escapeHandler = null;
+  }
 }
 
 // ── Geração dos scripts ───────────────────────────────────────────────────

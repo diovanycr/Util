@@ -102,7 +102,7 @@ body {
 .mt-16 { margin-top: 16px; }
 .mt-20 { margin-top: 20px; }
 .flex-1 { flex: 1; min-width: 0; }
-.align-self-start { align-self: flex-start; }
+.ml-auto { margin-left: auto; }
 .full-width { width: 100%; }
 .border-danger { border-color: #fecaca; }
 [data-theme="dark"] .border-danger { border-color: #7f1d1d; }

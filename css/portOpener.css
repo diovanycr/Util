@@ -221,6 +221,10 @@
 [data-theme="dark"] .po-badge-gray   { background: #1e293b; color: var(--muted); border-color: var(--border); }
 [data-theme="dark"] .po-badge-amber  { background: #422006; color: #fbbf24; border-color: #d97706; }
 
+[data-theme="dark"] .po-notice { background: #422006; border-color: #d97706; color: #fde68a; }
+[data-theme="dark"] .po-summary { background: #052e16; border-color: #166534; color: #4ade80; }
+[data-theme="dark"] .po-s-tag { background: #14532d; border-color: #166534; color: #4ade80; }
+
 [data-theme="dark"] .futura-search-widget,
 #futuraSearchWidgetContainer[data-theme="dark"] .futura-search-widget {
   --bg:          #0f172a;

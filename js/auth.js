@@ -127,6 +127,8 @@ export function initAuth() {
             resetLinks();
             resetEnhancements();
 
+            document.dispatchEvent(new Event('user-logout'));
+
             el('app').classList.add('hidden');
             el('loginBox').classList.remove('hidden');
             el('loginUser').value = '';

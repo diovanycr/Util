@@ -7,7 +7,7 @@
 .user-row {
   display: flex; align-items: center; justify-content: space-between;
   padding: 14px 18px; border-radius: 10px;
-  border: 1px solid var(--border); background: #fff;
+  border: 1px solid var(--border); background: var(--card);
   gap: 12px; transition: transform 0.1s;
 }
 .user-row:hover { border-color: #cbd5e1; }
@@ -46,3 +46,5 @@
 [data-theme="dark"] .user-row.blocked { background: #1c0a0a; border-color: #7f1d1d; }
 [data-theme="dark"] .user-row.blocked .user-name { color: #fca5a5; }
 [data-theme="dark"] .btnReset:hover { background: var(--warning-bg) !important; border-color: var(--warning) !important; }
+[data-theme="dark"] .status-badge-blocked { background-color: #dc3545; color: white; }
+[data-theme="dark"] .status-badge-google { background-color: #4285f4; color: white; }
