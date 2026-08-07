@@ -70,7 +70,7 @@ export function buildStatusCheckerPanel() {
             <button id="scBtnCheckAll" class="btn primary"><i class="fa-solid fa-play"></i> Verificar todos</button>
             <label class="esc-check"><input type="checkbox" id="scAutoRefresh" /> <span>Auto-refresh (30s)</span></label>
           </div>
-          <p class="sc-disclaimer mt-8"><i class="fa-solid fa-circle-info"></i> Devido a CORS, o teste verifica apenas se o servidor responde. Para detalhes completos, visite a <strong>página de status</strong> oficial.</p>
+          <p class="sc-disclaimer mt-8"><i class="fa-solid fa-circle-info"></i> Devido a CORS, o teste verifica apenas se o servidor responde em nivel TCP (nao o codigo HTTP). Para detalhes completos, visite a <strong>pagina de status</strong> oficial.</p>
         </div>
 
         <div id="scGrid" class="sc-grid"></div>
@@ -161,7 +161,7 @@ function _checkOne(url, cardId) {
             const elapsed = Math.round(performance.now() - start);
             statusEl.className = 'sc-status sc-status-up';
             statusEl.textContent = '✅';
-            timeEl.textContent = `${elapsed}ms (respondendo)`;
+            timeEl.textContent = `${elapsed}ms (TCP ok)`;
         })
         .catch(err => {
             const elapsed = Math.round(performance.now() - start);
@@ -170,8 +170,6 @@ function _checkOne(url, cardId) {
                 statusEl.textContent = '⚠️';
                 timeEl.textContent = `Timeout (${scTimeout / 1000}s)`;
             } else {
-                // no-cors mode não permite ler a resposta, mas fetch sem erro = servidor online
-                // Se fetch rejeita, provavelmente offline ou CORS bloqueando
                 statusEl.className = 'sc-status sc-status-down';
                 statusEl.textContent = '❌';
                 timeEl.textContent = `Sem resposta (${elapsed}ms)`;

@@ -46,6 +46,9 @@ export function resetProblems() {
     uiInitialized   = false;
     currentUserId    = null;
     activeTagFilter  = null;
+    allProblems.length = 0;
+    dragSrcProblem   = null;
+    _lastProblemDoc  = null;
 }
 
 // --- BUILD CONTEXT (DI) ---

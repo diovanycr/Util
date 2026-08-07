@@ -58,33 +58,17 @@
 - [ ] **A11y: search.js resultados tem role=option mas container #globalSearchResults sem role=listbox - aria-activedescendant (shortcuts.js) nao funciona** `[M]` `[Accessibility]`
 - [ ] **A11y: problems solution-editor contenteditable com role=textbox mas sem aria-label/aria-labelledby - multiplos editores indistingutiveis para SR** `[M]` `[Accessibility]`
 - [ ] **A11y: help.js tabs sem role=tab/aria-selected/aria-controls e sem navegacao setas - inconsistente com tabs.js principal que tem ARIA correto** `[M]` `[Accessibility]`
-- [ ] **Bug: messages exportFormatModal click listener (messages.js:175) nunca removido em resetMessages - so keydown e limpo, click vaza entre login/logout** `[P]` `[Bug]`
 - [ ] **Bug: decisionTree _renderStep if(!node) return silencioso - UI fica presa no passo anterior sem feedback usuario** `[P]` `[UI]`
 - [ ] **Bug: admin.js paginacao Carregar mais aparece quando resultados sao multiplo exato de PAGE_SIZE - click carrega pagina vazia (off-by-one)** `[P]` `[UI]`
 - [ ] **Bug: auth.js setInterval updateHeaderProfileGreeting roda a cada 30s mesmo em background/idle - desperdico bateria, nao pausa com document.hidden** `[P]` `[Bug]`
 - [ ] **Bug: futura-widget duas implementacoes showToast competem pelo #toast (futura-widget-utils.js e js/toast.js) - toasts se sobrescrevem** `[M]` `[Bug]`
 - [ ] **Bug: futura-widget theme toggle delega para #btnTheme global mas widget escopo local data-theme nao segue - clicar Tema Escuro muda app mas widget fica claro** `[M]` `[UI]`
 - [ ] **Bug: futura-widget-modal.js overlay click handler registrado duas vezes (linhas 78 e 114) - cada abertura adiciona handler duplicado** `[P]` `[Bug]`
-- [ ] **Bug: futura-widget-search.js performSearch sem AbortController/in-flight guard - Enter+click rapido dispara duas chamadas API ( desperdico de quota Gemini/OpenAI)** `[M]` `[Bug]`
-- [ ] **Bug: futura-widget-audio.js getVoices() sincrono retorna [] no Chrome/Edge - TTS usa voz en-US em vez de pt-BR, fala portugues com sotaque errado** `[M]` `[Bug]`
-- [ ] **Bug: futura-widget-audio.js SpeechRecognition re-init cria segunda instancia - voiceSearchBtn duplica recognition e dispara duas buscas por voz** `[M]` `[Bug]`
-- [ ] **Bug: futura-widget destroy() nao remove listeners (click/keydown em widgetScope, searchInput, botoes) - re-init no mesmo container vaza handlers** `[M]` `[Bug]`
 - [ ] **Bug: links.js delete/reorder usam currentUserId module-scoped sem null check - logout durante modal confirmatorio escreve em users/null/links** `[P]` `[Bug]`
-- [ ] **Bug: links.js resetLinks nao limpa allLinks/dragSrcLink - allLinks.find em saveLinkOrder pode escrever order do usuario anterior** `[M]` `[Bug]`
-- [ ] **Bug: problems.js resetProblems nao limpa allProblems/dragSrcProblem/_lastProblemDoc - paginacao startAfter cursor do usuario anterior, vaza lista em memoria** `[M]` `[Bug]`
-- [ ] **Bug: messages.js btnAddMsg le maxOrder e addDoc com maxOrder+1 - dois cliques rapidos criam mensagens com order duplicado (race condition)** `[M]` `[Bug]`
-- [ ] **Bug: messages trash.js restore chama onReload e depois loadTrash+updateTrashCount - double reload dispara duas viagens Firestore e flicker** `[P]` `[Bug]`
-- [ ] **Bug: messages trash.js loadTrash sem limit() - getDocs carrega todas as mensagens deletadas (loadMessages usa limit 500 mas trash nao)** `[M]` `[Bug]`
 - [ ] **Bug: messages loader.js ondragend chama saveOrder incondicionalmente - drag sem movimento gera batch write desnecessario** `[P]` `[Bug]`
 - [ ] **Bug: messages saveOrder usa indice visivel i+1 mas allMessages contem greetings filtrados - reordenar em horario diferente embaralha order no Firestore** `[M]` `[Bug]`
-- [ ] **Bug: messages state.js resetState nao limpa dragSrc - drag em andamento na troca de usuario causa insertBefore em DOM detachado** `[P]` `[Bug]`
 - [ ] **Bug: statusChecker _renderGrid data-url e href nao escapados com escapeAttr - viola regra XSS defensiva (constants hardcoded hoje)** `[P]` `[Security]`
 - [ ] **Bug: decisionTree injecta node.solution/question/answer/title via innerHTML sem escape - viola regra XSS (atualmente hardcoded TREES mas arquitetura fragil)** `[P]` `[Security]`
-- [ ] **Bug: networkDiag tenta HTTPS primeiro em portas 80/443 e falha CORS/cert - relata offline quando HTTP funciona - falso negativo** `[P]` `[Bug]`
-- [ ] **Bug: networkDiag testPort probe HTTP/HTTPS testa porta 80/443 mas reporta qualquer porta como online - diagnostico errado para portas 9100/3306/1433** `[M]` `[Bug]`
-- [ ] **Bug: statusChecker fetch no-cors resolve em qualquer resposta HTTP (4xx/5xx) e marca SEFAZ como Online falsamente - falsifica diagnostico de suporte** `[M]` `[Bug]`
-- [ ] **Bug: portOpener generator.js poSummaryTags innerHTML nao escapa p.label - viola regra XSS do CLAUDE.md** `[G]` `[Security]`
-- [ ] **Bug: portOpener _generate muta seletores globais .po-otab/.po-pane e quebra tabs do ESC/POS ao gerar scripts - usar container scope** `[G]` `[Bug]`
 *(Nenhum item pendente)*
 
 *(Nenhum item pendente)*
@@ -94,6 +78,22 @@
 
 
 ## Feito
+- [x] **Bug: messages exportFormatModal click listener (messages.js:175) nunca removido em resetMessages - so keydown e limpo, click vaza entre login/logout** `[P]` `[Bug]`
+- [x] **Bug: messages trash.js restore chama onReload e depois loadTrash+updateTrashCount - double reload dispara duas viagens Firestore e flicker** `[P]` `[Bug]`
+- [x] **Bug: futura-widget-search.js performSearch sem AbortController/in-flight guard - Enter+click rapido dispara duas chamadas API ( desperdico de quota Gemini/OpenAI)** `[M]` `[Bug]`
+- [x] **Bug: futura-widget-audio.js getVoices() sincrono retorna [] no Chrome/Edge - TTS usa voz en-US em vez de pt-BR, fala portugues com sotaque errado** `[M]` `[Bug]`
+- [x] **Bug: futura-widget-audio.js SpeechRecognition re-init cria segunda instancia - voiceSearchBtn duplica recognition e dispara duas buscas por voz** `[M]` `[Bug]`
+- [x] **Bug: futura-widget destroy() nao remove listeners (click/keydown em widgetScope, searchInput, botoes) - re-init no mesmo container vaza handlers** `[M]` `[Bug]`
+- [x] **Bug: messages trash.js loadTrash sem limit() - getDocs carrega todas as mensagens deletadas (loadMessages usa limit 500 mas trash nao)** `[M]` `[Bug]`
+- [x] **Bug: messages state.js resetState nao limpa dragSrc - drag em andamento na troca de usuario causa insertBefore em DOM detachado** `[P]` `[Bug]`
+- [x] **Bug: links.js resetLinks nao limpa allLinks/dragSrcLink - allLinks.find em saveLinkOrder pode escrever order do usuario anterior** `[M]` `[Bug]`
+- [x] **Bug: problems.js resetProblems nao limpa allProblems/dragSrcProblem/_lastProblemDoc - paginacao startAfter cursor do usuario anterior, vaza lista em memoria** `[M]` `[Bug]`
+- [x] **Bug: messages.js btnAddMsg le maxOrder e addDoc com maxOrder+1 - dois cliques rapidos criam mensagens com order duplicado (race condition)** `[M]` `[Bug]`
+- [x] **Bug: statusChecker fetch no-cors resolve em qualquer resposta HTTP (4xx/5xx) e marca SEFAZ como Online falsamente - falsifica diagnostico de suporte** `[M]` `[Bug]`
+- [x] **Bug: networkDiag tenta HTTPS primeiro em portas 80/443 e falha CORS/cert - relata offline quando HTTP funciona - falso negativo** `[P]` `[Bug]`
+- [x] **Bug: networkDiag testPort probe HTTP/HTTPS testa porta 80/443 mas reporta qualquer porta como online - diagnostico errado para portas 9100/3306/1433** `[M]` `[Bug]`
+- [x] **Bug: portOpener generator.js poSummaryTags innerHTML nao escapa p.label - viola regra XSS do CLAUDE.md** `[G]` `[Security]`
+- [x] **Bug: portOpener _generate muta seletores globais .po-otab/.po-pane e quebra tabs do ESC/POS ao gerar scripts - usar container scope** `[G]` `[Bug]`
 
 *(Nenhum item concluído neste ciclo ainda)*
 

@@ -34,7 +34,7 @@ import {
   renderError,
 } from './futura-widget/futura-widget-render.js';
 import { showConfigModal } from './futura-widget/futura-widget-modal.js';
-import { initVoiceSearch, initAudioReader, stopAudioReading } from './futura-widget/futura-widget-audio.js';
+import { initVoiceSearch, initAudioReader, stopAudioReading, destroyAudio } from './futura-widget/futura-widget-audio.js';
 
 class FuturaSearchWidget {
   constructor(options) {
@@ -273,9 +273,13 @@ class FuturaSearchWidget {
   }
 
   destroy() {
+    destroyAudio();
     if (this._searchCache) this._searchCache.clear();
-    if (window.speechSynthesis) window.speechSynthesis.cancel();
-    if (this.container) this.container.innerHTML = '';
+    if (this.container) {
+      const clone = this.container.cloneNode(false);
+      this.container.replaceWith(clone);
+      this.container = clone;
+    }
   }
 }
 

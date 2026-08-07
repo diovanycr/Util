@@ -101,9 +101,11 @@ function _testPort(container) {
   info.textContent = `Conectando em ${host}...`;
 
   const port = parseInt(portS) || 80;
-  const urls = port === 80 || port === 443
-    ? [`http://${host}/`, `https://${host}/`]
-    : [`http://${host}:${port}/`, `https://${host}:${port}/`];
+  const urls = port === 80
+    ? [`http://${host}/`]
+    : port === 443
+      ? [`https://${host}/`]
+      : [`http://${host}:${port}/`];
 
   let resolved = false;
   const done = (ok, msg) => {
@@ -114,11 +116,21 @@ function _testPort(container) {
     info.textContent = msg;
   };
 
+  const tryFetch = (url, okMsg, errMsg) => {
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 5000);
+    fetch(url, { mode: 'no-cors', signal: ctrl.signal, redirect: 'follow' })
+      .then(() => done(true, okMsg))
+      .catch(() => {})
+      .finally(() => clearTimeout(t));
+  };
+
   urls.forEach(url => {
-    const img = new Image();
-    img.onload = () => done(true, `✅ Dispositivo respondeu!\n\nHost: ${host}\nPorta: ${port}\n\nO dispositivo esta online e acessivel na rede.\nComandos uteis:\n  ping ${host}\n  telnet ${host} ${port}`);
-    img.onerror = () => {};
-    img.src = url + '?' + Date.now();
+    tryFetch(
+      url,
+      `✅ Dispositivo respondeu!\n\nHost: ${host}\nPorta: ${port}\n\nO dispositivo esta online e acessivel na rede.\nComandos uteis:\n  ping ${host}\n  telnet ${host} ${port}`,
+      `Sem resposta de ${host}:${port}`
+    );
   });
 
   setTimeout(() => {

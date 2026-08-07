@@ -38,6 +38,7 @@ export {
 
 let onMessagesWindowFocus = null;
 let _exportModalKeydown = null;
+let _exportModalClick = null;
 
 export function initMessages(uid) {
     state.currentUserId = uid;
@@ -59,6 +60,10 @@ export function resetMessages() {
     if (_exportModalKeydown) {
         el('exportFormatModal')?.removeEventListener('keydown', _exportModalKeydown);
         _exportModalKeydown = null;
+    }
+    if (_exportModalClick) {
+        el('exportFormatModal')?.removeEventListener('click', _exportModalClick);
+        _exportModalClick = null;
     }
     resetState();
 }
@@ -114,6 +119,10 @@ function setupUserInterface(uid) {
         const title = el('msgTitle').value.trim();
         const category = el('msgCategory').value.trim() || 'Geral';
         if (!text) return showModal("A mensagem não pode estar vazia.");
+        const btn = el('btnAddMsg');
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Salvando...';
         try {
             const lastSnap = await getDocs(query(collection(db, 'users', uid, 'messages'), orderBy('order', 'desc'), limit(1)));
             const maxOrder = lastSnap.empty ? 0 : (lastSnap.docs[0].data().order || 0);
@@ -127,6 +136,9 @@ function setupUserInterface(uid) {
         } catch (e) {
             console.error("Erro ao adicionar mensagem:", e);
             showModal("Erro ao salvar a mensagem.");
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalText;
         }
     };
 
@@ -172,11 +184,12 @@ function setupUserInterface(uid) {
         }
     };
     el('exportFormatModal').addEventListener('keydown', _exportModalKeydown);
-    el('exportFormatModal').addEventListener('click', (e) => {
+    _exportModalClick = (e) => {
         if (e.target === el('exportFormatModal')) {
             closeExportModal();
         }
-    });
+    };
+    el('exportFormatModal').addEventListener('click', _exportModalClick);
 
     el('btnImport').onclick = () => {
         const input = document.createElement('input');

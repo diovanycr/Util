@@ -39,6 +39,7 @@ export const state = {
 
 export function resetState() {
     currentUserId = null;
+    dragSrc = null;
     activeCategoryFilter = null;
     allMessages.length = 0;
     if (autoTimeInterval) {

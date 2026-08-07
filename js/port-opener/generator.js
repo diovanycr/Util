@@ -3,6 +3,7 @@
 // ============================================================
 
 import { COMMON_PORTS } from './constants.js';
+import { escapeHtml } from '../utils.js';
 
 function _ruleName(port, proto, dir) {
   const base = (COMMON_PORTS[port]||`Porta_${port}`).replace(/[\s/]/g,'_');
@@ -93,6 +94,6 @@ export function buildSummary(ports, proto, dir) {
   const dirLabel = dir==='IN'?'Entrada':dir==='OUT'?'Saída':'Entrada + Saída';
   return {
     text: `${ports.length} porta${ports.length>1?'s':''} · ${proto} · ${dirLabel}`,
-    tagsHTML: ports.map(p=>`<span class="po-s-tag">${p.num}</span>`).join('')
+    tagsHTML: ports.map(p=>`<span class="po-s-tag">${escapeHtml(p.num)}</span>`).join('')
   };
 }

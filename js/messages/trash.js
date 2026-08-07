@@ -5,7 +5,7 @@
 import {
     db, el,
     collection,
-    doc, query, where
+    doc, query, where, limit
 } from '../firebase.js';
 import { getDocs, addDoc, updateDoc, deleteDoc, writeBatch } from '../firebase-retry.js';
 import { openConfirmModal, showModal } from '../modal.js';
@@ -36,7 +36,7 @@ export async function loadTrash(userId, callbacks) {
     const list = el('trashList');
     list.innerHTML = '<div class="loading-state"><span class="spinner"></span><span>Carregando lixeira...</span></div>';
     try {
-        const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('deleted', '==', true)));
+        const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('deleted', '==', true), limit(500)));
         const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         list.innerHTML = docs.length ? '' : '<p class="sub center">Lixeira vazia.</p>';
         docs.forEach(item => {
@@ -55,9 +55,13 @@ export async function loadTrash(userId, callbacks) {
             row.querySelector('.btn-restore').onclick = async () => {
                 try {
                     await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: false });
-                    if (callbacks?.onReload) callbacks.onReload();
-                    loadTrash(userId, callbacks);
-                    updateTrashCount(userId);
+                    if (callbacks?.onReload) {
+                        callbacks.onReload();
+                        loadTrash(userId, callbacks);
+                    } else {
+                        loadTrash(userId, callbacks);
+                        updateTrashCount(userId);
+                    }
                 } catch (err) { showModal("Erro ao restaurar a mensagem."); }
             };
             row.querySelector('.btn-delete-permanent').onclick = () => {

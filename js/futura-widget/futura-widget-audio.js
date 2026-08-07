@@ -4,6 +4,18 @@
 
 let isReading = false;
 let currentUtterance = null;
+let _recognition = null;
+let _voicesLoaded = false;
+let _cachedVoices = [];
+
+if (window.speechSynthesis) {
+  const loadVoices = () => {
+    const voices = window.speechSynthesis.getVoices();
+    if (voices.length > 0) { _cachedVoices = voices; _voicesLoaded = true; }
+  };
+  loadVoices();
+  if (!_voicesLoaded) window.speechSynthesis.onvoiceschanged = loadVoices;
+}
 
 export function initVoiceSearch(ctx) {
   const { voiceSearchBtn, searchInput } = ctx.dom;
@@ -20,10 +32,13 @@ export function initVoiceSearch(ctx) {
     return;
   }
 
+  if (_recognition) { _recognition.abort(); _recognition = null; }
+
   const recognition = new SpeechRecognition();
   recognition.lang = "pt-BR";
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
+  _recognition = recognition;
 
   let isListening = false;
 
@@ -103,12 +118,11 @@ export function toggleAudioReading(ctx) {
     currentUtterance = new SpeechSynthesisUtterance(chunks[currentChunkIndex].trim());
     currentUtterance.lang = "pt-BR";
 
-    const voices = window.speechSynthesis.getVoices();
+    const voices = _cachedVoices.length > 0 ? _cachedVoices : (window.speechSynthesis?.getVoices?.() || []);
     const ptVoice = voices.find(v => v.lang.includes("PT") || v.lang.includes("pt-BR") || v.lang.includes("pt_BR"));
     if (ptVoice) {
       currentUtterance.voice = ptVoice;
     }
-
     currentUtterance.onstart = () => {
       if (currentChunkIndex === 0) {
         audioReadBtn.classList.add("playing");
@@ -138,6 +152,13 @@ export function stopAudioReading(ctx) {
     window.speechSynthesis.cancel();
   }
   resetAudioReaderState(ctx);
+}
+
+export function destroyAudio() {
+  if (_recognition) { _recognition.abort(); _recognition = null; }
+  if (window.speechSynthesis) window.speechSynthesis.cancel();
+  isReading = false;
+  currentUtterance = null;
 }
 
 function resetAudioReaderState(ctx) {

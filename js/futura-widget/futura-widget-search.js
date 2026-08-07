@@ -124,6 +124,16 @@ async function searchWithAPI(ctx, query) {
 
 export async function performSearch(ctx, query) {
   if (!query) return;
+  if (ctx._searchInFlight) return;
+  ctx._searchInFlight = true;
+  try {
+    await _performSearchInternal(ctx, query);
+  } finally {
+    ctx._searchInFlight = false;
+  }
+}
+
+async function _performSearchInternal(ctx, query) {
   ctx.audio.stopAudioReading(ctx);
 
   ctx.config.mode = localStorage.getItem(ctx.lsKey("futura-mode")) || "noapi";

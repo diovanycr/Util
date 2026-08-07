@@ -370,10 +370,19 @@ function _generate() {
   document.getElementById('poSummaryText').textContent = summary.text;
   document.getElementById('poSummaryTags').innerHTML = summary.tagsHTML;
 
-  // Reset output tabs
-  document.querySelectorAll('.po-otab').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.po-pane').forEach(p => p.classList.add('hidden'));
-  document.querySelector('.po-otab')?.classList.add('active');
+  const poTabs = document.querySelectorAll('#poTool-portopener .po-otab');
+  poTabs.forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+    t.setAttribute('tabindex', '-1');
+  });
+  document.querySelectorAll('#poTool-portopener .po-pane').forEach(p => p.classList.add('hidden'));
+  const firstTab = poTabs[0];
+  if (firstTab) {
+    firstTab.classList.add('active');
+    firstTab.setAttribute('aria-selected', 'true');
+    firstTab.setAttribute('tabindex', '0');
+  }
   document.getElementById('poPane-bat')?.classList.remove('hidden');
 
   const out = document.getElementById('poOutput');
