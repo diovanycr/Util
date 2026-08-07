@@ -318,7 +318,7 @@ export function createHighlighter(rules) {
     return (code) => {
         const tokens = [];
         const stash = html => `\u0000${tokens.push(html) - 1}\u0000`;
-        const e = s => s.replace(/&/g, '&').replace(/</g, '<').replace(/>/g, '>');
+        const e = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         let src = e(code);
         for (const { regex, cls, transform } of rules) {
             src = src.replace(regex, (...args) => {

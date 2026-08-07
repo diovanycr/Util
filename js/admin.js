@@ -1,12 +1,7 @@
-import { 
+import {
     db, el, secondaryAuth, auth,
     collection,
-    getDocs,
-    updateDoc,
-    deleteDoc,
     doc,
-    setDoc,
-    writeBatch,
     createUserWithEmailAndPassword,
     signOut,
     sendPasswordResetEmail,
@@ -16,6 +11,7 @@ import {
     limit,
     startAfter
 } from './firebase.js';
+import { getDocs, updateDoc, deleteDoc, setDoc, writeBatch } from './firebase-retry.js';
 
 import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';

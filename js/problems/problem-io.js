@@ -1,7 +1,8 @@
 import {
     el, db,
-    collection, doc, writeBatch
+    collection, doc
 } from '../firebase.js';
+import { writeBatch } from '../firebase-retry.js';
 
 import { showModal, openConfirmModal } from '../modal.js';
 import { showToast } from '../toast.js';

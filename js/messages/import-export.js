@@ -4,9 +4,9 @@
 
 import {
     db,
-    collection, getDocs,
-    doc, writeBatch, query, limit
+    collection, doc, query, limit
 } from '../firebase.js';
+import { getDocs, writeBatch } from '../firebase-retry.js';
 import { openConfirmModal, showModal } from '../modal.js';
 import { showToast } from '../toast.js';
 import { allMessages } from './state.js';

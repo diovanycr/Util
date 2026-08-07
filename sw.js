@@ -1,4 +1,4 @@
-const CACHE_NAME = 'painelatende-v3';
+const CACHE_NAME = 'painelatende-v4';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -25,8 +25,18 @@ self.addEventListener('install', (event) => {
             './css/escPos.css',
             './css/scriptGen.css',
             './css/compact-favorites.css',
+            './css/apiTester.css',
+            './css/decisionTree.css',
+            './css/docValidator.css',
+            './css/fileValidator.css',
+            './css/futura-widget.css',
+            './css/links.css',
+            './css/networkDiag.css',
+            './css/statusChecker.css',
+            './css/ticketSummary.css',
             './js/app.js',
             './js/firebase.js',
+            './js/firebase-retry.js',
             './js/auth.js',
             './js/messages.js',
             './js/problems.js',
@@ -43,6 +53,7 @@ self.addEventListener('install', (event) => {
             './js/admin.js',
             './js/portOpener.js',
             './js/escPos.js',
+            './js/docValidator.js',
             './js/docValidatorUI.js',
             './js/statusChecker.js',
             './js/apiTester.js',
@@ -51,7 +62,32 @@ self.addEventListener('install', (event) => {
             './js/decisionTree.js',
             './js/networkDiag.js',
             './js/scriptGen.js',
-            './js/history.js'
+            './js/history.js',
+            './js/futura-widget.js',
+            './js/messages/state.js',
+            './js/messages/loader.js',
+            './js/messages/import-export.js',
+            './js/messages/trash.js',
+            './js/port-opener/constants.js',
+            './js/port-opener/builders.js',
+            './js/port-opener/generator.js',
+            './js/port-opener/ports.js',
+            './js/esc-pos/constants.js',
+            './js/esc-pos/builders.js',
+            './js/esc-pos/generator.js',
+            './js/futura-widget/futura-widget-audio.js',
+            './js/futura-widget/futura-widget-config.js',
+            './js/futura-widget/futura-widget-modal.js',
+            './js/futura-widget/futura-widget-render.js',
+            './js/futura-widget/futura-widget-search.js',
+            './js/futura-widget/futura-widget-template.js',
+            './js/futura-widget/futura-widget-theme.js',
+            './js/futura-widget/futura-widget-utils.js',
+            './js/problems/problem-edit.js',
+            './js/problems/problem-io.js',
+            './js/problems/problem-render.js',
+            './js/problems/solution-editor.js',
+            './js/problems/tags.js'
           ]);
         });
       });
@@ -63,7 +99,7 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME && key !== CACHE_NAME + '-static').map((key) => caches.delete(key))          )
+      Promise.all(keys.filter((key) => key !== CACHE_NAME && key !== CACHE_NAME + '-static').map((key) => caches.delete(key)))
     )
   );
   self.clients.claim();
@@ -74,7 +110,7 @@ self.addEventListener('fetch', (event) => {
   
   const url = new URL(event.request.url);
   
-  // Cache-first para assets estáticos
+  // Cache-first para assets estaticos
   if (url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
     event.respondWith(
       caches.match(event.request).then((cached) => {

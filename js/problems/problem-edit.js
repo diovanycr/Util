@@ -1,7 +1,7 @@
 import {
-    db,
-    doc, updateDoc
+    db, doc
 } from '../firebase.js';
+import { updateDoc } from '../firebase-retry.js';
 
 import { showModal } from '../modal.js';
 import { showToast } from '../toast.js';

@@ -13,7 +13,13 @@ import {
 } from './esc-pos/generator.js';
 
 // Estado mutável da sessão (uma cópia isolada para evitar resetes parciais)
-const state = { ...DEFAULT_STATE };
+let state = { ...DEFAULT_STATE };
+
+export function resetEscPosState() {
+    state = { ...DEFAULT_STATE };
+    const escText = document.getElementById('escText');
+    if (escText) escText.value = '';
+}
 
 // Highlighter de sintaxe específico do ESC/POS (comandos batch/ps1/python/serial)
 const _hlEsc = createHighlighter([

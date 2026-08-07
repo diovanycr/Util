@@ -1,7 +1,7 @@
 import {
-    el, db,
-    doc, deleteDoc
+    el, db, doc
 } from '../firebase.js';
+import { deleteDoc } from '../firebase-retry.js';
 
 import { showModal, openConfirmModal } from '../modal.js';
 import { showToast } from '../toast.js';

@@ -1,17 +1,15 @@
-import { 
+import {
     auth, db, el, googleProvider,
     signInWithEmailAndPassword,
     signInWithPopup,
     signOut,
     onAuthStateChanged,
     collection,
-    getDoc,
-    getDocs,
     doc,
-    setDoc,
     query,
     where
 } from './firebase.js';
+import { getDoc, getDocs, setDoc } from './firebase-retry.js';
 
 import { showModal, openConfirmModal } from './modal.js';
 import { loadUsers } from './admin.js';

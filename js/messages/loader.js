@@ -4,9 +4,10 @@
 
 import {
     db, el,
-    collection, getDocs, addDoc, updateDoc,
-    doc, writeBatch, query, where, limit
+    collection, doc,
+    query, where, limit
 } from '../firebase.js';
+import { getDocs, addDoc, updateDoc, writeBatch } from '../firebase-retry.js';
 import { openConfirmModal, showModal } from '../modal.js';
 import { showToast } from '../toast.js';
 import {

@@ -1,13 +1,12 @@
 import {
     db, el,
     collection,
-    getDocs,
-    addDoc,
     query,
     orderBy,
     limit,
     startAfter
 } from './firebase.js';
+import { getDocs, addDoc } from './firebase-retry.js';
 
 import { showModal } from './modal.js';
 import { showToast } from './toast.js';

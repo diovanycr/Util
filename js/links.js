@@ -6,16 +6,12 @@
 import {
     db, el,
     collection,
-    getDocs,
-    addDoc,
-    deleteDoc,
     doc,
-    writeBatch,
-    updateDoc,
     query,
     orderBy,
     limit
 } from './firebase.js';
+import { getDocs, addDoc, deleteDoc, updateDoc, writeBatch } from './firebase-retry.js';
 
 import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';

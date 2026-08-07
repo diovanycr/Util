@@ -8,7 +8,8 @@
 //    • import-export.js — importar/exportar TXT e JSON
 //    • trash.js         — lixeira (loadTrash, emptyTrash, contagem)
 
-import { el, db, collection, getDocs, addDoc, doc, query, orderBy, limit } from './firebase.js';
+import { el, db, collection, doc, query, orderBy, limit } from './firebase.js';
+import { getDocs, addDoc } from './firebase-retry.js';
 import { showModal, openConfirmModal } from './modal.js';
 import { initHistory } from './history.js';
 
@@ -36,6 +37,7 @@ export {
 };
 
 let onMessagesWindowFocus = null;
+let _exportModalKeydown = null;
 
 export function initMessages(uid) {
     state.currentUserId = uid;
@@ -53,6 +55,10 @@ export function resetMessages() {
     if (onMessagesWindowFocus) {
         window.removeEventListener('focus', onMessagesWindowFocus);
         onMessagesWindowFocus = null;
+    }
+    if (_exportModalKeydown) {
+        el('exportFormatModal')?.removeEventListener('keydown', _exportModalKeydown);
+        _exportModalKeydown = null;
     }
     resetState();
 }
@@ -159,12 +165,13 @@ function setupUserInterface(uid) {
         exportToJson();
     };
 
-    el('exportFormatModal').addEventListener('keydown', (e) => {
+    _exportModalKeydown = (e) => {
         if (e.key === 'Escape') {
             closeExportModal();
             el('btnExport')?.focus();
         }
-    });
+    };
+    el('exportFormatModal').addEventListener('keydown', _exportModalKeydown);
     el('exportFormatModal').addEventListener('click', (e) => {
         if (e.target === el('exportFormatModal')) {
             closeExportModal();

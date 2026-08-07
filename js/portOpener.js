@@ -5,7 +5,7 @@
 //  (lógica de portas em port-opener/ports.js, geração em generator.js,
 //  HTML em builders.js).
 
-import { bindEscPosEvents, buildEscPosPanel } from './escPos.js';
+import { bindEscPosEvents, buildEscPosPanel, resetEscPosState } from './escPos.js';
 import { bindDocValidatorEvents, buildDocValidatorPanel } from './docValidatorUI.js';
 import { bindStatusCheckerEvents, buildStatusCheckerPanel } from './statusChecker.js';
 import { bindApiTesterEvents, buildApiTesterPanel } from './apiTester.js';
@@ -31,6 +31,8 @@ import {
 const state = { ...DEFAULT_STATE };
 
 let _escapeHandler = null;
+let _futuraWidget = null;
+let _logoutHandler = null;
 
 const TOOL_TITLES = {
   portopener: '🛡️ Port Opener',
@@ -125,6 +127,7 @@ function _buildToolSelector() {
 
 // ── Render da aba Sistemas ────────────────────────────────────────────────
 export function renderSistemasTab(container) {
+  resetEscPosState();
   container.innerHTML = `
     <div class="po-wrap">
       ${_buildToolSelector()}
@@ -158,9 +161,10 @@ export function renderSistemasTab(container) {
   const futContainer = document.getElementById('futuraSearchWidgetContainer');
   if (futContainer) futContainer.setAttribute('data-theme', currentTheme);
 
-  new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer', userId: auth.currentUser?.uid || '' });
+  _futuraWidget = new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer', userId: auth.currentUser?.uid || '' });
 
-  document.addEventListener('user-logout', cleanupPortOpener);
+  _logoutHandler = () => cleanupPortOpener();
+  document.addEventListener('user-logout', _logoutHandler);
 }
 
 // ── Atualização visual das portas (chamado sempre que state.ports muda) ────
@@ -342,6 +346,14 @@ export function cleanupPortOpener() {
   if (_escapeHandler) {
     document.removeEventListener('keydown', _escapeHandler);
     _escapeHandler = null;
+  }
+  if (_futuraWidget) {
+    _futuraWidget.destroy();
+    _futuraWidget = null;
+  }
+  if (_logoutHandler) {
+    document.removeEventListener('user-logout', _logoutHandler);
+    _logoutHandler = null;
   }
 }
 
