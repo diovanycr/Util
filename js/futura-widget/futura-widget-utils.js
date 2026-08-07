@@ -19,15 +19,14 @@ export function _escAttr(text) {
 }
 
 export function showToast(message, type = "info") {
-  let toast = document.getElementById("toast");
-  if (!toast) {
-    toast = document.createElement("div");
-    toast.id = "toast";
-    toast.className = "toast";
-    document.body.appendChild(toast);
-  }
   const icons = { error: "fa-circle-exclamation", success: "fa-circle-check", info: "fa-circle-info" };
-  toast.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}" style="color:${type === 'success' ? 'var(--success)' : type === 'error' ? 'var(--danger)' : 'var(--blue)'}"></i> ${message}`;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 3200);
+  const old = document.querySelector('.futura-toast');
+  if (old) old.remove();
+  const t = document.createElement('div');
+  t.className = 'futura-toast toast-success';
+  t.setAttribute('role', 'status');
+  t.setAttribute('aria-live', 'polite');
+  t.innerHTML = `<i class="fa-solid ${icons[type] || icons.info}" style="margin-right:6px;color:${type === 'success' ? 'var(--success, #22c55e)' : type === 'error' ? 'var(--danger, #ef4444)' : 'var(--blue, #3b82f6)'}"></i>${message}`;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 500); }, 3200);
 }

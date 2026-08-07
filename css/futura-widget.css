@@ -763,7 +763,7 @@
   cursor: pointer;
 }
 
-.modal select option { background: white; }
+.modal select option { background: var(--surface, #fff); color: var(--text, #1e293b); }
 
 .mode-cards, .provider-cards {
   display: grid;
@@ -1234,5 +1234,13 @@
   .futura-search-widget .result-card {
     animation: none !important;
     opacity: 1 !important;
+  }
+}
+
+@media (max-height: 800px) {
+  .futura-search-widget {
+    height: calc(100vh - 60px);
+    max-height: 800px;
+    min-height: 400px;
   }
 }

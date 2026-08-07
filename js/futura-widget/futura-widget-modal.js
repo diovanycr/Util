@@ -147,17 +147,11 @@ function closeConfigModal(ctx) {
 function saveConfig(ctx) {
   const modeEl = document.querySelector(".mode-card.selected");
   const providerEl = document.querySelector(".provider-card.selected");
-  const modeCards = document.querySelectorAll(".mode-card");
 
-  ctx.config.mode = modeEl
-    ? (modeEl === modeCards[0] ? "noapi" : "api")
-    : ctx.config.mode;
+  ctx.config.mode = modeEl ? modeEl.dataset.mode : ctx.config.mode;
 
   if (ctx.config.mode === "api") {
-    const provCards = document.querySelectorAll(".provider-card");
-    ctx.config.provider = providerEl
-      ? (providerEl === provCards[0] ? "gemini" : "openai")
-      : ctx.config.provider;
+    ctx.config.provider = providerEl ? providerEl.dataset.provider : ctx.config.provider;
     ctx.config.apiKey = document.getElementById("fw-inp-apikey")?.value.trim() || "";
     if (!ctx.config.provider) { ctx.utils.showToast("Selecione Gemini ou ChatGPT.", "info"); return; }
     if (!ctx.config.apiKey) { ctx.utils.showToast("Informe a chave da API.", "info"); return; }

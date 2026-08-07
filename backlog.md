@@ -30,7 +30,6 @@
 - [ ] **Layout: messages.css dark mode greeting-auto-badge background rgba(37,99,235,0.15) hardcoded em vez de var** `[P]` `[Layout]`
 - [ ] **Layout: portOpener.css dark mode override .futura-search-widget e dead code (futura-widget.css carrega depois e vence)** `[P]` `[Layout]`
 - [ ] **Layout: futura-widget.css regra .ai-block-header duplicada (linhas 453 e 1140) com overrides conflitantes - hazard de manutencao** `[P]` `[Layout]`
-- [ ] **Refactor: futura-widget-modal saveConfig deriva provider por indice DOM (modeCards[0]/provCards[0]) em vez de data-mode/data-provider - fragil a reordem** `[M]` `[Backend]`
 - [ ] **Refactor: futura-widget-config syncConfig e dead code duplicado de createConfig - remover** `[P]` `[Backend]`
 - [ ] **Refactor: futura-widget reimplementa _escHtml/_escAttr em vez de importar escapeHtml/escapeAttr de utils.js - risco de drift** `[P]` `[Backend]`
 - [ ] **Refactor: tab activation duplicada entre escPos.js e portOpener.js (_activateTab/_activateOutputTab com keydown) - escPos true toggle vs portOpener add redundante** `[P]` `[Backend]`
@@ -41,8 +40,6 @@
 - [ ] **PWA: manifest.json icon emoji SVG data-URI sem variantes PNG 192/512 maskable - install splash piorado e sem suporte legacy** `[P]` `[Backend]`
 - [ ] **PWA: index.html meta theme-color duplicada (linhas 9 e 16) e sem variant media=prefers-color-scheme:dark - chrome do browser fica azul em dark** `[P]` `[Backend]`
 - [ ] **UX: history.js counter cor var(--warning,#f59e0b) com fallback hardcoded - dark mode sem --warning usa laranja fixo** `[P]` `[UI]`
-- [ ] **UX: futura-widget.css .modal select option background:white hardcoded - dropdown quebra em dark mode** `[M]` `[Layout]`
-- [ ] **UX: futura-widget.css height:800px overflow:hidden sem override responsivo - mobile landscape <800px clipa widget inteiro** `[M]` `[Layout]`
 - [ ] **UX: messages loader.js greeting filter esconde Boa tarde/Boa noite fora do horario sem toggle - usuario manha nao consegue editar outras saudacoes** `[P]` `[UI]`
 - [ ] **UX: enhancements applyGlobalSearch usa row.textContent com labels de botoes (Editar/Remover/aria-labels) - buscar 'editar' retorna todos itens** `[P]` `[UI]`
 - [ ] **A11y: portOpener poTagPills sem role=list/aria-label - SR nao anuncia lista de portas selecionadas** `[P]` `[Accessibility]`
@@ -61,8 +58,6 @@
 - [ ] **Bug: decisionTree _renderStep if(!node) return silencioso - UI fica presa no passo anterior sem feedback usuario** `[P]` `[UI]`
 - [ ] **Bug: admin.js paginacao Carregar mais aparece quando resultados sao multiplo exato de PAGE_SIZE - click carrega pagina vazia (off-by-one)** `[P]` `[UI]`
 - [ ] **Bug: auth.js setInterval updateHeaderProfileGreeting roda a cada 30s mesmo em background/idle - desperdico bateria, nao pausa com document.hidden** `[P]` `[Bug]`
-- [ ] **Bug: futura-widget duas implementacoes showToast competem pelo #toast (futura-widget-utils.js e js/toast.js) - toasts se sobrescrevem** `[M]` `[Bug]`
-- [ ] **Bug: futura-widget theme toggle delega para #btnTheme global mas widget escopo local data-theme nao segue - clicar Tema Escuro muda app mas widget fica claro** `[M]` `[UI]`
 - [ ] **Bug: futura-widget-modal.js overlay click handler registrado duas vezes (linhas 78 e 114) - cada abertura adiciona handler duplicado** `[P]` `[Bug]`
 - [ ] **Bug: links.js delete/reorder usam currentUserId module-scoped sem null check - logout durante modal confirmatorio escreve em users/null/links** `[P]` `[Bug]`
 - [ ] **Bug: messages loader.js ondragend chama saveOrder incondicionalmente - drag sem movimento gera batch write desnecessario** `[P]` `[Bug]`
@@ -78,6 +73,11 @@
 
 
 ## Feito
+- [x] **Refactor: futura-widget-modal saveConfig deriva provider por indice DOM (modeCards[0]/provCards[0]) em vez de data-mode/data-provider - fragil a reordem** `[M]` `[Backend]`
+- [x] **UX: futura-widget.css height:800px overflow:hidden sem override responsivo - mobile landscape <800px clipa widget inteiro** `[M]` `[Layout]`
+- [x] **UX: futura-widget.css .modal select option background:white hardcoded - dropdown quebra em dark mode** `[M]` `[Layout]`
+- [x] **Bug: futura-widget duas implementacoes showToast competem pelo #toast (futura-widget-utils.js e js/toast.js) - toasts se sobrescrevem** `[M]` `[Bug]`
+- [x] **Bug: futura-widget theme toggle delega para #btnTheme global mas widget escopo local data-theme nao segue - clicar Tema Escuro muda app mas widget fica claro** `[M]` `[UI]`
 - [x] **Bug: messages exportFormatModal click listener (messages.js:175) nunca removido em resetMessages - so keydown e limpo, click vaza entre login/logout** `[P]` `[Bug]`
 - [x] **Bug: messages trash.js restore chama onReload e depois loadTrash+updateTrashCount - double reload dispara duas viagens Firestore e flicker** `[P]` `[Bug]`
 - [x] **Bug: futura-widget-search.js performSearch sem AbortController/in-flight guard - Enter+click rapido dispara duas chamadas API ( desperdico de quota Gemini/OpenAI)** `[M]` `[Bug]`

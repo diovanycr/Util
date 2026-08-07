@@ -69,6 +69,36 @@ export function sanitizeHtml(html) {
 }
 
 /**
+ * Configura drag-and-drop de mouse + teclado em um card reordenável.
+ * Centraliza o padrão duplicado em messages, problems e links.
+ *
+ * @param {HTMLElement} card       - Elemento arrastável
+ * @param {HTMLElement} handle     - Alça de drag (para teclado)
+ * @param {HTMLElement} list       - Container onde a ordem será salva
+ * @param {() => HTMLElement[]} getSiblings - Retorna cards irmãos na ordem atual
+ * @param {() => void} onReorder   - Callback após drag (salvar ordem)
+ * @param {(target: HTMLElement) => boolean} [canDrop] - Validação opcional (ex: mesmo grupo)
+ */
+export function setupDragDrop(card, handle, list, getSiblings, onReorder, canDrop) {
+    card.draggable = true;
+    card.ondragstart = () => { card._dragSrc = card; card.classList.add('dragging'); };
+    card.ondragend   = () => { card.classList.remove('dragging'); card._dragSrc = null; onReorder(); };
+    card.ondragover  = (e) => {
+        e.preventDefault();
+        const src = card._dragSrc;
+        if (!src || src === card) return;
+        if (canDrop && !canDrop(card)) return;
+        const rect = card.getBoundingClientRect();
+        const after = e.clientY > rect.top + rect.height / 2;
+        card.parentNode.insertBefore(src, after ? card.nextSibling : card);
+    };
+
+    if (handle) {
+        addKeyboardDragSupport(handle, getSiblings, onReorder);
+    }
+}
+
+/**
  * Adiciona suporte a reordenação via teclado em um elemento drag handle.
  *
  * Funcionamento:

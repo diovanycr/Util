@@ -253,6 +253,10 @@ class FuturaSearchWidget {
         const globalThemeBtn = document.getElementById("btnTheme");
         if (globalThemeBtn) {
           globalThemeBtn.click();
+          const globalTheme = document.documentElement.getAttribute('data-theme') || 'light';
+          ctx.widgetScope.setAttribute('data-theme', globalTheme);
+          localStorage.setItem(this.lsKey('futura-theme'), globalTheme);
+          ctx.theme.updateThemeButton(ctx, globalTheme);
         } else {
           toggleTheme(ctx);
         }

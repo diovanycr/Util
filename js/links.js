@@ -196,6 +196,7 @@ function renderLinks(container, links) {
 
             card.querySelector('.link-del-btn').onclick = (e) => {
                 e.stopPropagation();
+                if (!currentUserId) return;
                 openConfirmModal(
                     async () => {
                         try {
@@ -333,6 +334,7 @@ function enterEditMode(card, item) {
 }
 
 async function saveLinkOrder(userId) {
+    if (!userId) return;
     const list = el('linkList');
     if (!list) return;
     const cards = [...list.querySelectorAll('.link-card')];

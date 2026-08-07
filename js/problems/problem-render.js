@@ -7,7 +7,7 @@ import { showModal, openConfirmModal } from '../modal.js';
 import { showToast } from '../toast.js';
 import {
     escapeHtml, escapeAttr, sanitizeHtml,
-    normalizeSolutions, getTagColor, addKeyboardDragSupport
+    normalizeSolutions, getTagColor, addKeyboardDragSupport, setupDragDrop
 } from '../utils.js';
 
 import { normalizeTags } from './tags.js';
@@ -148,27 +148,17 @@ function bindCardEvents(card, item, solutions, ctx) {
         );
     };
 
-    // Drag-and-drop (mouse)
-    card.ondragstart = () => { ctx.setDragSrc(card); card.classList.add('dragging'); };
-    card.ondragend   = () => { card.classList.remove('dragging'); ctx.saveProblemOrder(ctx.currentUserId); };
-    card.ondragover  = (e) => {
-        e.preventDefault();
-        const rect  = card.getBoundingClientRect();
-        const after = e.clientY > rect.top + rect.height / 2;
-        const list  = el('problemList');
-        list.insertBefore(ctx.getDragSrc(), after ? card.nextSibling : card);
-    };
+    // Drag-and-drop (mouse + teclado) — helper compartilhado
+    setupDragDrop(
+        card,
+        card.querySelector('.problem-drag-handle'),
+        el('problemList'),
+        () => [...el('problemList').querySelectorAll('.problem-card')],
+        () => ctx.saveProblemOrder(ctx.currentUserId)
+    );
 
-    // Drag-and-drop (teclado)
-    const dragHandle = card.querySelector('.problem-drag-handle');
-    if (dragHandle) {
-        const list = el('problemList');
-        addKeyboardDragSupport(
-            dragHandle,
-            () => [...list.querySelectorAll('.problem-card')],
-            () => ctx.saveProblemOrder(ctx.currentUserId)
-        );
-    }
+    // Atualiza dragSrc via ctx para compat com listeners externos
+    card.addEventListener('dragstart', () => ctx.setDragSrc(card));
 }
 
 /**

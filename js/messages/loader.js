@@ -352,28 +352,27 @@ export async function saveOrder(userId) {
     try {
         const batch = writeBatch(db);
         let changes = 0;
-        rows.forEach((row, i) => {
-            const id = row.dataset.id;
-            const category = row.closest('.msg-group')?.dataset.category || 'Geral';
-            if (!id) return;
-            const msg = allMessages.find(m => m.id === id);
-            const newOrder = i + 1;
-            if (msg && msg.order === newOrder && msg.category === category) return;
-            batch.update(doc(db, 'users', userId, 'messages', id), { order: newOrder, category });
-            changes++;
-        });
-        if (changes > 0) await batch.commit();
 
+        const visibleOrder = new Map();
         rows.forEach((row, i) => {
             const id = row.dataset.id;
             const category = row.closest('.msg-group')?.dataset.category || 'Geral';
-            const msg = allMessages.find(m => m.id === id);
-            if (msg) {
-                msg.order = i + 1;
-                msg.category = category;
+            if (id) visibleOrder.set(id, { order: i + 1, category });
+        });
+
+        allMessages.forEach((msg, idx) => {
+            const visible = visibleOrder.get(msg.id);
+            const newOrder = visible ? visible.order : (msg.order ?? 0);
+            const newCategory = visible ? visible.category : msg.category;
+            if (msg.order !== newOrder || msg.category !== newCategory) {
+                batch.update(doc(db, 'users', userId, 'messages', msg.id), { order: newOrder, category: newCategory });
+                msg.order = newOrder;
+                msg.category = newCategory;
+                changes++;
             }
         });
 
+        if (changes > 0) await batch.commit();
         allMessages.sort((a, b) => (a.order || 0) - (b.order || 0));
         updateCategoryFilterBar();
     } catch (err) { console.error("Erro ao salvar ordem:", err); }
