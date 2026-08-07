@@ -2,6 +2,62 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.7] - 07/08/2026
+* **Adicionar rate limiting/retry logic nas chamadas do Firebase — app fica fragil a erros de rede** `[M]` `[Backend]`
+* **Criar script de backup automatico do Firestore — exportar dados periodicamente para JSON** `[M]` `[Backend]`
+* **Adicionar testes para auth.js, messages.js, problems.js e links.js — aumentar cobertura de testes** `[M]` `[Backend]`
+* **Implementar Prettier para formatacao automatica de codigo — padroniza aspas, indentacao e quebras de linha** `[M]` `[Backend]`
+* **sw.js lista de assets hardcoded — nao inclui arquivos JS/CSS de ferramentas novas nem arquivos de tema** `[M]` `[Backend]`
+* **index.html link do manifest.json faltando rel=manifest — necessario para instalacao PWA** `[P]` `[Backend]`
+* **users.css .user-row.dragging background hardcoded #f8fafc — deveria usar variavel CSS** `[P]` `[Layout]`
+* **users.css .user-row.blocked background-color hardcoded #fff5f5 — deveria usar variavel CSS** `[P]` `[Layout]`
+* **Falta de linter e formatador (eslint + prettier) — sem padronizacao de qualidade de codigo** `[M]` `[Backend]`
+* **Falta de testes automatizados (unitarios e integracao) — zero cobertura de testes** `[G]` `[Backend]`
+* **Nenhum service worker ou PWA manifest — app nao funciona offline e nao e instalavel** `[M]` `[Backend]`
+* **Nenhum CSP (Content Security Policy) — app vulneravel a XSS via CDN comprometido** `[M]` `[Security]`
+* **Nenhum error boundary global — erro em um modulo pode quebrar toda a aplicacao sem feedback** `[M]` `[Bug]`
+* **users.css .user-row background hardcoded #fff em vez de var(--card) — quebra dark mode e temas customizados** `[M]` `[Layout]`
+* **Refatorar: messages.js 791 linhas misturando setup/render/import-export/lixeira - quebrar em modulos** `[G]` `[Backend]`
+* **Bug: messages.js loadMessages/getDocs carrega TODAS as mensagens sem paginacao - degrada em bases grandes** `[M]` `[Backend]`
+* **Bug: messages.js updateTrashCount carrega TODA a colecao messages so para contar deletados - usar aggregate query ou counter** `[M]` `[Backend]`
+* **Bug: messages.js importFromTxt carrega TODA a colecao para dedup sem where/limite - pesado em bases grandes** `[M]` `[Backend]`
+* **Bug: messages.js btnAddMsg carrega TODAS as mensagens via getDocs so para calcular maxOrder - usar orderBy+limit 1** `[M]` `[Backend]`
+* **Bug: links.js loadLinks sem paginacao/limite - getDocs carrega todos os links do usuario** `[M]` `[Backend]`
+* **Bug: admin.js deleteUser carrega TODAS as subcolecoes sem paginacao (messages/problems/links) - pode exceder memoria** `[M]` `[Backend]`
+* **Refatorar: portOpener.js 635 linhas misturando HTML build/bind events/geracao de scripts - quebrar em modulos** `[M]` `[Backend]`
+* **Refatorar: escPos.js 473 linhas com HTML/bind/geracao misturados - modularizar** `[M]` `[Backend]`
+* **Refatorar: funcao _setCode + _hl (highlight de sintaxe) duplicada entre escPos.js e portOpener.js - extrair modulo compartilhado** `[P]` `[Backend]`
+* **Refatorar: funcao segmented control (seg) duplicada em 6 arquivos (escPos, docValidatorUI, fileValidator, networkDiag, statusChecker, portOpener) - extrair helper compartilhado** `[P]` `[Backend]`
+* **Bug: dark mode inconsistente em ferramentas novas - cores hardcoded (#eff6ff, #bfdbfe, #374151, etc) em apiTester, users, portOpener, decisionTree, docValidator, fileValidator, networkDiag, scriptGen, forms, history, links, tags, search CSS** `[G]` `[Layout]`
+* **Bug: problems/problem-io.js saveProblemOrder reescreve todos os cards no batch sem verificar mudanca - otimizar diff** `[M]` `[Backend]`
+* **Bug: links.js saveLinkOrder reescreve TODOS os links no batch mesmo os que nao mudaram - pesado em reordenacao grande** `[M]` `[Backend]`
+* **Bug: escPos.js variaveis de estado globais (escPrinter, escText) nao resetadas ao reabrir aba - estado stale** `[P]` `[Bug]`
+* **UX: login sem feedback de loading no botao Entrar/Entrar com Google durante autenticacao - usuario nao sabe se clicou** `[P]` `[UI]`
+* **UX: botoes da toolbar (Importar/Novo problema/Novo link) sem title descritivo - inconsistente com botoes da aba Mensagens** `[P]` `[UI]`
+* **A11y: animacoes (spinner, modalIn, fadeIn, poShake, poTagIn, ndSpin, scSpin) sem prefers-reduced-motion em 6 arquivos CSS** `[P]` `[Accessibility]`
+* **A11y: .compact-favorites .btn-favorite com opacity:0 em estado normal - invisivel para navegacao por teclado** `[P]` `[Accessibility]`
+* **A11y: futura-widget-template input de busca sem label ou aria-label - leitores nao anunciam proposito do campo** `[P]` `[Accessibility]`
+* **A11y: help.js nao restaura foco ao fechar modal de ajuda - leitor perde contexto** `[P]` `[Accessibility]`
+* **A11y: toast.js nao usa role=status ou aria-live - screen readers nao anunciam toast** `[P]` `[Accessibility]`
+* **Bug: utils.js getTagColor armazena mapa de tags em localStorage global sem prefixo de usuario - vaza entre contas** `[P]` `[Bug]`
+* **Bug: futura-widget searchCache cresce ate 100 entries mas nunca limpo no logout/troca de usuario - dados de sessao anterior vazam** `[M]` `[Bug]`
+* **Bug: portOpener.js instancia FuturaSearchWidget sem userId (lsKey vazio) - localStorage do widget compartilhado entre contas no mesmo browser** `[M]` `[Bug]`
+* **Bug: docValidatorUI.js injeta formatCPF/formatCNPJ via innerHTML sem escape (XSS em dados fiscais)** `[P]` `[Bug]`
+* **Bug: apiTester.js historico de URLs exibido com innerHTML sem escape - XSS via URL maliciosa** `[M]` `[Bug]`
+* **Bug: scriptGen.js _generate nao escapa valores das variaveis antes de inserir no template (XSS/injecao)** `[M]` `[Bug]`
+* **Bug: escPos.js _hlEsc e portOpener.js _hl nao escapam > corretamente - geram HTML invalido em highlight de sintaxe** `[P]` `[Bug]`
+* **Bug: history.js navigator.clipboard.writeText sem try/catch - rejeicao nao tratada deixa toast inconsistente** `[P]` `[Bug]`
+* **Bug: enhancements.js Ctrl+F listener global registra a cada initEnhancements sem remocao no reset (vazamento em re-login)** `[M]` `[Bug]`
+* **Bug: enhancements.js setupCounterListeners e setupFavorites acumulam listeners a cada init sem remocao no reset** `[M]` `[Bug]`
+* **Bug: search.js initSearch registra input listener a cada chamada - acumulo se initSearch roda multiplas vezes** `[P]` `[Bug]`
+* **Bug: messages.js exportFormatModal keydown listener registra novo handler a cada setupUserInterface (acumulo em re-login)** `[P]` `[Accessibility]`
+* **Bug: auth.js headerTimeInterval e listener focus nao sao limpos se onAuthStateChanged dispara multiplas vezes (acumulo de timer/listeners)** `[M]` `[Bug]`
+* **Nenhum pipeline de CI/CD (GitHub Actions) — sem lint, test e deploy automatico** `[M]` `[Backend]`
+* **scripts/backlog.js nao possui testes — CLI core do projeto sem cobertura** `[P]` `[Backend]`
+
+*(Nenhum item concluído neste ciclo ainda)*
+
+
 ## [v1.1.6] - 04/08/2026
 * **Refatorar: futura-widget.js 2198 linhas como IIFE gigante com proxy document/window - quebrar em metodos de classe nomeados** `[G]` `[Backend]`
 * **A11y: shortcuts.js buscard resultados nao seta aria-activedescendant/aria-selected ao navegar com setas - leitores nao anunciam item destacado** `[M]` `[Accessibility]`
