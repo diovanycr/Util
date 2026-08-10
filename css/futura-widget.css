@@ -451,12 +451,15 @@
 }
 
 .ai-block-header {
+  position: relative;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 12px;
   padding: 14px 20px;
   border-bottom: 1px solid var(--border);
   background: var(--surface-2);
+  width: 100%;
 }
 
 .ai-tag {
@@ -1137,13 +1140,6 @@
 /* ============================================
    AUDIO READ ALOUD BUTTON
    ============================================ */
-.ai-block-header {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  width: 100%;
-}
 
 .audio-read-btn {
   background: var(--surface);

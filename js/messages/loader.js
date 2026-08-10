@@ -11,7 +11,7 @@ import { getDocs, addDoc, updateDoc, writeBatch } from '../firebase-retry.js';
 import { openConfirmModal, showModal } from '../modal.js';
 import { showToast } from '../toast.js';
 import {
-    escapeHtml, escapeAttr, addKeyboardDragSupport,
+    escapeHtml, escapeAttr, setupDragDrop,
     getNextGreetingChange, isGreetingMessage
 } from '../utils.js';
 import { addToHistory, renderHistoryPanel } from '../history.js';
@@ -256,37 +256,20 @@ export function renderMessages() {
                 );
             };
 
-            row.ondragstart = () => { state.dragSrc = row; row.classList.add('dragging'); };
-            row.ondragend   = () => { 
-                row.classList.remove('dragging'); 
-                if (state.dragSrc && state.dragSrc !== row) {
-                    saveOrder(state.currentUserId);
-                }
-                state.dragSrc = null; 
-            };
-            row.ondragover  = (e) => {
-                e.preventDefault();
-                const rect = row.getBoundingClientRect();
-                const after = e.clientY > rect.top + rect.height / 2;
-                row.parentNode.insertBefore(state.dragSrc, after ? row.nextSibling : row);
-            };
-
-            const handle = row.querySelector('.drag-handle');
-            if (handle) {
-                addKeyboardDragSupport(
-                    handle,
-                    () => [...row.parentNode.querySelectorAll('.user-row')],
-                    () => saveOrder(state.currentUserId)
-                );
-            }
+            setupDragDrop(
+                row,
+                row.querySelector('.drag-handle'),
+                list,
+                () => [...list.querySelectorAll('.user-row')],
+                () => saveOrder(state.currentUserId)
+            );
 
             groupEl.appendChild(row);
         });
 
+        // Cross-group drop on group container (for empty groups)
         groupEl.ondragover = (e) => {
             e.preventDefault();
-            if (!state.dragSrc || groupEl.contains(state.dragSrc)) return;
-            groupEl.appendChild(state.dragSrc);
         };
 
         list.appendChild(groupEl);

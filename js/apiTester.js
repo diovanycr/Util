@@ -4,7 +4,7 @@
 //  Testador rápido de endpoints REST/Webhooks para verificar
 //  integrações com WooCommerce, VTEX, Mercado Livre, APIs Mobile
 
-import { escapeHtml, escapeAttr } from './utils.js';
+import { escapeHtml, escapeAttr, setStatusBadge } from './utils.js';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -135,8 +135,7 @@ function _send(container) {
     const bodyEl = container.querySelector('#atResultBody');
 
     result.classList.remove('hidden');
-    statusEl.textContent = '⏳ Enviando...';
-    statusEl.className = 'at-status-badge at-status-pending';
+    setStatusBadge(statusEl, 'pending', '⏳ Enviando...');
     timeEl.textContent = '';
     bodyEl.textContent = 'Aguardando resposta...';
 
@@ -157,8 +156,7 @@ function _send(container) {
             let formatted = text;
             try { formatted = JSON.stringify(JSON.parse(text), null, 2); } catch {}
 
-            statusEl.textContent = `${res.status} ${res.statusText || ''}`.trim();
-            statusEl.className = `at-status-badge ${res.ok ? 'at-status-ok' : 'at-status-error'}`;
+            setStatusBadge(statusEl, res.ok ? 'ok' : 'error', `${res.status} ${res.statusText || ''}`.trim());
             timeEl.textContent = `${elapsed}ms`;
             bodyEl._raw = formatted;
             bodyEl.textContent = formatted;
@@ -168,13 +166,11 @@ function _send(container) {
         .catch(err => {
             const elapsed = Math.round(performance.now() - start);
             if (err.name === 'AbortError') {
-                statusEl.textContent = '⏱ Timeout (15s)';
-                statusEl.className = 'at-status-badge at-status-error';
+                setStatusBadge(statusEl, 'error', '⏱ Timeout (15s)');
                 timeEl.textContent = `${elapsed}ms`;
                 bodyEl.textContent = 'A requisição excedeu o tempo limite. Verifique a URL, CORS ou disponibilidade do servidor.';
             } else {
-                statusEl.textContent = '❌ Erro';
-                statusEl.className = 'at-status-badge at-status-error';
+                setStatusBadge(statusEl, 'error', '❌ Erro');
                 timeEl.textContent = `${elapsed}ms`;
                 bodyEl.textContent = `Erro: ${err.message}\n\nPossíveis causas:\n- URL incorreta ou servidor offline\n- CORS bloqueando a requisição\n- Certificado SSL inválido\n- Erro de rede`;
             }
@@ -188,8 +184,7 @@ function _showError(container, msg) {
     const timeEl = container.querySelector('#atResultTime');
     const bodyEl = container.querySelector('#atResultBody');
     result.classList.remove('hidden');
-    statusEl.textContent = '❌ Erro';
-    statusEl.className = 'at-status-badge at-status-error';
+    setStatusBadge(statusEl, 'error', '❌ Erro');
     timeEl.textContent = '';
     bodyEl.textContent = msg;
 }

@@ -2,21 +2,7 @@
  * futura-widget-utils.js — Helpers de escape, toast e loader
  */
 
-export function _escHtml(text) {
-  const div = document.createElement("div");
-  div.textContent = String(text ?? "");
-  return div.innerHTML;
-}
-
-export function _escAttr(text) {
-  const A = String.fromCharCode(38);
-  return String(text ?? "")
-    .replace(/&/g, A + "amp;")
-    .replace(/</g, A + "lt;")
-    .replace(/>/g, A + "gt;")
-    .replace(/"/g, A + "quot;")
-    .replace(/'/g, A + "#39;");
-}
+export { escapeHtml as _escHtml, escapeAttr as _escAttr } from '../utils.js';
 
 export function showToast(message, type = "info") {
   const icons = { error: "fa-circle-exclamation", success: "fa-circle-check", info: "fa-circle-info" };

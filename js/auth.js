@@ -18,7 +18,7 @@ import { initProblems, resetProblems, loadProblems } from './problems.js';
 import { initSearch, resetSearch } from './search.js';
 import { initLinks, resetLinks } from './links.js';
 import { initEnhancements, resetEnhancements } from './enhancements.js';
-import { getGreetingPrefix, setTagColorUser } from './utils.js';
+import { getGreetingPrefix, setTagColorUser, withButtonLoading } from './utils.js';
 
 let messagesInitialized = false;
 let problemsInitialized = false;
@@ -150,7 +150,6 @@ export function initAuth() {
 
 async function doLogin() {
     const username = el('loginUser').value.trim().toLowerCase();
-    // Não faz trim na senha: espaços no início/fim podem ser intencionais
     const password = el('loginPass').value;
 
     if (!username || !password) {
@@ -159,14 +158,7 @@ async function doLogin() {
     }
 
     const btnLogin = el('btnLogin');
-    const originalText = btnLogin ? btnLogin.innerHTML : 'Entrar';
-
-    try {
-        if (btnLogin) {
-            btnLogin.disabled = true;
-            btnLogin.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;"></span> Entrando...';
-        }
-
+    await withButtonLoading(btnLogin, async () => {
         const q = query(collection(db, 'users'), where('username', '==', username));
         const snap = await getDocs(q);
 
@@ -183,32 +175,12 @@ async function doLogin() {
 
         const email = snap.docs[0].data().email;
         await signInWithEmailAndPassword(auth, email, password);
-
-    } catch (error) {
-        console.error("Erro no login:", error.code);
-        if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-            showModal("Senha incorreta.");
-        } else {
-            showModal("Erro ao tentar entrar. Verifique sua conexão.");
-        }
-    } finally {
-        if (btnLogin) {
-            btnLogin.disabled = false;
-            btnLogin.innerHTML = originalText;
-        }
-    }
+    }, 'Entrando...');
 }
 
 async function doGoogleLogin() {
     const btnGoogle = el('btnGoogleLogin');
-    const originalText = btnGoogle ? btnGoogle.innerHTML : 'Entrar com Google';
-
-    try {
-        if (btnGoogle) {
-            btnGoogle.disabled = true;
-            btnGoogle.innerHTML = '<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;"></span> Entrando...';
-        }
-
+    await withButtonLoading(btnGoogle, async () => {
         const result = await signInWithPopup(auth, googleProvider);
         const user = result.user;
 
@@ -237,21 +209,7 @@ async function doGoogleLogin() {
 
         // Se já existe, onAuthStateChanged cuida do resto
 
-    } catch (error) {
-        console.error("Erro no login com Google:", error.code);
-
-        if (error.code === 'auth/popup-closed-by-user') return;
-        if (error.code === 'auth/popup-blocked') {
-            showModal("O popup foi bloqueado pelo navegador. Permita popups para este site.");
-            return;
-        }
-        showModal("Erro ao entrar com Google. Tente novamente.");
-    } finally {
-        if (btnGoogle) {
-            btnGoogle.disabled = false;
-            btnGoogle.innerHTML = originalText;
-        }
-    }
+    }, 'Entrando...');
 }
 
 

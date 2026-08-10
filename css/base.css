@@ -161,6 +161,26 @@ body {
   color: #fff;
 }
 
+/* ── Badge de status padronizado (pending/ok/error/info) ────────────────── */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+}
+.status-badge.status-pending { background: #fef3c7; color: #d97706; border-color: #fde68a; }
+.status-badge.status-ok      { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+.status-badge.status-error   { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+.status-badge.status-info    { background: #eff6ff; color: var(--primary); border-color: #bfdbfe; }
+[data-theme="dark"] .status-badge.status-pending { background: #422006; border-color: #d97706; color: #fbbf24; }
+[data-theme="dark"] .status-badge.status-ok      { background: #052e16; border-color: #166534; color: #4ade80; }
+[data-theme="dark"] .status-badge.status-error   { background: #450a0a; border-color: #991b1b; color: #f87171; }
+[data-theme="dark"] .status-badge.status-info    { background: #1e3a5f; border-color: #1e40af; color: #93c5fd; }
+
 /* ── Acessibilidade: screen reader only ─────────────────────────────────── */
 .sr-only {
   position: absolute;

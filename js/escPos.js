@@ -4,7 +4,7 @@
 //  Entry point: mantém o estado, renderiza o painel via esc-pos/builders.js
 //  e gera os comandos via esc-pos/generator.js.
 
-import { setupSegmented, createHighlighter, setCode as setHighlightedCode } from './utils.js';
+import { setupSegmented, createHighlighter, setCode as setHighlightedCode, setupOutputTabs } from './utils.js';
 import { PRINTERS, DEFAULT_STATE } from './esc-pos/constants.js';
 import { buildPanel } from './esc-pos/builders.js';
 import {
@@ -70,36 +70,7 @@ export function bindEscPosEvents(container) {
 
     container.querySelector('#escBtnGenerate')?.addEventListener('click', _generate);
 
-    // Output tabs
-    const _activateTab = (tab) => {
-        container.querySelectorAll('[id^="esc-tab-"]').forEach(t => {
-            const active = t === tab;
-            t.classList.toggle('active', active);
-            t.setAttribute('aria-selected', active ? 'true' : 'false');
-            t.setAttribute('tabindex', active ? '0' : '-1');
-        });
-        container.querySelectorAll('[id^="escPane-"]').forEach(p => p.classList.add('hidden'));
-        const pane = document.getElementById(`escPane-${tab.dataset.pane}`);
-        if (pane) pane.classList.remove('hidden');
-        tab.focus();
-    };
-
-    container.addEventListener('keydown', e => {
-        if (!e.target.closest('[id^="esc-tab-"]')) return;
-        const list = [...container.querySelectorAll('[id^="esc-tab-"]')];
-        const idx = list.indexOf(e.target);
-        let next = null;
-        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
-        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
-        else if (e.key === 'Home') next = list[0];
-        else if (e.key === 'End') next = list[list.length - 1];
-        if (next) { e.preventDefault(); _activateTab(next); }
-    });
-
-    container.addEventListener('click', e => {
-        const tab = e.target.closest('[id^="esc-tab-"]');
-        if (tab && tab.classList.contains('po-otab')) _activateTab(tab);
-    });
+    setupOutputTabs(container, '[id^="esc-tab-"]', 'escPane-');
 }
 
 // ── Geração dos comandos ───────────────────────────────────────────────────

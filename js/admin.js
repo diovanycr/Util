@@ -15,7 +15,7 @@ import { getDocs, updateDoc, deleteDoc, setDoc, writeBatch } from './firebase-re
 
 import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr } from './utils.js';
+import { escapeHtml, escapeAttr, withButtonLoading } from './utils.js';
 
 let _lastUserDoc = null;
 const PAGE_SIZE = 50;
@@ -204,43 +204,37 @@ export function initAdminActions() {
         }
 
         try {
-            btn.disabled = true;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Criando...';
+            await withButtonLoading(btn, async () => {
+                const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
+                
+                await setDoc(doc(db, 'users', cred.user.uid), {
+                    username,
+                    email,
+                    role: 'user',
+                    blocked: false,
+                    createdAt: new Date().toISOString()
+                });
 
-            const cred = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-            
-            await setDoc(doc(db, 'users', cred.user.uid), {
-                username,
-                email,
-                role: 'user',
-                blocked: false,
-                createdAt: new Date().toISOString()
-            });
+                await signOut(secondaryAuth);
 
-            await signOut(secondaryAuth);
+                el('newUser').value = el('newEmail').value = el('newPass').value = '';
+                el('createSuccess').classList.remove('hidden');
+                setTimeout(() => el('createSuccess').classList.add('hidden'), 3000);
+                
+                loadUsers();
 
-            el('newUser').value = el('newEmail').value = el('newPass').value = '';
-            el('createSuccess').classList.remove('hidden');
-            setTimeout(() => el('createSuccess').classList.add('hidden'), 3000);
-            
-            loadUsers();
+            }, 'Criando...');
 
-        } catch (e) {
-            console.error("Erro capturado:", e.code);
-            
-            if (e.code === 'auth/email-already-in-use') {
-                showModal("Ops! Este e-mail já está sendo usado por outro usuário.");
-            } else if (e.code === 'auth/weak-password') {
-                showModal("Senha muito fraca. Use pelo menos 6 caracteres.");
-            } else if (e.code === 'auth/invalid-email') {
-                showModal("O endereço de e-mail informado não é válido.");
-            } else {
-                showModal("Ocorreu um erro ao criar o usuário. Tente novamente.");
-            }
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = 'Criar usuário';
+} catch (e) {
+                console.error("Erro capturado:", e.code);
+                
+                if (e.code === 'auth/email-already-in-use') {
+                    showModal("Ops! Este e-mail já está sendo usado por outro usuário.");
+                } else if (e.code === 'auth/weak-password') {
+                    showModal("Senha muito fraca. Use pelo menos 6 caracteres.");
+                } else if (e.code === 'auth/invalid-email') {
+                    showModal("O endereço
+                    showModal("Ocorreu um erro ao criar
+                }
+            };
         }
-    };
-}

@@ -1,6 +1,6 @@
-/**
- * links.js — Aba de Links Úteis
- * Links salvos no Firestore, clicáveis e organizados por categoria
+﻿/**
+ * links.js â€” Aba de Links Ãšteis
+ * Links salvos no Firestore, clicÃ¡veis e organizados por categoria
  */
 
 import {
@@ -15,12 +15,11 @@ import { getDocs, addDoc, deleteDoc, updateDoc, writeBatch } from './firebase-re
 
 import { showModal, openConfirmModal } from './modal.js';
 import { showToast } from './toast.js';
-import { escapeHtml, escapeAttr, addKeyboardDragSupport, debounce } from './utils.js';
+import { escapeHtml, escapeAttr, debounce, setupDragDrop } from './utils.js';
 
 let currentUserId = null;
 export let allLinks = [];
 let uiInitialized = false;
-let dragSrcLink = null;
 
 export function initLinks(uid) {
     currentUserId = uid;
@@ -34,7 +33,6 @@ export function initLinks(uid) {
 export function resetLinks() {
     uiInitialized = false;
     currentUserId = null;
-    dragSrcLink = null;
     allLinks.length = 0;
     const list = el('linkList');
     if (list) list.innerHTML = '';
@@ -52,22 +50,22 @@ function setupLinksInterface() {
     };
 
     el('btnAddLink').onclick = async () => {
-        if (!currentUserId) return showModal("Sessão expirada. Faça login novamente.");
+        if (!currentUserId) return showModal("SessÃ£o expirada. FaÃ§a login novamente.");
         let url = el('linkUrl').value.trim();
         const title = el('linkTitle').value.trim();
         const category = el('linkCategory').value.trim();
 
-        if (!url) return showModal("A URL é obrigatória.");
+        if (!url) return showModal("A URL Ã© obrigatÃ³ria.");
 
-        // Adiciona https:// se não tiver protocolo
+        // Adiciona https:// se nÃ£o tiver protocolo
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
-        // Valida URL básica
+        // Valida URL bÃ¡sica
         try { new URL(url); } catch {
-            return showModal("URL inválida. Verifique e tente novamente.");
+            return showModal("URL invÃ¡lida. Verifique e tente novamente.");
         }
 
-        // Tenta obter título via favicon/metadata se não preenchido
+        // Tenta obter tÃ­tulo via favicon/metadata se nÃ£o preenchido
         const displayTitle = title || extractDomain(url);
 
         try {
@@ -127,7 +125,7 @@ async function loadLinks(userId) {
                 <div class="empty-state-container">
                     <i class="fa-solid fa-link empty-state-icon"></i>
                     <p class="empty-state-title">Nenhum link cadastrado</p>
-                    <p class="empty-state-desc">Adicione links úteis e atalhos rápidos para facilitar seu atendimento.</p>
+                    <p class="empty-state-desc">Adicione links Ãºteis e atalhos rÃ¡pidos para facilitar seu atendimento.</p>
                     <button class="btn primary mt-12 btn-cta-new-link"><i class="fa-solid fa-plus"></i> Novo link</button>
                 </div>
             `;
@@ -144,7 +142,7 @@ async function loadLinks(userId) {
             <div class="empty-state-container">
                 <i class="fa-solid fa-triangle-exclamation empty-state-icon" style="color:var(--danger, #ef4444);"></i>
                 <p class="empty-state-title">Erro ao carregar links</p>
-                <p class="empty-state-desc">Não foi possível conectar ao banco de dados. Verifique sua conexão e tente novamente.</p>
+                <p class="empty-state-desc">NÃ£o foi possÃ­vel conectar ao banco de dados. Verifique sua conexÃ£o e tente novamente.</p>
             </div>
         `;
     }
@@ -174,7 +172,7 @@ function renderLinks(container, links) {
                     <img class="link-favicon" 
                          src="https://www.google.com/s2/favicons?domain=${escapeAttr(extractDomain(item.url))}&sz=32"
                          onerror="this.style.display='none'"
-                         alt="Ícone de ${escapeAttr(item.title)}" />
+                         alt="Ãcone de ${escapeAttr(item.title)}" />
                     <div class="link-info">
                         <span class="link-title">${escapeHtml(item.title)}</span>
                         <span class="link-url">${escapeHtml(extractDomain(item.url))}</span>
@@ -209,44 +207,18 @@ function renderLinks(container, links) {
                         }
                     },
                     null,
-                    `Deseja realmente remover o link "${item.title}"? Esta ação não poderá ser desfeita.`
+                    `Deseja realmente remover o link "${item.title}"? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`
                 );
             };
-
-            // Drag-and-drop (mouse) — restrito ao mesmo grupo para evitar
-            // recategorização silenciosa não persistida
-            card.draggable = true;
-            card.dataset.id = item.id;
-            card.ondragstart = (e) => {
-                dragSrcLink = card;
-                card.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
-            };
-            card.ondragend = () => {
-                card.classList.remove('dragging');
-                saveLinkOrder(currentUserId);
-            };
-            card.ondragover = (e) => {
-                e.preventDefault();
-                e.dataTransfer.dropEffect = 'move';
-                if (!dragSrcLink || dragSrcLink === card) return;
-                // Bloqueia drop entre grupos diferentes — recategorização
-                // deve ser feita via edição explícita do campo categoria.
-                if (dragSrcLink.parentNode !== card.parentNode) return;
-                const rect  = card.getBoundingClientRect();
-                const after = e.clientY > rect.top + rect.height / 2;
-                card.parentNode.insertBefore(dragSrcLink, after ? card.nextSibling : card);
-            };
-
-            // Drag-and-drop (teclado)
             const dragHandle = card.querySelector('.link-drag-handle');
-            if (dragHandle) {
-                addKeyboardDragSupport(
-                    dragHandle,
-                    () => [...card.parentNode.querySelectorAll('.link-card')],
-                    () => saveLinkOrder(currentUserId)
-                );
-            }
+            setupDragDrop(
+                card,
+                dragHandle,
+                container,
+                () => [...container.querySelectorAll('.link-card')],
+                () => saveLinkOrder(currentUserId),
+                (target) => target.parentNode === card.parentNode
+            );
 
             group.appendChild(card);
         });
@@ -259,8 +231,8 @@ function renderLinks(container, links) {
 }
 
 function enterEditMode(card, item) {
-    // Preserva a estrutura original: apenas esconde os botões de edição/exclusão
-    // e injeta o form no lugar do conteúdo principal. Cancelar/Salvar chama loadLinks,
+    // Preserva a estrutura original: apenas esconde os botÃµes de ediÃ§Ã£o/exclusÃ£o
+    // e injeta o form no lugar do conteÃºdo principal. Cancelar/Salvar chama loadLinks,
     // que re-renderiza a lista e restaura tudo.
     const mainEl  = card.querySelector('.link-main');
     const editBtn = card.querySelector('.link-edit-btn');
@@ -272,7 +244,7 @@ function enterEditMode(card, item) {
     form.className = 'link-edit-form';
     form.innerHTML = `
         <input class="edit-link-url"   type="url"  value="${escapeAttr(item.url)}"   placeholder="URL..." />
-        <input class="edit-link-title" type="text" value="${escapeAttr(item.title)}" placeholder="Título..." />
+        <input class="edit-link-title" type="text" value="${escapeAttr(item.title)}" placeholder="TÃ­tulo..." />
         <input class="edit-link-cat"   type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." />
         <div class="flex-end mt-10">
             <button class="btn ghost btn-cancel-link-edit">Cancelar</button>
@@ -297,14 +269,14 @@ function enterEditMode(card, item) {
     };
 
     const saveLinkEdit = async () => {
-        if (!currentUserId) return showModal("Sessão expirada. Faça login novamente.");
+        if (!currentUserId) return showModal("SessÃ£o expirada. FaÃ§a login novamente.");
         let url   = form.querySelector('.edit-link-url').value.trim();
         const title    = form.querySelector('.edit-link-title').value.trim();
         const category = form.querySelector('.edit-link-cat').value.trim();
 
-        if (!url) return showModal("A URL é obrigatória.");
+        if (!url) return showModal("A URL Ã© obrigatÃ³ria.");
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-        try { new URL(url); } catch { return showModal("URL inválida."); }
+        try { new URL(url); } catch { return showModal("URL invÃ¡lida."); }
 
         try {
             await updateDoc(doc(db, 'users', currentUserId, 'links', item.id), {
@@ -355,7 +327,7 @@ async function saveLinkOrder(userId) {
             }
         });
         if (changed > 0) await batch.commit();
-        // Atualiza allLinks com nova ordem para manter consistência
+        // Atualiza allLinks com nova ordem para manter consistÃªncia
         allLinks.forEach(l => { if (newOrder[l.id] !== undefined) l.order = newOrder[l.id]; });
     } catch (err) {
         console.error("Erro ao salvar ordem dos links:", err);
@@ -382,7 +354,7 @@ function filterLinks(query) {
         group.classList.toggle('hidden-by-search', !hasVisible);
     });
 
-    // Se não houver query e todos visíveis, garante que nenhum grupo fique oculto
+    // Se nÃ£o houver query e todos visÃ­veis, garante que nenhum grupo fique oculto
     if (!query) {
         list.querySelectorAll('.link-group').forEach(g => g.classList.remove('hidden-by-search'));
     }

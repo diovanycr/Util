@@ -9,7 +9,7 @@ import {
     calculateNFeDV, generateNFeChave, formatNFeChave,
     validateIE, IE_FORMATS
 } from './docValidator.js';
-import { escapeHtml, setupSegmented } from './utils.js';
+import { escapeHtml, setupSegmented, setStatusBadge } from './utils.js';
 
 export function buildDocValidatorPanel() {
     return `
@@ -117,7 +117,7 @@ function _doValidate(container, type) {
 
     const value = input.value.trim();
     if (!value) {
-        status.className = 'dv-result-status dv-status-error';
+        setStatusBadge(status, 'error');
         status.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> Digite um valor para validar.`;
         result.classList.remove('hidden');
         details.textContent = '';
@@ -178,7 +178,7 @@ function _doValidate(container, type) {
         }
     }
 
-    status.className = `dv-result-status ${valid ? 'dv-status-valid' : 'dv-status-error'}`;
+    setStatusBadge(status, valid ? 'ok' : 'error');
     status.innerHTML = valid
         ? `<i class="fa-solid fa-circle-check"></i> ${info}`
         : `<i class="fa-solid fa-circle-exclamation"></i> ${info}`;

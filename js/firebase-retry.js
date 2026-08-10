@@ -80,6 +80,4 @@ export function writeBatch(db) {
     return batch;
 }
 
-export function withRetrySync(fn, retries = 3) {
-    return async (...args) => withRetry(() => fn(...args), retries);
-}
+

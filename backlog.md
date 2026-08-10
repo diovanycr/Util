@@ -26,16 +26,6 @@
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **Refactor: firebase-retry.js withRetrySync nome contradiz comportamento async e export nao utilizado - remover ou renomear** `[P]` `[Backend]`
-- [ ] **Layout: messages.css dark mode greeting-auto-badge background rgba(37,99,235,0.15) hardcoded em vez de var** `[P]` `[Layout]`
-- [ ] **Layout: portOpener.css dark mode override .futura-search-widget e dead code (futura-widget.css carrega depois e vence)** `[P]` `[Layout]`
-- [ ] **Layout: futura-widget.css regra .ai-block-header duplicada (linhas 453 e 1140) com overrides conflitantes - hazard de manutencao** `[P]` `[Layout]`
-- [ ] **Refactor: futura-widget-config syncConfig e dead code duplicado de createConfig - remover** `[P]` `[Backend]`
-- [ ] **Refactor: futura-widget reimplementa _escHtml/_escAttr em vez de importar escapeHtml/escapeAttr de utils.js - risco de drift** `[P]` `[Backend]`
-- [ ] **Refactor: tab activation duplicada entre escPos.js e portOpener.js (_activateTab/_activateOutputTab com keydown) - escPos true toggle vs portOpener add redundante** `[P]` `[Backend]`
-- [ ] **Refactor: badge status (pending/ok/error) duplicado em apiTester/statusChecker/fileValidator/docValidatorUI com nomes de classes divergentes - extrair setStatusBadge** `[P]` `[Backend]`
-- [ ] **Refactor: search.js runSearch 139 linhas com 3 blocos quase identicos (messages/problems/links) - extrair builder por entidade** `[P]` `[Backend]`
-- [ ] **Refactor: logica drag-and-drop triplicada em messages/problems/links (dragstart/dragover/dragend/addKeyboardDragSupport) - extrair helper compartilhado** `[M]` `[Backend]`
 - [ ] **Refactor: padrao botao loading (disabled+spinner+finally) duplicado em auth/admin/messages com spinners diferentes - extrair withButtonLoading helper** `[P]` `[Backend]`
 - [ ] **PWA: manifest.json icon emoji SVG data-URI sem variantes PNG 192/512 maskable - install splash piorado e sem suporte legacy** `[P]` `[Backend]`
 - [ ] **PWA: index.html meta theme-color duplicada (linhas 9 e 16) e sem variant media=prefers-color-scheme:dark - chrome do browser fica azul em dark** `[P]` `[Backend]`
@@ -51,6 +41,16 @@
 
 
 ## Feito
+- [x] **Refactor: logica drag-and-drop triplicada em messages/problems/links (dragstart/dragover/dragend/addKeyboardDragSupport) - extrair helper compartilhado** `[M]` `[Backend]`
+- [x] **Refactor: search.js runSearch 139 linhas com 3 blocos quase identicos (messages/problems/links) - extrair builder por entidade** `[P]` `[Backend]`
+- [x] **Refactor: badge status (pending/ok/error) duplicado em apiTester/statusChecker/fileValidator/docValidatorUI com nomes de classes divergentes - extrair setStatusBadge** `[P]` `[Backend]`
+- [x] **Refactor: tab activation duplicada entre escPos.js e portOpener.js (_activateTab/_activateOutputTab com keydown) - escPos true toggle vs portOpener add redundante** `[P]` `[Backend]`
+- [x] **Refactor: futura-widget reimplementa _escHtml/_escAttr em vez de importar escapeHtml/escapeAttr de utils.js - risco de drift** `[P]` `[Backend]`
+- [x] **Refactor: futura-widget-config syncConfig e dead code duplicado de createConfig - remover** `[P]` `[Backend]`
+- [x] **Layout: futura-widget.css regra .ai-block-header duplicada (linhas 453 e 1140) com overrides conflitantes - hazard de manutencao** `[P]` `[Layout]`
+- [x] **Layout: portOpener.css dark mode override .futura-search-widget e dead code (futura-widget.css carrega depois e vence)** `[P]` `[Layout]`
+- [x] **Layout: messages.css dark mode greeting-auto-badge background rgba(37,99,235,0.15) hardcoded em vez de var** `[P]` `[Layout]`
+- [x] **Refactor: firebase-retry.js withRetrySync nome contradiz comportamento async e export nao utilizado - remover ou renomear** `[P]` `[Backend]`
 - [x] **A11y: help.js tabs sem role=tab/aria-selected/aria-controls e sem navegacao setas - inconsistente com tabs.js principal que tem ARIA correto** `[M]` `[Accessibility]`
 - [x] **A11y: problems solution-editor contenteditable com role=textbox mas sem aria-label/aria-labelledby - multiplos editores indistingutiveis para SR** `[M]` `[Accessibility]`
 - [x] **A11y: futura-widget suggestions sem role=listbox/combobox, input sem aria-controls/aria-expanded - autocomplete invisivel para SR** `[M]` `[Accessibility]`

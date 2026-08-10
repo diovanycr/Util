@@ -101,98 +101,88 @@ async function runSearch(query) {
         }
 
         results.innerHTML = '';
-        // Sincroniza o índice da navegação com a nova lista de resultados
         resetSearchIndex();
 
-        if (msgMatches.length > 0) {
+        const buildSection = (icon, label, matches, renderRow) => {
+            if (matches.length === 0) return;
             const section = document.createElement('div');
-            section.innerHTML = `<p class="search-section-label"><i class="fa-solid fa-message"></i> Mensagens (${msgMatches.length})</p>`;
-            msgMatches.slice(0, 5).forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'search-result-item';
-                row.setAttribute('role', 'option');
-                row.innerHTML = `
-                    <span class="search-result-text">${highlight(item.text, query)}</span>
-                    <button class="btn ghost search-copy-btn" title="Copiar"><i class="fa-solid fa-copy"></i></button>
-                `;
-                row.querySelector('.search-copy-btn').onclick = async (e) => {
-                    e.stopPropagation();
-                    await navigator.clipboard.writeText(item.text);
-                    showToast("Copiado!");
-                    closeSearch();
-                };
-                row.onclick = async () => {
-                    await navigator.clipboard.writeText(item.text);
-                    showToast("Copiado!");
-                    closeSearch();
-                };
-                section.appendChild(row);
-            });
+            section.innerHTML = `<p class="search-section-label"><i class="fa-solid fa-${icon}"></i> ${label} (${matches.length})</p>`;
+            matches.slice(0, 5).forEach(item => section.appendChild(renderRow(item)));
             results.appendChild(section);
-        }
+        };
 
-        if (probMatches.length > 0) {
-            const section = document.createElement('div');
-            section.innerHTML = `<p class="search-section-label"><i class="fa-solid fa-wrench"></i> Problemas (${probMatches.length})</p>`;
-            probMatches.slice(0, 5).forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'search-result-item';
-                row.setAttribute('role', 'option');
-                row.innerHTML = `
-                    <div>
-                        <span class="search-result-title">${highlight(item.title, query)}</span>
-                        ${item.description ? `<span class="search-result-desc">${highlight(item.description, query)}</span>` : ''}
-                    </div>
-                    <button class="btn ghost search-goto-btn" title="Ver problema"><i class="fa-solid fa-arrow-right"></i></button>
-                `;
-                row.onclick = () => {
-                    // Navega para aba de problemas e fecha busca
-                    document.querySelector('[data-tab="tabProblems"]')?.click();
-                    // Preenche a pesquisa de problemas com o título
-                    const problemSearch = el('problemSearch');
-                    if (problemSearch) {
-                        problemSearch.value = item.title;
-                        problemSearch.dispatchEvent(new Event('input'));
-                    }
-                    closeSearch();
-                };
-                section.appendChild(row);
-            });
-            results.appendChild(section);
-        }
+        buildSection('message', 'Mensagens', msgMatches, item => {
+            const row = document.createElement('div');
+            row.className = 'search-result-item';
+            row.setAttribute('role', 'option');
+            row.innerHTML = `
+                <span class="search-result-text">${highlight(item.text, query)}</span>
+                <button class="btn ghost search-copy-btn" title="Copiar"><i class="fa-solid fa-copy"></i></button>
+            `;
+            row.querySelector('.search-copy-btn').onclick = async (e) => {
+                e.stopPropagation();
+                await navigator.clipboard.writeText(item.text);
+                showToast("Copiado!");
+                closeSearch();
+            };
+            row.onclick = async () => {
+                await navigator.clipboard.writeText(item.text);
+                showToast("Copiado!");
+                closeSearch();
+            };
+            return row;
+        });
 
-        if (linkMatches.length > 0) {
-            const section = document.createElement('div');
-            section.innerHTML = `<p class="search-section-label"><i class="fa-solid fa-link"></i> Links Úteis (${linkMatches.length})</p>`;
-            linkMatches.slice(0, 5).forEach(item => {
-                const row = document.createElement('div');
-                row.className = 'search-result-item';
-                row.setAttribute('role', 'option');
-                row.innerHTML = `
-                    <div>
-                        <span class="search-result-title">${highlight(item.title || item.url, query)}</span>
-                        ${item.url ? `<span class="search-result-desc">${highlight(item.url, query)}</span>` : ''}
-                    </div>
-                    <button class="btn ghost search-goto-btn" title="Abrir link" aria-label="Abrir link em nova aba"><i class="fa-solid fa-external-link" aria-hidden="true"></i></button>
-                `;
-                row.querySelector('.search-goto-btn').onclick = (e) => {
-                    e.stopPropagation();
-                    if (item.url) window.open(item.url, '_blank', 'noopener,noreferrer');
-                    closeSearch();
-                };
-                row.onclick = () => {
-                    document.querySelector('[data-tab="tabLinks"]')?.click();
-                    const linkSearch = el('linkSearch');
-                    if (linkSearch) {
-                        linkSearch.value = item.title || item.url;
-                        linkSearch.dispatchEvent(new Event('input'));
-                    }
-                    closeSearch();
-                };
-                section.appendChild(row);
-            });
-            results.appendChild(section);
-        }
+        buildSection('wrench', 'Problemas', probMatches, item => {
+            const row = document.createElement('div');
+            row.className = 'search-result-item';
+            row.setAttribute('role', 'option');
+            row.innerHTML = `
+                <div>
+                    <span class="search-result-title">${highlight(item.title, query)}</span>
+                    ${item.description ? `<span class="search-result-desc">${highlight(item.description, query)}</span>` : ''}
+                </div>
+                <button class="btn ghost search-goto-btn" title="Ver problema"><i class="fa-solid fa-arrow-right"></i></button>
+            `;
+            row.onclick = () => {
+                document.querySelector('[data-tab="tabProblems"]')?.click();
+                const problemSearch = el('problemSearch');
+                if (problemSearch) {
+                    problemSearch.value = item.title;
+                    problemSearch.dispatchEvent(new Event('input'));
+                }
+                closeSearch();
+            };
+            return row;
+        });
+
+        buildSection('link', 'Links Úteis', linkMatches, item => {
+            const row = document.createElement('div');
+            row.className = 'search-result-item';
+            row.setAttribute('role', 'option');
+            row.innerHTML = `
+                <div>
+                    <span class="search-result-title">${highlight(item.title || item.url, query)}</span>
+                    ${item.url ? `<span class="search-result-desc">${highlight(item.url, query)}</span>` : ''}
+                </div>
+                <button class="btn ghost search-goto-btn" title="Abrir link" aria-label="Abrir link em nova aba"><i class="fa-solid fa-external-link" aria-hidden="true"></i></button>
+            `;
+            row.querySelector('.search-goto-btn').onclick = (e) => {
+                e.stopPropagation();
+                if (item.url) window.open(item.url, '_blank', 'noopener,noreferrer');
+                closeSearch();
+            };
+            row.onclick = () => {
+                document.querySelector('[data-tab="tabLinks"]')?.click();
+                const linkSearch = el('linkSearch');
+                if (linkSearch) {
+                    linkSearch.value = item.title || item.url;
+                    linkSearch.dispatchEvent(new Event('input'));
+                }
+                closeSearch();
+            };
+            return row;
+        });
 
         // Adiciona IDs únicos e aria-selected inicial nos resultados
         const items = results.querySelectorAll('[role="option"]');

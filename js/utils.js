@@ -4,7 +4,7 @@
  */
 export function escapeHtml(text) {
     const div = document.createElement('div');
-    div.textContent = text;
+    div.textContent = String(text ?? '');
     return div.innerHTML;
 }
 
@@ -378,5 +378,86 @@ export function setCode(id, text, highlighter) {
     if (!el) return;
     el._raw = text;
     el.innerHTML = highlighter(text);
+}
+
+/**
+ * Configura abas (tabs) com ativação por clique + teclado (setas/Home/End).
+ * Centraliza o padrão duplicado em escPos.js e portOpener.js.
+ *
+ * @param {HTMLElement} container - Container onde buscar as abas e paineis
+ * @param {string} tabSelector - Seletor CSS dos elementos tab
+ * @param {string} paneIdPrefix - Prefixo do ID do painel (ex: 'escPane-' ou 'poPane-')
+ * @param {string} [keydownScope] - Seletor extra para limitar o keydown (ex: '#poTool-portopener')
+ */
+export function setupOutputTabs(container, tabSelector, paneIdPrefix, keydownScope) {
+    const tabs = () => [...container.querySelectorAll(tabSelector)];
+
+    const activate = (tab) => {
+        tabs().forEach(t => {
+            const active = t === tab;
+            t.classList.toggle('active', active);
+            t.setAttribute('aria-selected', active ? 'true' : 'false');
+            t.setAttribute('tabindex', active ? '0' : '-1');
+        });
+        container.querySelectorAll(`[id^="${paneIdPrefix}"]`).forEach(p => p.classList.add('hidden'));
+        document.getElementById(`${paneIdPrefix}${tab.dataset.pane}`)?.classList.remove('hidden');
+        tab.focus();
+    };
+
+    container.addEventListener('keydown', e => {
+        const scopeCheck = keydownScope ? e.target.closest(keydownScope) : e.target.closest(tabSelector);
+        if (!scopeCheck) return;
+        const list = tabs();
+        const idx = list.indexOf(e.target);
+        let next = null;
+        if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
+        else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
+        else if (e.key === 'Home') next = list[0];
+        else if (e.key === 'End') next = list[list.length - 1];
+        if (next) { e.preventDefault(); activate(next); }
+    });
+
+    container.addEventListener('click', e => {
+        const tab = e.target.closest(tabSelector);
+        if (tab) activate(tab);
+    });
+}
+
+/**
+ * Atualiza o elemento de badge de status com classes padronizadas.
+ * Estados suportados: 'pending', 'ok', 'error', 'info'
+ * Classes aplicadas: 'status-badge', 'status-pending', 'status-ok', 'status-error', 'status-info'
+ *
+ * @param {HTMLElement} el - Elemento span/div a atualizar
+ * @param {'pending'|'ok'|'error'|'info'} state - Estado do status
+ * @param {string} [text] - Texto opcional a definir no elemento
+ */
+export function setStatusBadge(el, state, text) {
+    if (!el) return;
+    const states = ['pending', 'ok', 'error', 'info'];
+    el.className = 'status-badge ' + (states.includes(state) ? `status-${state}` : 'status-pending');
+    if (text !== undefined) el.textContent = text;
+}
+
+/**
+ * Executa uma função assíncrona com estado de loading no botão.
+ * Desabilita o botão, mostra spinner + texto opcional, restaura ao finalizar.
+ *
+ * @param {HTMLButtonElement} btn - Botão a modificar
+ * @param {Function} fn - Função assíncrona a executar
+ * @param {string} [loadingText] - Texto a mostrar durante loading (padrão: "Carregando...")
+ * @returns {Promise} Promise da função executada
+ */
+export async function withButtonLoading(btn, fn, loadingText = 'Carregando...') {
+    if (!btn) return fn();
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></span> ${loadingText}`;
+    try {
+        return await fn();
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    }
 }
 

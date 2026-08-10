@@ -4,7 +4,7 @@
 //  Validador rápido de XML de NFe/NFCe, parser de arquivos AFD/AFDT
 //  de relógio de ponto e extrator de CNPJ/Inscrição Estadual
 
-import { setupSegmented } from './utils.js';
+import { setupSegmented, setStatusBadge } from './utils.js';
 
 export function buildFileValidatorPanel() {
     return `
@@ -297,10 +297,8 @@ function _showResult(container, type, message, details) {
     const det = container.querySelector('#fvResultDetails');
     if (!result || !status || !det) return;
 
-    const typeMap = { valid: 'dv-status-valid', error: 'dv-status-error', info: 'dv-status-info' };
-    const iconMap = { valid: '✓', error: '✗', info: 'ⓘ' };
-
-    status.className = `dv-result-status ${typeMap[type] || 'dv-status-error'}`;
+    const stateMap = { valid: 'ok', error: 'error', info: 'info' };
+    setStatusBadge(status, stateMap[type] || 'error');
     status.innerHTML = `<i class="fa-solid fa-circle-${type === 'valid' ? 'check' : type === 'info' ? 'info' : 'exclamation'}"></i> ${message}`;
     result.classList.remove('hidden');
     det.textContent = details || '';

@@ -25,14 +25,6 @@ export function createConfig(lsKey) {
   };
 }
 
-export function syncConfig(lsKey) {
-  return {
-    mode: localStorage.getItem(lsKey('futura-mode')) || 'noapi',
-    provider: localStorage.getItem(lsKey('futura-provider')) || '',
-    apiKey: localStorage.getItem(lsKey('futura-apikey')) || '',
-  };
-}
-
 export function getHistory(lsKey) {
   return JSON.parse(localStorage.getItem(lsKey('futura-history')) || '[]');
 }

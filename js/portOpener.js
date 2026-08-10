@@ -16,7 +16,7 @@ import { bindNetworkDiagEvents, buildNetworkDiagPanel } from './networkDiag.js';
 import { bindScriptGenEvents, buildScriptGenPanel } from './scriptGen.js';
 import { FuturaSearchWidget } from './futura-widget.js';
 import { auth } from './firebase.js';
-import { setupSegmented, createHighlighter, setCode as setHighlightedCode } from './utils.js';
+import { setupSegmented, createHighlighter, setCode as setHighlightedCode, setupOutputTabs } from './utils.js';
 
 import { DEFAULT_STATE } from './port-opener/constants.js';
 import { buildPortOpenerPanel, buildFuturaPanel } from './port-opener/builders.js';
@@ -287,36 +287,9 @@ function _bindEvents(container) {
   document.getElementById('poBtnGenerate').addEventListener('click', _generate);
 
   // Output tabs (delegação) com aria-selected e tabindex
-  const _activateOutputTab = (tab) => {
-    container.querySelectorAll('.po-otab').forEach(t => {
-      const active = t === tab;
-      t.classList.toggle('active', active);
-      t.setAttribute('aria-selected', active ? 'true' : 'false');
-      t.setAttribute('tabindex', active ? '0' : '-1');
-    });
-    container.querySelectorAll('.po-pane').forEach(p => p.classList.add('hidden'));
-    tab.classList.add('active');
-    document.getElementById(`poPane-${tab.dataset.pane}`)?.classList.remove('hidden');
-    tab.focus();
-  };
-  // Navegação por setas entre abas de output
-  container.addEventListener('keydown', e => {
-    if (!e.target.closest('#poTool-portopener .po-otab')) return;
-    const list = [...container.querySelectorAll('#poTool-portopener .po-otab')];
-    const idx = list.indexOf(e.target);
-    let next = null;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
-    else if (e.key === 'Home') next = list[0];
-    else if (e.key === 'End') next = list[list.length - 1];
-    if (next) { e.preventDefault(); _activateOutputTab(next); }
-  });
+  setupOutputTabs(container, '.po-otab', 'poPane-', '#poTool-portopener');
 
   container.addEventListener('click', e => {
-    const tab = e.target.closest('#poTool-portopener .po-otab');
-    if (tab) _activateOutputTab(tab);
-
-    // Copiar
     const copyBtn = e.target.closest('.po-btn-copy');
     if (copyBtn) {
       const el = document.getElementById(copyBtn.dataset.id);
