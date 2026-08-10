@@ -9,6 +9,7 @@ let counts = { msg: 0, problem: 0, link: 0 };
 let compactMode = false;
 let favorites = new Set();
 let filteringFavorites = { msg: false, problem: false, link: false };
+let timeGreetingsActive = true;
 let currentUserId = null;
 let enhancementsInitialized = false;
 
@@ -26,6 +27,7 @@ export function initEnhancements(uid) {
         setupCompactMode();
         setupFavorites();
         setupFavoriteFilters();
+        setupTimeGreetingToggle();
     }
     loadFavoritesFromStorage();
 }
@@ -34,6 +36,8 @@ export function resetEnhancements() {
     currentUserId = null;
     favorites = new Set();
     filteringFavorites = { msg: false, problem: false, link: false };
+    timeGreetingsActive = true;
+    document.body.classList.remove('show-all-greetings');
     enhancementsInitialized = false;
     if (compactMode) {
         compactMode = false;
@@ -136,16 +140,40 @@ function setupGlobalSearch() {
 
 function applyGlobalSearch(query) {
     let msgVisible = 0, problemVisible = 0, linkVisible = 0;
-    
+
+    // Helper to get searchable text for a message row
+    function getMessageText(row) {
+        const titleEl = row.querySelector('.msg-title');
+        const textEl = row.querySelector('.msg-text');
+        return (titleEl ? titleEl.textContent : '') + ' ' + (textEl ? textEl.textContent : '');
+    }
+
+    // Helper to get searchable text for a problem card
+    function getProblemText(card) {
+        const titleEl = card.querySelector('.problem-title');
+        const descEl = card.querySelector('.problem-desc');
+        const solutionTexts = [...card.querySelectorAll('.solution-text')].map(el => el.textContent).join(' ');
+        return (titleEl ? titleEl.textContent : '') + ' ' + (descEl ? descEl.textContent : '') + ' ' + solutionTexts;
+    }
+
+    // Helper to get searchable text for a link card
+    function getLinkText(card) {
+        const titleEl = card.querySelector('.link-title');
+        const urlEl = card.querySelector('.link-url');
+        const linkEl = card.querySelector('.link-main');
+        const aria = linkEl ? linkEl.getAttribute('aria-label') : '';
+        return (titleEl ? titleEl.textContent : '') + ' ' + (urlEl ? urlEl.textContent : '') + ' ' + aria;
+    }
+
     // Filtra mensagens
     const msgRows = document.querySelectorAll('#msgList .user-row');
     msgRows.forEach(row => {
-        const text = row.textContent.toLowerCase();
+        const text = getMessageText(row).toLowerCase();
         const visible = !query || text.includes(query);
         row.classList.toggle('hidden-by-search', !visible);
         if (visible) msgVisible++;
     });
-    
+
     document.querySelectorAll('#msgList .msg-group').forEach(group => {
         const hasVisible = [...group.querySelectorAll('.user-row')].some(r => !r.classList.contains('hidden-by-search') && !r.classList.contains('hidden-by-filter'));
         group.classList.toggle('hidden-by-search', !hasVisible);
@@ -154,7 +182,7 @@ function applyGlobalSearch(query) {
     // Filtra problemas
     const problemCards = document.querySelectorAll('#problemList .problem-card');
     problemCards.forEach(card => {
-        const text = card.textContent.toLowerCase();
+        const text = getProblemText(card).toLowerCase();
         const visible = !query || text.includes(query);
         card.classList.toggle('hidden-by-search', !visible);
         if (visible) problemVisible++;
@@ -163,12 +191,12 @@ function applyGlobalSearch(query) {
     // Filtra links
     const linkCards = document.querySelectorAll('#linkList .link-card');
     linkCards.forEach(card => {
-        const text = card.textContent.toLowerCase();
+        const text = getLinkText(card).toLowerCase();
         const visible = !query || text.includes(query);
         card.classList.toggle('hidden-by-search', !visible);
         if (visible) linkVisible++;
     });
-    
+
     document.querySelectorAll('#linkList .link-group').forEach(group => {
         const hasVisible = [...group.querySelectorAll('.link-card')].some(c => !c.classList.contains('hidden-by-search') && !c.classList.contains('hidden-by-filter'));
         group.classList.toggle('hidden-by-search', !hasVisible);
@@ -318,6 +346,22 @@ function setupFavoriteFilters() {
             applyFavoriteFilter('link', '#linkList .link-card', '#linkList .link-group');
         };
     }
+}
+
+function setupTimeGreetingToggle() {
+    const btn = el('btnToggleTimeGreetings');
+    if (!btn) return;
+
+    btn.setAttribute('aria-pressed', timeGreetingsActive ? 'true' : 'false');
+    btn.classList.toggle('active', timeGreetingsActive);
+    document.body.classList.toggle('show-all-greetings', !timeGreetingsActive);
+
+    btn.onclick = () => {
+        timeGreetingsActive = !timeGreetingsActive;
+        btn.classList.toggle('active', timeGreetingsActive);
+        btn.setAttribute('aria-pressed', timeGreetingsActive ? 'true' : 'false');
+        document.body.classList.toggle('show-all-greetings', !timeGreetingsActive);
+    };
 }
 
 function applyFavoriteFilter(type, itemSelector, groupSelector) {

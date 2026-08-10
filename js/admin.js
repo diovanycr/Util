@@ -225,16 +225,18 @@ export function initAdminActions() {
 
             }, 'Criando...');
 
-} catch (e) {
-                console.error("Erro capturado:", e.code);
-                
-                if (e.code === 'auth/email-already-in-use') {
-                    showModal("Ops! Este e-mail já está sendo usado por outro usuário.");
-                } else if (e.code === 'auth/weak-password') {
-                    showModal("Senha muito fraca. Use pelo menos 6 caracteres.");
-                } else if (e.code === 'auth/invalid-email') {
-                    showModal("O endereço
-                    showModal("Ocorreu um erro ao criar
-                }
-            };
+        } catch (e) {
+            console.error("Erro capturado:", e.code);
+            
+            if (e.code === 'auth/email-already-in-use') {
+                showModal("Ops! Este e-mail já está sendo usado por outro usuário.");
+            } else if (e.code === 'auth/weak-password') {
+                showModal("Senha muito fraca. Use pelo menos 6 caracteres.");
+            } else if (e.code === 'auth/invalid-email') {
+                showModal("O endereço de e-mail informado não é válido.");
+            } else {
+                showModal("Ocorreu um erro ao criar o usuário. Tente novamente.");
+            }
         }
+    };
+}

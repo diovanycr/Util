@@ -90,8 +90,10 @@ body {
 /* Utilitários */
 .hidden,
 .hidden-by-search,
-.hidden-by-filter,
+.hidden-by-filter { display: none !important; }
 .hidden-by-time { display: none !important; }
+body.hide-time-greetings .hidden-by-time { display: none !important; }
+body.show-all-greetings .hidden-by-time { display: revert !important; }
 .sub { color: var(--muted); font-size: 14px; }
 .grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
 .flex-end { display: flex; justify-content: flex-end; gap: 10px; }
@@ -109,6 +111,10 @@ body {
 [data-theme="dark"] .border-danger { border-color: #7f1d1d; }
 
 .success-text { color: var(--success); font-size: 14px; font-weight: 600; text-align: center; padding: 8px 0; }
+
+.warning-text { color: var(--warning); }
+.danger-text  { color: var(--danger); }
+.muted-text   { color: var(--muted); }
 
 .center.mt-12 {
   display: flex; justify-content: center; padding: 20px 0;

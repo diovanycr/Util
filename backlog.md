@@ -26,12 +26,6 @@
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **Refactor: padrao botao loading (disabled+spinner+finally) duplicado em auth/admin/messages com spinners diferentes - extrair withButtonLoading helper** `[P]` `[Backend]`
-- [ ] **PWA: manifest.json icon emoji SVG data-URI sem variantes PNG 192/512 maskable - install splash piorado e sem suporte legacy** `[P]` `[Backend]`
-- [ ] **PWA: index.html meta theme-color duplicada (linhas 9 e 16) e sem variant media=prefers-color-scheme:dark - chrome do browser fica azul em dark** `[P]` `[Backend]`
-- [ ] **UX: history.js counter cor var(--warning,#f59e0b) com fallback hardcoded - dark mode sem --warning usa laranja fixo** `[P]` `[UI]`
-- [ ] **UX: messages loader.js greeting filter esconde Boa tarde/Boa noite fora do horario sem toggle - usuario manha nao consegue editar outras saudacoes** `[P]` `[UI]`
-- [ ] **UX: enhancements applyGlobalSearch usa row.textContent com labels de botoes (Editar/Remover/aria-labels) - buscar 'editar' retorna todos itens** `[P]` `[UI]`
 *(Nenhum item pendente)*
 
 *(Nenhum item pendente)*
@@ -41,6 +35,12 @@
 
 
 ## Feito
+- [x] **UX: enhancements applyGlobalSearch usa row.textContent com labels de botoes (Editar/Remover/aria-labels) - buscar 'editar' retorna todos itens** `[P]` `[UI]`
+- [x] **UX: messages loader.js greeting filter esconde Boa tarde/Boa noite fora do horario sem toggle - usuario manha nao consegue editar outras saudacoes** `[P]` `[UI]`
+- [x] **UX: history.js counter cor var(--warning,#f59e0b) com fallback hardcoded - dark mode sem --warning usa laranja fixo** `[P]` `[UI]`
+- [x] **PWA: index.html meta theme-color duplicada (linhas 9 e 16) e sem variant media=prefers-color-scheme:dark - chrome do browser fica azul em dark** `[P]` `[Backend]`
+- [x] **PWA: manifest.json icon emoji SVG data-URI sem variantes PNG 192/512 maskable - install splash piorado e sem suporte legacy** `[P]` `[Backend]`
+- [x] **Refactor: padrao botao loading (disabled+spinner+finally) duplicado em auth/admin/messages com spinners diferentes - extrair withButtonLoading helper** `[P]` `[Backend]`
 - [x] **Refactor: logica drag-and-drop triplicada em messages/problems/links (dragstart/dragover/dragend/addKeyboardDragSupport) - extrair helper compartilhado** `[M]` `[Backend]`
 - [x] **Refactor: search.js runSearch 139 linhas com 3 blocos quase identicos (messages/problems/links) - extrair builder por entidade** `[P]` `[Backend]`
 - [x] **Refactor: badge status (pending/ok/error) duplicado em apiTester/statusChecker/fileValidator/docValidatorUI com nomes de classes divergentes - extrair setStatusBadge** `[P]` `[Backend]`

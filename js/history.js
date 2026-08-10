@@ -132,7 +132,7 @@ export function renderHistoryPanel() {
     if (counter) {
         const pct = history.length / MAX_HISTORY;
         counter.textContent = `${history.length} / ${MAX_HISTORY}`;
-        counter.style.color = pct >= 1 ? 'var(--danger)' : pct >= 0.8 ? 'var(--warning, #f59e0b)' : 'var(--muted)';
+        counter.className = pct >= 1 ? 'danger-text' : pct >= 0.8 ? 'warning-text' : 'muted-text';
     }
 
     if (history.length === 0) {

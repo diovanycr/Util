@@ -12,6 +12,7 @@ import { el, db, collection, doc, query, orderBy, limit } from './firebase.js';
 import { getDocs, addDoc } from './firebase-retry.js';
 import { showModal, openConfirmModal } from './modal.js';
 import { initHistory } from './history.js';
+import { withButtonLoading } from './utils.js';
 
 import { state, allMessages, resetState } from './messages/state.js';
 import {
@@ -120,10 +121,7 @@ function setupUserInterface(uid) {
         const category = el('msgCategory').value.trim() || 'Geral';
         if (!text) return showModal("A mensagem não pode estar vazia.");
         const btn = el('btnAddMsg');
-        const originalText = btn.innerHTML;
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Salvando...';
-        try {
+        await withButtonLoading(btn, async () => {
             const lastSnap = await getDocs(query(collection(db, 'users', uid, 'messages'), orderBy('order', 'desc'), limit(1)));
             const maxOrder = lastSnap.empty ? 0 : (lastSnap.docs[0].data().order || 0);
             await addDoc(collection(db, 'users', uid, 'messages'), {
@@ -133,13 +131,7 @@ function setupUserInterface(uid) {
             clearMsgForm();
             el('newMsgBox').classList.add('hidden');
             loadMessages(uid);
-        } catch (e) {
-            console.error("Erro ao adicionar mensagem:", e);
-            showModal("Erro ao salvar a mensagem.");
-        } finally {
-            btn.disabled = false;
-            btn.innerHTML = originalText;
-        }
+        }, 'Salvando...');
     };
 
     // Exportar / Importar
@@ -208,15 +200,9 @@ function setupUserInterface(uid) {
     el('btnEmptyTrash').onclick = () => openConfirmModal(
         async () => {
             const btn = el('btnEmptyTrash');
-            const originalText = btn.innerHTML;
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Limpando...';
-            try {
+            await withButtonLoading(btn, async () => {
                 await emptyTrash(uid, trashCallbacks);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
+            }, 'Limpando...');
         }, null,
         "Todas as mensagens da lixeira serão excluídas permanentemente."
     );
