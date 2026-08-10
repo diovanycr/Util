@@ -144,29 +144,7 @@ export function renderMessages() {
     const now = new Date();
     const currentHour = now.getHours();
 
-    const filtered = allMessages.filter(m => {
-        const cat   = (m.category || '').toLowerCase();
-        const title = (m.title || '').toLowerCase();
-
-        const isGreetingCategory = cat.includes('sauda') || title.startsWith('saud');
-        if (!isGreetingCategory) return true;
-
-        const isBomDia   = title.includes('bom dia');
-        const isBoaTarde = title.includes('boa tarde');
-        const isBoaNoite = title.includes('boa noite');
-
-        if (!isBomDia && !isBoaTarde && !isBoaNoite) return true;
-
-        if (currentHour < 12) {
-            return !isBoaTarde && !isBoaNoite;
-        } else if (currentHour < 18) {
-            return !isBomDia && !isBoaNoite;
-        } else {
-            return !isBomDia;
-        }
-    });
-
-    if (filtered.length === 0) {
+    if (allMessages.length === 0) {
         list.innerHTML = `
             <div class="empty-state-container">
                 <i class="fa-regular fa-message empty-state-icon"></i>
@@ -182,7 +160,7 @@ export function renderMessages() {
     }
 
     const groups = {};
-    filtered.forEach(item => {
+    allMessages.forEach(item => {
         const cat = item.category || 'Geral';
         if (!groups[cat]) groups[cat] = [];
         groups[cat].push(item);
@@ -202,11 +180,22 @@ export function renderMessages() {
 
             const isGreeting = isGreetingMessage(item);
 
-            let timeBadgeHtml = '';
+            // Determina se a saudação deve ser ocultada pelo horário
+            let isGreetingHidden = false;
             if (isGreeting) {
-                const changeInfo = getNextGreetingChange(currentHour);
-                timeBadgeHtml = `<span class="greeting-auto-badge" title="${escapeAttr(changeInfo)}"><i class="fa-regular fa-clock"></i> ${escapeHtml(changeInfo)}</span>`;
+                const isBomDia   = (item.title || '').toLowerCase().includes('bom dia');
+                const isBoaTarde = (item.title || '').toLowerCase().includes('boa tarde');
+                const isBoaNoite = (item.title || '').toLowerCase().includes('boa noite');
+
+                if (currentHour < 12) {
+                    isGreetingHidden = isBoaTarde || isBoaNoite;
+                } else if (currentHour < 18) {
+                    isGreetingHidden = isBomDia || isBoaNoite;
+                } else {
+                    isGreetingHidden = isBomDia;
+                }
             }
+            if (isGreetingHidden) row.classList.add('hidden-by-time');
 
             const userName = el('loggedUser')?.dataset?.username?.trim() || 'Usuário';
 
@@ -268,7 +257,13 @@ export function renderMessages() {
             };
 
             row.ondragstart = () => { state.dragSrc = row; row.classList.add('dragging'); };
-            row.ondragend   = () => { row.classList.remove('dragging'); saveOrder(state.currentUserId); };
+            row.ondragend   = () => { 
+                row.classList.remove('dragging'); 
+                if (state.dragSrc && state.dragSrc !== row) {
+                    saveOrder(state.currentUserId);
+                }
+                state.dragSrc = null; 
+            };
             row.ondragover  = (e) => {
                 e.preventDefault();
                 const rect = row.getBoundingClientRect();

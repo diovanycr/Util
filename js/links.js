@@ -52,6 +52,7 @@ function setupLinksInterface() {
     };
 
     el('btnAddLink').onclick = async () => {
+        if (!currentUserId) return showModal("Sessão expirada. Faça login novamente.");
         let url = el('linkUrl').value.trim();
         const title = el('linkTitle').value.trim();
         const category = el('linkCategory').value.trim();
@@ -296,6 +297,7 @@ function enterEditMode(card, item) {
     };
 
     const saveLinkEdit = async () => {
+        if (!currentUserId) return showModal("Sessão expirada. Faça login novamente.");
         let url   = form.querySelector('.edit-link-url').value.trim();
         const title    = form.querySelector('.edit-link-title').value.trim();
         const category = form.querySelector('.edit-link-cat').value.trim();

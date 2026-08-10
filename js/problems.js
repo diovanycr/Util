@@ -193,6 +193,11 @@ export async function loadProblems(userId, append = false) {
             return;
         }
 
+        if (snap.empty && append) {
+            showToast("Não há mais problemas.");
+            return;
+        }
+
         _lastProblemDoc = snap.docs[snap.docs.length - 1];
 
         const newProblems = snap.docs

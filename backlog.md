@@ -42,28 +42,6 @@
 - [ ] **UX: history.js counter cor var(--warning,#f59e0b) com fallback hardcoded - dark mode sem --warning usa laranja fixo** `[P]` `[UI]`
 - [ ] **UX: messages loader.js greeting filter esconde Boa tarde/Boa noite fora do horario sem toggle - usuario manha nao consegue editar outras saudacoes** `[P]` `[UI]`
 - [ ] **UX: enhancements applyGlobalSearch usa row.textContent com labels de botoes (Editar/Remover/aria-labels) - buscar 'editar' retorna todos itens** `[P]` `[UI]`
-- [ ] **A11y: portOpener poTagPills sem role=list/aria-label - SR nao anuncia lista de portas selecionadas** `[P]` `[Accessibility]`
-- [ ] **A11y: decisionTree options com numero visual (1..N) mas sem handler teclado - hint numerica sugere atalho que nao existe** `[P]` `[Accessibility]`
-- [ ] **A11y: statusChecker cards de status sem aria-live=polite/role=status - auto-refresh 30s invisivel para SR** `[M]` `[Accessibility]`
-- [ ] **A11y: networkDiag inputs ndHost/ndPort sem label/aria-label (placeholder only) - SR nao anuncia proposito nem range 1-65535** `[P]` `[Accessibility]`
-- [ ] **A11y: futura-widget audioReadBtn troca Ouvir/Parar via innerHTML sem aria-pressed/aria-label atualizado - SR anuncia nome stale** `[P]` `[Accessibility]`
-- [ ] **A11y: futura-widget modal label Chave da API sem for=fw-inp-apikey - label nao foca input e SR nao anuncia relacao** `[M]` `[Accessibility]`
-- [ ] **A11y: futura-widget modal sem botao X de fechar - inconsistente com demais modais do app (modalOverlay, helpModal, etc)** `[M]` `[Accessibility]`
-- [ ] **A11y: futura-widget statusPill e voiceSearchBtn/clearHistoryBtn sao icon-only sem aria-label (title inconsistentemente suportado por SR)** `[P]` `[Accessibility]`
-- [ ] **A11y: futura-widget history items sao divs com onclick sem role=button/tabindex/keydown - teclado nao acessa historico** `[M]` `[Accessibility]`
-- [ ] **A11y: futura-widget suggestions sem role=listbox/combobox, input sem aria-controls/aria-expanded - autocomplete invisivel para SR** `[M]` `[Accessibility]`
-- [ ] **A11y: search.js resultados tem role=option mas container #globalSearchResults sem role=listbox - aria-activedescendant (shortcuts.js) nao funciona** `[M]` `[Accessibility]`
-- [ ] **A11y: problems solution-editor contenteditable com role=textbox mas sem aria-label/aria-labelledby - multiplos editores indistingutiveis para SR** `[M]` `[Accessibility]`
-- [ ] **A11y: help.js tabs sem role=tab/aria-selected/aria-controls e sem navegacao setas - inconsistente com tabs.js principal que tem ARIA correto** `[M]` `[Accessibility]`
-- [ ] **Bug: decisionTree _renderStep if(!node) return silencioso - UI fica presa no passo anterior sem feedback usuario** `[P]` `[UI]`
-- [ ] **Bug: admin.js paginacao Carregar mais aparece quando resultados sao multiplo exato de PAGE_SIZE - click carrega pagina vazia (off-by-one)** `[P]` `[UI]`
-- [ ] **Bug: auth.js setInterval updateHeaderProfileGreeting roda a cada 30s mesmo em background/idle - desperdico bateria, nao pausa com document.hidden** `[P]` `[Bug]`
-- [ ] **Bug: futura-widget-modal.js overlay click handler registrado duas vezes (linhas 78 e 114) - cada abertura adiciona handler duplicado** `[P]` `[Bug]`
-- [ ] **Bug: links.js delete/reorder usam currentUserId module-scoped sem null check - logout durante modal confirmatorio escreve em users/null/links** `[P]` `[Bug]`
-- [ ] **Bug: messages loader.js ondragend chama saveOrder incondicionalmente - drag sem movimento gera batch write desnecessario** `[P]` `[Bug]`
-- [ ] **Bug: messages saveOrder usa indice visivel i+1 mas allMessages contem greetings filtrados - reordenar em horario diferente embaralha order no Firestore** `[M]` `[Bug]`
-- [ ] **Bug: statusChecker _renderGrid data-url e href nao escapados com escapeAttr - viola regra XSS defensiva (constants hardcoded hoje)** `[P]` `[Security]`
-- [ ] **Bug: decisionTree injecta node.solution/question/answer/title via innerHTML sem escape - viola regra XSS (atualmente hardcoded TREES mas arquitetura fragil)** `[P]` `[Security]`
 *(Nenhum item pendente)*
 
 *(Nenhum item pendente)*
@@ -73,6 +51,28 @@
 
 
 ## Feito
+- [x] **A11y: help.js tabs sem role=tab/aria-selected/aria-controls e sem navegacao setas - inconsistente com tabs.js principal que tem ARIA correto** `[M]` `[Accessibility]`
+- [x] **A11y: problems solution-editor contenteditable com role=textbox mas sem aria-label/aria-labelledby - multiplos editores indistingutiveis para SR** `[M]` `[Accessibility]`
+- [x] **A11y: futura-widget suggestions sem role=listbox/combobox, input sem aria-controls/aria-expanded - autocomplete invisivel para SR** `[M]` `[Accessibility]`
+- [x] **A11y: futura-widget history items sao divs com onclick sem role=button/tabindex/keydown - teclado nao acessa historico** `[M]` `[Accessibility]`
+- [x] **A11y: futura-widget statusPill e voiceSearchBtn/clearHistoryBtn sao icon-only sem aria-label (title inconsistentemente suportado por SR)** `[P]` `[Accessibility]`
+- [x] **A11y: futura-widget modal sem botao X de fechar - inconsistente com demais modais do app (modalOverlay, helpModal, etc)** `[M]` `[Accessibility]`
+- [x] **A11y: futura-widget modal label Chave da API sem for=fw-inp-apikey - label nao foca input e SR nao anuncia relacao** `[M]` `[Accessibility]`
+- [x] **A11y: futura-widget audioReadBtn troca Ouvir/Parar via innerHTML sem aria-pressed/aria-label atualizado - SR anuncia nome stale** `[P]` `[Accessibility]`
+- [x] **A11y: networkDiag inputs ndHost/ndPort sem label/aria-label (placeholder only) - SR nao anuncia proposito nem range 1-65535** `[P]` `[Accessibility]`
+- [x] **A11y: statusChecker cards de status sem aria-live=polite/role=status - auto-refresh 30s invisivel para SR** `[M]` `[Accessibility]`
+- [x] **A11y: decisionTree options com numero visual (1..N) mas sem handler teclado - hint numerica sugere atalho que nao existe** `[P]` `[Accessibility]`
+- [x] **A11y: portOpener poTagPills sem role=list/aria-label - SR nao anuncia lista de portas selecionadas** `[P]` `[Accessibility]`
+- [x] **A11y: search.js resultados tem role=option mas container #globalSearchResults sem role=listbox - aria-activedescendant (shortcuts.js) nao funciona** `[M]` `[Accessibility]`
+- [x] **Bug: messages saveOrder usa indice visivel i+1 mas allMessages contem greetings filtrados - reordenar em horario diferente embaralha order no Firestore** `[M]` `[Bug]`
+- [x] **Bug: messages loader.js ondragend chama saveOrder incondicionalmente - drag sem movimento gera batch write desnecessario** `[P]` `[Bug]`
+- [x] **Bug: links.js delete/reorder usam currentUserId module-scoped sem null check - logout durante modal confirmatorio escreve em users/null/links** `[P]` `[Bug]`
+- [x] **Bug: futura-widget-modal.js overlay click handler registrado duas vezes (linhas 78 e 114) - cada abertura adiciona handler duplicado** `[P]` `[Bug]`
+- [x] **Bug: admin.js paginacao Carregar mais aparece quando resultados sao multiplo exato de PAGE_SIZE - click carrega pagina vazia (off-by-one)** `[P]` `[UI]`
+- [x] **Bug: decisionTree _renderStep if(!node) return silencioso - UI fica presa no passo anterior sem feedback usuario** `[P]` `[UI]`
+- [x] **Bug: auth.js setInterval updateHeaderProfileGreeting roda a cada 30s mesmo em background/idle - desperdico bateria, nao pausa com document.hidden** `[P]` `[Bug]`
+- [x] **Bug: decisionTree injecta node.solution/question/answer/title via innerHTML sem escape - viola regra XSS (atualmente hardcoded TREES mas arquitetura fragil)** `[P]` `[Security]`
+- [x] **Bug: statusChecker _renderGrid data-url e href nao escapados com escapeAttr - viola regra XSS defensiva (constants hardcoded hoje)** `[P]` `[Security]`
 - [x] **Refactor: futura-widget-modal saveConfig deriva provider por indice DOM (modeCards[0]/provCards[0]) em vez de data-mode/data-provider - fragil a reordem** `[M]` `[Backend]`
 - [x] **UX: futura-widget.css height:800px overflow:hidden sem override responsivo - mobile landscape <800px clipa widget inteiro** `[M]` `[Layout]`
 - [x] **UX: futura-widget.css .modal select option background:white hardcoded - dropdown quebra em dark mode** `[M]` `[Layout]`

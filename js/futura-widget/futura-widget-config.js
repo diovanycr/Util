@@ -56,8 +56,18 @@ export function renderHistory(ctx) {
   [...h].reverse().slice(0, 20).forEach(item => {
     const div = document.createElement('div');
     div.className = 'history-item';
-    div.innerHTML = `<i class="fa-solid fa-clock"></i><span style="overflow:hidden;text-overflow:ellipsis">${ctx.utils._escHtml(item)}</span>`;
-    div.onclick = () => { ctx.dom.searchInput.value = item; ctx.search.performSearch(ctx, item); };
+    div.setAttribute('role', 'button');
+    div.setAttribute('tabindex', '0');
+    div.setAttribute('aria-label', `Pesquisar novamente: ${item}`);
+    div.innerHTML = `<i class="fa-solid fa-clock" aria-hidden="true"></i><span style="overflow:hidden;text-overflow:ellipsis">${ctx.utils._escHtml(item)}</span>`;
+    const triggerSearch = () => { ctx.dom.searchInput.value = item; ctx.search.performSearch(ctx, item); };
+    div.onclick = triggerSearch;
+    div.onkeydown = (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        triggerSearch();
+      }
+    };
     historyList.appendChild(div);
   });
 }

@@ -40,8 +40,8 @@ export function buildNetworkDiagPanel() {
       <div class="card">
         <p class="po-section-label">Teste de comunicação (TCP)</p>
         <div class="nd-input-row">
-          <input id="ndHost" type="text" class="dv-input" placeholder="IP ou hostname" />
-          <input id="ndPort" type="number" class="dv-input" placeholder="Porta" style="max-width:110px;" min="1" max="65535" />
+          <input id="ndHost" type="text" class="dv-input" placeholder="IP ou hostname" aria-label="Endereço IP ou hostname do dispositivo" />
+          <input id="ndPort" type="number" class="dv-input" placeholder="Porta" style="max-width:110px;" min="1" max="65535" aria-label="Número da porta TCP (1-65535)" />
           <button id="ndBtnTest" class="btn primary"><i class="fa-solid fa-play"></i> Testar</button>
         </div>
         <p class="po-hint">Clique em um preset acima ou digite IP/porta manualmente</p>
@@ -54,7 +54,7 @@ export function buildNetworkDiagPanel() {
       <div class="card">
         <p class="po-section-label">Calculadora IP / Subrede</p>
         <div class="nd-input-row">
-          <input id="ndCalcIP" type="text" class="dv-input" placeholder="Ex: 192.168.1.0/24" />
+          <input id="ndCalcIP" type="text" class="dv-input" placeholder="Ex: 192.168.1.0/24" aria-label="Endereço IP com notação CIDR (ex: 192.168.1.0/24)" />
           <button id="ndBtnCalc" class="btn primary"><i class="fa-solid fa-calculator"></i> Calcular</button>
         </div>
         <pre id="ndCalcResult" class="nd-calc-pre"></pre>

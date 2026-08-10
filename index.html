@@ -346,18 +346,18 @@
           <h3><i class="fa-solid fa-circle-question"></i> Ajuda</h3>
           <button id="btnCloseHelp" class="btn ghost"><i class="fa-solid fa-xmark"></i></button>
         </div>
-        <div class="help-tabs">
-          <button class="help-tab active" data-panel="shortcuts">
-            <i class="fa-solid fa-keyboard"></i> Atalhos
+        <div class="help-tabs" role="tablist" aria-label="Seções de ajuda">
+          <button class="help-tab active" data-panel="shortcuts" role="tab" id="help-tab-shortcuts" aria-selected="true" aria-controls="help-shortcuts" tabindex="0">
+            <i class="fa-solid fa-keyboard" aria-hidden="true"></i> Atalhos
           </button>
-          <button class="help-tab" data-panel="tutorial">
-            <i class="fa-solid fa-book-open"></i> Como usar
+          <button class="help-tab" data-panel="tutorial" role="tab" id="help-tab-tutorial" aria-selected="false" aria-controls="help-tutorial" tabindex="-1">
+            <i class="fa-solid fa-book-open" aria-hidden="true"></i> Como usar
           </button>
-          <button class="help-tab" data-panel="contact">
-            <i class="fa-solid fa-headset"></i> Suporte
+          <button class="help-tab" data-panel="contact" role="tab" id="help-tab-contact" aria-selected="false" aria-controls="help-contact" tabindex="-1">
+            <i class="fa-solid fa-headset" aria-hidden="true"></i> Suporte
           </button>
         </div>
-        <div id="help-shortcuts" class="help-panel">
+        <div id="help-shortcuts" class="help-panel" role="tabpanel" aria-labelledby="help-tab-shortcuts">
           <div class="help-shortcut-list">
             <div class="help-shortcut-row">
               <div class="help-shortcut-keys"><kbd>Ctrl</kbd><span>+</span><kbd>K</kbd></div>

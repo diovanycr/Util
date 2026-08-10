@@ -277,7 +277,10 @@ export function updateHeaderProfileGreeting(name) {
     }
 
     if (!headerTimeInterval) {
-        headerTimeInterval = setInterval(() => updateHeaderProfileGreeting(), 30000);
+        headerTimeInterval = setInterval(() => {
+            if (document.hidden) return;
+            updateHeaderProfileGreeting();
+        }, 30000);
         window.addEventListener('focus', onHeaderWindowFocus);
     }
 }

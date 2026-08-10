@@ -4,7 +4,7 @@
 //  Verifica disponibilidade de serviços SEFAZ (NFe/NFCe por UF)
 //  e gateways de pagamento (Stone, PagBank, Mercado Pago, TEF)
 
-import { setupSegmented } from './utils.js';
+import { setupSegmented, escapeAttr } from './utils.js';
 
 const SEFAZ_SERVICES = [
     { uf: 'AC', url: 'https://www.sefaznet.ac.gov.br/nfe/nfe_app.aspx', name: 'SEFAZ-AC' },
@@ -90,17 +90,19 @@ export function bindStatusCheckerEvents(container) {
             const id = cat === 'sefaz' ? `sefaz-${item.uf}` : `gw-${item.id}`;
             const label = cat === 'sefaz' ? item.uf : item.name;
             const subLabel = cat === 'sefaz' ? item.name : 'Gateway';
+            const safeUrl = escapeAttr(item.url);
+            const safeId = escapeAttr(id);
             return `
-              <div class="sc-card" id="${id}">
+              <div class="sc-card" id="${safeId}" role="status" aria-live="polite" aria-label="Status de ${escapeAttr(label)}">
                 <div class="sc-card-header">
-                  <span class="sc-label">${label}</span>
-                  <span class="sc-status sc-status-unknown">⏳</span>
+                  <span class="sc-label">${escapeAttr(label)}</span>
+                  <span class="sc-status sc-status-unknown" aria-label="Aguardando verificação">⏳</span>
                 </div>
-                <p class="sc-sub">${subLabel}</p>
-                <p class="sc-time">—</p>
+                <p class="sc-sub">${escapeAttr(subLabel)}</p>
+                <p class="sc-time" aria-label="Tempo de resposta">—</p>
                 <div class="sc-actions-row">
-                  <button class="btn ghost sc-btn-check" data-url="${item.url}" data-id="${id}"><i class="fa-solid fa-play"></i></button>
-                  ${item.statusUrl ? `<a href="${item.statusUrl}" target="_blank" rel="noopener noreferrer" class="btn ghost sc-btn-link"><i class="fa-solid fa-up-right-from-square"></i></a>` : ''}
+                  <button class="btn ghost sc-btn-check" data-url="${safeUrl}" data-id="${safeId}"><i class="fa-solid fa-play"></i></button>
+                  ${item.statusUrl ? `<a href="${escapeAttr(item.statusUrl)}" target="_blank" rel="noopener noreferrer" class="btn ghost sc-btn-link"><i class="fa-solid fa-up-right-from-square"></i></a>` : ''}
                 </div>
               </div>`;
         }).join('');

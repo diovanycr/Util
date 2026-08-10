@@ -17,7 +17,7 @@ export const WIDGET_HTML = `
     <div class="sidebar-history">
       <div class="sidebar-history-header">
         <span class="nav-label">Histórico</span>
-        <button id="fw-clearFuturaHistory" class="clear-btn" title="Limpar histórico"><i class="fa-solid fa-trash-can"></i></button>
+        <button id="fw-clearFuturaHistory" class="clear-btn" title="Limpar histórico" aria-label="Limpar histórico de pesquisas"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
       </div>
       <div id="fw-historyList" class="history-list"></div>
     </div>
@@ -41,7 +41,7 @@ export const WIDGET_HTML = `
         <h1 class="page-title">Manual <em>Futura Sistemas</em></h1>
       </div>
       <div class="topbar-right">
-        <div id="fw-statusPill" class="status-pill">
+        <div id="fw-statusPill" class="status-pill" role="status" aria-label="Status da configuração">
           <div class="status-dot"></div>
           <span id="fw-statusLabel">Não configurado</span>
         </div>
@@ -63,13 +63,16 @@ export const WIDGET_HTML = `
               autocomplete="off"
               spellcheck="false"
               aria-label="Pesquisar no manual Futura"
+              role="combobox"
+              aria-expanded="false"
+              aria-controls="fw-suggestions"
             />
-            <button id="fw-voiceSearchBtn" class="voice-search-btn" title="Pesquisar por voz">
-              <i class="fa-solid fa-microphone"></i>
+            <button id="fw-voiceSearchBtn" class="voice-search-btn" title="Pesquisar por voz" aria-label="Pesquisar por voz">
+              <i class="fa-solid fa-microphone" aria-hidden="true"></i>
             </button>
             <button id="fw-searchBtn">Pesquisar</button>
           </div>
-          <div id="fw-suggestions" class="suggestions"></div>
+          <div id="fw-suggestions" class="suggestions" role="listbox" aria-label="Sugestões de pesquisa"></div>
         </div>
 
         <div class="quick-tags">
@@ -118,8 +121,8 @@ export const WIDGET_HTML = `
         <div class="ai-block-header">
           <div class="ai-tag"><i class="fa-solid fa-wand-magic-sparkles"></i> Resposta</div>
           <span id="fw-queryLabel" class="query-chip"></span>
-          <button id="fw-audioReadBtn" class="audio-read-btn" title="Ouvir resposta">
-            <i class="fa-solid fa-volume-high"></i> <span>Ouvir</span>
+          <button id="fw-audioReadBtn" class="audio-read-btn" title="Ouvir resposta" aria-pressed="false" aria-label="Ouvir resposta em voz alta">
+            <i class="fa-solid fa-volume-high" aria-hidden="true"></i> <span>Ouvir</span>
           </button>
         </div>
         <div id="fw-summaryContent" class="summary-body"></div>

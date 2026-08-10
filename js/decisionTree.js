@@ -5,6 +5,8 @@
 //  PDV não conecta no banco, Impressora não corta papel,
 //  Ponto não coleta marcação, E-commerce não sincroniza estoque
 
+import { escapeHtml, escapeAttr } from './utils.js';
+
 const TREES = {
     pdv_db: {
         title: 'PDV não conecta no banco de dados',
@@ -217,9 +219,9 @@ export function buildDecisionTreePanel() {
           <p class="po-section-label">Selecione o problema</p>
           <div class="dt-problem-grid">
             ${Object.entries(TREES).map(([key, tree]) => `
-              <button class="dt-problem-btn" data-tree="${key}">
-                <span class="dt-problem-icon">${tree.icon}</span>
-                <span class="dt-problem-title">${tree.title}</span>
+              <button class="dt-problem-btn" data-tree="${escapeAttr(key)}">
+                <span class="dt-problem-icon">${escapeHtml(tree.icon)}</span>
+                <span class="dt-problem-title">${escapeHtml(tree.title)}</span>
               </button>
             `).join('')}
           </div>
@@ -264,6 +266,22 @@ export function bindDecisionTreeEvents(container) {
             _renderStep(container);
         }
     });
+
+    container.addEventListener('keydown', e => {
+        if (e.target.matches('.dt-option-btn') && (e.key === 'Enter' || e.key === ' ')) {
+            e.preventDefault();
+            e.target.click();
+            return;
+        }
+        const num = parseInt(e.key, 10);
+        if (num >= 1 && num <= 9 && !e.target.matches('input, textarea, select')) {
+            const optBtns = container.querySelectorAll('.dt-option-btn');
+            if (optBtns[num - 1]) {
+                e.preventDefault();
+                optBtns[num - 1].click();
+            }
+        }
+    });
 }
 
 function _renderStep(container) {
@@ -274,18 +292,24 @@ function _renderStep(container) {
 
     flow.classList.remove('hidden');
     const node = currentTree.nodes[currentStep];
-    if (!node) return;
+    if (!node) {
+        console.error('decisionTree: node not found for step:', currentStep);
+        currentStep = currentTree.root;
+        pathHistory = [];
+        _renderStep(container);
+        return;
+    }
 
-    breadcrumb.innerHTML = `<span class="dt-breadcrumb-title">${currentTree.icon} ${currentTree.title}</span>`;
+    breadcrumb.innerHTML = `<span class="dt-breadcrumb-title">${escapeHtml(currentTree.icon)} ${escapeHtml(currentTree.title)}</span>`;
 
     if (node.answer) {
         content.innerHTML = `
             <div class="dt-answer">
                 <div class="dt-answer-header">
                     <span class="dt-answer-icon">💡</span>
-                    <h3>${node.answer}</h3>
+                    <h3>${escapeHtml(node.answer)}</h3>
                 </div>
-                <pre class="dt-solution-pre">${node.solution}</pre>
+                <pre class="dt-solution-pre">${escapeHtml(node.solution)}</pre>
                 <div class="dt-actions">
                     <button id="dtBtnBack" class="btn ghost" ${pathHistory.length === 0 ? 'disabled' : ''}><i class="fa-solid fa-arrow-left"></i> Voltar</button>
                     <button id="dtBtnRestart" class="btn primary"><i class="fa-solid fa-rotate-right"></i> Recomeçar</button>
@@ -295,12 +319,12 @@ function _renderStep(container) {
     } else {
         content.innerHTML = `
             <div class="dt-question">
-                <h3>${node.question}</h3>
+                <h3>${escapeHtml(node.question)}</h3>
                 <div class="dt-options">
                     ${node.options.map((opt, i) => `
-                        <button class="btn ghost dt-option-btn" data-next="${opt.next}">
+                        <button class="btn ghost dt-option-btn" data-next="${escapeAttr(opt.next)}">
                             <span class="dt-option-num">${i + 1}</span>
-                            <span>${opt.label}</span>
+                            <span>${escapeHtml(opt.label)}</span>
                             <i class="fa-solid fa-chevron-right dt-option-arrow"></i>
                         </button>
                     `).join('')}

@@ -21,7 +21,7 @@ export function buildPortInput() {
     <div class="card">
       <p class="po-section-label">Portas</p>
       <div class="po-tag-field" id="poTagField">
-        <div id="poTagPills" class="po-tag-pills"></div>
+        <div id="poTagPills" class="po-tag-pills" role="list" aria-label="Portas selecionadas"></div>
         <input id="poPortInput" class="po-port-input" type="text"
           inputmode="numeric" autocomplete="off"
           placeholder="Digite a porta e pressione Enter..." />

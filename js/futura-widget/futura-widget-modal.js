@@ -15,7 +15,10 @@ export function showConfigModal(ctx) {
   overlay.setAttribute("aria-label", "Configurações do Futura Search");
   overlay.innerHTML = `
     <div class="modal">
-      <h3><i class="fa-solid fa-gear"></i> Configurações</h3>
+      <button id="fw-closeConfigBtn" class="btn ghost" style="position:absolute;top:12px;right:12px;padding:6px 10px;" aria-label="Fechar configurações">
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+      <h3><i class="fa-solid fa-gear" aria-hidden="true"></i> Configurações</h3>
       <p>Escolha como o sistema vai responder suas dúvidas sobre o manual.</p>
 
       <label class="modal-label">Modo de funcionamento</label>
@@ -49,15 +52,16 @@ export function showConfigModal(ctx) {
           </div>
         </div>
 
-        <label class="modal-label">Chave da API</label>
+        <label class="modal-label" for="fw-inp-apikey">Chave da API</label>
         <div style="position:relative">
           <input type="password" id="fw-inp-apikey"
             placeholder="${config.provider === 'openai' ? 'sk-...' : 'AIzaSy...'}"
             value="${config.apiKey}"
             style="padding-right:46px;margin-bottom:4px" />
           <button type="button" id="fw-toggleKeyBtn"
-            style="position:absolute;right:12px;top:12px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px">
-            <i class="fa-solid fa-eye"></i>
+            style="position:absolute;right:12px;top:12px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px"
+            aria-label="Mostrar ou ocultar chave da API">
+            <i class="fa-solid fa-eye" aria-hidden="true"></i>
           </button>
         </div>
         <p style="font-size:12px;color:var(--muted);margin-bottom:16px" id="fw-key-hint">
@@ -75,7 +79,9 @@ export function showConfigModal(ctx) {
       </div>
     </div>`;
 
-  overlay.addEventListener("click", e => { if (e.target === overlay) closeConfigModal(ctx); });
+  overlay.addEventListener("click", e => {
+    if (e.target === overlay) { closeConfigModal(ctx); if (prevFocus) prevFocus.focus(); }
+  });
 
   overlay.querySelectorAll(".mode-card").forEach(card => {
     card.addEventListener("click", () => selectMode(ctx, card.dataset.mode, card));
@@ -92,6 +98,9 @@ export function showConfigModal(ctx) {
 
   const cancelBtn = overlay.querySelector("#fw-cancelConfigBtn");
   if (cancelBtn) cancelBtn.addEventListener("click", () => closeConfigModal(ctx));
+
+  const closeBtn = overlay.querySelector("#fw-closeConfigBtn");
+  if (closeBtn) closeBtn.addEventListener("click", () => { closeConfigModal(ctx); if (prevFocus) prevFocus.focus(); });
 
   const saveBtn = overlay.querySelector("#fw-saveConfigBtn");
   if (saveBtn) saveBtn.addEventListener("click", () => saveConfig(ctx));
@@ -111,7 +120,6 @@ export function showConfigModal(ctx) {
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus(); }
   };
   overlay.addEventListener('keydown', handleKeydown);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) { closeConfigModal(ctx); if (prevFocus) prevFocus.focus(); } });
 }
 
 function selectMode(ctx, mode, el) {

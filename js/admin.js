@@ -40,6 +40,11 @@ export async function loadUsers(append = false) {
             return;
         }
 
+        if (snap.empty && append) {
+            showToast("Não há mais usuários.");
+            return;
+        }
+
         if (!append) userList.innerHTML = '';
 
         _lastUserDoc = snap.docs[snap.docs.length - 1];

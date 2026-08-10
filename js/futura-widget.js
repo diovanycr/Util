@@ -208,24 +208,42 @@ class FuturaSearchWidget {
     dom.searchInput.addEventListener("input", () => {
       const val = dom.searchInput.value.toLowerCase().trim();
       dom.suggestionsBox.innerHTML = "";
-      if (!val || val.length < 2) return;
-      SUGGESTIONS.filter(s => s.toLowerCase().includes(val)).slice(0, 6).forEach(item => {
+      if (!val || val.length < 2) {
+        dom.searchInput.setAttribute("aria-expanded", "false");
+        return;
+      }
+      const matches = SUGGESTIONS.filter(s => s.toLowerCase().includes(val)).slice(0, 6);
+      dom.searchInput.setAttribute("aria-expanded", matches.length > 0 ? "true" : "false");
+      matches.forEach((item, idx) => {
         const div = document.createElement("div");
         div.className = "suggestion-item";
-        const idx = item.toLowerCase().indexOf(val);
-        div.innerHTML = `<i class="fa-solid fa-magnifying-glass"></i>`
-          + item.slice(0, idx)
-          + `<strong>${item.slice(idx, idx + val.length)}</strong>`
-          + item.slice(idx + val.length);
-        div.onclick = () => { dom.searchInput.value = item; dom.suggestionsBox.innerHTML = ""; search.performSearch(ctx, item); };
+        div.setAttribute("role", "option");
+        div.setAttribute("tabindex", "-1");
+        div.setAttribute("id", `fw-suggestion-${idx}`);
+        const start = item.toLowerCase().indexOf(val);
+        div.innerHTML = `<i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>`
+          + item.slice(0, start)
+          + `<strong>${item.slice(start, start + val.length)}</strong>`
+          + item.slice(start + val.length);
+        div.onclick = () => { dom.searchInput.value = item; dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); search.performSearch(ctx, item); };
+        div.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            div.click();
+          }
+        };
         dom.suggestionsBox.appendChild(div);
       });
     });
 
-    widgetScope.addEventListener("click", e => { if (!e.target.closest(".search-wrap")) dom.suggestionsBox.innerHTML = ""; });
+    widgetScope.addEventListener("click", e => { if (!e.target.closest(".search-wrap")) { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); } });
     dom.searchInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") { dom.suggestionsBox.innerHTML = ""; search.performSearch(ctx, dom.searchInput.value.trim()); }
-      if (e.key === "Escape") dom.suggestionsBox.innerHTML = "";
+      if (e.key === "Enter") { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); search.performSearch(ctx, dom.searchInput.value.trim()); }
+      if (e.key === "Escape") { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); }
+      if (e.key === "ArrowDown" && dom.suggestionsBox.children.length > 0) {
+        e.preventDefault();
+        dom.suggestionsBox.children[0].focus();
+      }
     });
 
     const fillSearch = (term) => { dom.searchInput.value = term; dom.searchInput.focus(); };

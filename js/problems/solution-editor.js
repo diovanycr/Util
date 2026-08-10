@@ -83,21 +83,25 @@ export function addSolutionEditor(container, solution = null) {
     const index = container.querySelectorAll('.solution-editor-item').length + 1;
     const item  = document.createElement('div');
     item.className = 'solution-editor-item';
+    const labelId = `solution-label-${Date.now()}-${index}`;
+    const editorId = `solution-editor-${Date.now()}-${index}`;
     item.innerHTML = `
         <div class="solution-editor-header">
-            <input class="solution-label-input" type="text"
+            <input class="solution-label-input" id="${labelId}" type="text"
                    placeholder="Título da solução (ex: Solução ${index})"
-                   value="${solution ? escapeAttr(solution.label) : ''}" />
-            <select class="solution-status-select">
+                   value="${solution ? escapeAttr(solution.label) : ''}"
+                   aria-label="Título da solução ${index}" />
+            <select class="solution-status-select" aria-label="Status da solução ${index}">
                 <option value="confirmed" ${(!solution || solution.status === 'confirmed') ? 'selected' : ''}>✅ Confirmada</option>
                 <option value="testing"   ${solution?.status === 'testing'  ? 'selected' : ''}>🧪 Em teste</option>
                 <option value="obsolete"  ${solution?.status === 'obsolete' ? 'selected' : ''}>❌ Obsoleta</option>
             </select>
-            <button class="btn ghost btn-remove-solution" title="Remover solução">
-                <i class="fa-solid fa-xmark"></i>
+            <button class="btn ghost btn-remove-solution" title="Remover solução" aria-label="Remover solução ${index}">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
             </button>
         </div>
         <div class="rich-editor solution-rich-editor" contenteditable="true" role="textbox" aria-multiline="true"
+             id="${editorId}" aria-labelledby="${labelId}" aria-label="Solução ${index}"
              data-placeholder="Digite a solução... Cole imagens aqui">${solution ? sanitizeHtml(solution.text) : ''}</div>
         <div class="copy-texts-section">
             <label class="field-label mt-8">

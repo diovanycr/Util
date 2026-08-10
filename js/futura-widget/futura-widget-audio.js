@@ -126,7 +126,9 @@ export function toggleAudioReading(ctx) {
     currentUtterance.onstart = () => {
       if (currentChunkIndex === 0) {
         audioReadBtn.classList.add("playing");
-        audioReadBtn.innerHTML = '<i class="fa-solid fa-circle-stop"></i> <span>Parar</span>';
+        audioReadBtn.innerHTML = '<i class="fa-solid fa-circle-stop" aria-hidden="true"></i> <span>Parar</span>';
+        audioReadBtn.setAttribute("aria-pressed", "true");
+        audioReadBtn.setAttribute("aria-label", "Parar leitura");
         ctx.utils.showToast("Lendo resposta do manual...", "info");
       }
     };
@@ -167,6 +169,8 @@ function resetAudioReaderState(ctx) {
   currentUtterance = null;
   if (audioReadBtn) {
     audioReadBtn.classList.remove("playing");
-    audioReadBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i> <span>Ouvir</span>';
+    audioReadBtn.innerHTML = '<i class="fa-solid fa-volume-high" aria-hidden="true"></i> <span>Ouvir</span>';
+    audioReadBtn.setAttribute("aria-pressed", "false");
+    audioReadBtn.setAttribute("aria-label", "Ouvir resposta em voz alta");
   }
 }
