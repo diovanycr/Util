@@ -92,8 +92,7 @@ body {
 .hidden-by-search,
 .hidden-by-filter { display: none !important; }
 .hidden-by-time { display: none !important; }
-body.hide-time-greetings .hidden-by-time { display: none !important; }
-body.show-all-greetings .hidden-by-time { display: revert !important; }
+body.show-all-greetings .hidden-by-time { display: flex !important; }
 .sub { color: var(--muted); font-size: 14px; }
 .grid { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; }
 .flex-end { display: flex; justify-content: flex-end; gap: 10px; }

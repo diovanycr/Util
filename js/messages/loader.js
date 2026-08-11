@@ -5,9 +5,10 @@
 import {
     db, el,
     collection, doc,
-    query, where, limit
+    query, where, limit,
+    updateDoc, increment
 } from '../firebase.js';
-import { getDocs, addDoc, updateDoc, writeBatch } from '../firebase-retry.js';
+import { getDocs, addDoc, writeBatch } from '../firebase-retry.js';
 import { openConfirmModal, showModal } from '../modal.js';
 import { showToast } from '../toast.js';
 import {
@@ -200,8 +201,8 @@ export function renderMessages() {
             const userName = el('loggedUser')?.dataset?.username?.trim() || 'Usuário';
 
             const titleHtml = item.title
-                ? `<span class="msg-title">${escapeHtml(item.title)} ${timeBadgeHtml}</span>`
-                : (timeBadgeHtml ? `<span class="msg-title">${timeBadgeHtml}</span>` : '');
+                ? `<span class="msg-title">${escapeHtml(item.title)}</span>`
+                : '';
 
             let displayText = item.text;
             if (displayText.includes('{usuario}')) {
@@ -226,6 +227,9 @@ export function renderMessages() {
                     await navigator.clipboard.writeText(textToCopy);
                     addToHistory(textToCopy, item.title || '', item.category || 'Geral');
                     renderHistoryPanel();
+                    updateDoc(doc(db, 'users', state.currentUserId, 'messages', item.id), { copyCount: increment(1) }).then(() => {
+                        document.dispatchEvent(new CustomEvent('copy-count-updated'));
+                    }).catch(err => console.error('Erro ao incrementar copyCount:', err));
                     showToast("Copiado!");
                 } catch (err) { console.error(err); }
             };

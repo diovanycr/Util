@@ -26,7 +26,8 @@ import {
     orderBy,
     limit,
     startAfter,
-    writeBatch
+    writeBatch,
+    increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -72,5 +73,6 @@ export {
     orderBy,
     limit,
     startAfter,
-    writeBatch
+    writeBatch,
+    increment
 };

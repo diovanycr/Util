@@ -18,6 +18,7 @@ import { initProblems, resetProblems, loadProblems } from './problems.js';
 import { initSearch, resetSearch } from './search.js';
 import { initLinks, resetLinks } from './links.js';
 import { initEnhancements, resetEnhancements } from './enhancements.js';
+import { initRanking, resetRanking } from './ranking.js';
 import { getGreetingPrefix, setTagColorUser, withButtonLoading } from './utils.js';
 
 let messagesInitialized = false;
@@ -93,6 +94,7 @@ export function initAuth() {
                     initSearch(user.uid);
                     initLinks(user.uid);
                     initEnhancements(user.uid);
+                    initRanking(user.uid);
 
                     if (!messagesInitialized) {
                         initMessages(user.uid);
@@ -124,6 +126,7 @@ export function initAuth() {
             resetProblems();
             resetLinks();
             resetEnhancements();
+            resetRanking();
 
             document.dispatchEvent(new Event('user-logout'));
 

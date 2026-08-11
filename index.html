@@ -161,6 +161,9 @@
           <button class="tab" data-tab="tabSistemas" id="tab-sistemas" role="tab" aria-selected="false" aria-controls="tabSistemas" title="Sistemas">
             <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> <span class="tab-text">Sistemas</span>
           </button>
+          <button class="tab" data-tab="tabRanking" id="tab-ranking" role="tab" aria-selected="false" aria-controls="tabRanking" title="Top Ranking">
+            <i class="fa-solid fa-trophy" aria-hidden="true"></i> <span class="tab-text">Top Ranking</span>
+          </button>
         </div>
         <div id="tabMessages" class="tab-content" role="tabpanel" aria-labelledby="tab-messages">
           <div class="card toolbar">
@@ -306,6 +309,14 @@
         <!-- ✅ ABA: Sistemas -->
         <div id="tabSistemas" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-sistemas">
           <!-- O conteúdo é injetado pelo portOpener.js via renderSistemasTab() -->
+        </div>
+        <!-- ✅ ABA: Top Ranking -->
+        <div id="tabRanking" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-ranking">
+          <div class="card">
+            <h2>Top Ranking — Mensagens mais copiadas</h2>
+            <p class="sub mt-6">Mensagens ordenadas por número de cópias.</p>
+          </div>
+          <div id="rankingList" class="list mt-16"></div>
         </div>
       </div>
     </div>
