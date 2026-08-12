@@ -1,4 +1,4 @@
-const CACHE_NAME = 'painelatende-v4';
+const CACHE_NAME = 'painelatende-v5';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
