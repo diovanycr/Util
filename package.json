@@ -1,0 +1,17 @@
+{
+  "name": "painelatende",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Client-side web app for automated responses and problem/solution management",
+  "scripts": {
+    "lint": "eslint js/",
+    "format": "prettier --write js/ tests/",
+    "test": "node tests/backlog.test.js && node tests/utils-dom.test.js && node tests/modules.test.js && node tests/utils.test.js && node tests/xss.test.js"
+  },
+  "devDependencies": {
+    "eslint": "^9.0.0",
+    "jsdom": "^30.0.1",
+    "prettier": "^3.9.6"
+  }
+}

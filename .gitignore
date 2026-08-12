@@ -1,0 +1,21 @@
+# Dependencies
+node_modules/
+
+# Local backups and dumps
+backups/
+*.json.bak
+*.bak
+
+# Environment and secrets
+.env
+.env.local
+
+# Logs and temporary files
+*.log
+Temp/
+erro.txt
+audit-results.json
+
+# OS files
+.DS_Store
+Thumbs.db
