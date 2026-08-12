@@ -35,7 +35,7 @@ function backup() {
 
 function restore(b) {
     fs.writeFileSync(BACKLOG_PATH, b.backlog, 'utf8');
-    if (b.changelog) {
+    if (b.changelog !== null && b.changelog !== undefined) {
         fs.writeFileSync(CHANGELOG_PATH, b.changelog, 'utf8');
     } else if (fs.existsSync(CHANGELOG_PATH)) {
         fs.unlinkSync(CHANGELOG_PATH);
