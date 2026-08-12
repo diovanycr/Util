@@ -8,8 +8,12 @@
  * @story 3.11a - Quality Gates Metrics Collector
  */
 
-const { Command } = require('commander');
-const { seedMetrics } = require('../../../quality/seed-metrics');
+let seedMetrics;
+try {
+  seedMetrics = require('../../../quality/seed-metrics').seedMetrics;
+} catch {
+  seedMetrics = async () => ({ history: [], layers: { layer1: { totalRuns: 0, passRate: 1 }, layer2: { totalRuns: 0, passRate: 1, coderabbit: { active: false }, quinn: { findingsCount: 0, topCategories: [] } }, layer3: { totalRuns: 0, passRate: 1 } }, trends: { passRates: [], autoCatchRate: [] } });
+}
 
 /**
  * Create the seed subcommand

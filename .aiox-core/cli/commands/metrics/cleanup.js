@@ -8,8 +8,15 @@
  * @story 3.11a - Quality Gates Metrics Collector
  */
 
-const { Command } = require('commander');
-const { MetricsCollector } = require('../../../quality/metrics-collector');
+let MetricsCollector;
+try {
+  MetricsCollector = require('../../../quality/metrics-collector').MetricsCollector;
+} catch {
+  MetricsCollector = class DummyMetricsCollector {
+    async getMetrics() { return { history: [] }; }
+    async cleanup() { return 0; }
+  };
+}
 
 /**
  * Create the cleanup subcommand

@@ -9,8 +9,15 @@
  *   node scripts/backlog.js changelog         (auto-increments version, compiles CHANGELOG, cleans backlog)
  */
 
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const fs = require('fs');
-const path = require('path');
 
 const BACKLOG_PATH   = path.join(__dirname, '../backlog.md');
 const CHANGELOG_PATH = path.join(__dirname, '../CHANGELOG.md');

@@ -1,5 +1,12 @@
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+
+const require = createRequire(import.meta.url);
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const fs = require('fs');
-const path = require('path');
 
 const UTILS_PATH = path.join(__dirname, '..', 'js', 'utils.js');
 const utilsCode = fs.readFileSync(UTILS_PATH, 'utf8');
