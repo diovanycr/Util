@@ -9,7 +9,8 @@
  * Refactored to use execa for cross-platform compatibility
  */
 
-const { execaSync } = require('execa');
+const execa = require('execa');
+const execaSync = execa.sync;
 const fs = require('fs');
 const path = require('path');
 const yaml = require('js-yaml');
