@@ -26,6 +26,18 @@
 *(Nenhum item em andamento)*
 
 ## Próximo
+- [ ] **Modo mini-painel em janela flutuante (Pop-out Window) para uso ao lado do WhatsApp** `[P]` `[Layout]`
+- [ ] **Exportador de manual em PDF/HTML da Base de Conhecimento para treinamento** `[M]` `[UI]`
+- [ ] **Command Palette de busca ultra-rápida (Ctrl+K) com atalhos de cópia sem mouse** `[M]` `[UI]`
+- [ ] **Sistema de pastas e categorias coloridas por departamento (Financeiro, N1, N2)** `[M]` `[UI]`
+- [ ] **Dashboard de métricas e analytics de atendimento com gráficos** `[G]` `[UI]`
+- [ ] **Assistente de IA para gerar e reescrever respostas prontas** `[G]` `[UI]`
+- [ ] **Adicionar indicador visual de loading em operações assíncronas do Firestore** `[P]` `[UI]`
+- [ ] **Centralizar importações CSS em css/main.css** `[P]` `[Layout]`
+- [ ] **Adicionar botão de selecionar/desmarcar todos na importação de mensagens duplicadas** `[P]` `[UI]`
+- [ ] **Adicionar atributos de acessibilidade (ARIA, role=dialog, aria-label) nos modais e botões** `[P]` `[Accessibility]`
+- [ ] **Reorganizar arquivos de js em subpastas semânticas (core, tools, modules)** `[M]` `[Backend]`
+- [ ] **Migrar runner do npm test para node --test nativo** `[P]` `[Backend]`
 *(Nenhum item pendente)*
 
 *(Nenhum item pendente)*
