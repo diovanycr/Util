@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint js/",
     "format": "prettier --write js/ tests/",
-    "test": "node tests/backlog.test.js && node tests/utils-dom.test.js && node tests/modules.test.js && node tests/utils.test.js && node tests/xss.test.js"
+    "test": "node tests/run-all.js"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

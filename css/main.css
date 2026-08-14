@@ -1,0 +1,29 @@
+/* main.css — Centralizador de estilos do PainelAtende */
+
+@import url('base.css');
+@import url('forms.css');
+@import url('components.css');
+@import url('login.css');
+@import url('users.css');
+@import url('messages.css');
+@import url('problems.css');
+@import url('departments.css');
+@import url('analytics.css');
+@import url('aiAssistant.css');
+@import url('links.css');
+@import url('tags.css');
+@import url('search.css');
+@import url('help.css');
+@import url('compact-favorites.css');
+@import url('portOpener.css');
+@import url('futura-widget.css');
+@import url('history.css');
+@import url('escPos.css');
+@import url('docValidator.css');
+@import url('statusChecker.css');
+@import url('apiTester.css');
+@import url('fileValidator.css');
+@import url('ticketSummary.css');
+@import url('decisionTree.css');
+@import url('networkDiag.css');
+@import url('scriptGen.css');

@@ -1,0 +1,265 @@
+/* ============================================================
+   departments.css — Sidebar de pastas/departamentos
+   ============================================================ */
+
+/* Layout de 2 colunas: sidebar + main */
+.problems-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.dept-sidebar {
+  width: 200px;
+  flex-shrink: 0;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: sticky;
+  top: 16px;
+}
+
+.dept-sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px 8px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.dept-sidebar-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+}
+
+#btnNewDepartment {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 2px 4px;
+  border-radius: 6px;
+  transition: color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+}
+
+#btnNewDepartment:hover {
+  color: var(--primary);
+  background: var(--primary-light);
+}
+
+/* ── Item de departamento ────────────────────────────────── */
+.dept-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  font-family: inherit;
+  width: 100%;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+  position: relative;
+}
+
+.dept-item:hover {
+  background: var(--bg);
+}
+
+.dept-item.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.dept-item.active .dept-color-dot {
+  box-shadow: 0 0 0 2px var(--card), 0 0 0 4px currentColor;
+}
+
+.dept-color-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: box-shadow 0.15s;
+}
+
+.dept-item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dept-item-count {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.dept-item.active .dept-item-count {
+  background: var(--primary);
+  color: #fff;
+}
+
+/* Ações (editar/excluir) — aparecem no hover */
+.dept-item-actions {
+  display: none;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.dept-item:hover .dept-item-actions {
+  display: flex;
+}
+
+.dept-item.active .dept-item-actions {
+  display: flex;
+}
+
+.dept-item-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.dept-item-actions button:hover { color: var(--text); }
+.dept-item-actions .btn-delete-dept:hover { color: var(--danger); }
+
+/* Área principal (main) */
+.problems-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ── Cores dos departamentos ─────────────────────────────── */
+.dept-blue   { background-color: #3b82f6; }
+.dept-green  { background-color: #22c55e; }
+.dept-purple { background-color: #a855f7; }
+.dept-orange { background-color: #f97316; }
+.dept-red    { background-color: #ef4444; }
+.dept-cyan   { background-color: #06b6d4; }
+.dept-pink   { background-color: #ec4899; }
+.dept-gray   { background-color: #6b7280; }
+
+/* ── Modal de departamento ───────────────────────────────── */
+.dept-color-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 12px 0;
+}
+
+.dept-color-option {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.dept-color-option:hover {
+  transform: scale(1.15);
+}
+
+.dept-color-option.selected {
+  border-color: var(--text);
+  transform: scale(1.15);
+}
+
+/* ── Select de departamento no form ──────────────────────── */
+.dept-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dept-select-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 0.2s;
+}
+
+/* ── Responsivo: sidebar vira dropdown horizontal em mobile ─ */
+@media (max-width: 768px) {
+  .problems-layout {
+    flex-direction: column;
+  }
+
+  .dept-sidebar {
+    width: 100%;
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 8px;
+    gap: 6px;
+  }
+
+  .dept-sidebar-header {
+    width: 100%;
+    border-bottom: none;
+    margin-bottom: 0;
+    padding: 0 4px 6px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dept-item {
+    width: auto;
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .dept-item-actions {
+    display: none !important;
+  }
+}
+
+/* ── Dark mode ───────────────────────────────────────────── */
+[data-theme="dark"] .dept-sidebar {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .dept-item:hover {
+  background: #334155;
+}
+
+[data-theme="dark"] .dept-item.active {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="dark"] .dept-item-count {
+  background: #334155;
+}

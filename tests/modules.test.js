@@ -122,5 +122,22 @@ console.log('Test: portOpener.js exports');
     assert(fileContains(portOpenerPath, 'export function cleanupPortOpener'), 'Should export cleanupPortOpener');
 }
 
+// Test: analytics.js exports
+console.log('Test: analytics.js exports');
+{
+    const analyticsPath = path.join(BASE_DIR, 'js', 'analytics.js');
+    assert(fileContains(analyticsPath, 'export function initAnalytics'), 'Should export initAnalytics');
+    assert(fileContains(analyticsPath, 'export function resetAnalytics'), 'Should export resetAnalytics');
+}
+
+// Test: aiAssistant.js exports
+console.log('Test: aiAssistant.js exports');
+{
+    const aiPath = path.join(BASE_DIR, 'js', 'aiAssistant.js');
+    assert(fileContains(aiPath, 'export function initAIAssistant'), 'Should export initAIAssistant');
+    assert(fileContains(aiPath, 'export function openAIAssistantModal'), 'Should export openAIAssistantModal');
+    assert(fileContains(aiPath, 'export function processTextWithAI'), 'Should export processTextWithAI');
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

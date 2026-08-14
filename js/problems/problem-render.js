@@ -256,20 +256,22 @@ export function updateTagFilterBar(ctx) {
 }
 
 /**
- * Aplica filtros de texto e tag aos allProblems e re-renderiza.
- * @param {Object} ctx { allProblems, activeTagFilter }
+ * Aplica filtros de texto, tag e departamento aos allProblems e re-renderiza.
+ * @param {Object} ctx { allProblems, activeTagFilter, activeDepartmentId }
  */
 export function applyFilters(ctx) {
     const queryVal = el('problemSearch')?.value.trim().toLowerCase() || '';
 
     const filtered = ctx.allProblems.filter(item => {
-        const solutions = normalizeSolutions(item);
-        const solText   = solutions.map(s => s.text.replace(/<[^>]*>/g, '')).join(' ');
-        const tags      = normalizeTags(item);
-        const matchText = !queryVal || `${item.title} ${item.description || ''} ${solText} ${tags.join(' ')}`.toLowerCase().includes(queryVal);
-        const matchTag  = !ctx.activeTagFilter || tags.includes(ctx.activeTagFilter);
-        return matchText && matchTag;
+        const solutions  = normalizeSolutions(item);
+        const solText    = solutions.map(s => s.text.replace(/<[^>]*>/g, '')).join(' ');
+        const tags       = normalizeTags(item);
+        const matchText  = !queryVal || `${item.title} ${item.description || ''} ${solText} ${tags.join(' ')}`.toLowerCase().includes(queryVal);
+        const matchTag   = !ctx.activeTagFilter || tags.includes(ctx.activeTagFilter);
+        const matchDept  = !ctx.activeDepartmentId || item.department === ctx.activeDepartmentId;
+        return matchText && matchTag && matchDept;
     });
 
     ctx.renderFiltered(filtered);
 }
+

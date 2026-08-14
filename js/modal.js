@@ -55,7 +55,7 @@ export function closeModal() {
   }
 }
 
-export function openConfirmModal(confirmCb, cancelCb = null, message = null) {
+export function openConfirmModal(confirmCb, cancelCb = null, message = null, confirmText = 'Confirmar', cancelText = 'Cancelar') {
   modalConfirmCallback = confirmCb;
   modalCancelCallback = cancelCb;
 
@@ -63,6 +63,11 @@ export function openConfirmModal(confirmCb, cancelCb = null, message = null) {
   if (confirmP && message) {
     confirmP.innerText = message;
   }
+
+  const confirmBtn = el('modalConfirm');
+  const cancelBtn = el('modalCancel');
+  if (confirmBtn) confirmBtn.innerText = confirmText;
+  if (cancelBtn) cancelBtn.innerText = cancelText;
 
   const confirmModal = el('confirmModal');
   if (confirmModal) {
@@ -133,4 +138,8 @@ function resetCallbacks() {
   modalCancelCallback = null;
   const confirmP = document.querySelector('#confirmModal .sub');
   if (confirmP) confirmP.innerText = "Esta ação não poderá ser desfeita.";
+  const confirmBtn = el('modalConfirm');
+  const cancelBtn = el('modalCancel');
+  if (confirmBtn) confirmBtn.innerText = "Confirmar";
+  if (cancelBtn) cancelBtn.innerText = "Cancelar";
 }

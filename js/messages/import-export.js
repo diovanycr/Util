@@ -108,7 +108,8 @@ export async function importFromTxt(event, userId, callbacks) {
             if (duplicates.length > 0) {
                 openConfirmModal(
                     () => processImport(true), () => processImport(false),
-                    `Encontramos ${duplicates.length} mensagens repetidas. Deseja substituir as existentes?`
+                    `Encontramos ${duplicates.length} mensagem(ns) repetida(s) no arquivo. Deseja substituir as existentes ou manter as atuais?`,
+                    "Substituir Duplicadas", "Manter Existentes"
                 );
             } else { processImport(false); }
         } catch (err) { showModal("Erro ao ler o arquivo."); }

@@ -1,0 +1,135 @@
+/* ============================================================
+   aiAssistant.css — Assistente de IA de Atendimento
+   ============================================================ */
+
+/* ── Botão ✨ Assistente IA ───────────────────────────────── */
+.btn-ai-assist {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(99, 102, 241, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+}
+
+.btn-ai-assist:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+  opacity: 0.95;
+}
+
+.btn-ai-assist i {
+  color: #fde047; /* Amarelo brilhante para a estrela */
+}
+
+/* ── Container do Modal da IA ────────────────────────────── */
+.ai-modal-box {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 540px;
+  width: 92%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--border);
+}
+
+.ai-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.ai-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Pills de Seleção de Modo da IA ──────────────────────── */
+.ai-mode-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ai-mode-pill {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ai-mode-pill:hover {
+  border-color: #6366f1;
+  color: #6366f1;
+}
+
+.ai-mode-pill.active {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+  color: #ffffff;
+  border-color: transparent;
+}
+
+/* ── Área de Pré-visualização Antes vs Depois ─────────────── */
+.ai-preview-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 16px 0;
+  min-height: 100px;
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.ai-preview-placeholder {
+  color: var(--muted);
+  text-align: center;
+  padding: 24px 0;
+  font-style: italic;
+}
+
+.ai-loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 24px 0;
+  color: #6366f1;
+  font-weight: 600;
+}
+
+/* Dark mode overrides */
+[data-theme="dark"] .ai-modal-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+[data-theme="dark"] .ai-preview-box {
+  background: #0f172a;
+  border-color: #334155;
+}

@@ -17,27 +17,50 @@ import {
 
 const RETRY_DELAYS = [1000, 2000, 4000];
 
+let activeRequests = 0;
+
+function showGlobalLoading() {
+    activeRequests++;
+    if (typeof document !== 'undefined') {
+        const bar = document.getElementById('globalLoadingBar');
+        if (bar) bar.classList.remove('hidden');
+    }
+}
+
+function hideGlobalLoading() {
+    activeRequests = Math.max(0, activeRequests - 1);
+    if (activeRequests === 0 && typeof document !== 'undefined') {
+        const bar = document.getElementById('globalLoadingBar');
+        if (bar) bar.classList.add('hidden');
+    }
+}
+
 export async function withRetry(fn, retries = 3) {
-    for (let i = 0; i < retries; i++) {
-        try {
-            return await fn();
-        } catch (error) {
-            const isLast = i === retries - 1;
-            const isRetryable =
-                error.code === 'unavailable' ||
-                error.code === 'deadline-exceeded' ||
-                error.code === 'resource-exhausted' ||
-                error.message?.includes('network') ||
-                error.message?.includes('timeout');
+    showGlobalLoading();
+    try {
+        for (let i = 0; i < retries; i++) {
+            try {
+                return await fn();
+            } catch (error) {
+                const isLast = i === retries - 1;
+                const isRetryable =
+                    error.code === 'unavailable' ||
+                    error.code === 'deadline-exceeded' ||
+                    error.code === 'resource-exhausted' ||
+                    error.message?.includes('network') ||
+                    error.message?.includes('timeout');
 
-            if (isLast || !isRetryable) {
-                throw error;
+                if (isLast || !isRetryable) {
+                    throw error;
+                }
+
+                const delay = RETRY_DELAYS[i] || 4000;
+                console.warn(`Retry ${i + 1}/${retries} after ${delay}ms:`, error.message);
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
-
-            const delay = RETRY_DELAYS[i] || 4000;
-            console.warn(`Retry ${i + 1}/${retries} after ${delay}ms:`, error.message);
-            await new Promise(resolve => setTimeout(resolve, delay));
         }
+    } finally {
+        hideGlobalLoading();
     }
 }
 

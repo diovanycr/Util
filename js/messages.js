@@ -13,6 +13,7 @@ import { getDocs, addDoc } from './firebase-retry.js';
 import { showModal, openConfirmModal } from './modal.js';
 import { initHistory } from './history.js';
 import { withButtonLoading } from './utils.js';
+import { initAIAssistant, openAIAssistantModal } from './aiAssistant.js';
 
 import { state, allMessages, resetState } from './messages/state.js';
 import {
@@ -51,6 +52,7 @@ export function initMessages(uid) {
     loadMessages(uid);
     updateTrashCount(uid);
     initHistory(uid);
+    initAIAssistant();
 }
 
 export function resetMessages() {
@@ -108,6 +110,10 @@ function setupUserInterface(uid) {
     el('btnNewMsg').onclick = () => {
         el('newMsgBox').classList.remove('hidden');
         el('msgTitle').focus();
+    };
+
+    el('btnAiAssistMsg').onclick = () => {
+        openAIAssistantModal(el('msgText'));
     };
 
     el('btnCancelMsg').onclick = () => {

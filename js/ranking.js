@@ -6,6 +6,7 @@ import {
 import { addDoc, writeBatch } from './firebase-retry.js';
 import { escapeHtml } from './utils.js';
 import { showToast } from './toast.js';
+import { initAnalytics, resetAnalytics } from './analytics.js';
 
 let currentUserId = null;
 let rankingInitialized = false;
@@ -17,6 +18,7 @@ export function initRanking(uid) {
         rankingInitialized = true;
         document.addEventListener('copy-count-updated', () => loadRanking());
     }
+    initAnalytics(uid);
     loadRanking();
     scheduleDailyReset();
 }
@@ -25,6 +27,7 @@ export function resetRanking() {
     currentUserId = null;
     rankingInitialized = false;
     if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+    resetAnalytics();
 }
 
 function scheduleDailyReset() {

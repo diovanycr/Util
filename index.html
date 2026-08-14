@@ -24,32 +24,13 @@
       } catch (e) { /* localStorage indisponível — usa tema claro padrão */ }
     })();
   </script>
-  <link rel="stylesheet" href="css/base.css">
-  <link rel="stylesheet" href="css/forms.css">
-  <link rel="stylesheet" href="css/components.css">
-  <link rel="stylesheet" href="css/login.css">
-  <link rel="stylesheet" href="css/users.css">
-  <link rel="stylesheet" href="css/messages.css">
-  <link rel="stylesheet" href="css/problems.css">
-  <link rel="stylesheet" href="css/links.css">
-  <link rel="stylesheet" href="css/tags.css">
-  <link rel="stylesheet" href="css/search.css">
-  <link rel="stylesheet" href="css/help.css">
-  <link rel="stylesheet" href="css/compact-favorites.css">
-  <link rel="stylesheet" href="css/portOpener.css">
-  <link rel="stylesheet" href="css/futura-widget.css">
-  <link rel="stylesheet" href="css/history.css">
-  <link rel="stylesheet" href="css/escPos.css">
-  <link rel="stylesheet" href="css/docValidator.css">
-  <link rel="stylesheet" href="css/statusChecker.css">
-  <link rel="stylesheet" href="css/apiTester.css">
-  <link rel="stylesheet" href="css/fileValidator.css">
-  <link rel="stylesheet" href="css/ticketSummary.css">
-  <link rel="stylesheet" href="css/decisionTree.css">
-  <link rel="stylesheet" href="css/networkDiag.css">
-  <link rel="stylesheet" href="css/scriptGen.css">
+  <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
+  <!-- Global loading bar -->
+  <div id="globalLoadingBar" class="global-loading-bar hidden" aria-hidden="true">
+    <div class="loading-progress"></div>
+  </div>
   <!-- Skip to content link (acessibilidade) -->
   <a href="#app" class="skip-link">Ir para o conteúdo principal</a>
   <div id="loginBox">
@@ -108,6 +89,9 @@
           <i class="fa-solid fa-search" aria-hidden="true"></i>
           <span class="search-shortcut-hint">Ctrl+K</span>
         </button>
+        <button id="btnPopout" class="btn ghost" title="Abrir em janela flutuante" aria-label="Abrir em janela flutuante (Pop-out)">
+          <i class="fa-solid fa-up-right-from-square" aria-hidden="true"></i>
+        </button>
         <button id="btnCompactMode" class="btn ghost" title="Modo compacto" aria-label="Alternar modo compacto" aria-pressed="false">
           <i class="fa-solid fa-compress" aria-hidden="true"></i>
         </button>
@@ -161,8 +145,8 @@
           <button class="tab" data-tab="tabSistemas" id="tab-sistemas" role="tab" aria-selected="false" aria-controls="tabSistemas" title="Sistemas">
             <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> <span class="tab-text">Sistemas</span>
           </button>
-          <button class="tab" data-tab="tabRanking" id="tab-ranking" role="tab" aria-selected="false" aria-controls="tabRanking" title="Top Ranking">
-            <i class="fa-solid fa-trophy" aria-hidden="true"></i> <span class="tab-text">Top Ranking</span>
+          <button class="tab" data-tab="tabRanking" id="tab-ranking" role="tab" aria-selected="false" aria-controls="tabRanking" title="Métricas & Ranking">
+            <i class="fa-solid fa-chart-line" aria-hidden="true"></i> <span class="tab-text">Métricas & Ranking</span>
           </button>
         </div>
         <div id="tabMessages" class="tab-content" role="tabpanel" aria-labelledby="tab-messages">
@@ -175,7 +159,10 @@
             </button>
             <button id="btnImport" class="btn ghost" title="Importar mensagens de arquivo" aria-label="Importar mensagens de arquivo"><i class="fa-solid fa-file-import"></i> Importar</button>
             <button id="btnExport" class="btn ghost" title="Exportar mensagens" aria-label="Exportar mensagens"><i class="fa-solid fa-file-export"></i> Exportar</button>
-            <button id="btnNewMsg" class="btn primary ml-auto" title="Criar nova mensagem" aria-label="Criar nova mensagem"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
+            <button id="btnGlobalAiAssist" class="btn-ai-assist ml-auto" title="Gerar ou ajustar respostas com IA a qualquer momento" aria-label="Assistente de IA">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> Assistente IA
+            </button>
+            <button id="btnNewMsg" class="btn primary" title="Criar nova mensagem" aria-label="Criar nova mensagem"><i class="fa-solid fa-plus"></i> Nova mensagem</button>
           </div>
           <div id="msgCategoryFilterBar" class="tag-filter-bar hidden"></div>
           <div id="newMsgBox" class="card hidden mt-16">
@@ -190,7 +177,12 @@
               </div>
             </div>
             <div class="form-field mt-10">
-              <label class="field-label" for="msgText">Texto da mensagem <span class="sub">(Dica: use {usuario} para inserir o nome do usuário)</span></label>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+                <label class="field-label" for="msgText" style="margin:0">Texto da mensagem <span class="sub">(Dica: use {usuario} para inserir o nome do usuário)</span></label>
+                <button type="button" id="btnAiAssistMsg" class="btn-ai-assist" title="Aprimorar ou gerar com IA" aria-label="Assistente de IA">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i> Assistente IA
+                </button>
+              </div>
               <textarea id="msgText" rows="4" placeholder="Ex: Bom dia, {usuario}! Como posso te ajudar hoje?"></textarea>
             </div>
             <div class="flex-end mt-10">
@@ -224,56 +216,85 @@
               <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
             </button>
             <button id="btnExportProblems" class="btn ghost" aria-label="Exportar problemas como JSON"><i class="fa-solid fa-file-export" aria-hidden="true"></i> Exportar</button>
+            <button id="btnExportManual" class="btn ghost" title="Exportar manual em PDF / HTML" aria-label="Exportar manual em PDF/HTML"><i class="fa-solid fa-book" aria-hidden="true"></i> Manual PDF</button>
             <button id="btnImportProblems" class="btn ghost" aria-label="Importar problemas de arquivo JSON"><i class="fa-solid fa-file-import" aria-hidden="true"></i> Importar</button>
             <input id="importProblemsInput" type="file" accept=".json" class="hidden" aria-hidden="true" />
             <button id="btnNewProblem" class="btn primary" title="Criar novo problema" aria-label="Criar novo problema"><i class="fa-solid fa-plus"></i> Novo problema</button>
           </div>
           <div id="tagFilterBar" class="tag-filter-bar hidden"></div>
-          <div id="newProblemBox" class="card hidden mt-16">
-            <div class="form-field">
-              <label class="field-label" for="problemTitle">Título do problema</label>
-              <input id="problemTitle" type="text" placeholder="Ex: Erro ao gerar boleto" />
-            </div>
-            <div class="form-field mt-10">
-              <label class="field-label" for="problemDesc">Descrição <span class="sub">(opcional)</span></label>
-              <textarea id="problemDesc" rows="3" placeholder="Contexto ou detalhes do problema..."></textarea>
-            </div>
-            <div class="form-field mt-10">
-              <label class="field-label" for="problemTagInput">Tags <span class="sub">(Enter ou vírgula para confirmar)</span></label>
-              <div class="tag-input-wrapper" id="tagInputWrapper">
-                <div id="tagPillsCreate" class="tag-pills-inline"></div>
-                <input id="problemTagInput" type="text" placeholder="Ex: boleto, financeiro..." autocomplete="off" />
+
+          <!-- Layout 2 colunas: sidebar de departamentos + lista de problemas -->
+          <div class="problems-layout">
+
+            <!-- Sidebar de Departamentos -->
+            <nav id="departmentSidebar" class="dept-sidebar" aria-label="Departamentos">
+              <div class="dept-sidebar-header">
+                <span class="dept-sidebar-title">Departamentos</span>
+                <button id="btnNewDepartment" title="Novo departamento" aria-label="Criar novo departamento">
+                  <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                </button>
               </div>
-            </div>
-            <label class="field-label" id="problemSolutionLabelHeading">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
-            <div class="solution-editor-header" id="problemSolutionHeader">
-              <input type="text" value="Solução 1" id="problemSolutionLabel" placeholder="Título da solução..." aria-label="Título da solução" />
-              <select id="problemSolutionStatus" class="solution-status-select" aria-label="Status da solução">
-                <option value="confirmed">✅ Confirmada</option>
-                <option value="testing">🧪 Em teste</option>
-                <option value="obsolete">❌ Obsoleta</option>
-              </select>
-            </div>
-            <div id="problemSolution" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="problemSolutionLabelHeading" data-placeholder="Digite a solução... Cole imagens aqui"></div>
-            <div class="copy-texts-section" id="simpleCopyTextsSection">
-              <label class="field-label mt-8">
-                Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
-              </label>
-              <div id="simpleCopyTextsList" class="copy-texts-list"></div>
-              <button id="btnAddSimpleCopyText" class="btn ghost align-self-start mt-6">
-                <i class="fa-solid fa-plus"></i> Adicionar texto para copiar
-              </button>
-            </div>
-            <div id="solutionEditorsList" class="solution-editors-list hidden"></div>
-            <button type="button" id="btnAddSolution" class="btn ghost align-self-start mt-8" aria-label="Adicionar solução">
-              <i class="fa-solid fa-plus"></i> Adicionar solução
-            </button>
-            <div class="flex-end mt-10">
-              <button type="button" id="btnCancelProblem" class="btn ghost" aria-label="Cancelar novo problema">Cancelar</button>
-              <button type="button" id="btnAddProblem" class="btn primary" aria-label="Salvar problema">Salvar</button>
-            </div>
-          </div>
-          <div class="list mt-16" id="problemList"></div>
+            </nav>
+
+            <!-- Coluna principal -->
+            <div class="problems-main">
+              <div id="newProblemBox" class="card hidden">
+                <div class="form-field">
+                  <label class="field-label" for="problemTitle">Título do problema</label>
+                  <input id="problemTitle" type="text" placeholder="Ex: Erro ao gerar boleto" />
+                </div>
+                <div class="form-field mt-10">
+                  <label class="field-label" for="problemDepartment">Departamento <span class="sub">(opcional)</span></label>
+                  <div class="dept-select-wrapper">
+                    <span id="problemDeptDot" class="dept-select-dot" style="background-color:#6b7280"></span>
+                    <select id="problemDepartment" aria-label="Departamento do problema">
+                      <option value="">— Sem departamento —</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="form-field mt-10">
+                  <label class="field-label" for="problemDesc">Descrição <span class="sub">(opcional)</span></label>
+                  <textarea id="problemDesc" rows="3" placeholder="Contexto ou detalhes do problema..."></textarea>
+                </div>
+                <div class="form-field mt-10">
+                  <label class="field-label" for="problemTagInput">Tags <span class="sub">(Enter ou vírgula para confirmar)</span></label>
+                  <div class="tag-input-wrapper" id="tagInputWrapper">
+                    <div id="tagPillsCreate" class="tag-pills-inline"></div>
+                    <input id="problemTagInput" type="text" placeholder="Ex: boleto, financeiro..." autocomplete="off" />
+                  </div>
+                </div>
+                <label class="field-label" id="problemSolutionLabelHeading">Solução <span class="sub">(cole imagens com Ctrl+V)</span></label>
+                <div class="solution-editor-header" id="problemSolutionHeader">
+                  <input type="text" value="Solução 1" id="problemSolutionLabel" placeholder="Título da solução..." aria-label="Título da solução" />
+                  <select id="problemSolutionStatus" class="solution-status-select" aria-label="Status da solução">
+                    <option value="confirmed">✅ Confirmada</option>
+                    <option value="testing">🧪 Em teste</option>
+                    <option value="obsolete">❌ Obsoleta</option>
+                  </select>
+                </div>
+                <div id="problemSolution" class="rich-editor" contenteditable="true" role="textbox" aria-multiline="true" aria-labelledby="problemSolutionLabelHeading" data-placeholder="Digite a solução... Cole imagens aqui"></div>
+                <div class="copy-texts-section" id="simpleCopyTextsSection">
+                  <label class="field-label mt-8">
+                    Textos para copiar <span class="sub">(cada um vira um botão de cópia)</span>
+                  </label>
+                  <div id="simpleCopyTextsList" class="copy-texts-list"></div>
+                  <button id="btnAddSimpleCopyText" class="btn ghost align-self-start mt-6">
+                    <i class="fa-solid fa-plus"></i> Adicionar texto para copiar
+                  </button>
+                </div>
+                <div id="solutionEditorsList" class="solution-editors-list hidden"></div>
+                <button type="button" id="btnAddSolution" class="btn ghost align-self-start mt-8" aria-label="Adicionar solução">
+                  <i class="fa-solid fa-plus"></i> Adicionar solução
+                </button>
+                <div class="flex-end mt-10">
+                  <button type="button" id="btnCancelProblem" class="btn ghost" aria-label="Cancelar novo problema">Cancelar</button>
+                  <button type="button" id="btnAddProblem" class="btn primary" aria-label="Salvar problema">Salvar</button>
+                </div>
+              </div>
+              <div class="list mt-16" id="problemList"></div>
+            </div><!-- /.problems-main -->
+
+          </div><!-- /.problems-layout -->
         </div>
         <div id="tabLinks" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-links">
           <div class="card toolbar">
@@ -310,13 +331,91 @@
         <div id="tabSistemas" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-sistemas">
           <!-- O conteúdo é injetado pelo portOpener.js via renderSistemasTab() -->
         </div>
-        <!-- ✅ ABA: Top Ranking -->
+        <!-- ✅ ABA: Métricas & Ranking -->
         <div id="tabRanking" class="tab-content hidden" role="tabpanel" aria-labelledby="tab-ranking">
-          <div class="card">
-            <h2>Top Ranking — Mensagens mais copiadas</h2>
-            <p class="sub mt-6">Mensagens ordenadas por número de cópias.</p>
+          
+          <div class="analytics-toolbar">
+            <div>
+              <h2 style="margin:0">Métricas & Analytics de Atendimento</h2>
+              <p class="sub mt-2">Visão geral do fluxo de cópias, soluções e departamentos.</p>
+            </div>
+            <button id="btnExportAnalytics" class="btn ghost" title="Exportar Relatório de Métricas (PDF)" aria-label="Exportar relatório de métricas">
+              <i class="fa-solid fa-file-pdf" aria-hidden="true"></i> Exportar Relatório
+            </button>
           </div>
-          <div id="rankingList" class="list mt-16"></div>
+
+          <!-- KPI Cards -->
+          <div id="kpiGrid" class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-icon blue"><i class="fa-solid fa-copy"></i></div>
+              <div class="kpi-info">
+                <span id="kpiTotalCopies" class="kpi-value">0</span>
+                <span class="kpi-label">Cópias Totais</span>
+                <span class="kpi-sub">Mensagens reutilizadas</span>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon green"><i class="fa-solid fa-wrench"></i></div>
+              <div class="kpi-info">
+                <span id="kpiTotalProblems" class="kpi-value">0</span>
+                <span class="kpi-label">Base de Conhecimento</span>
+                <span class="kpi-sub">Soluções cadastradas</span>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon purple"><i class="fa-solid fa-folder-open"></i></div>
+              <div class="kpi-info">
+                <span id="kpiTotalDepts" class="kpi-value">0</span>
+                <span class="kpi-label">Departamentos</span>
+                <span class="kpi-sub">Áreas ativas</span>
+              </div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-icon orange"><i class="fa-solid fa-trophy"></i></div>
+              <div class="kpi-info">
+                <span id="kpiTopMsgCategory" class="kpi-value" style="font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px;">—</span>
+                <span class="kpi-label">Categoria Líder</span>
+                <span class="kpi-sub">Mais copiada do sistema</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grid de Gráficos -->
+          <div class="analytics-charts-grid">
+            
+            <!-- Gráfico Donut: Distribuição por Departamento -->
+            <div class="analytics-card">
+              <div class="analytics-card-header">
+                <span class="analytics-card-title"><i class="fa-solid fa-chart-pie" style="color:var(--primary)"></i> Problemas por Departamento</span>
+              </div>
+              <div id="deptDonutChartContainer" class="donut-chart-wrapper">
+                <!-- Injetado por analytics.js -->
+              </div>
+            </div>
+
+            <!-- Gráfico de Barras: Top Categorias de Mensagens -->
+            <div class="analytics-card">
+              <div class="analytics-card-header">
+                <span class="analytics-card-title"><i class="fa-solid fa-chart-column" style="color:#a855f7"></i> Atendimentos por Categoria</span>
+              </div>
+              <div id="categoryBarChartContainer" class="bar-chart-list">
+                <!-- Injetado por analytics.js -->
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Tabela de Ranking de Mensagens -->
+          <div class="card mt-16">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <h3 style="margin:0"><i class="fa-solid fa-trophy" style="color:#eab308;margin-right:6px"></i> Top Ranking de Mensagens</h3>
+                <p class="sub mt-2">Mensagens mais copiadas no atendimento.</p>
+              </div>
+            </div>
+          </div>
+          <div id="rankingList" class="list mt-12"></div>
+
         </div>
       </div>
     </div>
@@ -354,11 +453,11 @@
         </div>
       </div>
     </div>
-    <div id="helpModal" class="modal-overlay hidden">
+    <div id="helpModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="helpHeading">
       <div class="help-box card">
         <div class="help-header">
-          <h3><i class="fa-solid fa-circle-question"></i> Ajuda</h3>
-          <button id="btnCloseHelp" class="btn ghost"><i class="fa-solid fa-xmark"></i></button>
+          <h3 id="helpHeading"><i class="fa-solid fa-circle-question" aria-hidden="true"></i> Ajuda</h3>
+          <button id="btnCloseHelp" class="btn ghost" aria-label="Fechar ajuda"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
         </div>
         <div class="help-tabs" role="tablist" aria-label="Seções de ajuda">
           <button class="help-tab active" data-panel="shortcuts" role="tab" id="help-tab-shortcuts" aria-selected="true" aria-controls="help-shortcuts" tabindex="0">
@@ -428,8 +527,86 @@
         <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Resultados da busca">
           <p class="search-hint">Digite para buscar...</p>
         </div>
+        <div class="global-search-footer">
+          <span class="search-footer-hint"><kbd>↑</kbd> <kbd>↓</kbd> Navegar</span>
+          <span class="search-footer-hint"><kbd>Enter</kbd> Copiar / Abrir</span>
+          <span class="search-footer-hint"><kbd>Esc</kbd> Fechar</span>
+        </div>
       </div>
     </div>
+
+    <!-- Modal de Departamento -->
+    <div id="deptModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="deptModalTitle">
+      <div class="modal-box">
+        <h3 id="deptModalTitle" style="margin-bottom:16px">Novo Departamento</h3>
+        <div class="form-field">
+          <label class="field-label" for="deptNameInput">Nome do departamento</label>
+          <input id="deptNameInput" type="text" placeholder="Ex: Financeiro, N1 Suporte..." />
+        </div>
+        <div class="form-field mt-10">
+          <label class="field-label">Cor</label>
+          <div id="deptColorPicker" class="dept-color-picker"></div>
+        </div>
+        <div class="flex-end mt-16">
+          <button id="btnCancelDept" class="btn ghost">Cancelar</button>
+          <button id="btnSaveDept" class="btn primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Assistente de IA -->
+    <div id="aiAssistantModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="aiModalTitle">
+      <div class="ai-modal-box">
+        <div class="ai-modal-header">
+          <h3 id="aiModalTitle" class="ai-modal-title">
+            <i class="fa-solid fa-wand-magic-sparkles" style="color:#a855f7"></i> Assistente IA de Atendimento
+          </h3>
+          <button type="button" id="btnCloseAiModal" class="btn ghost small" aria-label="Fechar modal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <p class="sub mb-12">Escolha um estilo para reescrever seu texto ou digite uma ideia rápida:</p>
+        
+        <!-- Pills de Modos -->
+        <div class="ai-mode-pills" id="aiModePills">
+          <button type="button" class="ai-mode-pill active" data-mode="formal"><i class="fa-solid fa-user-tie"></i> Formal</button>
+          <button type="button" class="ai-mode-pill" data-mode="friendly"><i class="fa-solid fa-face-smile"></i> Amigável</button>
+          <button type="button" class="ai-mode-pill" data-mode="succinct"><i class="fa-solid fa-bolt"></i> Sucinto</button>
+          <button type="button" class="ai-mode-pill" data-mode="grammar"><i class="fa-solid fa-spell-check"></i> Ortografia</button>
+          <button type="button" class="ai-mode-pill" data-mode="prompt"><i class="fa-solid fa-lightbulb"></i> Gerar por Ideia</button>
+        </div>
+
+        <!-- Campo de Texto de Origem (para digitar/colar direto no modal se aberto pela toolbar) -->
+        <div id="aiInputTextContainer" class="form-field hidden mb-10">
+          <label class="field-label" for="aiInputText">Seu rascunho / texto original</label>
+          <textarea id="aiInputText" rows="2" placeholder="Digite ou cole aqui o texto que deseja ajustar..."></textarea>
+        </div>
+
+        <!-- Campo de Prompt (para modo Gerar por Ideia) -->
+        <div id="aiPromptContainer" class="form-field hidden mb-10">
+          <label class="field-label" for="aiPromptInput">O que você gostaria de dizer?</label>
+          <input id="aiPromptInput" type="text" placeholder="Ex: Informar que o pagamento via PIX foi confirmado..." />
+        </div>
+
+        <!-- Área de Resultado / Pré-visualização -->
+        <div id="aiPreviewBox" class="ai-preview-box">
+          <div class="ai-preview-placeholder">Clique em um estilo acima para transformar a mensagem.</div>
+        </div>
+
+        <div class="flex-end mt-16" style="gap:8px;flex-wrap:wrap;">
+          <button type="button" id="btnCancelAi" class="btn ghost">Fechar</button>
+          <button type="button" id="btnCopyAiText" class="btn ghost" disabled title="Copiar texto gerado">
+            <i class="fa-solid fa-copy"></i> Copiar
+          </button>
+          <button type="button" id="btnCreateMsgFromAi" class="btn ghost" disabled title="Criar novo card com esta resposta">
+            <i class="fa-solid fa-plus"></i> Criar mensagem
+          </button>
+          <button type="button" id="btnApplyAiText" class="btn primary" disabled>
+            <i class="fa-solid fa-check"></i> Aplicar no Campo
+          </button>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="js/app.js"></script>
   </body>
 </html>

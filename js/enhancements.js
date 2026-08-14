@@ -4,6 +4,7 @@
 
 import { el } from './firebase.js';
 import { showToast } from './toast.js';
+import { showModal } from './modal.js';
 
 let counts = { msg: 0, problem: 0, link: 0 };
 let compactMode = false;
@@ -17,14 +18,18 @@ let _counterHandlers = {};
 let _favoritesHandler = null;
 let _ctrlFHandler = null;
 
+// Popout mode é verificado dentro de initEnhancements e também ao final do módulo
+
 export function initEnhancements(uid) {
     currentUserId = uid;
+    checkPopoutModeOnLoad();
     if (!enhancementsInitialized) {
         enhancementsInitialized = true;
         setupGlobalSearch();
         setupNumericShortcuts();
         setupCounterListeners();
         setupCompactMode();
+        setupPopoutWindow();
         setupFavorites();
         setupFavoriteFilters();
         setupTimeGreetingToggle();
@@ -308,6 +313,51 @@ function setupCompactMode() {
     };
 }
 
+// --- MODO JANELA FLUTUANTE (POPOUT) ---
+
+function checkPopoutModeOnLoad() {
+    try {
+        if (typeof window === 'undefined') return;
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('popout') === 'true' || window.name === 'PainelAtendePopout') {
+            document.body.classList.add('popout-mode');
+            document.body.classList.add('compact-mode');
+        }
+    } catch (e) {}
+}
+
+function setupPopoutWindow() {
+    const btn = el('btnPopout');
+    if (!btn) return;
+
+    btn.onclick = (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+
+        try {
+            const width = 460;
+            const height = 750;
+            const left = Math.max(0, Math.floor((window.screen.width / 2) - (width / 2)));
+            const top = Math.max(0, Math.floor((window.screen.height / 2) - (height / 2)));
+            const features = `width=${width},height=${height},top=${top},left=${left},resizable=yes,scrollbars=yes,status=no,toolbar=no,menubar=no,location=no`;
+
+            const targetUrl = new URL(window.location.href);
+            targetUrl.searchParams.set('popout', 'true');
+
+            const popWin = window.open(targetUrl.toString(), 'PainelAtendePopout', features);
+
+            if (!popWin || popWin.closed || typeof popWin.closed === 'undefined') {
+                showModal("O navegador bloqueou a janela flutuante. Por favor, permita pop-ups para este site na barra de endereço.");
+            } else {
+                popWin.focus();
+                showToast('Janela flutuante aberta!');
+            }
+        } catch (err) {
+            console.error('Erro ao abrir popout:', err);
+            showModal("Não foi possível abrir a janela flutuante.");
+        }
+    };
+}
+
 // --- FILTRO DE FAVORITOS ---
 
 function setupFavoriteFilters() {
@@ -529,3 +579,7 @@ function setupNumericShortcuts() {
     document.querySelector('[data-tab="tabLinks"]')?.setAttribute('aria-keyshortcuts', '3');
     document.querySelector('[data-tab="tabSistemas"]')?.setAttribute('aria-keyshortcuts', '4');
 }
+
+// Detecta modo popout na carga do módulo (após declaração de todas as funções)
+checkPopoutModeOnLoad();
+

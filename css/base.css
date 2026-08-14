@@ -260,3 +260,18 @@ body.show-all-greetings .hidden-by-time { display: flex !important; }
     scroll-behavior: auto !important;
   }
 }
+
+/* Pop-out Mode Styles */
+body.popout-mode {
+  padding: 8px !important;
+}
+
+body.popout-mode .container {
+  padding: 8px 12px !important;
+  max-width: 100% !important;
+}
+
+body.popout-mode #btnPopout {
+  display: none !important;
+}
+
