@@ -35,19 +35,6 @@
 
 
 ## Feito
-- [x] **Reorganizar arquivos de js em subpastas semânticas (core, tools, modules)** `[M]` `[Backend]`
-- [x] **Assistente de IA para gerar e reescrever respostas prontas** `[G]` `[UI]`
-- [x] **Dashboard de métricas e analytics de atendimento com gráficos** `[G]` `[UI]`
-- [x] **Sistema de pastas e categorias coloridas por departamento (Financeiro, N1, N2)** `[M]` `[UI]`
-- [x] **Migrar runner do npm test para node --test nativo** `[P]` `[Backend]`
-- [x] **Adicionar indicador visual de loading em operações assíncronas do Firestore** `[P]` `[UI]`
-- [x] **Exportador de manual em PDF/HTML da Base de Conhecimento para treinamento** `[M]` `[UI]`
-- [x] **Command Palette de busca ultra-rápida (Ctrl+K) com atalhos de cópia sem mouse** `[M]` `[UI]`
-- [x] **Modo mini-painel em janela flutuante (Pop-out Window) para uso ao lado do WhatsApp** `[P]` `[Layout]`
-- [x] **Adicionar botão de selecionar/desmarcar todos na importação de mensagens duplicadas** `[P]` `[UI]`
-- [x] **Adicionar atributos de acessibilidade (ARIA, role=dialog, aria-label) nos modais e botões** `[P]` `[Accessibility]`
-- [x] **Centralizar importações CSS em css/main.css** `[P]` `[Layout]`
-- [x] **Auditoria AIOX: Validação de segurança XSS e suíte de testes ES Module 100% aprovada** `[P]` `[Quality]`
 
 *(Nenhum item concluído neste ciclo ainda)*
 
