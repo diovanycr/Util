@@ -26,7 +26,6 @@
 *(Nenhum item em andamento)*
 
 ## Próximo
-- [ ] **Reorganizar arquivos de js em subpastas semânticas (core, tools, modules)** `[M]` `[Backend]`
 *(Nenhum item pendente)*
 
 *(Nenhum item pendente)*
@@ -36,6 +35,7 @@
 
 
 ## Feito
+- [x] **Reorganizar arquivos de js em subpastas semânticas (core, tools, modules)** `[M]` `[Backend]`
 - [x] **Assistente de IA para gerar e reescrever respostas prontas** `[G]` `[UI]`
 - [x] **Dashboard de métricas e analytics de atendimento com gráficos** `[G]` `[UI]`
 - [x] **Sistema de pastas e categorias coloridas por departamento (Financeiro, N1, N2)** `[M]` `[UI]`

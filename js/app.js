@@ -1,11 +1,11 @@
-import { initAuth } from './auth.js';
-import { initModalListeners } from './modal.js';
-import { initAdminActions } from './admin.js';
-import { initTabs } from './tabs.js';
-import { initTheme } from './theme.js';
-import { initHelp } from './help.js';
-import { initShortcuts } from './shortcuts.js';
-import { showModal } from './modal.js';
+import { initAuth } from './modules/auth.js';
+import { initModalListeners } from './core/modal.js';
+import { initAdminActions } from './modules/admin.js';
+import { initTabs } from './core/tabs.js';
+import { initTheme } from './core/theme.js';
+import { initHelp } from './modules/help.js';
+import { initShortcuts } from './core/shortcuts.js';
+import { showModal } from './core/modal.js';
 
 let sistemasInitialized = false;
 
@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelector('[data-tab="tabSistemas"]')?.addEventListener('click', () => {
         if (sistemasInitialized) return;
         sistemasInitialized = true;
-        import('./portOpener.js').then(({ renderSistemasTab }) => {
+        import('./tools/portOpener.js').then(({ renderSistemasTab }) => {
             const tabSistemas = document.getElementById('tabSistemas');
             if (tabSistemas) renderSistemasTab(tabSistemas);
         });

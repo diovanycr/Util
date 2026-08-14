@@ -34,7 +34,7 @@ console.log('Running module tests...\n');
 // Test: auth.js exports
 console.log('Test: auth.js exports');
 {
-    const authPath = path.join(BASE_DIR, 'js', 'auth.js');
+    const authPath = path.join(BASE_DIR, 'js', 'modules', 'auth.js');
     assert(fileContains(authPath, 'export function initAuth'), 'Should export initAuth');
     assert(fileContains(authPath, 'export function updateHeaderProfileGreeting'), 'Should export updateHeaderProfileGreeting');
     assert(fileContains(authPath, 'export function clearHeaderGreetingInterval'), 'Should export clearHeaderGreetingInterval');
@@ -43,7 +43,7 @@ console.log('Test: auth.js exports');
 // Test: messages.js exports
 console.log('Test: messages.js exports');
 {
-    const messagesPath = path.join(BASE_DIR, 'js', 'messages.js');
+    const messagesPath = path.join(BASE_DIR, 'js', 'modules', 'messages.js');
     assert(fileContains(messagesPath, 'export function initMessages'), 'Should export initMessages');
     assert(fileContains(messagesPath, 'export function resetMessages'), 'Should export resetMessages');
 }
@@ -51,7 +51,7 @@ console.log('Test: messages.js exports');
 // Test: problems.js exports
 console.log('Test: problems.js exports');
 {
-    const problemsPath = path.join(BASE_DIR, 'js', 'problems.js');
+    const problemsPath = path.join(BASE_DIR, 'js', 'modules', 'problems.js');
     assert(fileContains(problemsPath, 'export function initProblems'), 'Should export initProblems');
     assert(fileContains(problemsPath, 'export function resetProblems'), 'Should export resetProblems');
 }
@@ -59,7 +59,7 @@ console.log('Test: problems.js exports');
 // Test: links.js exports
 console.log('Test: links.js exports');
 {
-    const linksPath = path.join(BASE_DIR, 'js', 'links.js');
+    const linksPath = path.join(BASE_DIR, 'js', 'modules', 'links.js');
     assert(fileContains(linksPath, 'export function initLinks'), 'Should export initLinks');
     assert(fileContains(linksPath, 'export function resetLinks'), 'Should export resetLinks');
 }
@@ -67,7 +67,7 @@ console.log('Test: links.js exports');
 // Test: search.js exports
 console.log('Test: search.js exports');
 {
-    const searchPath = path.join(BASE_DIR, 'js', 'search.js');
+    const searchPath = path.join(BASE_DIR, 'js', 'modules', 'search.js');
     assert(fileContains(searchPath, 'export function initSearch'), 'Should export initSearch');
     assert(fileContains(searchPath, 'export function resetSearch'), 'Should export resetSearch');
 }
@@ -75,7 +75,7 @@ console.log('Test: search.js exports');
 // Test: modal.js exports
 console.log('Test: modal.js exports');
 {
-    const modalPath = path.join(BASE_DIR, 'js', 'modal.js');
+    const modalPath = path.join(BASE_DIR, 'js', 'core', 'modal.js');
     assert(fileContains(modalPath, 'export function showModal'), 'Should export showModal');
     assert(fileContains(modalPath, 'export function openConfirmModal'), 'Should export openConfirmModal');
 }
@@ -83,14 +83,14 @@ console.log('Test: modal.js exports');
 // Test: toast.js exports
 console.log('Test: toast.js exports');
 {
-    const toastPath = path.join(BASE_DIR, 'js', 'toast.js');
+    const toastPath = path.join(BASE_DIR, 'js', 'core', 'toast.js');
     assert(fileContains(toastPath, 'export function showToast'), 'Should export showToast');
 }
 
 // Test: utils.js exports
 console.log('Test: utils.js exports');
 {
-    const utilsPath = path.join(BASE_DIR, 'js', 'utils.js');
+    const utilsPath = path.join(BASE_DIR, 'js', 'core', 'utils.js');
     assert(fileContains(utilsPath, 'export function escapeHtml'), 'Should export escapeHtml');
     assert(fileContains(utilsPath, 'export function sanitizeHtml'), 'Should export sanitizeHtml');
     assert(fileContains(utilsPath, 'export function debounce'), 'Should export debounce');
@@ -102,14 +102,14 @@ console.log('Test: utils.js exports');
 // Test: theme.js exports
 console.log('Test: theme.js exports');
 {
-    const themePath = path.join(BASE_DIR, 'js', 'theme.js');
+    const themePath = path.join(BASE_DIR, 'js', 'core', 'theme.js');
     assert(fileContains(themePath, 'export function initTheme'), 'Should export initTheme');
 }
 
 // Test: enhancements.js exports
 console.log('Test: enhancements.js exports');
 {
-    const enhancementsPath = path.join(BASE_DIR, 'js', 'enhancements.js');
+    const enhancementsPath = path.join(BASE_DIR, 'js', 'core', 'enhancements.js');
     assert(fileContains(enhancementsPath, 'export function initEnhancements'), 'Should export initEnhancements');
     assert(fileContains(enhancementsPath, 'export function resetEnhancements'), 'Should export resetEnhancements');
 }
@@ -117,7 +117,7 @@ console.log('Test: enhancements.js exports');
 // Test: portOpener.js exports
 console.log('Test: portOpener.js exports');
 {
-    const portOpenerPath = path.join(BASE_DIR, 'js', 'portOpener.js');
+    const portOpenerPath = path.join(BASE_DIR, 'js', 'tools', 'portOpener.js');
     assert(fileContains(portOpenerPath, 'export function renderSistemasTab'), 'Should export renderSistemasTab');
     assert(fileContains(portOpenerPath, 'export function cleanupPortOpener'), 'Should export cleanupPortOpener');
 }
@@ -125,7 +125,7 @@ console.log('Test: portOpener.js exports');
 // Test: analytics.js exports
 console.log('Test: analytics.js exports');
 {
-    const analyticsPath = path.join(BASE_DIR, 'js', 'analytics.js');
+    const analyticsPath = path.join(BASE_DIR, 'js', 'modules', 'analytics.js');
     assert(fileContains(analyticsPath, 'export function initAnalytics'), 'Should export initAnalytics');
     assert(fileContains(analyticsPath, 'export function resetAnalytics'), 'Should export resetAnalytics');
 }
@@ -133,7 +133,7 @@ console.log('Test: analytics.js exports');
 // Test: aiAssistant.js exports
 console.log('Test: aiAssistant.js exports');
 {
-    const aiPath = path.join(BASE_DIR, 'js', 'aiAssistant.js');
+    const aiPath = path.join(BASE_DIR, 'js', 'modules', 'aiAssistant.js');
     assert(fileContains(aiPath, 'export function initAIAssistant'), 'Should export initAIAssistant');
     assert(fileContains(aiPath, 'export function openAIAssistantModal'), 'Should export openAIAssistantModal');
     assert(fileContains(aiPath, 'export function processTextWithAI'), 'Should export processTextWithAI');

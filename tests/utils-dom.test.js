@@ -13,7 +13,8 @@ const dom = new JSDOM('<!DOCTYPE html><html><body></body></html>');
 global.document = dom.window.document;
 global.window = dom.window;
 
-const UTILS_PATH = path.join(__dirname, '..', 'js', 'utils.js');
+// Now utils.js lives in js/core/utils.js
+const UTILS_PATH = path.join(__dirname, '..', 'js', 'core', 'utils.js');
 const moduleCode = fs.readFileSync(UTILS_PATH, 'utf8');
 
 let passed = 0;

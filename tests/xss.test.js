@@ -29,12 +29,12 @@ function src(filePath) {
 
 console.log('Running XSS regression tests...\n');
 
-// --- statusChecker.js ---
+// --- statusChecker.js (now in js/tools/) ---
 console.log('Test: statusChecker.js XSS escapes');
 {
-    const code = src(path.join(BASE_DIR, 'js', 'statusChecker.js'));
-    assert(code.includes("import { setupSegmented, escapeAttr } from './utils.js'") === true,
-        'Should import escapeAttr from utils.js');
+    const code = src(path.join(BASE_DIR, 'js', 'tools', 'statusChecker.js'));
+    assert(code.includes("import { setupSegmented, escapeAttr } from '../core/utils.js'") === true,
+        'Should import escapeAttr from ../core/utils.js');
     assert(code.includes('escapeAttr(item.url)') === true,
         'Should escape item.url via escapeAttr');
     assert(code.includes('escapeAttr(item.statusUrl)') === true,
@@ -47,12 +47,12 @@ console.log('Test: statusChecker.js XSS escapes');
         'Should escape card subLabel via escapeAttr');
 }
 
-// --- decisionTree.js ---
+// --- decisionTree.js (now in js/tools/) ---
 console.log('\nTest: decisionTree.js XSS escapes');
 {
-    const code = src(path.join(BASE_DIR, 'js', 'decisionTree.js'));
-    assert(code.includes("import { escapeHtml, escapeAttr } from './utils.js'") === true,
-        'Should import escapeHtml and escapeAttr from utils.js');
+    const code = src(path.join(BASE_DIR, 'js', 'tools', 'decisionTree.js'));
+    assert(code.includes("import { escapeHtml, escapeAttr } from '../core/utils.js'") === true,
+        'Should import escapeHtml and escapeAttr from ../core/utils.js');
     assert(code.includes('escapeHtml(tree.icon)') === true,
         'Should escape tree.icon via escapeHtml in panel builder');
     assert(code.includes('escapeHtml(tree.title)') === true,
