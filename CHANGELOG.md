@@ -2,6 +2,42 @@
 
 All notable changes to this project will be documented in this file.
 
+## [v1.1.0] - 20/08/2026
+* **Corrigir caminhos legados de pre-cache no `sw.js` para a nova estrutura (`core/`, `modules/`, `tools/`)** `[P]` `[QA]`
+* **Sanitizar entradas de usuário e atributos `data-*` em `ticketSummary.js` e `apiTester.js`** `[P]` `[QA]`
+* **Isolar chaves de LocalStorage por `userId` em `history.js` e `enhancements.js` para evitar vazamento de estado** `[M]` `[QA]`
+* **Adicionar banner de status de conexão offline quando o Firestore perder conexão** `[M]` `[QA]`
+* **Implementar Code-Splitting / Lazy-Loading para ferramentas em `portOpener.js` sob demanda** `[G]` `[Arch]`
+* **Criar EventBus centralizado em `core/utils.js` desacoplando dependências circulares entre módulos** `[M]` `[Arch]`
+* **Limpar 45 variáveis não utilizadas e parâmetros de erro identificados pelo ESLint** `[P]` `[Arch]`
+* **Centralizar reset de estado global em `auth.js` durante logout de usuário** `[M]` `[Arch]`
+* **Implementar Focus Trap acessível no modal `#poToolModal` em `portOpener.js`** `[M]` `[UX]`
+* **Corrigir IDs únicos e atributos `aria-controls` dos accordions de problemas em `problem-render.js`** `[P]` `[UX]`
+* **Converter cores hexadecimais estáticas em `departments.css` para variáveis de design system CSS** `[P]` `[UX]`
+* **Tornar `departmentSidebar` responsiva com menu gaveta em telas móbile (<768px)** `[M]` `[UX]`
+* **Unificar lógica de Drag and Drop de `links.js`, `problems.js` e `messages.js` em `utils.js`** `[M]` `[DevOps]`
+* **Criar workflow no GitHub Actions para executar `npm test` e `npm run lint` em cada Push/PR** `[P]` `[DevOps]`
+* **Implementar script de versionamento automático de cache do ServiceWorker no deploy** `[P]` `[DevOps]`
+
+
+## [v1.1.0] - 20/08/2026
+* **Corrigir caminhos legados de pre-cache no `sw.js` para a nova estrutura (`core/`, `modules/`, `tools/`)** `[P]` `[QA]`
+* **Sanitizar entradas de usuário e atributos `data-*` em `ticketSummary.js` e `apiTester.js`** `[P]` `[QA]`
+* **Isolar chaves de LocalStorage por `userId` em `history.js` e `enhancements.js` para evitar vazamento de estado** `[M]` `[QA]`
+* **Adicionar banner de status de conexão offline quando o Firestore perder conexão** `[M]` `[QA]`
+* **Implementar Code-Splitting / Lazy-Loading para ferramentas em `portOpener.js` sob demanda** `[G]` `[Arch]`
+* **Criar EventBus centralizado em `core/utils.js` desacoplando dependências circulares entre módulos** `[M]` `[Arch]`
+* **Limpar 45 variáveis não utilizadas e parâmetros de erro identificados pelo ESLint** `[P]` `[Arch]`
+* **Centralizar reset de estado global em `auth.js` durante logout de usuário** `[M]` `[Arch]`
+* **Implementar Focus Trap acessível no modal `#poToolModal` em `portOpener.js`** `[M]` `[UX]`
+* **Corrigir IDs únicos e atributos `aria-controls` dos accordions de problemas em `problem-render.js`** `[P]` `[UX]`
+* **Converter cores hexadecimais estáticas em `departments.css` para variáveis de design system CSS** `[P]` `[UX]`
+* **Tornar `departmentSidebar` responsiva com menu gaveta em telas móbile (<768px)** `[M]` `[UX]`
+* **Unificar lógica de Drag and Drop de `links.js`, `problems.js` e `messages.js` em `utils.js`** `[M]` `[DevOps]`
+* **Criar workflow no GitHub Actions para executar `npm test` e `npm run lint` em cada Push/PR** `[P]` `[DevOps]`
+* **Implementar script de versionamento automático de cache do ServiceWorker no deploy** `[P]` `[DevOps]`
+
+
 ## [v1.1.9] - 14/08/2026
 * **Reorganizar arquivos de js em subpastas semânticas (core, tools, modules)** `[M]` `[Backend]`
 * **Assistente de IA para gerar e reescrever respostas prontas** `[G]` `[UI]`

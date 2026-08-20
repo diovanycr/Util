@@ -6,18 +6,18 @@
 > * Nova release: `node scripts/backlog.js release v1.2.0`
 > * **Gerar changelog e limpar backlog:** `node scripts/backlog.js changelog` (este comando extrai os itens concluídos, adiciona-os no topo do `CHANGELOG.md` e limpa a seção **Feito** automaticamente).
 >
-> **Tags padrão:** Tamanhos `[P]`, `[M]`, `[G]` | Escopos `[UI]`, `[Bug]`, `[Layout]`, `[Backend]`, `[Accessibility]`
+> **Tags padrão:** Tamanhos `[P]`, `[M]`, `[G]` | Escopos `[UI]`, `[Bug]`, `[Layout]`, `[Backend]`, `[Accessibility]`, `[QA]`, `[Arch]`, `[UX]`, `[DevOps]`
 
 
 ## 📍 Estado atual
-Última sessão: Auditoria completa do código (40 arquivos JS/CSS/HTML) via 4 agentes paralelos. 59 novos itens adicionados ao backlog (2 G, 21 M, 36 P): bugs de segurança (XSS em portOpener/decisionTree/statusChecker), bugs de estado (resetState/resetLinks/resetProblems vazam entre usuários), listener leaks (futura-widget destroy/re-init), race conditions (btnAddMsg, performSearch), A11y (combobox/listbox/aria-label faltando), layout (widget height 800px sem responsivo, select option white em dark) e refatorações (drag-and-drop triplicado, badges divergentes). Próximo: implementar.
+Última sessão: Auditoria completa do sistema realizada pelos agentes do Framework AIOX (QA, Architect, UX/Design, DevOps). Identificados 15 novos itens priorizados de melhoria: correção crítica do PWA ServiceWorker (`sw.js`), isolamento de estado multi-tenant, sanitização de atributos, lazy-loading de ferramentas em `portOpener.js`, acessibilidade WCAG/Focus Trap em modais, responsividade mobile da sidebar de departamentos e pipeline de CI/CD.
 
 ## ⚠️ Decisões pendentes
 - Contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda.
 - Escopo da Cloud Function para exclusão completa de usuário no Firebase Auth.
 
 ## 🐛 Bugs conhecidos
-*(Nenhum bug conhecido no momento — auditoria recente confirmou falsos positivos e corrigiu os reais)*
+- `sw.js`: Pre-cache com caminhos legados (`./js/firebase.js`, etc.) gerando erro 404 durante a instalação do ServiceWorker em instalações novas PWA.
 
 ---
 
@@ -26,12 +26,8 @@
 *(Nenhum item em andamento)*
 
 ## Próximo
-*(Nenhum item pendente)*
 
 *(Nenhum item pendente)*
-
-*(Nenhum item pendente)*
-
 
 
 ## Feito

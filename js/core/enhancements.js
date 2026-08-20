@@ -33,8 +33,18 @@ export function initEnhancements(uid) {
         setupFavorites();
         setupFavoriteFilters();
         setupTimeGreetingToggle();
+        setupOfflineDetector();
     }
     loadFavoritesFromStorage();
+}
+
+function setupOfflineDetector() {
+    window.addEventListener('offline', () => {
+        showToast('Você está offline. Algumas alterações serão salvas localmente até a conexão voltar.', 'error');
+    });
+    window.addEventListener('online', () => {
+        showToast('Conexão com a internet reestabelecida!', 'info');
+    });
 }
 
 export function resetEnhancements() {

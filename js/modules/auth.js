@@ -19,10 +19,45 @@ import { initSearch, resetSearch } from './search.js';
 import { initLinks, resetLinks } from './links.js';
 import { initEnhancements, resetEnhancements } from '../core/enhancements.js';
 import { initRanking, resetRanking } from './ranking.js';
+import { initHistory, resetHistory } from './history.js';
 import { getGreetingPrefix, setTagColorUser, withButtonLoading } from '../core/utils.js';
 
 let messagesInitialized = false;
 let problemsInitialized = false;
+
+export function handleUserLogout() {
+    clearHeaderGreetingInterval();
+    setTagColorUser('');
+    messagesInitialized = false;
+    problemsInitialized = false;
+    resetSearch();
+    resetMessages();
+    resetProblems();
+    resetLinks();
+    resetEnhancements();
+    resetRanking();
+    resetHistory();
+
+    document.dispatchEvent(new Event('user-logout'));
+
+    el('app').classList.add('hidden');
+    el('loginBox').classList.remove('hidden');
+    el('loginUser').value = '';
+    el('loginPass').value = '';
+
+    if (el('userList')) el('userList').innerHTML = '';
+    if (el('msgList')) el('msgList').innerHTML = '';
+    if (el('problemList')) el('problemList').innerHTML = '';
+    if (el('linkList')) el('linkList').innerHTML = '';
+
+    const loggedUserEl = el('loggedUser');
+    if (loggedUserEl) {
+        loggedUserEl.textContent = '';
+        delete loggedUserEl.dataset.username;
+    }
+
+    el('loginUser').focus();
+}
 
 export function initAuth() {
     el('btnLogin').addEventListener('click', doLogin);
@@ -95,6 +130,7 @@ export function initAuth() {
                     initLinks(user.uid);
                     initEnhancements(user.uid);
                     initRanking(user.uid);
+                    initHistory(user.uid);
 
                     if (!messagesInitialized) {
                         initMessages(user.uid);
@@ -117,36 +153,7 @@ export function initAuth() {
                 showModal("Erro ao carregar dados da conta.");
             }
         } else {
-            clearHeaderGreetingInterval();
-            setTagColorUser('');
-            messagesInitialized = false;
-            problemsInitialized = false;
-            resetSearch();
-            resetMessages();
-            resetProblems();
-            resetLinks();
-            resetEnhancements();
-            resetRanking();
-
-            document.dispatchEvent(new Event('user-logout'));
-
-            el('app').classList.add('hidden');
-            el('loginBox').classList.remove('hidden');
-            el('loginUser').value = '';
-            el('loginPass').value = '';
-
-            if (el('userList')) el('userList').innerHTML = '';
-            if (el('msgList')) el('msgList').innerHTML = '';
-            if (el('problemList')) el('problemList').innerHTML = '';
-            if (el('linkList')) el('linkList').innerHTML = '';
-
-            const loggedUserEl = el('loggedUser');
-            if (loggedUserEl) {
-                loggedUserEl.textContent = '';
-                delete loggedUserEl.dataset.username;
-            }
-
-            el('loginUser').focus();
+            handleUserLogout();
         }
     });
 }

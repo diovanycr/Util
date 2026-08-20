@@ -37,6 +37,11 @@ export function clearHistory() {
     localStorage.removeItem(historyKey());
 }
 
+export function resetHistory() {
+    currentUserId = null;
+    closeHistoryPanel();
+}
+
 // --- UI ---
 
 export function initHistory(uid) {

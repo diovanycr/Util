@@ -188,6 +188,39 @@ function _handleToggleQuick() {
 
 // ── Modal de ferramentas ──────────────────────────────────────────────────
 let _toolModalReturnFocus = null;
+let _focusTrapHandler = null;
+
+function _setupFocusTrap(modal) {
+  _removeFocusTrap();
+  _focusTrapHandler = (e) => {
+    if (e.key !== 'Tab' || modal.classList.contains('hidden')) return;
+    const focusables = [...modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+      .filter(el => !el.disabled && el.offsetWidth > 0 && el.offsetHeight > 0);
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === first) {
+        last.focus();
+        e.preventDefault();
+      }
+    } else {
+      if (document.activeElement === last) {
+        first.focus();
+        e.preventDefault();
+      }
+    }
+  };
+  document.addEventListener('keydown', _focusTrapHandler);
+}
+
+function _removeFocusTrap() {
+  if (_focusTrapHandler) {
+    document.removeEventListener('keydown', _focusTrapHandler);
+    _focusTrapHandler = null;
+  }
+}
 
 function _openToolModal(tool, btnEl) {
   const modal = document.getElementById('poToolModal');
@@ -214,12 +247,17 @@ function _openToolModal(tool, btnEl) {
 
   modal.classList.remove('hidden');
   modal.style.display = 'flex';
+  _setupFocusTrap(modal);
+  const closeBtn = document.getElementById('poModalClose');
+  if (closeBtn) closeBtn.focus();
 }
 
 function _closeToolModal(container) {
   const modal = document.getElementById('poToolModal');
   const body = document.getElementById('poModalBody');
   if (!modal) return;
+
+  _removeFocusTrap();
 
   // Devolve o painel ao container original (oculto)
   const wrap = document.querySelector('.po-wrap');
@@ -316,6 +354,7 @@ function _bindEvents(container) {
 }
 
 export function cleanupPortOpener() {
+  _removeFocusTrap();
   if (_escapeHandler) {
     document.removeEventListener('keydown', _escapeHandler);
     _escapeHandler = null;

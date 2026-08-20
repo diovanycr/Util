@@ -21,6 +21,7 @@ const fs = require('fs');
 
 const BACKLOG_PATH   = path.join(__dirname, '../backlog.md');
 const CHANGELOG_PATH = path.join(__dirname, '../CHANGELOG.md');
+const SW_PATH        = path.join(__dirname, '../sw.js');
 
 // ────────────────────────────────────────────────────────────────────────────
 // HELPERS
@@ -246,6 +247,15 @@ function handleRelease(cmdArgs) {
     console.log(`Created release: ${header}`);
 }
 
+function bumpSwCache(versionPart) {
+    if (!fs.existsSync(SW_PATH)) return;
+    let swText = fs.readFileSync(SW_PATH, 'utf8');
+    const cleanVer = versionPart.replace(/[^a-zA-Z0-9_-]/g, '');
+    swText = swText.replace(/const CACHE_NAME = 'painelatende-[^']+';/, `const CACHE_NAME = 'painelatende-${cleanVer}';`);
+    fs.writeFileSync(SW_PATH, swText, 'utf8');
+    console.log(`\x1b[32m✔ sw.js cache bumped to painelatende-${cleanVer}\x1b[0m`);
+}
+
 function handleChangelog() {
     let content = readBacklog();
     let lines   = content.split('\n');
@@ -305,6 +315,7 @@ function handleChangelog() {
 
     fs.writeFileSync(CHANGELOG_PATH, updatedChangelog, 'utf8');
     console.log(`\x1b[32m✔ CHANGELOG.md updated — ${versionPart} (${datePart})\x1b[0m`);
+    bumpSwCache(versionPart);
 
     // 7. Remove processed release block from backlog
     lines.splice(startIdx, endIdx - startIdx);

@@ -461,3 +461,24 @@ export async function withButtonLoading(btn, fn, loadingText = 'Carregando...') 
     }
 }
 
+/**
+ * EventBus simples para publicação e assinatura de eventos desacoplados.
+ */
+class SimpleEventBus {
+    constructor() { this._listeners = new Map(); }
+    on(event, callback) {
+        if (!this._listeners.has(event)) this._listeners.set(event, new Set());
+        this._listeners.get(event).add(callback);
+        return () => this.off(event, callback);
+    }
+    off(event, callback) {
+        if (this._listeners.has(event)) this._listeners.get(event).delete(callback);
+    }
+    emit(event, data) {
+        if (this._listeners.has(event)) {
+            this._listeners.get(event).forEach(cb => { try { cb(data); } catch (e) { console.error(e); } });
+        }
+    }
+}
+export const eventBus = new SimpleEventBus();
+

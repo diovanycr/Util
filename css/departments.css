@@ -248,18 +248,18 @@
 
 /* ── Dark mode ───────────────────────────────────────────── */
 [data-theme="dark"] .dept-sidebar {
-  background: #1e293b;
-  border-color: #334155;
+  background: var(--card);
+  border-color: var(--border);
 }
 
 [data-theme="dark"] .dept-item:hover {
-  background: #334155;
+  background: var(--bg);
 }
 
 [data-theme="dark"] .dept-item.active {
-  background: rgba(59, 130, 246, 0.15);
+  background: var(--primary-light);
 }
 
 [data-theme="dark"] .dept-item-count {
-  background: #334155;
+  background: var(--bg);
 }

@@ -27,12 +27,14 @@ export const STATUS_LABELS = {
  * @returns {string} HTML do card
  */
 function buildCardHtml(item, solutions, tags) {
+    const safeItemId = String(item.id || Math.random().toString(36).substring(2, 9)).replace(/[^a-zA-Z0-9_-]/g, '_');
     const solutionsHtml = solutions.map((s, i) => {
         const st = STATUS_LABELS[s.status] || STATUS_LABELS.confirmed;
-        const accordionId = `problem-${item.id}-sol-${i}`;
+        const accordionId = `problem-${safeItemId}-sol-${i}`;
+        const triggerId = `problem-${safeItemId}-trig-${i}`;
         return `
             <div class="accordion-item">
-                <button class="accordion-trigger" data-index="${i}" aria-expanded="false" aria-controls="${accordionId}">
+                <button id="${triggerId}" class="accordion-trigger" data-index="${i}" aria-expanded="false" aria-controls="${accordionId}">
                     <span>
                         <i class="fa-solid fa-lightbulb" aria-hidden="true"></i>
                         ${escapeHtml(s.label || `Solução ${i + 1}`)}
@@ -42,7 +44,7 @@ function buildCardHtml(item, solutions, tags) {
                     </span>
                     <i class="fa-solid fa-chevron-down accordion-icon" aria-hidden="true"></i>
                 </button>
-                <div id="${accordionId}" class="accordion-body">
+                <div id="${accordionId}" class="accordion-body" role="region" aria-labelledby="${triggerId}">
                     <div class="solution-text">${sanitizeHtml(s.text)}</div>
                     <div class="solution-copy-fields">
                     ${(() => {
