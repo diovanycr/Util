@@ -225,7 +225,7 @@ class FuturaSearchWidget {
           + item.slice(0, start)
           + `<strong>${item.slice(start, start + val.length)}</strong>`
           + item.slice(start + val.length);
-        div.onclick = () => { dom.searchInput.value = item; dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); search.performSearch(ctx, item); };
+        div.onclick = () => { dom.searchInput.value = item; dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); performSearch(ctx, item); };
         div.onkeydown = (e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
@@ -238,7 +238,7 @@ class FuturaSearchWidget {
 
     widgetScope.addEventListener("click", e => { if (!e.target.closest(".search-wrap")) { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); } });
     dom.searchInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); search.performSearch(ctx, dom.searchInput.value.trim()); }
+      if (e.key === "Enter") { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); performSearch(ctx, dom.searchInput.value.trim()); }
       if (e.key === "Escape") { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); }
       if (e.key === "ArrowDown" && dom.suggestionsBox.children.length > 0) {
         e.preventDefault();
@@ -249,12 +249,12 @@ class FuturaSearchWidget {
     const fillSearch = (term) => { dom.searchInput.value = term; dom.searchInput.focus(); };
 
     /* EVENTOS & INIT */
-    dom.searchBtn.addEventListener("click", () => { const q = dom.searchInput.value.trim(); if (q) search.performSearch(ctx, q); });
-    dom.statusPill?.addEventListener("click", () => modal.showConfigModal(ctx));
+    dom.searchBtn.addEventListener("click", () => { const q = dom.searchInput.value.trim(); if (q) performSearch(ctx, q); });
+    dom.statusPill?.addEventListener("click", () => showConfigModal(ctx));
 
     widgetScope.addEventListener("click", e => {
       const btn = e.target.closest(".copy-code-btn");
-      if (btn) render.copyCode(ctx, btn);
+      if (btn) copyCode(ctx, btn);
     });
 
     updateStatus(ctx);
@@ -283,7 +283,7 @@ class FuturaSearchWidget {
 
     /* Config modal */
     const _configBtn = widgetScope.querySelector("#fw-configBtn");
-    if (_configBtn) _configBtn.addEventListener("click", () => modal.showConfigModal(ctx));
+    if (_configBtn) _configBtn.addEventListener("click", () => showConfigModal(ctx));
 
     /* Quick-tag buttons */
     widgetScope.querySelectorAll(".qtag").forEach(btn => {

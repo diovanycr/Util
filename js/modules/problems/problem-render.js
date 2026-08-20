@@ -9,6 +9,7 @@ import {
     escapeHtml, escapeAttr, sanitizeHtml,
     normalizeSolutions, getTagColor, addKeyboardDragSupport, setupDragDrop
 } from '../../core/utils.js';
+export { normalizeSolutions };
 
 import { normalizeTags } from './tags.js';
 

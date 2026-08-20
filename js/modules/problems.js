@@ -10,7 +10,7 @@ import { getDocs, addDoc } from '../core/firebase-retry.js';
 
 import { showModal } from '../core/modal.js';
 import { showToast } from '../core/toast.js';
-import { debounce } from '../core/utils.js';
+import { debounce, normalizeSolutions } from '../core/utils.js';
 
 import { setupTagInput, getTagsFromPills, normalizeTags } from './problems/tags.js';
 import {

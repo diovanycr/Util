@@ -89,7 +89,10 @@ async function _loadDepartments() {
         _departments = snap.docs.map(d => ({ id: d.id, ...d.data() }));
         _renderSidebar();
     } catch (err) {
-        console.error('Erro ao carregar departamentos:', err);
+        if (_departments.length === 0) {
+            _departments = DEFAULT_DEPARTMENTS.map((d, idx) => ({ id: `default-${idx}`, ...d }));
+        }
+        _renderSidebar();
     }
 }
 
@@ -101,7 +104,8 @@ async function _createDefaultDepartments() {
         }
         await _loadDepartments();
     } catch (err) {
-        console.error('Erro ao criar departamentos padrão:', err);
+        _departments = DEFAULT_DEPARTMENTS.map((d, idx) => ({ id: `default-${idx}`, ...d }));
+        _renderSidebar();
     }
 }
 

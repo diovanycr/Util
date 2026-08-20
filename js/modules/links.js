@@ -98,6 +98,22 @@ function extractDomain(url) {
     }
 }
 
+function getFaviconUrl(url) {
+    const domain = extractDomain(url);
+    if (
+        !domain ||
+        domain.includes('localhost') ||
+        domain.endsWith('.local') ||
+        domain.includes('futurasistemas.com.br') ||
+        domain.includes('weon.com.br') ||
+        domain.includes('calendar.app.google') ||
+        /^(\d{1,3}\.){3}\d{1,3}$/.test(domain)
+    ) {
+        return null;
+    }
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=32`;
+}
+
 function clearLinkForm() {
     el('linkUrl').value = '';
     el('linkTitle').value = '';
@@ -167,12 +183,13 @@ function renderLinks(container, links) {
         items.forEach(item => {
             const card = document.createElement('div');
             card.className = 'link-card';
+            const faviconUrl = getFaviconUrl(item.url);
+            const faviconHtml = faviconUrl
+                ? `<img class="link-favicon" src="${escapeAttr(faviconUrl)}" onerror="this.style.display='none'" alt="Ícone de ${escapeAttr(item.title)}" />`
+                : `<i class="fa-solid fa-globe link-favicon-icon" style="margin-right:8px;color:var(--text-muted);"></i>`;
             card.innerHTML = `
                 <a class="link-main" href="${escapeAttr(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir link: ${escapeAttr(item.title)}">
-                    <img class="link-favicon" 
-                         src="https://www.google.com/s2/favicons?domain=${escapeAttr(extractDomain(item.url))}&sz=32"
-                         onerror="this.style.display='none'"
-                         alt="Ãcone de ${escapeAttr(item.title)}" />
+                    ${faviconHtml}
                     <div class="link-info">
                         <span class="link-title">${escapeHtml(item.title)}</span>
                         <span class="link-url">${escapeHtml(extractDomain(item.url))}</span>

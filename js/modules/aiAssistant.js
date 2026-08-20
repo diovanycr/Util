@@ -276,7 +276,7 @@ export function processTextWithAI(originalText, mode, customPrompt = '') {
                 .replace(/\bduvidas\b/gi, 'dúvidas')
                 .replace(/\bja\b/gi, 'já')
                 .replace(/\bboleo\b/gi, 'boleto')
-                .replace(/\ate\b/gi, 'até');
+                .replace(/\bate\b/gi, 'até');
             break;
     }
 
