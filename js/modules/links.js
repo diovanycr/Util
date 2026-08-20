@@ -73,6 +73,7 @@ function setupLinksInterface() {
                 url,
                 title: displayTitle,
                 category: category || 'Geral',
+                clicks: 0,
                 createdAt: Date.now()
             });
             clearLinkForm();
@@ -130,7 +131,7 @@ async function loadLinks(userId) {
 
         allLinks = snap.docs
             .map(d => ({ id: d.id, ...d.data() }))
-            .sort((a, b) => (a.order ?? 9999) - (b.order ?? 9999) || (a.createdAt || 0) - (b.createdAt || 0));
+            .sort((a, b) => (b.clicks || 0) - (a.clicks || 0) || (a.order ?? 9999) - (b.order ?? 9999) || (a.createdAt || 0) - (b.createdAt || 0));
 
         // Atualiza contador na aba
         const event = new CustomEvent('updateLinkCount', { detail: allLinks.length });
@@ -141,7 +142,7 @@ async function loadLinks(userId) {
                 <div class="empty-state-container">
                     <i class="fa-solid fa-link empty-state-icon"></i>
                     <p class="empty-state-title">Nenhum link cadastrado</p>
-                    <p class="empty-state-desc">Adicione links Ãºteis e atalhos rÃ¡pidos para facilitar seu atendimento.</p>
+                    <p class="empty-state-desc">Adicione links úteis e atalhos rápidos para facilitar seu atendimento.</p>
                     <button class="btn primary mt-12 btn-cta-new-link"><i class="fa-solid fa-plus"></i> Novo link</button>
                 </div>
             `;
@@ -158,7 +159,7 @@ async function loadLinks(userId) {
             <div class="empty-state-container">
                 <i class="fa-solid fa-triangle-exclamation empty-state-icon" style="color:var(--danger, #ef4444);"></i>
                 <p class="empty-state-title">Erro ao carregar links</p>
-                <p class="empty-state-desc">NÃ£o foi possÃ­vel conectar ao banco de dados. Verifique sua conexÃ£o e tente novamente.</p>
+                <p class="empty-state-desc">Não foi possível conectar ao banco de dados. Verifique sua conexão e tente novamente.</p>
             </div>
         `;
     }
@@ -167,9 +168,16 @@ async function loadLinks(userId) {
 function renderLinks(container, links) {
     container.innerHTML = '';
 
+    // Ordena links pelos mais clicados (mais clicado no topo)
+    const sortedLinks = [...links].sort((a, b) =>
+        (b.clicks || 0) - (a.clicks || 0) ||
+        (a.order ?? 9999) - (b.order ?? 9999) ||
+        (a.createdAt || 0) - (b.createdAt || 0)
+    );
+
     // Agrupa por categoria
     const groups = {};
-    links.forEach(link => {
+    sortedLinks.forEach(link => {
         const cat = link.category || 'Geral';
         if (!groups[cat]) groups[cat] = [];
         groups[cat].push(link);
@@ -183,6 +191,7 @@ function renderLinks(container, links) {
         items.forEach(item => {
             const card = document.createElement('div');
             card.className = 'link-card';
+            if (item.id) card.dataset.id = item.id;
             const faviconUrl = getFaviconUrl(item.url);
             const faviconHtml = faviconUrl
                 ? `<img class="link-favicon" src="${escapeAttr(faviconUrl)}" onerror="this.style.display='none'" alt="Ícone de ${escapeAttr(item.title)}" />`
@@ -205,6 +214,24 @@ function renderLinks(container, links) {
                 </button>
             `;
 
+            const linkMain = card.querySelector('.link-main');
+            if (linkMain) {
+                linkMain.onclick = () => {
+                    item.clicks = (item.clicks || 0) + 1;
+                    if (currentUserId && item.id) {
+                        updateDoc(doc(db, 'users', currentUserId, 'links', item.id), {
+                            clicks: item.clicks
+                        }).catch(console.error);
+                    }
+                    allLinks.sort((a, b) =>
+                        (b.clicks || 0) - (a.clicks || 0) ||
+                        (a.order ?? 9999) - (b.order ?? 9999) ||
+                        (a.createdAt || 0) - (b.createdAt || 0)
+                    );
+                    setTimeout(() => renderLinks(container, allLinks), 150);
+                };
+            }
+
             card.querySelector('.link-edit-btn').onclick = (e) => {
                 e.stopPropagation();
                 enterEditMode(card, item);
@@ -218,13 +245,12 @@ function renderLinks(container, links) {
                         try {
                             await deleteDoc(doc(db, 'users', currentUserId, 'links', item.id));
                             showToast("Link removido!");
-                            loadLinks(currentUserId);
-                        } catch (err) {
+                                              } catch (_err) {
                             showModal("Erro ao remover o link.");
                         }
                     },
                     null,
-                    `Deseja realmente remover o link "${item.title}"? Esta aÃ§Ã£o nÃ£o poderÃ¡ ser desfeita.`
+                    `Deseja realmente remover o link "${item.title}"? Esta ação não poderá ser desfeita.`
                 );
             };
             const dragHandle = card.querySelector('.link-drag-handle');
@@ -242,15 +268,12 @@ function renderLinks(container, links) {
 
         container.appendChild(group);
     });
-    
+
     // Dispara evento para adicionar estrelas de favoritos
     document.dispatchEvent(new Event('itemsRendered'));
 }
 
 function enterEditMode(card, item) {
-    // Preserva a estrutura original: apenas esconde os botÃµes de ediÃ§Ã£o/exclusÃ£o
-    // e injeta o form no lugar do conteÃºdo principal. Cancelar/Salvar chama loadLinks,
-    // que re-renderiza a lista e restaura tudo.
     const mainEl  = card.querySelector('.link-main');
     const editBtn = card.querySelector('.link-edit-btn');
     const delBtn  = card.querySelector('.link-del-btn');
@@ -261,7 +284,7 @@ function enterEditMode(card, item) {
     form.className = 'link-edit-form';
     form.innerHTML = `
         <input class="edit-link-url"   type="url"  value="${escapeAttr(item.url)}"   placeholder="URL..." />
-        <input class="edit-link-title" type="text" value="${escapeAttr(item.title)}" placeholder="TÃ­tulo..." />
+        <input class="edit-link-title" type="text" value="${escapeAttr(item.title)}" placeholder="Título..." />
         <input class="edit-link-cat"   type="text" value="${escapeAttr(item.category || '')}" placeholder="Categoria..." />
         <div class="flex-end mt-10">
             <button class="btn ghost btn-cancel-link-edit">Cancelar</button>
@@ -286,14 +309,14 @@ function enterEditMode(card, item) {
     };
 
     const saveLinkEdit = async () => {
-        if (!currentUserId) return showModal("SessÃ£o expirada. FaÃ§a login novamente.");
+        if (!currentUserId) return showModal("Sessão expirada. Faça login novamente.");
         let url   = form.querySelector('.edit-link-url').value.trim();
         const title    = form.querySelector('.edit-link-title').value.trim();
         const category = form.querySelector('.edit-link-cat').value.trim();
 
-        if (!url) return showModal("A URL Ã© obrigatÃ³ria.");
+        if (!url) return showModal("A URL é obrigatória.");
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-        try { new URL(url); } catch { return showModal("URL invÃ¡lida."); }
+        try { new URL(url); } catch { return showModal("URL inválida."); }
 
         try {
             await updateDoc(doc(db, 'users', currentUserId, 'links', item.id), {
@@ -303,7 +326,7 @@ function enterEditMode(card, item) {
             });
             showToast("Link atualizado!");
             loadLinks(currentUserId);
-        } catch (err) {
+        } catch (_err) {
             showModal("Erro ao atualizar o link.");
             restoreView();
         }
@@ -344,7 +367,6 @@ async function saveLinkOrder(userId) {
             }
         });
         if (changed > 0) await batch.commit();
-        // Atualiza allLinks com nova ordem para manter consistÃªncia
         allLinks.forEach(l => { if (newOrder[l.id] !== undefined) l.order = newOrder[l.id]; });
     } catch (err) {
         console.error("Erro ao salvar ordem dos links:", err);
@@ -354,7 +376,6 @@ async function saveLinkOrder(userId) {
 function filterLinks(query) {
     const list = el('linkList');
     const cards = list.querySelectorAll('.link-card');
-    let visibleCount = 0;
 
     cards.forEach(card => {
         const id = card.dataset.id;
@@ -362,7 +383,6 @@ function filterLinks(query) {
         if (!item) return;
         const visible = !query || `${item.title} ${item.url} ${item.category}`.toLowerCase().includes(query);
         card.classList.toggle('hidden-by-search', !visible);
-        if (visible) visibleCount++;
     });
 
     // Oculta grupos vazios
