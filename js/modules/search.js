@@ -66,10 +66,84 @@ export function initSearch(uid) {
     input.addEventListener('keydown', _searchHandlers.inputKeydown);
 }
 
+export const SYSTEM_TOOLS = [
+    { key: 'portopener', name: 'Port Opener', icon: 'shield-halved', desc: 'Gera scripts para abrir portas no Firewall do Windows' },
+    { key: 'futura', name: 'Futura Search (IA)', icon: 'robot', desc: 'Pesquise no manual e tire dúvidas do sistema com IA' },
+    { key: 'escpos', name: 'ESC/POS Impressoras', icon: 'print', desc: 'Gera comandos brutos de corte, gaveta e avanço para impressoras térmicas' },
+    { key: 'docvalidator', name: 'Documentos Fiscais', icon: 'file-contract', desc: 'Valide e gere CPF, CNPJ, PIS, IE e Chave NFe/NFCe' },
+    { key: 'statuschecker', name: 'Status SEFAZ & Gateways', icon: 'signal', desc: 'Verifica disponibilidade dos serviços SEFAZ e adquirentes' },
+    { key: 'apitester', name: 'Testes de APIs & Webhooks', icon: 'plug', desc: 'Teste endpoints REST/Webhooks: WooCommerce, VTEX, Mercado Livre' },
+    { key: 'filevalidator', name: 'Arquivos Fiscais & Ponto', icon: 'file-code', desc: 'Valide XML de NFe/NFCe, parse de AFD/AFDT e extração de CNPJ/IE' },
+    { key: 'ticketsummary', name: 'Sumário de Atendimento', icon: 'file-pen', desc: 'Gere resumos padronizados para Tickets/CRM' },
+    { key: 'decisiontree', name: 'Árvore de Decisão', icon: 'diagram-project', desc: 'Guias interativos para diagnosticar falhas em PDV, Impressora, Ponto e E-commerce' },
+    { key: 'networkdiag', name: 'Diagnóstico de Redes', icon: 'network-wired', desc: 'Calculadora IP/Subrede e testador de portas TCP para impressoras, balanças e REPs' },
+    { key: 'scriptgen', name: 'Scripts & Comandos', icon: 'terminal', desc: 'Gere SQL, BAT e PowerShell com variáveis dinâmicas para suporte' }
+];
+
+export const SYSTEM_COMMANDS = [
+    {
+        name: 'Ir para Mensagens',
+        desc: 'Navegar para a aba de respostas prontas',
+        icon: 'message',
+        action: () => document.querySelector('[data-tab="tabMessages"]')?.click()
+    },
+    {
+        name: 'Ir para Problemas / Base de Conhecimento',
+        desc: 'Navegar para a aba de problemas e soluções',
+        icon: 'wrench',
+        action: () => document.querySelector('[data-tab="tabProblems"]')?.click()
+    },
+    {
+        name: 'Ir para Links Úteis',
+        desc: 'Navegar para a aba de links rápidos',
+        icon: 'link',
+        action: () => document.querySelector('[data-tab="tabLinks"]')?.click()
+    },
+    {
+        name: 'Ir para Ferramentas & Sistemas',
+        desc: 'Navegar para a aba de ferramentas',
+        icon: 'toolbox',
+        action: () => document.querySelector('[data-tab="tabSistemas"]')?.click()
+    },
+    {
+        name: 'Nova Mensagem',
+        desc: 'Abrir formulário de cadastro de mensagem',
+        icon: 'plus',
+        action: () => {
+            document.querySelector('[data-tab="tabMessages"]')?.click();
+            el('btnNewMsg')?.click();
+        }
+    },
+    {
+        name: 'Novo Problema',
+        desc: 'Abrir formulário de cadastro de problema',
+        icon: 'plus',
+        action: () => {
+            document.querySelector('[data-tab="tabProblems"]')?.click();
+            el('btnNewProblem')?.click();
+        }
+    },
+    {
+        name: 'Novo Link',
+        desc: 'Abrir formulário de cadastro de link',
+        icon: 'plus',
+        action: () => {
+            document.querySelector('[data-tab="tabLinks"]')?.click();
+            el('btnNewLink')?.click();
+        }
+    },
+    {
+        name: 'Abrir Assistente de IA',
+        desc: 'Gerar ou reescrever mensagem com IA',
+        icon: 'wand-magic-sparkles',
+        action: () => el('btnGlobalAiAssist')?.click()
+    }
+];
+
 async function runSearch(query) {
     const results = el('globalSearchResults');
     if (!query || query.length < 2) {
-        results.innerHTML = '<p class="search-hint">Digite pelo menos 2 caracteres...</p>';
+        results.innerHTML = '<p class="search-hint">Digite pelo menos 2 caracteres para buscar mensagens, problemas, links, ferramentas ou comandos...</p>';
         resetSearchIndex();
         return;
     }
@@ -77,6 +151,12 @@ async function runSearch(query) {
     const q = query.toLowerCase();
 
     try {
+        const cmdMatches = SYSTEM_COMMANDS
+            .filter(c => `${c.name} ${c.desc}`.toLowerCase().includes(q));
+
+        const toolMatches = SYSTEM_TOOLS
+            .filter(t => `${t.name} ${t.desc}`.toLowerCase().includes(q));
+
         const msgMatches = allMessages
             .filter(d => !d.deleted && ((d.text && d.text.toLowerCase().includes(q)) || (d.title && d.title.toLowerCase().includes(q)) || (d.category && d.category.toLowerCase().includes(q))));
 
@@ -94,7 +174,7 @@ async function runSearch(query) {
                 return searchStr.includes(q);
             });
 
-        if (msgMatches.length === 0 && probMatches.length === 0 && linkMatches.length === 0) {
+        if (cmdMatches.length === 0 && toolMatches.length === 0 && msgMatches.length === 0 && probMatches.length === 0 && linkMatches.length === 0) {
             results.innerHTML = '<p class="search-hint">Nenhum resultado encontrado.</p>';
             resetSearchIndex();
             return;
@@ -110,6 +190,46 @@ async function runSearch(query) {
             matches.slice(0, 5).forEach(item => section.appendChild(renderRow(item)));
             results.appendChild(section);
         };
+
+        buildSection('terminal', 'Comandos & Ações', cmdMatches, item => {
+            const row = document.createElement('div');
+            row.className = 'search-result-item';
+            row.setAttribute('role', 'option');
+            row.innerHTML = `
+                <div>
+                    <span class="search-result-title"><i class="fa-solid fa-${item.icon}" style="margin-right:6px"></i> ${highlight(item.name, query)}</span>
+                    <span class="search-result-desc">${highlight(item.desc, query)}</span>
+                </div>
+                <button class="btn ghost search-goto-btn" title="Executar"><i class="fa-solid fa-arrow-right"></i></button>
+            `;
+            row.onclick = () => {
+                closeSearch();
+                item.action();
+            };
+            return row;
+        });
+
+        buildSection('toolbox', 'Ferramentas do Sistema', toolMatches, item => {
+            const row = document.createElement('div');
+            row.className = 'search-result-item';
+            row.setAttribute('role', 'option');
+            row.innerHTML = `
+                <div>
+                    <span class="search-result-title"><i class="fa-solid fa-${item.icon}" style="margin-right:6px"></i> ${highlight(item.name, query)}</span>
+                    <span class="search-result-desc">${highlight(item.desc, query)}</span>
+                </div>
+                <button class="btn ghost search-goto-btn" title="Abrir ferramenta"><i class="fa-solid fa-arrow-right"></i></button>
+            `;
+            row.onclick = () => {
+                closeSearch();
+                document.querySelector('[data-tab="tabSistemas"]')?.click();
+                setTimeout(() => {
+                    const toolBtn = document.querySelector(`.po-tool-btn[data-tool="${item.key}"]`);
+                    if (toolBtn) toolBtn.click();
+                }, 50);
+            };
+            return row;
+        });
 
         buildSection('message', 'Mensagens', msgMatches, item => {
             const row = document.createElement('div');

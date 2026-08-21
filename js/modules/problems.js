@@ -176,6 +176,7 @@ function setupProblemInterface() {
     };
 
     el('problemSearch').oninput = debounce(() => _applyFilters(), 200);
+    el('problemStatusFilter')?.addEventListener('change', () => _applyFilters());
     el('btnExportProblems').onclick = () => exportProblems(allProblems);
     el('btnExportManual').onclick = () => exportKnowledgeBaseManual(allProblems);
     el('btnImportProblems').onclick = () => el('importProblemsInput').click();

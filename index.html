@@ -152,6 +152,10 @@
         </div>
         <div id="tabMessages" class="tab-content" role="tabpanel" aria-labelledby="tab-messages">
           <div class="card toolbar">
+            <div class="search-box">
+              <i class="fa-solid fa-search" aria-hidden="true"></i>
+              <input id="msgSearch" type="text" placeholder="Pesquisar mensagens (Ctrl+F)..." aria-label="Pesquisar mensagens" />
+            </div>
             <button id="btnFilterFavorites" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas mensagens favoritas" aria-pressed="false">
               <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
             </button>
@@ -213,6 +217,12 @@
               <i class="fa-solid fa-search" aria-hidden="true"></i>
               <input id="problemSearch" type="text" placeholder="Pesquisar problemas..." aria-label="Pesquisar problemas" />
             </div>
+            <select id="problemStatusFilter" class="solution-status-select" aria-label="Filtrar por status da solução">
+              <option value="">Status: Todos</option>
+              <option value="confirmed">✅ Confirmadas</option>
+              <option value="testing">🧪 Em teste</option>
+              <option value="obsolete">❌ Obsoletas</option>
+            </select>
             <button id="btnFilterFavoriteProblems" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas problemas favoritos" aria-pressed="false">
               <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
             </button>
@@ -522,7 +532,7 @@
       <div class="global-search-box">
         <div class="global-search-header">
           <i class="fa-solid fa-search" aria-hidden="true"></i>
-          <input id="globalSearchInput" type="text" placeholder="Buscar em mensagens, problemas e links..." autocomplete="off" aria-label="Buscar em mensagens, problemas e links" />
+          <input id="globalSearchInput" type="text" placeholder="Buscar mensagens, problemas, links, ferramentas ou comandos (Ctrl+K)..." autocomplete="off" aria-label="Command Palette: Buscar em mensagens, problemas, links, ferramentas e comandos" />
           <kbd>Esc</kbd>
         </div>
         <div id="globalSearchResults" class="global-search-results" role="listbox" aria-label="Resultados da busca">

@@ -61,7 +61,64 @@ export function applyCategoryFilter() {
         const cat = row.dataset.category || 'Geral';
         const visible = !state.activeCategoryFilter || cat === state.activeCategoryFilter;
         row.classList.toggle('hidden-by-filter', !visible);
-        if (visible) visibleCount++;
+        if (visible && !row.classList.contains('hidden-by-search')) visibleCount++;
+    });
+
+    document.querySelectorAll('#msgList .msg-group').forEach(group => {
+        const hasVisible = [...group.querySelectorAll('.user-row')].some(r => !r.classList.contains('hidden-by-filter') && !r.classList.contains('hidden-by-search'));
+        group.classList.toggle('hidden-by-filter', !hasVisible);
+    });
+
+    const event = new CustomEvent('updateMsgCount', { detail: visibleCount });
+    document.dispatchEvent(event);
+}
+
+export function applyMessageSearchQuery() {
+    const list = el('msgList');
+    if (!list) return;
+    const input = el('msgSearch');
+    const query = input?.value.trim() || '';
+    const q = query.toLowerCase();
+    const rows = list.querySelectorAll('.user-row');
+    let visibleCount = 0;
+
+    const escapedQuery = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = escapedQuery ? new RegExp(`(${escapedQuery})`, 'gi') : null;
+
+    rows.forEach(row => {
+        const id = row.dataset.id;
+        const msg = allMessages.find(m => m.id === id);
+        if (!msg) return;
+
+        const titleText = msg.title || '';
+        const bodyText = msg.text || '';
+        const catText = msg.category || 'Geral';
+        const fullStr = `${titleText} ${bodyText} ${catText}`.toLowerCase();
+        const matches = !q || fullStr.includes(q);
+
+        row.classList.toggle('hidden-by-search', !matches);
+
+        const titleEl = row.querySelector('.msg-title');
+        const textEl = row.querySelector('.msg-text');
+
+        if (titleEl) {
+            const safeTitle = escapeHtml(titleText);
+            titleEl.innerHTML = regex ? safeTitle.replace(regex, '<mark>$1</mark>') : safeTitle;
+        }
+
+        if (textEl) {
+            const userName = el('loggedUser')?.dataset?.username?.trim() || 'Usuário';
+            let displayText = bodyText;
+            if (displayText.includes('{usuario}')) {
+                displayText = displayText.replace(/\{usuario\}/g, userName);
+            }
+            const safeText = escapeHtml(displayText);
+            textEl.innerHTML = regex ? safeText.replace(regex, '<mark>$1</mark>') : safeText;
+        }
+
+        if (matches && !row.classList.contains('hidden-by-filter')) {
+            visibleCount++;
+        }
     });
 
     document.querySelectorAll('#msgList .msg-group').forEach(group => {
@@ -215,6 +272,7 @@ export function renderMessages() {
                     ${titleHtml}
                     <div class="msg-text">${escapeHtml(displayText)}</div>
                 </div>
+                <button class="btn ghost btn-duplicate" title="Duplicar mensagem" aria-label="Duplicar mensagem"><i class="fa-solid fa-clone" aria-hidden="true"></i></button>
                 <button class="btn ghost btn-edit" aria-label="Editar mensagem"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
                 <button class="btn ghost btn-del" aria-label="Excluir mensagem"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
             `;
@@ -240,6 +298,27 @@ export function renderMessages() {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     copyAction();
+                }
+            };
+
+            row.querySelector('.btn-duplicate').onclick = async () => {
+                try {
+                    const maxOrder = allMessages.reduce((max, m) => Math.max(max, m.order || 0), 0);
+                    const dupTitle = item.title ? `${item.title} (Cópia)` : 'Cópia';
+                    await addDoc(collection(db, 'users', state.currentUserId, 'messages'), {
+                        title: dupTitle,
+                        text: item.text,
+                        category: item.category || 'Geral',
+                        order: maxOrder + 1,
+                        deleted: false,
+                        createdAt: Date.now(),
+                        copyCount: 0
+                    });
+                    showToast("Mensagem duplicada!");
+                    loadMessages(state.currentUserId);
+                } catch (err) {
+                    console.error("Erro ao duplicar mensagem:", err);
+                    showModal("Erro ao duplicar mensagem.");
                 }
             };
 

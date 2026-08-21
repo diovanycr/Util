@@ -1,7 +1,7 @@
 import {
-    el, db, doc
+    el, db, doc, collection
 } from '../../core/firebase.js';
-import { deleteDoc } from '../../core/firebase-retry.js';
+import { deleteDoc, addDoc } from '../../core/firebase-retry.js';
 
 import { showModal, openConfirmModal } from '../../core/modal.js';
 import { showToast } from '../../core/toast.js';
@@ -28,6 +28,16 @@ export const STATUS_LABELS = {
  */
 function buildCardHtml(item, solutions, tags) {
     const safeItemId = String(item.id || Math.random().toString(36).substring(2, 9)).replace(/[^a-zA-Z0-9_-]/g, '_');
+    const hasSolutions = Array.isArray(solutions) && solutions.length > 0 && solutions.some(s => s && (s.text || '').replace(/<[^>]*>/g, '').trim().length > 0);
+
+    const noSolutionBadge = !hasSolutions
+        ? `<span class="no-solution-badge" title="Este problema ainda não possui solução cadastrada"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> Sem solução</span>`
+        : '';
+
+    const noSolutionWarning = !hasSolutions
+        ? `<div class="no-solution-warning"><i class="fa-solid fa-circle-info" aria-hidden="true"></i> Nenhuma solução cadastrada para este problema ainda. Clique no ícone de lápis para adicionar.</div>`
+        : '';
+
     const solutionsHtml = solutions.map((s, i) => {
         const st = STATUS_LABELS[s.status] || STATUS_LABELS.confirmed;
         const accordionId = `problem-${safeItemId}-sol-${i}`;
@@ -79,16 +89,17 @@ function buildCardHtml(item, solutions, tags) {
 
     return `
         <div class="problem-header">
-            <h3 class="problem-title">${escapeHtml(item.title)}</h3>
+            <h3 class="problem-title">${escapeHtml(item.title)}${noSolutionBadge}</h3>
             <div class="problem-actions">
                 <button class="btn ghost problem-drag-handle" title="Reordenar problema"><i class="fa-solid fa-grip-lines" aria-hidden="true"></i></button>
+                <button class="btn ghost btn-duplicate-problem" title="Duplicar problema" aria-label="Duplicar problema"><i class="fa-solid fa-clone" aria-hidden="true"></i></button>
                 <button class="btn ghost btn-edit-problem" aria-label="Editar problema"><i class="fa-solid fa-pen" aria-hidden="true"></i></button>
                 <button class="btn ghost btn-del-problem" aria-label="Excluir problema"><i class="fa-solid fa-trash" aria-hidden="true"></i></button>
             </div>
         </div>
         ${item.description ? `<p class="problem-desc">${escapeHtml(item.description)}</p>` : ''}
         ${tagsHtml}
-        <div class="accordion">${solutionsHtml}</div>
+        ${hasSolutions ? `<div class="accordion">${solutionsHtml}</div>` : noSolutionWarning}
     `;
 }
 
@@ -131,6 +142,31 @@ function bindCardEvents(card, item, solutions, ctx) {
             }
         };
     });
+
+    // Duplicate
+    const btnDup = card.querySelector('.btn-duplicate-problem');
+    if (btnDup) {
+        btnDup.onclick = async () => {
+            try {
+                const maxOrder = (ctx.allProblems || []).reduce((max, p) => Math.max(max, p.order || 0), 0);
+                const dupTitle = `${item.title} (Cópia)`;
+                await addDoc(collection(db, 'users', ctx.currentUserId, 'problems'), {
+                    title: dupTitle,
+                    description: item.description || '',
+                    department: item.department || '',
+                    tags: normalizeTags(item),
+                    solutions: solutions,
+                    order: maxOrder + 1,
+                    createdAt: Date.now()
+                });
+                showToast("Problema duplicado!");
+                ctx.loadProblems(ctx.currentUserId);
+            } catch (err) {
+                console.error("Erro ao duplicar problema:", err);
+                showModal("Erro ao duplicar o problema.");
+            }
+        };
+    }
 
     // Edit
     card.querySelector('.btn-edit-problem').onclick = () =>
@@ -258,12 +294,9 @@ export function updateTagFilterBar(ctx) {
     });
 }
 
-/**
- * Aplica filtros de texto, tag e departamento aos allProblems e re-renderiza.
- * @param {Object} ctx { allProblems, activeTagFilter, activeDepartmentId }
- */
 export function applyFilters(ctx) {
     const queryVal = el('problemSearch')?.value.trim().toLowerCase() || '';
+    const statusVal = ctx.activeStatusFilter || el('problemStatusFilter')?.value || '';
 
     const filtered = ctx.allProblems.filter(item => {
         const solutions  = normalizeSolutions(item);
@@ -272,7 +305,8 @@ export function applyFilters(ctx) {
         const matchText  = !queryVal || `${item.title} ${item.description || ''} ${solText} ${tags.join(' ')}`.toLowerCase().includes(queryVal);
         const matchTag   = !ctx.activeTagFilter || tags.includes(ctx.activeTagFilter);
         const matchDept  = !ctx.activeDepartmentId || item.department === ctx.activeDepartmentId;
-        return matchText && matchTag && matchDept;
+        const matchStatus = !statusVal || solutions.some(s => (s.status || 'confirmed') === statusVal);
+        return matchText && matchTag && matchDept && matchStatus;
     });
 
     ctx.renderFiltered(filtered);

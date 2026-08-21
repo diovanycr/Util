@@ -19,7 +19,8 @@ import { state, allMessages, resetState } from './messages/state.js';
 import {
     loadMessages,
     renderMessages,
-    saveOrder
+    saveOrder,
+    applyMessageSearchQuery
 } from './messages/loader.js';
 import {
     importFromTxt,
@@ -35,7 +36,8 @@ import {
 export {
     allMessages,
     loadMessages,
-    updateTrashCount
+    updateTrashCount,
+    applyMessageSearchQuery
 };
 
 let onMessagesWindowFocus = null;
@@ -105,6 +107,9 @@ function setupUserInterface(uid) {
         updateTrashCount(uid);
     };
     const trashCallbacks = { onReload: reloadAll };
+
+    // Busca inline de mensagens
+    el('msgSearch')?.addEventListener('input', () => applyMessageSearchQuery());
 
     // Nova mensagem
     el('btnNewMsg').onclick = () => {

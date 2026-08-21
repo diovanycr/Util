@@ -10,7 +10,13 @@ const testFiles = [
     'utils-dom.test.js',
     'modules.test.js',
     'utils.test.js',
-    'xss.test.js'
+    'xss.test.js',
+    'sw.test.js',
+    'duplication.test.js',
+    'command-palette.test.js',
+    'solution-status-filter.test.js',
+    'no-solution-indicator.test.js',
+    'message-inline-search.test.js'
 ];
 
 console.log('⚡ Executando suíte unificada de testes do PainelAtende...\n');

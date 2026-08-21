@@ -28,6 +28,18 @@ export function initShortcuts() {
             return;
         }
 
+        // Ctrl+F — busca inline na aba Mensagens
+        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+            const tabMessages = el('tabMessages');
+            const msgSearch = el('msgSearch');
+            if (tabMessages && !tabMessages.classList.contains('hidden') && msgSearch) {
+                e.preventDefault();
+                msgSearch.focus();
+                msgSearch.select();
+                return;
+            }
+        }
+
         // Navegação dentro do modal de busca
         const searchModal = el('globalSearchModal');
         const modalOpen = searchModal && !searchModal.classList.contains('hidden');
