@@ -10,7 +10,7 @@
 
 
 ## 📍 Estado atual
-Última sessão: análise de arquitetura, segurança e qualidade (aug/2026). Recomendações registradas cobrindo UX, Analytics, Ferramentas, Base de Conhecimento, Segurança, Bugs e Qualidade Técnica.
+Última sessão: revisão multidisciplinar AIOX (Arquitetura, QA e UX) em aug/2026. Recomendações registradas cobrindo segurança, escala, qualidade, acessibilidade e produtividade.
 
 ---
 
@@ -24,18 +24,32 @@
 - [ ] **Mover as chamadas de IA para backend/serverless** — não persistir chaves de provedores no `localStorage`; aplicar autenticação, rate limiting e controle centralizado de custos `[G]` `[Backend]`
 - [ ] **Versionar e testar regras de segurança do Firestore** — garantir isolamento dos dados por `uid` e validar privilégios administrativos no servidor, não apenas pela interface `[G]` `[Backend]`
 - [ ] **Restringir a Content Security Policy (CSP)** — remover gradualmente `unsafe-inline` e limitar `connect-src`/`img-src` aos domínios estritamente necessários `[M]` `[Arch]`
+- [ ] **Proteger o API Tester contra destinos e credenciais sensíveis** — bloquear loopback/rede privada e HTTP, confirmar host/método antes do envio e mascarar `Authorization` no histórico `[M]` `[Arch]`
 - [ ] **Resetar `copyCount` diário via Cloud Function agendada (Firebase) ao invés do timer no cliente** — `resetDailyCounts()` em `ranking.js` depende de a aba estar aberta à meia-noite `[M]` `[Backend]`
 
 ### ⚙️ Qualidade Técnica
-- [ ] **Corrigir o runner da suíte de testes** — `npm test` encerra após `backlog.test.js`, apesar de listar outros arquivos de teste `[M]` `[QA]`
-- [ ] **Criar gate de typecheck e build no npm/CI** — os scripts exigidos pela qualidade ainda não existem e devem bloquear regressões antes do deploy `[M]` `[QA]`
+- [ ] **Executar explicitamente todos os gates no GitHub Actions** — adicionar etapas próprias para `typecheck`, `build` e `validate:port-denylist`, sem depender da cobertura indireta da suíte `[P]` `[DevOps]`
+- [ ] **Evoluir o typecheck de sintaxe para contratos JavaScript** — adotar JSDoc e TypeScript com `allowJs`/`checkJs` incrementalmente, validando imports e APIs além de parsing `[G]` `[QA]`
+- [ ] **Adicionar testes E2E de navegador** — cobrir boot do PWA, erro de autenticação, navegação e CRUD com Firebase mockado ou Emulator `[G]` `[QA]`
+- [ ] **Modernizar o runner de testes e observabilidade de CI** — migrar lista manual para descoberta (Node Test Runner/Vitest), adicionar timeout por teste, cobertura, JUnit e artefatos de falha `[G]` `[QA]`
+- [ ] **Testar e aprimorar política de retry do Firebase** — injetar sleeper/clock para testar erros recuperáveis, limite de tentativas e loading; incluir jitter e cancelamento `[M]` `[QA]`
+- [ ] **Adicionar automação de atualização e auditoria de dependências** — configurar Dependabot para npm/GitHub Actions e auditoria agendada no CI `[M]` `[DevOps]`
 - [ ] **Paginar e agregar leituras do Firestore** — evitar carregamentos integrais/limites fixos em analytics, mensagens e histórico para conter latência e custo à medida que a base cresce `[G]` `[Backend]`
 - [ ] **Proteção contra rate limiting no Firestore** — `loadMessages` e `loadProblems` sem throttle; usuários com muitos dados podem gerar leituras excessivas `[M]` `[Backend]`
 - [ ] **Lazy-loading das ferramentas no portOpener** — todos os painéis são construídos no carregamento inicial; ferramentas pesadas como `decisionTree` (~30 KB) devem ser carregadas sob demanda `[G]` `[Arch]`
 - [ ] **Adicionar contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda** `[P]` `[UX]`
 - [ ] **Cloud Function para exclusão completa de usuário no Firebase Auth** — hoje a exclusão remove apenas o Firestore, não o Auth `[G]` `[Backend]`
+- [ ] **Atualizar o cache do PWA com segurança** — gerar pre-cache automaticamente, versionar assets por hash e avisar o usuário antes de ativar uma nova versão `[G]` `[Arch]`
 
 ### 🚀 UX / Produtividade
+- [ ] **Centralizar acessibilidade dos modais** — garantir foco inicial, trap de foco, Escape e retorno de foco para Ajuda, IA, exportação e departamentos `[M]` `[Accessibility]`
+- [ ] **Anunciar carregamentos para leitores de tela** — substituir a barra `aria-hidden` por região `aria-live` e aplicar `aria-busy` aos conteúdos atualizados `[P]` `[Accessibility]`
+- [ ] **Adicionar landmarks semânticos à estrutura principal** — usar `header`, `main` e `nav`; tornar o destino do skip-link focável `[P]` `[Accessibility]`
+- [ ] **Corrigir Enter na Command Palette** — abrir/navegar para o resultado selecionado; manter copiar como ação secundária `[P]` `[UX]`
+- [ ] **Padronizar exclusão recuperável** — aplicar soft-delete e toast “Desfazer” a mensagens, links e problemas `[M]` `[UX]`
+- [ ] **Preservar `Ctrl+F` nativo do navegador** — mover o filtro local para `/` ou `Alt+F` e atualizar a ajuda `[P]` `[Accessibility]`
+- [ ] **Corrigir textos com codificação quebrada** — normalizar UTF-8 em mensagens visíveis e cobrir strings críticas com testes `[P]` `[Bug]`
+- [ ] **Adaptar o cabeçalho para telas estreitas e zoom de 200%** — agrupar ações secundárias em “Mais” e validar a 320 px `[M]` `[UX]`
 - [ ] **Melhorar modo Popout para janela compacta sempre no topo (`always-on-top`) ao lado do CRM/PDV** `[M]` `[UX]`
 - [ ] **Ordenação automática das mensagens por mais copiadas (igual ao que foi feito nos links)** — ranking já existente, mas mensagens ainda são ordenadas manualmente `[M]` `[UX]`
 - [ ] **Filtro de favoritos persistente no servidor (Firestore)** — hoje favoritos ficam só no `localStorage`, se o usuário trocar de máquina perde tudo `[M]` `[Backend]`
@@ -59,6 +73,8 @@
 
 
 ## Feito
+- [x] **Corrigir o runner da suíte de testes** — garantir execução de todos os arquivos registrados no runner `[M]` `[QA]`
+- [x] **Criar gates locais de typecheck, build e validação de portas** — adicionar scripts npm, cobertura automatizada e alinhar CI ao Node 22/24 `[M]` `[QA]`
 - [x] **Busca inline em tempo real dentro da lista de mensagens (Ctrl+F dentro da aba ativa)** — `enhancements.js` já tem base, mas sem highlight dos resultados `[M]` `[UX]`
 - [x] **Indicador visual de problemas sem solução cadastrada** — hoje não há diferenciação visual `[P]` `[UI]`
 - [x] **Filtro por status da solução (Confirmada / Em teste / Obsoleta) na listagem de problemas** `[M]` `[UX]`
