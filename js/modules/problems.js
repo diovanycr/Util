@@ -285,9 +285,10 @@ export async function loadProblems(userId, append = false) {
     if (!list) return;
 
     if (!append) {
+        list.setAttribute('aria-busy', 'true');
         list.innerHTML = `
             <div class="loading-state">
-                <span class="spinner"></span>
+                <span class="spinner" aria-hidden="true"></span>
                 <span>Carregando problemas...</span>
             </div>
         `;
@@ -349,6 +350,8 @@ export async function loadProblems(userId, append = false) {
     } catch (err) {
         console.error("Erro ao carregar problemas:", err);
         list.innerHTML = `<div class="empty-state-container"><i class="fa-solid fa-triangle-exclamation empty-state-icon"></i><p class="empty-state-title">Erro ao carregar problemas</p></div>`;
+    } finally {
+        list.removeAttribute('aria-busy');
     }
 }
 

@@ -10,7 +10,7 @@
 
 import { db, el, collection, doc, query, orderBy } from '../../core/firebase.js';
 import { getDocs, addDoc, updateDoc, deleteDoc } from '../../core/firebase-retry.js';
-import { showModal, openConfirmModal } from '../../core/modal.js';
+import { showModal, openConfirmModal, openModalContainer, closeModalContainer } from '../../core/modal.js';
 import { showToast } from '../../core/toast.js';
 import { escapeHtml } from '../../core/utils.js';
 
@@ -265,9 +265,7 @@ function _openDeptModal(existing) {
         });
     });
 
-    modalEl.classList.remove('hidden');
-    modalEl.style.display = 'flex';
-    el('deptNameInput').focus();
+    openModalContainer(modalEl, el('deptNameInput'));
 
     // Botão salvar
     el('btnSaveDept').onclick = async () => {
@@ -300,8 +298,7 @@ function _openDeptModal(existing) {
 function _closeDeptModal() {
     const modalEl = el('deptModal');
     if (!modalEl) return;
-    modalEl.classList.add('hidden');
-    modalEl.style.display = 'none';
+    closeModalContainer(modalEl);
 }
 
 function _confirmDeleteDept(dept) {

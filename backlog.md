@@ -28,7 +28,6 @@
 - [ ] **Resetar `copyCount` diário via Cloud Function agendada (Firebase) ao invés do timer no cliente** — `resetDailyCounts()` em `ranking.js` depende de a aba estar aberta à meia-noite `[M]` `[Backend]`
 
 ### ⚙️ Qualidade Técnica
-- [ ] **Executar explicitamente todos os gates no GitHub Actions** — adicionar etapas próprias para `typecheck`, `build` e `validate:port-denylist`, sem depender da cobertura indireta da suíte `[P]` `[DevOps]`
 - [ ] **Evoluir o typecheck de sintaxe para contratos JavaScript** — adotar JSDoc e TypeScript com `allowJs`/`checkJs` incrementalmente, validando imports e APIs além de parsing `[G]` `[QA]`
 - [ ] **Adicionar testes E2E de navegador** — cobrir boot do PWA, erro de autenticação, navegação e CRUD com Firebase mockado ou Emulator `[G]` `[QA]`
 - [ ] **Modernizar o runner de testes e observabilidade de CI** — migrar lista manual para descoberta (Node Test Runner/Vitest), adicionar timeout por teste, cobertura, JUnit e artefatos de falha `[G]` `[QA]`
@@ -37,17 +36,11 @@
 - [ ] **Paginar e agregar leituras do Firestore** — evitar carregamentos integrais/limites fixos em analytics, mensagens e histórico para conter latência e custo à medida que a base cresce `[G]` `[Backend]`
 - [ ] **Proteção contra rate limiting no Firestore** — `loadMessages` e `loadProblems` sem throttle; usuários com muitos dados podem gerar leituras excessivas `[M]` `[Backend]`
 - [ ] **Lazy-loading das ferramentas no portOpener** — todos os painéis são construídos no carregamento inicial; ferramentas pesadas como `decisionTree` (~30 KB) devem ser carregadas sob demanda `[G]` `[Arch]`
-- [ ] **Adicionar contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda** `[P]` `[UX]`
 - [ ] **Cloud Function para exclusão completa de usuário no Firebase Auth** — hoje a exclusão remove apenas o Firestore, não o Auth `[G]` `[Backend]`
 - [ ] **Atualizar o cache do PWA com segurança** — gerar pre-cache automaticamente, versionar assets por hash e avisar o usuário antes de ativar uma nova versão `[G]` `[Arch]`
 
 ### 🚀 UX / Produtividade
-- [ ] **Centralizar acessibilidade dos modais** — garantir foco inicial, trap de foco, Escape e retorno de foco para Ajuda, IA, exportação e departamentos `[M]` `[Accessibility]`
-- [ ] **Anunciar carregamentos para leitores de tela** — substituir a barra `aria-hidden` por região `aria-live` e aplicar `aria-busy` aos conteúdos atualizados `[P]` `[Accessibility]`
-- [ ] **Adicionar landmarks semânticos à estrutura principal** — usar `header`, `main` e `nav`; tornar o destino do skip-link focável `[P]` `[Accessibility]`
-- [ ] **Corrigir Enter na Command Palette** — abrir/navegar para o resultado selecionado; manter copiar como ação secundária `[P]` `[UX]`
 - [ ] **Padronizar exclusão recuperável** — aplicar soft-delete e toast “Desfazer” a mensagens, links e problemas `[M]` `[UX]`
-- [ ] **Preservar `Ctrl+F` nativo do navegador** — mover o filtro local para `/` ou `Alt+F` e atualizar a ajuda `[P]` `[Accessibility]`
 - [ ] **Corrigir textos com codificação quebrada** — normalizar UTF-8 em mensagens visíveis e cobrir strings críticas com testes `[P]` `[Bug]`
 - [ ] **Adaptar o cabeçalho para telas estreitas e zoom de 200%** — agrupar ações secundárias em “Mais” e validar a 320 px `[M]` `[UX]`
 - [ ] **Melhorar modo Popout para janela compacta sempre no topo (`always-on-top`) ao lado do CRM/PDV** `[M]` `[UX]`
@@ -73,6 +66,13 @@
 
 
 ## Feito
+- [x] **Preservar `Ctrl+F` nativo do navegador** — mover o filtro local para `/` ou `Alt+F` e atualizar a ajuda `[P]` `[Accessibility]`
+- [x] **Corrigir Enter na Command Palette** — abrir/navegar para o resultado selecionado; manter copiar como ação secundária `[P]` `[UX]`
+- [x] **Adicionar landmarks semânticos à estrutura principal** — usar `header`, `main` e `nav`; tornar o destino do skip-link focável `[P]` `[Accessibility]`
+- [x] **Adicionar contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda** `[P]` `[UX]`
+- [x] **Anunciar carregamentos para leitores de tela** — substituir a barra `aria-hidden` por região `aria-live` e aplicar `aria-busy` aos conteúdos atualizados `[P]` `[Accessibility]`
+- [x] **Centralizar acessibilidade dos modais** — garantir foco inicial, trap de foco, Escape e retorno de foco para Ajuda, IA, exportação e departamentos `[M]` `[Accessibility]`
+- [x] **Executar explicitamente todos os gates no GitHub Actions** — adicionar etapas próprias para `typecheck`, `build` e `validate:port-denylist`, sem depender da cobertura indireta da suíte `[P]` `[DevOps]`
 - [x] **Corrigir o runner da suíte de testes** — garantir execução de todos os arquivos registrados no runner `[M]` `[QA]`
 - [x] **Criar gates locais de typecheck, build e validação de portas** — adicionar scripts npm, cobertura automatizada e alinhar CI ao Node 22/24 `[M]` `[QA]`
 - [x] **Busca inline em tempo real dentro da lista de mensagens (Ctrl+F dentro da aba ativa)** — `enhancements.js` já tem base, mas sem highlight dos resultados `[M]` `[UX]`

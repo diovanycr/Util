@@ -11,6 +11,7 @@
 import { el } from '../core/firebase.js';
 import { escapeHtml } from '../core/utils.js';
 import { showToast } from '../core/toast.js';
+import { openModalContainer, closeModalContainer } from '../core/modal.js';
 
 let _activeTargetEl = null;
 let _generatedText = '';
@@ -155,8 +156,7 @@ export function openAIAssistantModal(targetEl = null) {
 
     _updateActionButtons(false);
 
-    modalEl.classList.remove('hidden');
-    modalEl.style.display = 'flex';
+    openModalContainer(modalEl, el('btnCloseAiModal'));
 
     // Se houver texto existente no target ou no input livre, processa
     const existingText = targetEl ? targetEl.value.trim() : '';
@@ -173,8 +173,7 @@ export function openAIAssistantModal(targetEl = null) {
 export function closeAIAssistantModal() {
     const modalEl = el('aiAssistantModal');
     if (!modalEl) return;
-    modalEl.classList.add('hidden');
-    modalEl.style.display = 'none';
+    closeModalContainer(modalEl);
 }
 
 function _updateActionButtons(hasText) {

@@ -29,9 +29,12 @@
 </head>
 <body>
   <!-- Global loading bar -->
-  <div id="globalLoadingBar" class="global-loading-bar hidden" aria-hidden="true">
-    <div class="loading-progress"></div>
+  <div id="globalLoadingBar" class="global-loading-bar hidden" role="status">
+    <div class="loading-progress" aria-hidden="true"></div>
+    <span class="sr-only" id="globalLoadingBarText"></span>
   </div>
+  <!-- Announcer acessível para carregamentos (aria-live) -->
+  <div id="a11y-loading-announcer" role="status" aria-live="polite" aria-atomic="true" class="sr-only"></div>
   <!-- Skip to content link (acessibilidade) -->
   <a href="#app" class="skip-link">Ir para o conteúdo principal</a>
   <div id="loginBox">
@@ -68,9 +71,9 @@
       </button>
     </div>
   </div>
-  <div id="app" class="container hidden">
+  <main id="app" class="container hidden" tabindex="-1">
     <!-- Header -->
-    <div class="header">
+    <header class="header">
       <div class="header-logo-section">
         <h1>PainelAtende</h1>
       </div>
@@ -79,7 +82,7 @@
           <div class="user-avatar" id="userAvatar">-</div>
           <span id="loggedUser" class="username-display"></span>
         </div>
-        <div class="search-box">
+        <div class="search-box" role="search">
           <i class="fa-solid fa-search" aria-hidden="true"></i>
           <input id="globalSearch" type="text" placeholder="Filtrar nesta página..." aria-label="Filtrar itens nesta página" />
           <button id="btnClearGlobalSearch" class="btn-clear-search hidden" aria-label="Limpar filtro da página">
@@ -104,7 +107,7 @@
         </button>
         <button id="btnLogout" class="btn danger-outline" title="Sair do sistema" aria-label="Sair do sistema"><i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i> Sair</button>
       </div>
-    </div>
+    </header>
     <div id="adminArea" class="hidden">
       <h2>Administração</h2>
       <div class="card">
@@ -129,32 +132,34 @@
       </div>
     </div>
     <div id="userArea" class="hidden">
-        <div class="tabs" role="tablist" aria-label="Navegação do painel">
-          <button class="tab active" data-tab="tabMessages" id="tab-messages" role="tab" aria-selected="true" aria-controls="tabMessages" title="Mensagens">
-            <i class="fa-solid fa-message" aria-hidden="true"></i> <span class="tab-text">Mensagens</span>
-            <span id="msgCount" class="tab-badge" aria-live="polite" aria-label="Total de mensagens">0</span>
-          </button>
-          <button class="tab" data-tab="tabProblems" id="tab-problems" role="tab" aria-selected="false" aria-controls="tabProblems" title="Problemas / Soluções">
-            <i class="fa-solid fa-wrench" aria-hidden="true"></i> <span class="tab-text">Problemas / Soluções</span>
-            <span id="problemCount" class="tab-badge" aria-live="polite" aria-label="Total de problemas">0</span>
-          </button>
-          <button class="tab" data-tab="tabLinks" id="tab-links" role="tab" aria-selected="false" aria-controls="tabLinks" title="Links Úteis">
-            <i class="fa-solid fa-link" aria-hidden="true"></i> <span class="tab-text">Links Úteis</span>
-            <span id="linkCount" class="tab-badge" aria-live="polite" aria-label="Total de links">0</span>
-          </button>
-          <!-- ✅ NOVA ABA: Sistemas -->
-          <button class="tab" data-tab="tabSistemas" id="tab-sistemas" role="tab" aria-selected="false" aria-controls="tabSistemas" title="Sistemas">
-            <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> <span class="tab-text">Sistemas</span>
-          </button>
-          <button class="tab" data-tab="tabRanking" id="tab-ranking" role="tab" aria-selected="false" aria-controls="tabRanking" title="Métricas & Ranking">
-            <i class="fa-solid fa-chart-line" aria-hidden="true"></i> <span class="tab-text">Métricas & Ranking</span>
-          </button>
-        </div>
+        <nav aria-label="Navegação do painel">
+          <div class="tabs" role="tablist" aria-label="Abas do painel">
+            <button class="tab active" data-tab="tabMessages" id="tab-messages" role="tab" aria-selected="true" aria-controls="tabMessages" title="Mensagens">
+              <i class="fa-solid fa-message" aria-hidden="true"></i> <span class="tab-text">Mensagens</span>
+              <span id="msgCount" class="tab-badge" aria-live="polite" aria-label="Total de mensagens">0</span>
+            </button>
+            <button class="tab" data-tab="tabProblems" id="tab-problems" role="tab" aria-selected="false" aria-controls="tabProblems" title="Problemas / Soluções">
+              <i class="fa-solid fa-wrench" aria-hidden="true"></i> <span class="tab-text">Problemas / Soluções</span>
+              <span id="problemCount" class="tab-badge" aria-live="polite" aria-label="Total de problemas">0</span>
+            </button>
+            <button class="tab" data-tab="tabLinks" id="tab-links" role="tab" aria-selected="false" aria-controls="tabLinks" title="Links Úteis">
+              <i class="fa-solid fa-link" aria-hidden="true"></i> <span class="tab-text">Links Úteis</span>
+              <span id="linkCount" class="tab-badge" aria-live="polite" aria-label="Total de links">0</span>
+            </button>
+            <!-- ✅ NOVA ABA: Sistemas -->
+            <button class="tab" data-tab="tabSistemas" id="tab-sistemas" role="tab" aria-selected="false" aria-controls="tabSistemas" title="Sistemas">
+              <i class="fa-solid fa-screwdriver-wrench" aria-hidden="true"></i> <span class="tab-text">Sistemas</span>
+            </button>
+            <button class="tab" data-tab="tabRanking" id="tab-ranking" role="tab" aria-selected="false" aria-controls="tabRanking" title="Métricas & Ranking">
+              <i class="fa-solid fa-chart-line" aria-hidden="true"></i> <span class="tab-text">Métricas & Ranking</span>
+            </button>
+          </div>
+        </nav>
         <div id="tabMessages" class="tab-content" role="tabpanel" aria-labelledby="tab-messages">
           <div class="card toolbar">
             <div class="search-box">
               <i class="fa-solid fa-search" aria-hidden="true"></i>
-              <input id="msgSearch" type="text" placeholder="Pesquisar mensagens (Ctrl+F)..." aria-label="Pesquisar mensagens" />
+              <input id="msgSearch" type="text" placeholder="Pesquisar mensagens (Alt+F ou /)..." aria-label="Pesquisar mensagens" />
             </div>
             <button id="btnFilterFavorites" class="btn ghost" title="Mostrar apenas favoritos" aria-label="Mostrar apenas mensagens favoritas" aria-pressed="false">
               <i class="fa-solid fa-star" aria-hidden="true"></i> Favoritos
@@ -429,17 +434,17 @@
 
         </div>
       </div>
-    </div>
-    <div id="modalOverlay" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modalMessage">
+    </main>
+    <div id="modalOverlay" class="modal-overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="modalAlertTitle modalMessage">
       <div class="modal-box card center">
-        <h3>Aviso</h3>
+        <h3 id="modalAlertTitle">Aviso</h3>
         <p id="modalMessage" class="mt-10"></p>
         <button type="button" id="btnModalAlertOk" class="btn primary mt-16 full-width">OK</button>
       </div>
     </div>
-    <div id="confirmModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Confirmação">
+    <div id="confirmModal" class="modal-overlay hidden" role="alertdialog" aria-modal="true" aria-labelledby="confirmModalTitle">
       <div class="modal-box card center">
-        <h3>Confirmar</h3>
+        <h3 id="confirmModalTitle">Confirmar</h3>
         <p class="sub mt-10">Esta ação não poderá ser desfeita.</p>
         <div class="mt-16" style="display:flex;gap:8px;width:100%;">
           <button type="button" id="modalCancel" class="btn full-width">Cancelar</button>
@@ -447,9 +452,9 @@
         </div>
       </div>
     </div>
-    <div id="exportFormatModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-label="Exportar Mensagens">
+    <div id="exportFormatModal" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="exportFormatTitle">
       <div class="modal-box card center small">
-        <h3>Exportar Mensagens</h3>
+        <h3 id="exportFormatTitle">Exportar Mensagens</h3>
         <p class="sub mt-10">Escolha o formato do arquivo de backup:</p>
         <div class="export-format-options">
           <div class="export-format-option">
@@ -488,8 +493,8 @@
               <span>Abrir busca global (modal)</span>
             </div>
             <div class="help-shortcut-row">
-              <div class="help-shortcut-keys"><kbd>Ctrl</kbd><span>+</span><kbd>F</kbd></div>
-              <span>Focar na barra de busca do header</span>
+              <div class="help-shortcut-keys"><kbd>Alt</kbd><span>+</span><kbd>F</kbd> ou <kbd>/</kbd></div>
+              <span>Focar na busca de mensagens / filtro local</span>
             </div>
             <div class="help-shortcut-row">
               <div class="help-shortcut-keys"><kbd>Enter</kbd></div>
@@ -525,6 +530,56 @@
             </div>
           </div>
           <p class="help-tip"><i class="fa-solid fa-lightbulb"></i> Os atalhos de letras (N, P) e números (1, 2, 3, 4) só funcionam quando você não está digitando em nenhum campo.</p>
+        </div>
+        <div id="help-tutorial" class="help-panel hidden" role="tabpanel" aria-labelledby="help-tab-tutorial">
+          <div class="help-tutorial-list">
+            <div class="help-tutorial-item">
+              <div class="help-tutorial-icon"><i class="fa-solid fa-comment-dots" aria-hidden="true"></i></div>
+              <div>
+                <strong>Respostas Rápidas</strong>
+                <p>Clique em qualquer cartão de mensagem para copiar o texto pronto direto para a área de transferência.</p>
+              </div>
+            </div>
+            <div class="help-tutorial-item">
+              <div class="help-tutorial-icon"><i class="fa-solid fa-lightbulb" aria-hidden="true"></i></div>
+              <div>
+                <strong>Base de Soluções</strong>
+                <p>Filtre problemas por departamento ou status e copie soluções validadas rapidamente.</p>
+              </div>
+            </div>
+            <div class="help-tutorial-item">
+              <div class="help-tutorial-icon"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i></div>
+              <div>
+                <strong>Busca Universal (<kbd>Ctrl</kbd>+<kbd>K</kbd>)</strong>
+                <p>Abra a Command Palette a qualquer momento para buscar mensagens, soluções, links ou acionar ferramentas do sistema.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="help-contact" class="help-panel hidden" role="tabpanel" aria-labelledby="help-tab-contact">
+          <div class="help-contact-list">
+            <a href="https://wa.me/5511999990000" target="_blank" rel="noopener noreferrer" class="help-contact-item help-contact-link" aria-label="Abrir suporte via WhatsApp">
+              <i class="fa-brands fa-whatsapp" aria-hidden="true"></i>
+              <div>
+                <strong>WhatsApp Suporte</strong>
+                <p class="sub">(11) 99999-0000 &bull; Atendimento em tempo real</p>
+              </div>
+            </a>
+            <a href="mailto:suporte@painelatende.com.br" class="help-contact-item help-contact-link" aria-label="Enviar e-mail para suporte@painelatende.com.br">
+              <i class="fa-regular fa-envelope" aria-hidden="true"></i>
+              <div>
+                <strong>E-mail de Suporte</strong>
+                <p class="sub">suporte@painelatende.com.br &bull; Resposta em até 24 horas</p>
+              </div>
+            </a>
+            <div class="help-contact-item">
+              <i class="fa-regular fa-clock" aria-hidden="true"></i>
+              <div>
+                <strong>Horário de Atendimento</strong>
+                <p class="sub">Segunda a Sexta, das 08:00 às 18:00 (Horário de Brasília)</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

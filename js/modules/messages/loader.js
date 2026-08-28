@@ -138,9 +138,10 @@ export async function loadMessages(userId) {
 
     const list = el('msgList');
     if (!list) return;
+    list.setAttribute('aria-busy', 'true');
     list.innerHTML = `
         <div class="loading-state">
-            <span class="spinner"></span>
+            <span class="spinner" aria-hidden="true"></span>
             <span>Carregando mensagens...</span>
         </div>
     `;
@@ -184,6 +185,7 @@ export async function loadMessages(userId) {
         list.innerHTML = `<div class="empty-state-container"><i class="fa-solid fa-triangle-exclamation empty-state-icon"></i><p class="empty-state-title">Erro ao carregar mensagens</p></div>`;
     } finally {
         state.isLoadingMessages = false;
+        list.removeAttribute('aria-busy');
     }
 }
 

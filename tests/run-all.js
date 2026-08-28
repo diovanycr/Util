@@ -17,7 +17,13 @@ const testFiles = [
     'solution-status-filter.test.js',
     'no-solution-indicator.test.js',
     'message-inline-search.test.js',
-    'quality-gates.test.js'
+    'quality-gates.test.js',
+    'modal-accessibility.test.js',
+    'loading-a11y.test.js',
+    'help-contact.test.js',
+    'landmarks-a11y.test.js',
+    'command-palette-enter.test.js',
+    'ctrl-f-native.test.js'
 ];
 
 console.log('⚡ Executando suíte unificada de testes do PainelAtende...\n');

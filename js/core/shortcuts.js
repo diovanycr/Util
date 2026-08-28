@@ -9,6 +9,7 @@
  * Enter ? Aciona resultado selecionado
  */
 import { el } from './firebase.js';
+import { openModalContainer, closeModalContainer } from './modal.js';
 
 let _searchIndex = -1; // índice do item selecionado na busca
 
@@ -28,8 +29,8 @@ export function initShortcuts() {
             return;
         }
 
-        // Ctrl+F — busca inline na aba Mensagens
-        if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+        // Alt+F ou / — busca local na aba Mensagens ou filtro no header
+        if ((e.altKey && (e.key === 'f' || e.key === 'F')) || (!isEditing && e.key === '/')) {
             const tabMessages = el('tabMessages');
             const msgSearch = el('msgSearch');
             if (tabMessages && !tabMessages.classList.contains('hidden') && msgSearch) {
@@ -150,21 +151,16 @@ function _navigateResults(dir) {
     if (listbox) listbox.setAttribute('aria-activedescendant', selected.id || '');
 }
 
-// Aciona o botão principal do item selecionado (copiar ou ir)
+// Aciona a ação primária do item selecionado (abrir / navegar)
 function _activateSelected() {
     const selected = document.querySelector('#globalSearchResults .search-result-item.search-selected');
     if (selected) {
-        // Tenta clicar no botão de copiar primeiro, senão clica no item
-        const copyBtn = selected.querySelector('.search-copy-btn');
-        if (copyBtn) copyBtn.click();
-        else selected.click();
+        selected.click();
     } else {
         // Se nenhum selecionado, aciona o primeiro resultado
         const first = document.querySelector('#globalSearchResults .search-result-item');
         if (first) {
-            const copyBtn = first.querySelector('.search-copy-btn');
-            if (copyBtn) copyBtn.click();
-            else first.click();
+            first.click();
         }
     }
 }
@@ -199,12 +195,11 @@ export function resetSearchIndex() {
 export function openSearch() {
     const modal = el('globalSearchModal');
     if (!modal) return;
-    _resetSearchIndex(); // reseta índice e aria-activedescendant ao abrir
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
     const input = el('globalSearchInput');
-    if (input) { input.value = ''; input.focus(); }
+    if (input) input.value = '';
     el('globalSearchResults').innerHTML = '<p class="search-hint">Digite para buscar...</p>';
+    openModalContainer(modal, input);
+    _resetSearchIndex(); // reseta índice e aria-activedescendant ao abrir
 
     // Listener único: evita acumular handlers a cada abertura do modal
     if (input && !_searchIndexResetBound) {
@@ -217,6 +212,5 @@ export function closeSearch() {
     const modal = el('globalSearchModal');
     if (!modal) return;
     _resetSearchIndex();
-    modal.classList.add('hidden');
-    modal.style.display = 'none';
+    closeModalContainer(modal);
 }

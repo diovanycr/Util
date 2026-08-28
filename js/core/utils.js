@@ -452,11 +452,13 @@ export async function withButtonLoading(btn, fn, loadingText = 'Carregando...') 
     if (!btn) return fn();
     const originalHtml = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = `<span class="spinner" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></span> ${loadingText}`;
+    btn.setAttribute('aria-busy', 'true');
+    btn.innerHTML = `<span class="spinner" aria-hidden="true" style="width:16px;height:16px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></span> ${loadingText}`;
     try {
         return await fn();
     } finally {
         btn.disabled = false;
+        btn.removeAttribute('aria-busy');
         btn.innerHTML = originalHtml;
     }
 }

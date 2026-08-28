@@ -14,6 +14,7 @@ import {
     deleteDoc as _deleteDoc,
     writeBatch as _writeBatch
 } from './firebase.js';
+import { announceLoading, announceComplete } from './announce.js';
 
 const RETRY_DELAYS = [1000, 2000, 4000];
 
@@ -23,7 +24,14 @@ function showGlobalLoading() {
     activeRequests++;
     if (typeof document !== 'undefined') {
         const bar = document.getElementById('globalLoadingBar');
-        if (bar) bar.classList.remove('hidden');
+        if (bar) {
+            bar.classList.remove('hidden');
+            const txt = document.getElementById('globalLoadingBarText');
+            if (txt) txt.textContent = 'Carregando dados...';
+        }
+        const app = document.getElementById('app');
+        if (app) app.setAttribute('aria-busy', 'true');
+        announceLoading('Carregando dados...');
     }
 }
 
@@ -31,7 +39,14 @@ function hideGlobalLoading() {
     activeRequests = Math.max(0, activeRequests - 1);
     if (activeRequests === 0 && typeof document !== 'undefined') {
         const bar = document.getElementById('globalLoadingBar');
-        if (bar) bar.classList.add('hidden');
+        if (bar) {
+            bar.classList.add('hidden');
+            const txt = document.getElementById('globalLoadingBarText');
+            if (txt) txt.textContent = '';
+        }
+        const app = document.getElementById('app');
+        if (app) app.removeAttribute('aria-busy');
+        announceComplete();
     }
 }
 

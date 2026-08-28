@@ -236,8 +236,11 @@ async function runSearch(query) {
             row.className = 'search-result-item';
             row.setAttribute('role', 'option');
             row.innerHTML = `
-                <span class="search-result-text">${highlight(item.text, query)}</span>
-                <button class="btn ghost search-copy-btn" title="Copiar"><i class="fa-solid fa-copy"></i></button>
+                <div>
+                    ${item.title ? `<span class="search-result-title">${highlight(item.title, query)}</span>` : ''}
+                    <span class="search-result-desc">${highlight(item.text, query)}</span>
+                </div>
+                <button class="btn ghost search-copy-btn" title="Copiar mensagem" aria-label="Copiar mensagem"><i class="fa-solid fa-copy" aria-hidden="true"></i></button>
             `;
             row.querySelector('.search-copy-btn').onclick = async (e) => {
                 e.stopPropagation();
@@ -245,9 +248,13 @@ async function runSearch(query) {
                 showToast("Copiado!");
                 closeSearch();
             };
-            row.onclick = async () => {
-                await navigator.clipboard.writeText(item.text);
-                showToast("Copiado!");
+            row.onclick = () => {
+                document.querySelector('[data-tab="tabMessages"]')?.click();
+                const msgSearch = el('msgSearch');
+                if (msgSearch) {
+                    msgSearch.value = item.title || item.text;
+                    msgSearch.dispatchEvent(new Event('input'));
+                }
                 closeSearch();
             };
             return row;

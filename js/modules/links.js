@@ -1,6 +1,6 @@
-/**
- * links.js â€” Aba de Links Ãšteis
- * Links salvos no Firestore, clicÃ¡veis e organizados por categoria
+﻿/**
+ * links.js — Aba de Links Úteis
+ * Links salvos no Firestore, clicáveis e organizados por categoria
  */
 
 import {
@@ -50,22 +50,22 @@ function setupLinksInterface() {
     };
 
     el('btnAddLink').onclick = async () => {
-        if (!currentUserId) return showModal("SessÃ£o expirada. FaÃ§a login novamente.");
+        if (!currentUserId) return showModal("Sessão expirada. Faça login novamente.");
         let url = el('linkUrl').value.trim();
         const title = el('linkTitle').value.trim();
         const category = el('linkCategory').value.trim();
 
-        if (!url) return showModal("A URL Ã© obrigatÃ³ria.");
+        if (!url) return showModal("A URL é obrigatória.");
 
-        // Adiciona https:// se nÃ£o tiver protocolo
+        // Adiciona https:// se não tiver protocolo
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
 
-        // Valida URL bÃ¡sica
+        // Valida URL básica
         try { new URL(url); } catch {
-            return showModal("URL invÃ¡lida. Verifique e tente novamente.");
+            return showModal("URL inválida. Verifique e tente novamente.");
         }
 
-        // Tenta obter tÃ­tulo via favicon/metadata se nÃ£o preenchido
+        // Tenta obter título via favicon/metadata se não preenchido
         const displayTitle = title || extractDomain(url);
 
         try {
@@ -391,7 +391,7 @@ function filterLinks(query) {
         group.classList.toggle('hidden-by-search', !hasVisible);
     });
 
-    // Se nÃ£o houver query e todos visÃ­veis, garante que nenhum grupo fique oculto
+    // Se não houver query e todos visíveis, garante que nenhum grupo fique oculto
     if (!query) {
         list.querySelectorAll('.link-group').forEach(g => g.classList.remove('hidden-by-search'));
     }

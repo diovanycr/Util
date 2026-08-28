@@ -142,9 +142,9 @@ function setupGlobalSearch() {
         input.focus();
     };
 
-    // Ctrl+F
+    // Alt+F
     _ctrlFHandler = (e) => {
-        if (e.ctrlKey && e.key === 'f') {
+        if (e.altKey && (e.key === 'f' || e.key === 'F')) {
             e.preventDefault();
             input.focus();
             input.select();

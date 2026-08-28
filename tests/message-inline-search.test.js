@@ -68,8 +68,9 @@ runTest('messages.js binds msgSearch input listener', () => {
     assert(messagesCode.includes("'msgSearch'") || messagesCode.includes('"msgSearch"'), 'Should bind input listener to #msgSearch');
 });
 
-runTest('shortcuts.js adds Ctrl+F shortcut to focus msgSearch', () => {
-    assert(shortcutsCode.includes("e.key === 'f'") || shortcutsCode.includes('e.key === "f"'), 'Should detect Ctrl+F key');
+runTest('shortcuts.js adds Alt+F and / shortcuts to focus msgSearch', () => {
+    assert(shortcutsCode.includes("e.altKey") && (shortcutsCode.includes("e.key === 'f'") || shortcutsCode.includes("e.key === 'F'")), 'Should detect Alt+F key');
+    assert(shortcutsCode.includes("e.key === '/'"), 'Should detect / key for search');
     assert(shortcutsCode.includes("'msgSearch'") || shortcutsCode.includes('"msgSearch"'), 'Should target #msgSearch element');
     assert(shortcutsCode.includes('msgSearch.focus()'), 'Should call focus() on #msgSearch');
 });

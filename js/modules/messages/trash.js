@@ -34,7 +34,8 @@ export async function updateTrashCount(userId) {
 
 export async function loadTrash(userId, callbacks) {
     const list = el('trashList');
-    list.innerHTML = '<div class="loading-state"><span class="spinner"></span><span>Carregando lixeira...</span></div>';
+    list.setAttribute('aria-busy', 'true');
+    list.innerHTML = '<div class="loading-state"><span class="spinner" aria-hidden="true"></span><span>Carregando lixeira...</span></div>';
     try {
         const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('deleted', '==', true), limit(500)));
         const docs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -81,6 +82,7 @@ export async function loadTrash(userId, callbacks) {
             list.appendChild(row);
         });
     } catch (err) { console.error("Erro ao carregar lixeira:", err); }
+    finally { list.removeAttribute('aria-busy'); }
 }
 
 export async function emptyTrash(userId, callbacks) {

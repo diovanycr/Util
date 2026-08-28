@@ -2,56 +2,149 @@ import { el } from './firebase.js';
 
 let modalConfirmCallback = null;
 let modalCancelCallback = null;
-let lastFocusedElement = null;
 
-function trapFocus(containerEl) {
-  const focusable = containerEl.querySelectorAll(
-    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-  );
-  const first = focusable[0];
-  const last = focusable[focusable.length - 1];
-  if (!first) return;
-  first.focus();
+// Stack of currently open modal containers
+const activeModalStack = [];
 
+/**
+ * Gets focusable elements inside a container.
+ */
+function getFocusableElements(containerEl) {
+  if (!containerEl) return [];
+  return Array.from(
+    containerEl.querySelectorAll(
+      'button:not([disabled]), [href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )
+  ).filter(el => el.offsetWidth > 0 || el.offsetHeight > 0 || el === document.activeElement);
+}
+
+/**
+ * Traps Tab / Shift+Tab focus inside a modal container.
+ */
+export function trapFocus(containerEl) {
   const handler = (e) => {
-    const isTab = e.key === 'Tab';
-    if (!isTab) return;
+    if (e.key !== 'Tab') return;
+
+    const focusables = getFocusableElements(containerEl);
+    if (focusables.length === 0) {
+      e.preventDefault();
+      return;
+    }
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+
     if (e.shiftKey) {
-      if (document.activeElement === first) { e.preventDefault(); last?.focus(); }
+      if (document.activeElement === first || !containerEl.contains(document.activeElement)) {
+        e.preventDefault();
+        last.focus();
+      }
     } else {
-      if (document.activeElement === last) { e.preventDefault(); first?.focus(); }
+      if (document.activeElement === last || !containerEl.contains(document.activeElement)) {
+        e.preventDefault();
+        first.focus();
+      }
     }
   };
+
   containerEl.addEventListener('keydown', handler);
-  // Retorna cleanup
   return () => containerEl.removeEventListener('keydown', handler);
 }
 
-function closeModalCommon(modal, returnFocusTo) {
-  modal.classList.add('hidden');
-  modal.style.display = 'none';
-  if (returnFocusTo) returnFocusTo.focus();
+/**
+ * Returns the currently active top modal container, or null.
+ */
+export function getActiveModal() {
+  return activeModalStack.length > 0 ? activeModalStack[activeModalStack.length - 1] : null;
+}
+
+/**
+ * Opens a modal container with full accessibility (focus trap, initial focus, focus memory).
+ * @param {HTMLElement} containerEl The modal overlay element
+ * @param {HTMLElement|null} focusTarget Element to focus initially (optional)
+ */
+export function openModalContainer(containerEl, focusTarget = null) {
+  if (!containerEl) return;
+
+  // Save focus origin if current active element is not inside this modal
+  if (document.activeElement && !containerEl.contains(document.activeElement)) {
+    containerEl._previousFocus = document.activeElement;
+  }
+
+  // Push to stack if not already top
+  const stackIndex = activeModalStack.indexOf(containerEl);
+  if (stackIndex >= 0) {
+    activeModalStack.splice(stackIndex, 1);
+  }
+  activeModalStack.push(containerEl);
+
+  containerEl.setAttribute('aria-modal', 'true');
+  containerEl.classList.remove('hidden');
+  containerEl.style.display = 'flex';
+
+  // Clean up any existing focus trap
+  if (containerEl._focusCleanup) {
+    containerEl._focusCleanup();
+  }
+  containerEl._focusCleanup = trapFocus(containerEl);
+
+  // Set initial focus
+  requestAnimationFrame(() => {
+    if (focusTarget && typeof focusTarget.focus === 'function') {
+      focusTarget.focus();
+    } else {
+      const focusables = getFocusableElements(containerEl);
+      if (focusables.length > 0) {
+        focusables[0].focus();
+      }
+    }
+  });
+}
+
+/**
+ * Closes a modal container, cleans up focus trap, and restores previous focus.
+ * @param {HTMLElement|null} containerEl The modal overlay element to close (defaults to top active modal)
+ */
+export function closeModalContainer(containerEl = null) {
+  const targetModal = containerEl || getActiveModal();
+  if (!targetModal) return;
+
+  // Clean up focus trap
+  if (targetModal._focusCleanup) {
+    targetModal._focusCleanup();
+    targetModal._focusCleanup = null;
+  }
+
+  targetModal.classList.add('hidden');
+  targetModal.style.display = 'none';
+
+  // Remove from stack
+  const stackIndex = activeModalStack.indexOf(targetModal);
+  if (stackIndex >= 0) {
+    activeModalStack.splice(stackIndex, 1);
+  }
+
+  // Restore focus
+  const returnFocus = targetModal._previousFocus;
+  targetModal._previousFocus = null;
+  if (returnFocus && typeof returnFocus.focus === 'function' && document.body.contains(returnFocus)) {
+    requestAnimationFrame(() => returnFocus.focus());
+  }
 }
 
 export function showModal(message) {
   const modal = el('modalOverlay');
   const msg = el('modalMessage');
   if (modal && msg) {
-    lastFocusedElement = document.activeElement;
     msg.innerText = message;
-    modal.classList.remove('hidden');
-    modal.style.display = 'flex';
-    const cleanup = trapFocus(modal);
-    modal._focusCleanup = cleanup;
+    openModalContainer(modal, el('btnModalAlertOk'));
   }
 }
 
 export function closeModal() {
   const modal = el('modalOverlay');
   if (modal) {
-    if (modal._focusCleanup) modal._focusCleanup();
-    closeModalCommon(modal, lastFocusedElement);
-    lastFocusedElement = null;
+    closeModalContainer(modal);
   }
 }
 
@@ -71,29 +164,43 @@ export function openConfirmModal(confirmCb, cancelCb = null, message = null, con
 
   const confirmModal = el('confirmModal');
   if (confirmModal) {
-    lastFocusedElement = document.activeElement;
-    confirmModal.classList.remove('hidden');
-    confirmModal.style.display = 'flex';
-    const cleanup = trapFocus(confirmModal);
-    confirmModal._focusCleanup = cleanup;
+    openModalContainer(confirmModal, cancelBtn || confirmBtn);
   }
 }
 
 export function initModalListeners() {
-  // Fechar modais com Escape
+  // Fechar modais com Escape (hierárquico pela pilha)
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      const alertModal = el('modalOverlay');
-      const confirmModal = el('confirmModal');
-      const exportModal = el('exportFormatModal');
-      if (confirmModal && !confirmModal.classList.contains('hidden')) {
+      const topModal = getActiveModal();
+      if (!topModal) return;
+
+      e.stopPropagation();
+
+      if (topModal.id === 'confirmModal') {
         el('modalCancel')?.click();
-      } else if (alertModal && !alertModal.classList.contains('hidden')) {
+      } else if (topModal.id === 'modalOverlay') {
         closeModal();
-      } else if (exportModal && !exportModal.classList.contains('hidden')) {
-        exportModal.classList.add('hidden');
-        exportModal.style.display = 'none';
-        el('btnExport')?.focus();
+      } else if (topModal.id === 'exportFormatModal') {
+        closeModalContainer(topModal);
+      } else if (topModal.id === 'helpModal') {
+        const btnClose = el('btnCloseHelp');
+        if (btnClose) btnClose.click();
+        else closeModalContainer(topModal);
+      } else if (topModal.id === 'globalSearchModal') {
+        const input = el('globalSearchInput');
+        if (input) input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        closeModalContainer(topModal);
+      } else if (topModal.id === 'deptModal') {
+        const btnCancel = el('btnCancelDept');
+        if (btnCancel) btnCancel.click();
+        else closeModalContainer(topModal);
+      } else if (topModal.id === 'aiAssistantModal') {
+        const btnClose = el('btnCloseAiModal');
+        if (btnClose) btnClose.click();
+        else closeModalContainer(topModal);
+      } else {
+        closeModalContainer(topModal);
       }
     }
   });
@@ -119,17 +226,25 @@ export function initModalListeners() {
   }
 
   // Fecha ao clicar no overlay (fora da modal-box)
-  el('modalOverlay')?.addEventListener('click', (e) => {
-    if (e.target === el('modalOverlay')) closeModal();
-  });
+  const modalOverlay = el('modalOverlay');
+  if (modalOverlay) {
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+  }
+
+  const confirmModal = el('confirmModal');
+  if (confirmModal) {
+    confirmModal.addEventListener('click', (e) => {
+      if (e.target === confirmModal) el('modalCancel')?.click();
+    });
+  }
 }
 
 function closeConfirmModal() {
   const modal = el('confirmModal');
   if (modal) {
-    if (modal._focusCleanup) modal._focusCleanup();
-    closeModalCommon(modal, lastFocusedElement);
-    lastFocusedElement = null;
+    closeModalContainer(modal);
   }
 }
 

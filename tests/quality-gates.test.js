@@ -1,5 +1,6 @@
 import { createRequire } from 'node:module';
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 
 const require = createRequire(import.meta.url);
 const packageJson = require('../package.json');
@@ -26,6 +27,13 @@ for (const script of ['typecheck', 'build', 'validate:port-denylist']) {
 for (const file of ['scripts/typecheck.js', 'scripts/build-check.js', 'scripts/validate-port-denylist.js']) {
     const result = spawnSync(process.execPath, [file], { encoding: 'utf8' });
     assert(result.status === 0, `${file} should pass for the current project`);
+}
+
+const ciWorkflowPath = new URL('../.github/workflows/ci.yml', import.meta.url);
+const ciWorkflowContent = readFileSync(ciWorkflowPath, 'utf8');
+
+for (const script of ['validate:port-denylist', 'typecheck', 'build']) {
+    assert(ciWorkflowContent.includes(`npm run ${script}`), `.github/workflows/ci.yml should explicitly execute npm run ${script}`);
 }
 
 console.log(`\n${passed} passed, ${failed} failed`);

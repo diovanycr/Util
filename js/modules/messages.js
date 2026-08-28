@@ -10,7 +10,7 @@
 
 import { el, db, collection, doc, query, orderBy, limit } from '../core/firebase.js';
 import { getDocs, addDoc } from '../core/firebase-retry.js';
-import { showModal, openConfirmModal } from '../core/modal.js';
+import { showModal, openConfirmModal, openModalContainer, closeModalContainer } from '../core/modal.js';
 import { initHistory } from './history.js';
 import { withButtonLoading } from '../core/utils.js';
 import { initAIAssistant, openAIAssistantModal } from './aiAssistant.js';
@@ -149,22 +149,14 @@ function setupUserInterface(uid) {
     el('btnExport').onclick = () => {
         const modal = el('exportFormatModal');
         if (modal) {
-            modal.classList.remove('hidden');
-            modal.style.display = 'flex';
-            el('btnExportFormatJson')?.focus();
+            openModalContainer(modal, el('btnExportFormatJson'));
         }
-        modal._exportLastFocus = document.activeElement;
     };
 
     const closeExportModal = () => {
         const modal = el('exportFormatModal');
         if (modal) {
-            modal.classList.add('hidden');
-            modal.style.display = 'none';
-            if (modal._exportLastFocus) {
-                modal._exportLastFocus.focus();
-                modal._exportLastFocus = null;
-            }
+            closeModalContainer(modal);
         }
     };
 
@@ -180,19 +172,12 @@ function setupUserInterface(uid) {
         exportToJson();
     };
 
-    _exportModalKeydown = (e) => {
-        if (e.key === 'Escape') {
-            closeExportModal();
-            el('btnExport')?.focus();
-        }
-    };
-    el('exportFormatModal').addEventListener('keydown', _exportModalKeydown);
     _exportModalClick = (e) => {
         if (e.target === el('exportFormatModal')) {
             closeExportModal();
         }
     };
-    el('exportFormatModal').addEventListener('click', _exportModalClick);
+    el('exportFormatModal')?.addEventListener('click', _exportModalClick);
 
     el('btnImport').onclick = () => {
         const input = document.createElement('input');

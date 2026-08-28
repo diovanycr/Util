@@ -4,6 +4,7 @@
  */
 
 import { el } from '../core/firebase.js';
+import { openModalContainer, closeModalContainer } from '../core/modal.js';
 
 export function initHelp() {
     const btn = document.getElementById('btnHelp');
@@ -14,21 +15,16 @@ export function initHelp() {
 
     if (!btn || !modal) return;
 
-    let _helpPreviousFocus = null;
-
     btn.addEventListener('click', () => {
-        _helpPreviousFocus = document.activeElement;
-        modal.classList.remove('hidden');
+        openModalContainer(modal, btnClose);
         // Ativa primeira aba por padrão
         switchHelpTab('shortcuts');
-        btnClose?.focus();
     });
 
     btnClose?.addEventListener('click', closeHelp);
     modal.addEventListener('click', (e) => { if (e.target === modal) closeHelp(); });
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && !modal.classList.contains('hidden')) closeHelp();
         if (!modal.classList.contains('hidden') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
             const activeTab = document.querySelector('.help-tab.active');
             if (!activeTab) return;
@@ -46,8 +42,7 @@ export function initHelp() {
     });
 
     function closeHelp() {
-        document.getElementById('helpModal')?.classList.add('hidden');
-        if (_helpPreviousFocus) { _helpPreviousFocus.focus(); _helpPreviousFocus = null; }
+        closeModalContainer(modal);
     }
 
     tabs.forEach(tab => {
