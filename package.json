@@ -7,7 +7,10 @@
   "scripts": {
     "lint": "eslint js/",
     "format": "prettier --write js/ tests/",
-    "test": "node tests/run-all.js"
+    "test": "node tests/run-all.js",
+    "typecheck": "node scripts/typecheck.js",
+    "build": "node scripts/build-check.js",
+    "validate:port-denylist": "node scripts/validate-port-denylist.js"
   },
   "devDependencies": {
     "eslint": "^9.0.0",

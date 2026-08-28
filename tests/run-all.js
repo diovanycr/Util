@@ -16,7 +16,8 @@ const testFiles = [
     'command-palette.test.js',
     'solution-status-filter.test.js',
     'no-solution-indicator.test.js',
-    'message-inline-search.test.js'
+    'message-inline-search.test.js',
+    'quality-gates.test.js'
 ];
 
 console.log('⚡ Executando suíte unificada de testes do PainelAtende...\n');
