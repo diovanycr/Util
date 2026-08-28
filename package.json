@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.22.2"
+  },
   "description": "Client-side web app for automated responses and problem/solution management",
   "scripts": {
     "lint": "eslint js/",
