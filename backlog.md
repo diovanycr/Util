@@ -10,7 +10,7 @@
 
 
 ## 📍 Estado atual
-Última sessão: 2ª análise aprofundada do código (aug/2026). Total de 23 itens identificados e registrados no backlog, cobrindo UX, Analytics, Ferramentas, Base de Conhecimento, Bugs e Qualidade Técnica.
+Última sessão: análise de arquitetura, segurança e qualidade (aug/2026). Recomendações registradas cobrindo UX, Analytics, Ferramentas, Base de Conhecimento, Segurança, Bugs e Qualidade Técnica.
 
 ---
 
@@ -21,9 +21,15 @@
 ## Próximo
 
 ### 🐛 Bugs & Críticos
+- [ ] **Mover as chamadas de IA para backend/serverless** — não persistir chaves de provedores no `localStorage`; aplicar autenticação, rate limiting e controle centralizado de custos `[G]` `[Backend]`
+- [ ] **Versionar e testar regras de segurança do Firestore** — garantir isolamento dos dados por `uid` e validar privilégios administrativos no servidor, não apenas pela interface `[G]` `[Backend]`
+- [ ] **Restringir a Content Security Policy (CSP)** — remover gradualmente `unsafe-inline` e limitar `connect-src`/`img-src` aos domínios estritamente necessários `[M]` `[Arch]`
 - [ ] **Resetar `copyCount` diário via Cloud Function agendada (Firebase) ao invés do timer no cliente** — `resetDailyCounts()` em `ranking.js` depende de a aba estar aberta à meia-noite `[M]` `[Backend]`
 
 ### ⚙️ Qualidade Técnica
+- [ ] **Corrigir o runner da suíte de testes** — `npm test` encerra após `backlog.test.js`, apesar de listar outros arquivos de teste `[M]` `[QA]`
+- [ ] **Criar gate de typecheck e build no npm/CI** — os scripts exigidos pela qualidade ainda não existem e devem bloquear regressões antes do deploy `[M]` `[QA]`
+- [ ] **Paginar e agregar leituras do Firestore** — evitar carregamentos integrais/limites fixos em analytics, mensagens e histórico para conter latência e custo à medida que a base cresce `[G]` `[Backend]`
 - [ ] **Proteção contra rate limiting no Firestore** — `loadMessages` e `loadProblems` sem throttle; usuários com muitos dados podem gerar leituras excessivas `[M]` `[Backend]`
 - [ ] **Lazy-loading das ferramentas no portOpener** — todos os painéis são construídos no carregamento inicial; ferramentas pesadas como `decisionTree` (~30 KB) devem ser carregadas sob demanda `[G]` `[Arch]`
 - [ ] **Adicionar contatos reais de suporte (WhatsApp/e-mail) no painel de Ajuda** `[P]` `[UX]`
