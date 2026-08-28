@@ -149,7 +149,7 @@ Util/
 
 ## 📦 Pré-requisitos
 
-- [Node.js](https://nodejs.org/) `>= 18`
+- [Node.js](https://nodejs.org/) `>= 22.22.2`
 - Conta no [Firebase](https://console.firebase.google.com/) com projeto configurado (Firestore + Authentication)
 - Chave de API do Gemini ou OpenAI (opcional, para funcionalidades de IA)
 
