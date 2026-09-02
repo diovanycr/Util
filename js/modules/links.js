@@ -1,4 +1,4 @@
-﻿/**
+/**
  * links.js — Aba de Links Úteis
  * Links salvos no Firestore, clicáveis e organizados por categoria
  */
@@ -194,9 +194,11 @@ function renderLinks(container, links) {
             if (item.id) card.dataset.id = item.id;
             const faviconUrl = getFaviconUrl(item.url);
             const faviconHtml = faviconUrl
-                ? `<img class="link-favicon" src="${escapeAttr(faviconUrl)}" onerror="this.style.display='none'" alt="Ícone de ${escapeAttr(item.title)}" />`
+                ? `<img class="link-favicon" data-favicon-img src="${escapeAttr(faviconUrl)}" alt="Ícone de ${escapeAttr(item.title)}" />`
                 : `<i class="fa-solid fa-globe link-favicon-icon" style="margin-right:8px;color:var(--text-muted);"></i>`;
             card.innerHTML = `
+                <a class="link-main" href="${escapeAttr(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir link: ${escapeAttr(item.title)}">
+                    ${faviconHtml}
                 <a class="link-main" href="${escapeAttr(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir link: ${escapeAttr(item.title)}">
                     ${faviconHtml}
                     <div class="link-info">
@@ -213,6 +215,9 @@ function renderLinks(container, links) {
                     <i class="fa-solid fa-trash" aria-hidden="true"></i>
                 </button>
             `;
+
+            const faviconImg = card.querySelector('[data-favicon-img]');
+            if (faviconImg) faviconImg.addEventListener('error', () => { faviconImg.style.display = 'none'; });
 
             const linkMain = card.querySelector('.link-main');
             if (linkMain) {

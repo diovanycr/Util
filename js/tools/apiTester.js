@@ -4,7 +4,7 @@
 //  Testador rápido de endpoints REST/Webhooks para verificar
 //  integrações com WooCommerce, VTEX, Mercado Livre, APIs Mobile
 
-import { escapeHtml, escapeAttr, setStatusBadge } from '../core/utils.js';
+import { escapeHtml, escapeAttr, setStatusBadge, openConfirmModal } from '../core/modal.js';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -16,6 +16,54 @@ const PRESETS = [
 ];
 
 let atHistory = [];
+
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '0.0.0.0', '::1', '::']);
+
+function _isPrivateIPv4(host) {
+    if (!/^\d{1,3}(\.\d{1,3}){3}$/.test(host)) return false;
+    const parts = host.split('.').map(Number);
+    if (parts.some(p => p < 0 || p > 255 || Number.isNaN(p))) return true;
+    return (
+        parts[0] === 10 ||
+        parts[0] === 127 ||
+        (parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31) ||
+        (parts[0] === 192 && parts[1] === 168) ||
+        (parts[0] === 169 && parts[1] === 254) ||
+        (parts[0] === 100 && parts[1] >= 64 && parts[1] <= 127)
+    );
+}
+
+export function validateApiRequestUrl(rawUrl) {
+    if (!rawUrl) return { ok: false, reason: 'URL vazia.' };
+    let url;
+    try { url = new URL(rawUrl); } catch { return { ok: false, reason: 'URL malformada.' }; }
+    if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+        return { ok: false, reason: `Protocolo bloqueado (${url.protocol}). Use http ou https.` };
+    }
+    if (url.protocol === 'http:') {
+        return { ok: false, reason: 'HTTP (sem TLS) bloqueado. Use https.' };
+    }
+    const host = url.hostname.toLowerCase();
+    if (LOOPBACK_HOSTS.has(host)) {
+        return { ok: false, reason: `Loopback bloqueado (${host}).` };
+    }
+    if (_isPrivateIPv4(host)) {
+        return { ok: false, reason: `Endereço de rede privada bloqueado (${host}).` };
+    }
+    return { ok: true, host, url };
+}
+
+function _maskSensitiveHeaders(headers) {
+    const masked = {};
+    for (const [k, v] of Object.entries(headers || {})) {
+        if (/authorization|cookie|x-api-key|api[-_]?token|apikey|access[-_]?token/i.test(k)) {
+            masked[k] = typeof v === 'string' ? '••••••' : v;
+        } else {
+            masked[k] = v;
+        }
+    }
+    return masked;
+}
 
 export function buildApiTesterPanel() {
     return `
@@ -123,12 +171,29 @@ function _send(container) {
 
     if (!url) { _showError(container, 'Digite uma URL.'); return; }
 
+    const check = validateApiRequestUrl(url);
+    if (!check.ok) { _showError(container, `Requisição bloqueada: ${check.reason}`); return; }
+
     let headers = {};
     if (headersText) {
         try { headers = JSON.parse(headersText); }
         catch { _showError(container, 'Headers inválidos. Use JSON válido.'); return; }
     }
 
+    const proceed = () => _executeRequest(container, method, url, headers, bodyText);
+    const needsConfirm = method !== 'GET' || Object.keys(headers).length > 0 || bodyText.length > 0;
+    if (!needsConfirm) { proceed(); return; }
+
+    openConfirmModal(
+        proceed,
+        null,
+        `Enviar ${method} para ${check.host}?`,
+        'Enviar',
+        'Cancelar'
+    );
+}
+
+function _executeRequest(container, method, url, headers, bodyText) {
     const result = container.querySelector('#atResult');
     const statusEl = container.querySelector('#atResultStatus');
     const timeEl = container.querySelector('#atResultTime');

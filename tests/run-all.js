@@ -23,7 +23,13 @@ const testFiles = [
     'help-contact.test.js',
     'landmarks-a11y.test.js',
     'command-palette-enter.test.js',
-    'ctrl-f-native.test.js'
+    'ctrl-f-native.test.js',
+    'utf8-encoding.test.js',
+    'csp.test.js',
+    'api-tester-safety.test.js',
+    'cloud-functions.test.js',
+    'ai-proxy.test.js',
+    'firestore-rules.test.js'
 ];
 
 console.log('⚡ Executando suíte unificada de testes do PainelAtende...\n');

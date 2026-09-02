@@ -2,6 +2,9 @@
  * futura-widget-search.js — Busca principal, modo sem API e com API
  */
 import { TARGET_DOMAIN } from './futura-widget-config.js';
+import { functions, httpsCallable } from '../../../core/firebase.js';
+
+const aiProxyFn = httpsCallable(functions, 'aiProxy');
 
 export function buildPrompt(query) {
   return `Pesquise APENAS no site ${TARGET_DOMAIN} e responda a seguinte dúvida sobre o ERP Futura Sistemas:\n\n"${query}"\n\nLeia os artigos encontrados e responda de forma clara e objetiva:\n\n**Resposta direta:** (responda a pergunta)\n\n**Como funciona no sistema:** (passo a passo)\n\n**Onde configurar:** (Menu > Módulo > Tela)\n\n**Dicas importantes:** (pontos de atenção e boas práticas)\n\nResponda em português brasileiro.`;
@@ -63,34 +66,9 @@ function buildAPIPrompt(query) {
   return `Você é especialista no ERP Futura Sistemas. Pesquise em ${TARGET_DOMAIN} sobre: "${query}"\n\nResponda em português com esta estrutura:\n\n**Resposta direta:**\n\n**Como funciona:**\n\n**Onde configurar:**\n\n**Dicas importantes:**`;
 }
 
-async function callGemini(ctx, query) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${ctx.config.apiKey}`;
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ contents: [{ parts: [{ text: buildAPIPrompt(query) }] }], tools: [{ google_search: {} }], generationConfig: { maxOutputTokens: 2000, temperature: 0.3 } }),
-  });
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e?.error?.message || `Gemini: erro ${res.status}`); }
-  const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-  const chunks = data.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-  const results = chunks.filter(c => c.web?.uri?.includes(TARGET_DOMAIN)).map(c => ({ title: c.web.title || "Artigo", link: c.web.uri, description: "" }));
-  return { results, explanation: text };
-}
-
-async function callOpenAI(ctx, query) {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${ctx.config.apiKey}` },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: buildAPIPrompt(query) }]
-    }),
-  });
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e?.error?.message || `OpenAI: erro ${res.status}`); }
-  const data = await res.json();
-  const text = data.choices?.[0]?.message?.content || "";
-  return { results: [], explanation: text };
+async function callAIProxy(ctx, query) {
+  const res = await aiProxyFn({ provider: ctx.config.provider, query: buildAPIPrompt(query) });
+  return res.data;
 }
 
 async function searchWithAPI(ctx, query) {
@@ -99,9 +77,7 @@ async function searchWithAPI(ctx, query) {
   loaderEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
 
   try {
-    let response;
-    if (ctx.config.provider === "gemini") response = await callGemini(ctx, query);
-    else response = await callOpenAI(ctx, query);
+    const response = await callAIProxy(ctx, query);
 
     ctx.setLoader(false);
     if (!response.explanation && response.results.length === 0) { ctx.render.renderNoResults(ctx, query); return; }
@@ -138,7 +114,6 @@ async function _performSearchInternal(ctx, query) {
 
   ctx.config.mode = localStorage.getItem(ctx.lsKey("futura-mode")) || "noapi";
   ctx.config.provider = localStorage.getItem(ctx.lsKey("futura-provider")) || "";
-  ctx.config.apiKey = localStorage.getItem(ctx.lsKey("futura-apikey")) || "";
 
   ctx.config.saveHistory(ctx, query);
   ctx.dom.suggestionsBox.innerHTML = "";
@@ -151,9 +126,9 @@ async function _performSearchInternal(ctx, query) {
     return;
   }
 
-  if (!ctx.config.provider || !ctx.config.apiKey) {
+  if (!ctx.config.provider) {
     ctx.modal.showConfigModal(ctx);
-    ctx.utils.showToast("Configure a API primeiro.", "info");
+    ctx.utils.showToast("Selecione o provedor de IA nas configuracoes.", "info");
     return;
   }
 

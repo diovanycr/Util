@@ -18,10 +18,10 @@ export const SUGGESTIONS = [
 ];
 
 export function createConfig(lsKey) {
+  localStorage.removeItem(lsKey('futura-apikey'));
   return {
     mode: localStorage.getItem(lsKey('futura-mode')) || 'noapi',
     provider: localStorage.getItem(lsKey('futura-provider')) || '',
-    apiKey: localStorage.getItem(lsKey('futura-apikey')) || '',
   };
 }
 
@@ -68,9 +68,9 @@ export function updateStatus(ctx) {
   const dot = ctx.dom.statusPill?.querySelector('.status-dot');
   const modeLabels = {
     noapi: 'Modo: Sem API',
-    api: ctx.config.provider === 'openai' ? 'ChatGPT API' : 'Gemini API',
+    api: ctx.config.provider === 'openai' ? 'ChatGPT (servidor)' : 'Gemini (servidor)',
   };
-  const active = ctx.config.mode === 'noapi' || (ctx.config.mode === 'api' && ctx.config.apiKey);
+  const active = ctx.config.mode === 'noapi' || (ctx.config.mode === 'api' && !!ctx.config.provider);
   if (dot) dot.classList.toggle('active', active);
   if (ctx.dom.statusLabel) ctx.dom.statusLabel.textContent = active ? modeLabels[ctx.config.mode] : 'Não configurado';
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'painelatende-v110';
+const CACHE_NAME = 'painelatende-v111';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -39,6 +39,8 @@ self.addEventListener('install', (event) => {
             './css/ticketSummary.css',
             './css/users.css',
             './js/app.js',
+            './js/boot/sw-register.js',
+            './js/boot/theme-fouc.js',
             './js/core/enhancements.js',
             './js/core/firebase-retry.js',
             './js/core/firebase.js',

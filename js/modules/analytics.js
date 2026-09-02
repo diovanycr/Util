@@ -292,7 +292,7 @@ export function exportAnalyticsReport() {
         </head>
         <body>
             <div class="no-print" style="margin-bottom:20px;text-align:right;">
-                <button onclick="window.print()" style="background:#2563eb;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">🖨️ Imprimir / PDF</button>
+                <button id="analyticsPrintBtn" style="background:#2563eb;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">🖨️ Imprimir / PDF</button>
             </div>
             <h1>Relatório de Desempenho do Atendimento</h1>
             <p class="meta">Gerado pelo PainelAtende em ${new Date().toLocaleDateString('pt-BR')} às ${new Date().toLocaleTimeString('pt-BR')}</p>
@@ -310,5 +310,6 @@ export function exportAnalyticsReport() {
     printWin.document.open();
     printWin.document.write(htmlContent);
     printWin.document.close();
+    printWin.document.getElementById("analyticsPrintBtn")?.addEventListener("click", () => printWin.print());
     showToast('Relatório gerado com sucesso!');
 }

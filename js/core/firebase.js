@@ -30,6 +30,8 @@ import {
     increment
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyB3nb-CDShDxKnN-naZdLWlyaXZfI6wvmY",
   authDomain: "respostas-automaticas-35aea.firebaseapp.com",
@@ -42,6 +44,7 @@ const firebaseConfig = {
 export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
+export const functions = getFunctions(app, 'southamerica-east1');
 
 export const secondaryApp = initializeApp(firebaseConfig, 'Secondary');
 export const secondaryAuth = getAuth(secondaryApp);
@@ -76,3 +79,5 @@ export {
     writeBatch,
     increment
 };
+
+export { httpsCallable };

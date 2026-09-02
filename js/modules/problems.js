@@ -263,7 +263,7 @@ export function exportKnowledgeBaseManual(problems) {
         </head>
         <body>
             <div class="no-print" style="margin-bottom: 20px; text-align: right;">
-                <button onclick="window.print()" style="background:#2563eb;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">🖨️ Imprimir / Salvar em PDF</button>
+                <button id="manualPrintBtn" style="background:#2563eb;color:#fff;border:none;padding:10px 20px;border-radius:8px;font-weight:600;cursor:pointer;">🖨️ Imprimir / Salvar em PDF</button>
             </div>
             <h1>Manual da Base de Conhecimento</h1>
             <p class="manual-meta">Gerado automaticamente pelo PainelAtende em ${new Date().toLocaleDateString('pt-BR')} — Total de ${problems.length} problema(s) cadastrado(s).</p>
@@ -275,6 +275,7 @@ export function exportKnowledgeBaseManual(problems) {
     printWin.document.open();
     printWin.document.write(htmlContent);
     printWin.document.close();
+    printWin.document.getElementById("manualPrintBtn")?.addEventListener("click", () => printWin.print());
     showToast("Manual gerado com sucesso!");
 }
 

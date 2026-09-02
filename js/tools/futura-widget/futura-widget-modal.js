@@ -43,31 +43,17 @@ export function showConfigModal(ctx) {
           <div class="provider-card ${config.provider === 'gemini' ? 'selected' : ''}" data-provider="gemini">
             <i class="fa-brands fa-google"></i>
             <strong>Gemini</strong>
-            <span>Google — Gratuito*</span>
+            <span>Google</span>
           </div>
           <div class="provider-card ${config.provider === 'openai' ? 'selected' : ''}" data-provider="openai">
             <i class="fa-solid fa-robot"></i>
             <strong>ChatGPT</strong>
-            <span>OpenAI — Pago</span>
+            <span>OpenAI</span>
           </div>
         </div>
 
-        <label class="modal-label" for="fw-inp-apikey">Chave da API</label>
-        <div style="position:relative">
-          <input type="password" id="fw-inp-apikey"
-            placeholder="${config.provider === 'openai' ? 'sk-...' : 'AIzaSy...'}"
-            value="${config.apiKey}"
-            style="padding-right:46px;margin-bottom:4px" />
-          <button type="button" id="fw-toggleKeyBtn"
-            style="position:absolute;right:12px;top:12px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:2px"
-            aria-label="Mostrar ou ocultar chave da API">
-            <i class="fa-solid fa-eye" aria-hidden="true"></i>
-          </button>
-        </div>
-        <p style="font-size:12px;color:var(--muted);margin-bottom:16px" id="fw-key-hint">
-          ${config.provider === 'openai'
-            ? 'Obtenha em: <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--blue)">platform.openai.com</a>'
-            : 'Obtenha em: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">aistudio.google.com</a>'}
+        <p style="font-size:12px;color:var(--muted);margin-bottom:16px">
+          As chaves de API sao gerenciadas pelo servidor (Cloud Functions). Nenhuma credencial fica salva no seu navegador.
         </p>
       </div>
 
@@ -90,11 +76,6 @@ export function showConfigModal(ctx) {
   overlay.querySelectorAll(".provider-card").forEach(card => {
     card.addEventListener("click", () => selectProvider(ctx, card.dataset.provider, card));
   });
-
-  const toggleKeyBtn = overlay.querySelector("#fw-toggleKeyBtn");
-  if (toggleKeyBtn) {
-    toggleKeyBtn.addEventListener("click", () => toggleKey("fw-inp-apikey", toggleKeyBtn));
-  }
 
   const cancelBtn = overlay.querySelector("#fw-cancelConfigBtn");
   if (cancelBtn) cancelBtn.addEventListener("click", () => closeConfigModal(ctx));
@@ -132,20 +113,6 @@ function selectMode(ctx, mode, el) {
 function selectProvider(ctx, provider, el) {
   document.querySelectorAll(".provider-card").forEach(c => c.classList.remove("selected"));
   el.classList.add("selected");
-  const inp = document.getElementById("fw-inp-apikey");
-  if (inp) { inp.placeholder = provider === "openai" ? "sk-..." : "AIzaSy..."; inp.value = ""; }
-  const hint = document.getElementById("fw-key-hint");
-  if (hint) hint.innerHTML = provider === "openai"
-    ? 'Obtenha em: <a href="https://platform.openai.com/api-keys" target="_blank" style="color:var(--blue)">platform.openai.com</a>'
-    : 'Obtenha em: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue)">aistudio.google.com</a>';
-}
-
-function toggleKey(id, btn) {
-  const inp = document.getElementById(id);
-  if (!inp) return;
-  const hidden = inp.type === "password";
-  inp.type = hidden ? "text" : "password";
-  btn.innerHTML = hidden ? '<i class="fa-solid fa-eye-slash"></i>' : '<i class="fa-solid fa-eye"></i>';
 }
 
 function closeConfigModal(ctx) {
@@ -160,14 +127,11 @@ function saveConfig(ctx) {
 
   if (ctx.config.mode === "api") {
     ctx.config.provider = providerEl ? providerEl.dataset.provider : ctx.config.provider;
-    ctx.config.apiKey = document.getElementById("fw-inp-apikey")?.value.trim() || "";
     if (!ctx.config.provider) { ctx.utils.showToast("Selecione Gemini ou ChatGPT.", "info"); return; }
-    if (!ctx.config.apiKey) { ctx.utils.showToast("Informe a chave da API.", "info"); return; }
   }
 
   localStorage.setItem(ctx.lsKey("futura-mode"), ctx.config.mode);
   localStorage.setItem(ctx.lsKey("futura-provider"), ctx.config.provider);
-  localStorage.setItem(ctx.lsKey("futura-apikey"), ctx.config.apiKey);
 
   ctx.searchCache.clear();
   ctx.config.updateStatus(ctx);

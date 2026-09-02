@@ -36,9 +36,17 @@ function scheduleDailyReset() {
     const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
     const msUntilMidnight = midnight - now;
     resetTimer = setTimeout(() => {
-        resetDailyCounts();
+        if (Date.now() >= midnight) {
+            resetDailyCounts();
+        }
         scheduleDailyReset();
     }, msUntilMidnight + 1000);
+    if ('BroadcastChannel' in window) {
+        try {
+            const ch = new BroadcastChannel('painel-reset');
+            ch.onmessage = () => loadRanking();
+        } catch {}
+    }
 }
 
 async function resetDailyCounts() {

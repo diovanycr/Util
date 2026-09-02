@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
 
-const ROOTS = ['js', 'scripts', 'tests'];
+const ROOTS = ['js', 'scripts', 'tests', 'functions'];
 const ROOT_FILES = ['sw.js'];
 
 function collectJavaScriptFiles(directory) {
