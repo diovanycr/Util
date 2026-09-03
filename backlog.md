@@ -17,6 +17,19 @@
 ## Em andamento
 
 *(Nenhum item em andamento)*
+
+## Próximo
+
+### 🐛 Bugs & Críticos
+*(Nenhum item pendente)*
+
+### ⚙️ Qualidade Técnica
+- [ ] **Adicionar testes E2E de navegador** — cobrir boot do PWA, erro de autenticação, navegação e CRUD com Firebase mockado ou Emulator `[G]` `[QA]`
+- [ ] **Modernizar o runner de testes e observabilidade de CI** — migrar lista manual para descoberta (Node Test Runner/Vitest), adicionar timeout por teste, cobertura, JUnit e artefatos de falha `[G]` `[QA]`
+- [ ] **Testar e aprimorar política de retry do Firebase** — injetar sleeper/clock para testar erros recuperáveis, limite de tentativas e loading; incluir jitter e cancelamento `[M]` `[QA]`
+- [ ] **Adicionar automação de atualização e auditoria de dependências** — configurar Dependabot para npm/GitHub Actions e auditoria agendada no CI `[M]` `[DevOps]`
+- [ ] **Paginar e agregar leituras do Firestore** — evitar carregamentos integrais/limites fixos em analytics, mensagens e histórico para conter latência e custo à medida que a base cresce `[G]` `[Backend]`
+- [ ] **Proteção contra rate limiting no Firestore** — `loadMessages` e `loadProblems` sem throttle; usuários com muitos dados podem gerar leituras excessivas `[M]` `[Backend]`
 - [ ] **Lazy-loading das ferramentas no portOpener** — todos os painéis são construídos no carregamento inicial; ferramentas pesadas como `decisionTree` (~30 KB) devem ser carregadas sob demanda `[G]` `[Arch]`
 - [ ] **Cloud Function para exclusão completa de usuário no Firebase Auth** — hoje a exclusão remove apenas o Firestore, não o Auth `[G]` `[Backend]`
 - [ ] **Atualizar o cache do PWA com segurança** — gerar pre-cache automaticamente, versionar assets por hash e avisar o usuário antes de ativar uma nova versão `[G]` `[Arch]`
@@ -47,7 +60,8 @@
 
 
 ## Feito
-- [x] **Resetar `copyCount` diário via Cloud Function agendada (Firebase) ao invés do timer no cliente** — `resetDailyCounts()` em `ranking.js` depende de a aba estar aberta à meia-noite `[M]` `[Backend]`
+- [x] **Evoluir o typecheck de sintaxe para contratos JavaScript** — adotar JSDoc e TypeScript com `allowJs`/`checkJs` incrementalmente, validando imports e APIs além de parsing `[G]` `[QA]`
+- [x] **Resetar `copyCount` diário via Cloud Function agendada (Firebase) au invés do timer no cliente** — `resetDailyCounts()` em `ranking.js` depende de a aba estar aberta à meia-noite `[M]` `[Backend]`
 - [x] **Proteger o API Tester contra destinos e credenciais sensíveis** — bloquear loopback/rede privada e HTTP, confirmar host/método antes do envio e mascarar `Authorization` no histórico `[M]` `[Arch]`
 - [x] **Restringir a Content Security Policy (CSP)** — remover gradualmente `unsafe-inline` e limitar `connect-src`/`img-src` aos domínios estritamente necessários `[M]` `[Arch]`
 - [x] **Versionar e testar regras de segurança do Firestore** — garantir isolamento dos dados por `uid` e validar privilégios administrativos no servidor, não apenas pela interface `[G]` `[Backend]`
@@ -69,7 +83,3 @@
 - [x] **Duplicar problema com todas as soluções** `[P]` `[UX]`
 - [x] **Duplicar mensagem/problema com um clique** — evita recriar entradas similares do zero `[P]` `[UX]`
 - [x] **`sw.js`: Corrigir caminhos de pre-cache legados** — erros 404 ao instalar PWA pela primeira vez `[G]` `[Bug]`
-
-*(Nenhum item concluído neste ciclo ainda)*
-
----
