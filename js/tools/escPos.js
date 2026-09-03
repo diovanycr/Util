@@ -17,7 +17,7 @@ let state = { ...DEFAULT_STATE };
 
 export function resetEscPosState() {
     state = { ...DEFAULT_STATE };
-    const escText = document.getElementById('escText');
+    const escText = /** @type {HTMLTextAreaElement|null} */ (document.getElementById('escText'));
     if (escText) escText.value = '';
 }
 
@@ -75,7 +75,8 @@ export function bindEscPosEvents(container) {
 
 // ── Geração dos comandos ───────────────────────────────────────────────────
 function _generate() {
-    const text = (document.getElementById('escText')?.value || '').trim() || 'PainelAtende - Teste de impressao';
+    const escEl = /** @type {HTMLTextAreaElement|null} */ (document.getElementById('escText'));
+    const text = (escEl?.value || '').trim() || 'PainelAtende - Teste de impressao';
     const cmds = buildCommands(state, text);
 
     _setCode('escRaw-hex',    renderHex(cmds, state));

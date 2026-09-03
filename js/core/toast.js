@@ -1,8 +1,9 @@
 /**
  * Exibe um toast de feedback temporário (desaparece após 2s)
  * @param {string} message - Mensagem a exibir
+ * @param {string} [type] - Tipo opcional (info, error, success)
  */
-export function showToast(message) {
+export function showToast(message, type) {
     const old = document.querySelector('.toast-success');
     if (old) old.remove();
     const t = document.createElement('div');

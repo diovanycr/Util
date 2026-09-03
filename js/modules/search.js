@@ -36,7 +36,7 @@ export function resetSearch() {
 export function initSearch(uid) {
     currentUserId = uid;
 
-    const input = el('globalSearchInput');
+    const input = /** @type {HTMLInputElement|null} */ (el('globalSearchInput'));
     const results = el('globalSearchResults');
     const modal = el('globalSearchModal');
 
@@ -80,38 +80,41 @@ export const SYSTEM_TOOLS = [
     { key: 'scriptgen', name: 'Scripts & Comandos', icon: 'terminal', desc: 'Gere SQL, BAT e PowerShell com variáveis dinâmicas para suporte' }
 ];
 
+const clickTab = (tab) => /** @type {HTMLElement|null} */ (document.querySelector(`[data-tab="${tab}"]`))?.click();
+const clickSel = (sel) => /** @type {HTMLElement|null} */ (document.querySelector(sel))?.click();
+
 export const SYSTEM_COMMANDS = [
     {
         name: 'Ir para Mensagens',
         desc: 'Navegar para a aba de respostas prontas',
         icon: 'message',
-        action: () => document.querySelector('[data-tab="tabMessages"]')?.click()
+        action: () => clickTab('tabMessages')
     },
     {
         name: 'Ir para Problemas / Base de Conhecimento',
         desc: 'Navegar para a aba de problemas e soluções',
         icon: 'wrench',
-        action: () => document.querySelector('[data-tab="tabProblems"]')?.click()
+        action: () => clickTab('tabProblems')
     },
     {
         name: 'Ir para Links Úteis',
         desc: 'Navegar para a aba de links rápidos',
         icon: 'link',
-        action: () => document.querySelector('[data-tab="tabLinks"]')?.click()
+        action: () => clickTab('tabLinks')
     },
     {
         name: 'Ir para Ferramentas & Sistemas',
         desc: 'Navegar para a aba de ferramentas',
         icon: 'toolbox',
-        action: () => document.querySelector('[data-tab="tabSistemas"]')?.click()
+        action: () => clickTab('tabSistemas')
     },
     {
         name: 'Nova Mensagem',
         desc: 'Abrir formulário de cadastro de mensagem',
         icon: 'plus',
         action: () => {
-            document.querySelector('[data-tab="tabMessages"]')?.click();
-            el('btnNewMsg')?.click();
+            clickTab('tabMessages');
+            clickSel('#btnNewMsg');
         }
     },
     {
@@ -119,8 +122,8 @@ export const SYSTEM_COMMANDS = [
         desc: 'Abrir formulário de cadastro de problema',
         icon: 'plus',
         action: () => {
-            document.querySelector('[data-tab="tabProblems"]')?.click();
-            el('btnNewProblem')?.click();
+            clickTab('tabProblems');
+            clickSel('#btnNewProblem');
         }
     },
     {
@@ -128,15 +131,15 @@ export const SYSTEM_COMMANDS = [
         desc: 'Abrir formulário de cadastro de link',
         icon: 'plus',
         action: () => {
-            document.querySelector('[data-tab="tabLinks"]')?.click();
-            el('btnNewLink')?.click();
+            clickTab('tabLinks');
+            clickSel('#btnNewLink');
         }
     },
     {
         name: 'Abrir Assistente de IA',
         desc: 'Gerar ou reescrever mensagem com IA',
         icon: 'wand-magic-sparkles',
-        action: () => el('btnGlobalAiAssist')?.click()
+        action: () => clickSel('#btnGlobalAiAssist')
     }
 ];
 
@@ -222,9 +225,9 @@ async function runSearch(query) {
             `;
             row.onclick = () => {
                 closeSearch();
-                document.querySelector('[data-tab="tabSistemas"]')?.click();
+                clickTab('tabSistemas');
                 setTimeout(() => {
-                    const toolBtn = document.querySelector(`.po-tool-btn[data-tool="${item.key}"]`);
+                    const toolBtn = /** @type {HTMLElement|null} */ (document.querySelector(`.po-tool-btn[data-tool="${item.key}"]`));
                     if (toolBtn) toolBtn.click();
                 }, 50);
             };
@@ -242,15 +245,18 @@ async function runSearch(query) {
                 </div>
                 <button class="btn ghost search-copy-btn" title="Copiar mensagem" aria-label="Copiar mensagem"><i class="fa-solid fa-copy" aria-hidden="true"></i></button>
             `;
-            row.querySelector('.search-copy-btn').onclick = async (e) => {
-                e.stopPropagation();
-                await navigator.clipboard.writeText(item.text);
-                showToast("Copiado!");
-                closeSearch();
-            };
+            const copyBtn = /** @type {HTMLElement|null} */ (row.querySelector('.search-copy-btn'));
+            if (copyBtn) {
+                copyBtn.onclick = async (e) => {
+                    e.stopPropagation();
+                    await navigator.clipboard.writeText(item.text);
+                    showToast("Copiado!");
+                    closeSearch();
+                };
+            }
             row.onclick = () => {
-                document.querySelector('[data-tab="tabMessages"]')?.click();
-                const msgSearch = el('msgSearch');
+                clickTab('tabMessages');
+                const msgSearch = /** @type {HTMLInputElement|null} */ (el('msgSearch'));
                 if (msgSearch) {
                     msgSearch.value = item.title || item.text;
                     msgSearch.dispatchEvent(new Event('input'));
@@ -272,8 +278,8 @@ async function runSearch(query) {
                 <button class="btn ghost search-goto-btn" title="Ver problema"><i class="fa-solid fa-arrow-right"></i></button>
             `;
             row.onclick = () => {
-                document.querySelector('[data-tab="tabProblems"]')?.click();
-                const problemSearch = el('problemSearch');
+                clickTab('tabProblems');
+                const problemSearch = /** @type {HTMLInputElement|null} */ (el('problemSearch'));
                 if (problemSearch) {
                     problemSearch.value = item.title;
                     problemSearch.dispatchEvent(new Event('input'));
@@ -294,14 +300,17 @@ async function runSearch(query) {
                 </div>
                 <button class="btn ghost search-goto-btn" title="Abrir link" aria-label="Abrir link em nova aba"><i class="fa-solid fa-external-link" aria-hidden="true"></i></button>
             `;
-            row.querySelector('.search-goto-btn').onclick = (e) => {
-                e.stopPropagation();
-                if (item.url) window.open(item.url, '_blank', 'noopener,noreferrer');
-                closeSearch();
-            };
+            const gotoBtn = /** @type {HTMLElement|null} */ (row.querySelector('.search-goto-btn'));
+            if (gotoBtn) {
+                gotoBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    if (item.url) window.open(item.url, '_blank', 'noopener,noreferrer');
+                    closeSearch();
+                };
+            }
             row.onclick = () => {
-                document.querySelector('[data-tab="tabLinks"]')?.click();
-                const linkSearch = el('linkSearch');
+                clickTab('tabLinks');
+                const linkSearch = /** @type {HTMLInputElement|null} */ (el('linkSearch'));
                 if (linkSearch) {
                     linkSearch.value = item.title || item.url;
                     linkSearch.dispatchEvent(new Event('input'));

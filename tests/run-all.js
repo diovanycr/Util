@@ -29,7 +29,8 @@ const testFiles = [
     'api-tester-safety.test.js',
     'cloud-functions.test.js',
     'ai-proxy.test.js',
-    'firestore-rules.test.js'
+    'firestore-rules.test.js',
+    'typecheck-contract.test.js'
 ];
 
 console.log('⚡ Executando suíte unificada de testes do PainelAtende...\n');

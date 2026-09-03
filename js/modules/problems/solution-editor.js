@@ -18,7 +18,7 @@ export function setupRichEditor(editor) {
                 const reader = new FileReader();
                 reader.onload = (ev) => {
                     const img = document.createElement('img');
-                    img.src   = ev.target.result;
+                    img.src   = /** @type {string} */ (ev.target.result);
                     const sel = window.getSelection();
                     if (sel.rangeCount > 0) {
                         const range = sel.getRangeAt(0);
@@ -69,7 +69,8 @@ export function addCopyTextField(container, entry = null) {
             <i class="fa-solid fa-xmark"></i>
         </button>
     `;
-    row.querySelector('.btn-remove-copy-text').onclick = () => row.remove();
+    const btnRemove = /** @type {HTMLElement|null} */ (row.querySelector('.btn-remove-copy-text'));
+    if (btnRemove) btnRemove.onclick = () => row.remove();
     container.appendChild(row);
 }
 
@@ -120,12 +121,16 @@ export function addSolutionEditor(container, solution = null) {
     if (existingCopyTexts.length > 0) {
         existingCopyTexts.forEach(ct => addCopyTextField(copyList, ct));
     }
-    item.querySelector('.btn-add-copy-text').onclick = () => addCopyTextField(copyList);
+    const btnAddCopy = /** @type {HTMLElement|null} */ (item.querySelector('.btn-add-copy-text'));
+    if (btnAddCopy) btnAddCopy.onclick = () => addCopyTextField(copyList);
 
-    item.querySelector('.btn-remove-solution').onclick = () => {
-        if (container.querySelectorAll('.solution-editor-item').length === 1)
-            return showModal("O problema deve ter pelo menos uma solução.");
-        item.remove();
-    };
+    const btnRemSol = /** @type {HTMLElement|null} */ (item.querySelector('.btn-remove-solution'));
+    if (btnRemSol) {
+        btnRemSol.onclick = () => {
+            if (container.querySelectorAll('.solution-editor-item').length === 1)
+                return showModal("O problema deve ter pelo menos uma solução.");
+            item.remove();
+        };
+    }
     container.appendChild(item);
 }

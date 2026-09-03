@@ -60,7 +60,7 @@ export function getActiveModal() {
 
 /**
  * Opens a modal container with full accessibility (focus trap, initial focus, focus memory).
- * @param {HTMLElement} containerEl The modal overlay element
+ * @param {HTMLElement & { _previousFocus?: Element|null; _focusCleanup?: (() => void)|null }} containerEl The modal overlay element
  * @param {HTMLElement|null} focusTarget Element to focus initially (optional)
  */
 export function openModalContainer(containerEl, focusTarget = null) {
@@ -103,7 +103,7 @@ export function openModalContainer(containerEl, focusTarget = null) {
 
 /**
  * Closes a modal container, cleans up focus trap, and restores previous focus.
- * @param {HTMLElement|null} containerEl The modal overlay element to close (defaults to top active modal)
+ * @param {(HTMLElement & { _previousFocus?: Element|null; _focusCleanup?: (() => void)|null })|null} containerEl The modal overlay element to close (defaults to top active modal)
  */
 export function closeModalContainer(containerEl = null) {
   const targetModal = containerEl || getActiveModal();
@@ -152,7 +152,7 @@ export function openConfirmModal(confirmCb, cancelCb = null, message = null, con
   modalConfirmCallback = confirmCb;
   modalCancelCallback = cancelCb;
 
-  const confirmP = document.querySelector('#confirmModal .sub');
+  const confirmP = /** @type {HTMLElement|null} */ (document.querySelector('#confirmModal .sub'));
   if (confirmP && message) {
     confirmP.innerText = message;
   }
@@ -251,7 +251,7 @@ function closeConfirmModal() {
 function resetCallbacks() {
   modalConfirmCallback = null;
   modalCancelCallback = null;
-  const confirmP = document.querySelector('#confirmModal .sub');
+  const confirmP = /** @type {HTMLElement|null} */ (document.querySelector('#confirmModal .sub'));
   if (confirmP) confirmP.innerText = "Esta ação não poderá ser desfeita.";
   const confirmBtn = el('modalConfirm');
   const cancelBtn = el('modalCancel');

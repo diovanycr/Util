@@ -294,60 +294,72 @@ export function renderMessages() {
                 } catch (err) { console.error(err); }
             };
 
-            const contentEl = row.querySelector('.msg-content');
-            contentEl.onclick = copyAction;
-            contentEl.onkeydown = (e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    copyAction();
-                }
-            };
+            const contentEl = /** @type {HTMLElement|null} */ (row.querySelector('.msg-content'));
+            if (contentEl) {
+                contentEl.onclick = copyAction;
+                contentEl.onkeydown = (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        copyAction();
+                    }
+                };
+            }
 
-            row.querySelector('.btn-duplicate').onclick = async () => {
-                try {
-                    const maxOrder = allMessages.reduce((max, m) => Math.max(max, m.order || 0), 0);
-                    const dupTitle = item.title ? `${item.title} (Cópia)` : 'Cópia';
-                    await addDoc(collection(db, 'users', state.currentUserId, 'messages'), {
-                        title: dupTitle,
-                        text: item.text,
-                        category: item.category || 'Geral',
-                        order: maxOrder + 1,
-                        deleted: false,
-                        createdAt: Date.now(),
-                        copyCount: 0
-                    });
-                    showToast("Mensagem duplicada!");
-                    loadMessages(state.currentUserId);
-                } catch (err) {
-                    console.error("Erro ao duplicar mensagem:", err);
-                    showModal("Erro ao duplicar mensagem.");
-                }
-            };
+            const btnDup = /** @type {HTMLElement|null} */ (row.querySelector('.btn-duplicate'));
+            if (btnDup) {
+                btnDup.onclick = async () => {
+                    try {
+                        const maxOrder = allMessages.reduce((max, m) => Math.max(max, m.order || 0), 0);
+                        const dupTitle = item.title ? `${item.title} (Cópia)` : 'Cópia';
+                        await addDoc(collection(db, 'users', state.currentUserId, 'messages'), {
+                            title: dupTitle,
+                            text: item.text,
+                            category: item.category || 'Geral',
+                            order: maxOrder + 1,
+                            deleted: false,
+                            createdAt: Date.now(),
+                            copyCount: 0
+                        });
+                        showToast("Mensagem duplicada!");
+                        loadMessages(state.currentUserId);
+                    } catch (err) {
+                        console.error("Erro ao duplicar mensagem:", err);
+                        showModal("Erro ao duplicar mensagem.");
+                    }
+                };
+            }
 
-            row.querySelector('.btn-edit').onclick = () => enterEditMode(row, item, state.currentUserId);
+            const btnEditMsg = /** @type {HTMLElement|null} */ (row.querySelector('.btn-edit'));
+            if (btnEditMsg) btnEditMsg.onclick = () => enterEditMode(row, item, state.currentUserId);
 
-            row.querySelector('.btn-del').onclick = () => {
-                openConfirmModal(
-                    async () => {
-                        try {
-                            await updateDoc(doc(db, 'users', state.currentUserId, 'messages', item.id), { deleted: true });
-                            loadMessages(state.currentUserId);
-                            updateTrashCount(state.currentUserId);
-                            showToast('Mensagem movida para a lixeira.');
-                        } catch (err) { showModal('Erro ao mover para a lixeira.'); }
-                    },
-                    null,
-                    'Mover esta mensagem para a lixeira?'
+            const btnDelMsg = /** @type {HTMLElement|null} */ (row.querySelector('.btn-del'));
+            if (btnDelMsg) {
+                btnDelMsg.onclick = () => {
+                    openConfirmModal(
+                        async () => {
+                            try {
+                                await updateDoc(doc(db, 'users', state.currentUserId, 'messages', item.id), { deleted: true });
+                                loadMessages(state.currentUserId);
+                                updateTrashCount(state.currentUserId);
+                                showToast('Mensagem movida para a lixeira.');
+                            } catch (err) { showModal('Erro ao mover para a lixeira.'); }
+                        },
+                        null,
+                        'Mover esta mensagem para a lixeira?'
+                    );
+                };
+            }
+
+            const dragHandleMsg = /** @type {HTMLElement|null} */ (row.querySelector('.drag-handle'));
+            if (dragHandleMsg) {
+                setupDragDrop(
+                    row,
+                    dragHandleMsg,
+                    list,
+                    () => /** @type {HTMLElement[]} */ ([...list.querySelectorAll('.user-row')]),
+                    () => saveOrder(state.currentUserId)
                 );
-            };
-
-            setupDragDrop(
-                row,
-                row.querySelector('.drag-handle'),
-                list,
-                () => [...list.querySelectorAll('.user-row')],
-                () => saveOrder(state.currentUserId)
-            );
+            }
 
             groupEl.appendChild(row);
         });

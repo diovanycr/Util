@@ -26,3 +26,17 @@ for (const file of files) {
 
 if (failures > 0) process.exit(1);
 console.log(`Syntax check passed for ${files.length} JavaScript files.`);
+
+// --- TypeScript contract check (tsc --noEmit via tsconfig.json) ---
+console.log('\nRunning TypeScript contract check (tsc --noEmit)...');
+const tscBin = join('node_modules', 'typescript', 'bin', 'tsc');
+const tscResult = spawnSync(process.execPath, [tscBin, '--noEmit'], {
+    encoding: 'utf8',
+    stdio: 'inherit'
+});
+
+if (tscResult.status !== 0) {
+    process.stderr.write('TypeScript contract check failed.\n');
+    process.exit(1);
+}
+console.log('TypeScript contract check passed.');

@@ -192,7 +192,7 @@ function bindCardEvents(card, item, solutions, ctx) {
         card,
         card.querySelector('.problem-drag-handle'),
         el('problemList'),
-        () => [...el('problemList').querySelectorAll('.problem-card')],
+        () => /** @type {HTMLElement[]} */ ([...el('problemList').querySelectorAll('.problem-card')]),
         () => ctx.saveProblemOrder(ctx.currentUserId)
     );
 
@@ -295,8 +295,10 @@ export function updateTagFilterBar(ctx) {
 }
 
 export function applyFilters(ctx) {
-    const queryVal = el('problemSearch')?.value.trim().toLowerCase() || '';
-    const statusVal = ctx.activeStatusFilter || el('problemStatusFilter')?.value || '';
+    const searchInput = /** @type {HTMLInputElement|null} */ (el('problemSearch'));
+    const statusSelect = /** @type {HTMLSelectElement|null} */ (el('problemStatusFilter'));
+    const queryVal = searchInput?.value.trim().toLowerCase() || '';
+    const statusVal = ctx.activeStatusFilter || statusSelect?.value || '';
 
     const filtered = ctx.allProblems.filter(item => {
         const solutions  = normalizeSolutions(item);

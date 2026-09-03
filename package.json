@@ -16,8 +16,10 @@
     "validate:port-denylist": "node scripts/validate-port-denylist.js"
   },
   "devDependencies": {
+    "@types/node": "^26.4.1",
     "eslint": "^9.0.0",
     "jsdom": "^30.0.1",
-    "prettier": "^3.9.6"
+    "prettier": "^3.9.6",
+    "typescript": "^7.0.2"
   }
 }

@@ -66,33 +66,33 @@ export function showConfigModal(ctx) {
     </div>`;
 
   overlay.addEventListener("click", e => {
-    if (e.target === overlay) { closeConfigModal(ctx); if (prevFocus) prevFocus.focus(); }
+    if (e.target === overlay) { closeConfigModal(ctx); if (prevFocus) /** @type {HTMLElement} */ (prevFocus).focus(); }
   });
 
   overlay.querySelectorAll(".mode-card").forEach(card => {
-    card.addEventListener("click", () => selectMode(ctx, card.dataset.mode, card));
+    card.addEventListener("click", () => selectMode(ctx, /** @type {HTMLElement} */ (card).dataset.mode, /** @type {HTMLElement} */ (card)));
   });
 
   overlay.querySelectorAll(".provider-card").forEach(card => {
-    card.addEventListener("click", () => selectProvider(ctx, card.dataset.provider, card));
+    card.addEventListener("click", () => selectProvider(ctx, /** @type {HTMLElement} */ (card).dataset.provider, /** @type {HTMLElement} */ (card)));
   });
 
   const cancelBtn = overlay.querySelector("#fw-cancelConfigBtn");
   if (cancelBtn) cancelBtn.addEventListener("click", () => closeConfigModal(ctx));
 
   const closeBtn = overlay.querySelector("#fw-closeConfigBtn");
-  if (closeBtn) closeBtn.addEventListener("click", () => { closeConfigModal(ctx); if (prevFocus) prevFocus.focus(); });
+  if (closeBtn) closeBtn.addEventListener("click", () => { closeConfigModal(ctx); if (prevFocus) /** @type {HTMLElement} */ (prevFocus).focus(); });
 
   const saveBtn = overlay.querySelector("#fw-saveConfigBtn");
   if (saveBtn) saveBtn.addEventListener("click", () => saveConfig(ctx));
 
   document.body.appendChild(overlay);
 
-  const focusable = overlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  const focusable = /** @type {HTMLElement[]} */ ([...overlay.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]);
   const firstFocus = focusable[0];
   if (firstFocus) setTimeout(() => firstFocus.focus(), 50);
-  const handleKeydown = (e) => {
-    if (e.key === 'Escape') { closeConfigModal(ctx); if (prevFocus) prevFocus.focus(); return; }
+  const handleKeydown = (/** @type {KeyboardEvent} */ e) => {
+    if (e.key === 'Escape') { closeConfigModal(ctx); if (prevFocus) /** @type {HTMLElement} */ (prevFocus).focus(); return; }
     const isTab = e.key === 'Tab';
     if (!isTab || !focusable.length) return;
     const first = focusable[0];
@@ -120,8 +120,8 @@ function closeConfigModal(ctx) {
 }
 
 function saveConfig(ctx) {
-  const modeEl = document.querySelector(".mode-card.selected");
-  const providerEl = document.querySelector(".provider-card.selected");
+  const modeEl = /** @type {HTMLElement|null} */ (document.querySelector(".mode-card.selected"));
+  const providerEl = /** @type {HTMLElement|null} */ (document.querySelector(".provider-card.selected"));
 
   ctx.config.mode = modeEl ? modeEl.dataset.mode : ctx.config.mode;
 

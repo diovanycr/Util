@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process';
 
+/** @type {Array<[string, string[]]>} */
 const checks = [
     [process.execPath, ['scripts/typecheck.js']],
     [process.execPath, ['tests/sw.test.js']],

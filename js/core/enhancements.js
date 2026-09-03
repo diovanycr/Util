@@ -240,16 +240,16 @@ function isDomVisible(node) {
 }
 
 async function copyFirstResult() {
-    const activeTab = document.querySelector('.tab.active')?.dataset.tab;
+    const activeTab = (/** @type {HTMLElement|null} */ (document.querySelector('.tab.active')))?.dataset.tab;
     
     if (activeTab === 'tabMessages') {
-        const firstMsg = [...document.querySelectorAll('#msgList .user-row')]
-            .find(isDomVisible);
+        const firstMsg = /** @type {HTMLElement|null} */ ([...document.querySelectorAll('#msgList .user-row')]
+            .find(isDomVisible));
         if (firstMsg) {
             const textEl = firstMsg.querySelector('.msg-text');
             if (textEl) {
                 try {
-                    await navigator.clipboard.writeText(textEl.textContent.trim());
+                    await navigator.clipboard.writeText(textEl.textContent?.trim() || '');
                     showToast('Primeira mensagem copiada!');
                 } catch (err) {
                     console.error('Falha ao copiar mensagem:', err);
@@ -258,15 +258,15 @@ async function copyFirstResult() {
             }
         }
     } else if (activeTab === 'tabProblems') {
-        const firstProblem = [...document.querySelectorAll('#problemList .problem-card')]
-            .find(isDomVisible);
+        const firstProblem = /** @type {HTMLElement|null} */ ([...document.querySelectorAll('#problemList .problem-card')]
+            .find(isDomVisible));
         if (firstProblem) {
-            const copyField = firstProblem.querySelector('.solution-copy-field');
+            const copyField = /** @type {HTMLElement|null} */ (firstProblem.querySelector('.solution-copy-field'));
             if (copyField) copyField.click();
         }
     } else if (activeTab === 'tabLinks') {
-        const firstLink = [...document.querySelectorAll('#linkList .link-card')]
-            .find(isDomVisible);
+        const firstLink = /** @type {HTMLElement|null} */ ([...document.querySelectorAll('#linkList .link-card')]
+            .find(isDomVisible));
         if (firstLink) {
             const link = firstLink.querySelector('.link-main');
             const href = link?.getAttribute('href');
@@ -291,7 +291,8 @@ function setupCompactMode() {
     if (savedMode) {
         compactMode = true;
         document.body.classList.add('compact-mode');
-        btn.querySelector('i').className = 'fa-solid fa-expand';
+        const icon = btn.querySelector('i');
+        if (icon) icon.className = 'fa-solid fa-expand';
         btn.title = 'Modo normal';
         btn.setAttribute('aria-label', 'Desativar modo compacto');
         btn.setAttribute('aria-pressed', 'true');
@@ -308,18 +309,18 @@ function setupCompactMode() {
         
         const icon = btn.querySelector('i');
         if (compactMode) {
-            icon.className = 'fa-solid fa-expand';
+            if (icon) icon.className = 'fa-solid fa-expand';
             btn.title = 'Modo normal';
             btn.setAttribute('aria-label', 'Desativar modo compacto');
             showToast('Modo compacto ativado');
         } else {
-            icon.className = 'fa-solid fa-compress';
+            if (icon) icon.className = 'fa-solid fa-compress';
             btn.title = 'Modo compacto';
             btn.setAttribute('aria-label', 'Ativar modo compacto');
             showToast('Modo normal ativado');
         }
         
-        localStorage.setItem(storageKey, compactMode);
+        localStorage.setItem(storageKey, String(compactMode));
     };
 }
 
@@ -473,7 +474,7 @@ function addFavoriteStars() {
     // Mensagens
     document.querySelectorAll('#msgList .user-row').forEach(row => {
         if (row.querySelector('.btn-favorite')) return;
-        const id = row.dataset.id;
+        const id = /** @type {HTMLElement} */ (row).dataset.id;
         if (!id) return;
         
         const fav = isFavorite(id);
@@ -501,7 +502,7 @@ function addFavoriteStars() {
     // Problemas
     document.querySelectorAll('#problemList .problem-card').forEach(card => {
         if (card.querySelector('.btn-favorite')) return;
-        const id = card.dataset.id;
+        const id = /** @type {HTMLElement} */ (card).dataset.id;
         if (!id) return;
         
         const fav = isFavorite(id);
@@ -528,7 +529,7 @@ function addFavoriteStars() {
     // Links
     document.querySelectorAll('#linkList .link-card').forEach(card => {
         if (card.querySelector('.btn-favorite')) return;
-        const id = card.dataset.id;
+        const id = /** @type {HTMLElement} */ (card).dataset.id;
         if (!id) return;
         
         const fav = isFavorite(id);

@@ -18,8 +18,9 @@ import { allProblems } from '../problems.js';
  * @param {Function} loadProblemsCallback Recarrega a lista após importar
  */
 export async function importProblems(e, userId, allProblems, loadProblemsCallback) {
-    const file = e.target.files?.[0];
-    e.target.value = '';
+    const target = /** @type {HTMLInputElement} */ (e.target);
+    const file = target.files?.[0];
+    target.value = '';
     if (!file) return;
 
     let data;
@@ -101,7 +102,8 @@ export async function saveProblemOrder(userId) {
         const batch = writeBatch(db);
         let changed = 0;
         cards.forEach((card, i) => {
-            const id = card.dataset.id;
+            const id = /** @type {HTMLElement} */ (card).dataset.id;
+            if (!id) return;
             const newOrd = i + 1;
             const existing = allProblems.find(p => p.id === id);
             if (existing && existing.order !== newOrd) {

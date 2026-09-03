@@ -72,7 +72,7 @@ export function sanitizeHtml(html) {
  * Configura drag-and-drop de mouse + teclado em um card reordenável.
  * Centraliza o padrão duplicado em messages, problems e links.
  *
- * @param {HTMLElement} card       - Elemento arrastável
+ * @param {HTMLElement & { _dragSrc?: HTMLElement|null }} card - Elemento arrastável
  * @param {HTMLElement} handle     - Alça de drag (para teclado)
  * @param {HTMLElement} list       - Container onde a ordem será salva
  * @param {() => HTMLElement[]} getSiblings - Retorna cards irmãos na ordem atual
@@ -90,7 +90,7 @@ export function setupDragDrop(card, handle, list, getSiblings, onReorder, canDro
         if (canDrop && !canDrop(card)) return;
         const rect = card.getBoundingClientRect();
         const after = e.clientY > rect.top + rect.height / 2;
-        card.parentNode.insertBefore(src, after ? card.nextSibling : card);
+        if (card.parentNode) card.parentNode.insertBefore(src, after ? card.nextSibling : card);
     };
 
     if (handle) {
@@ -130,7 +130,7 @@ export function addKeyboardDragSupport(handle, getItems, onReorder) {
     const announce = (msg) => { announcer.textContent = ''; requestAnimationFrame(() => { announcer.textContent = msg; }); };
 
     handle.addEventListener('keydown', (e) => {
-        const item = handle.closest('[draggable]');
+        const item = /** @type {HTMLElement|null} */ (handle.closest('[draggable]'));
         if (!item) return;
 
         const isActive = item.classList.contains('reorder-active');
@@ -169,6 +169,7 @@ export function addKeyboardDragSupport(handle, getItems, onReorder) {
             const items = getItems();
             const idx   = items.indexOf(item);
             const parent = item.parentNode;
+            if (!parent) return;
 
             if (e.key === 'ArrowUp' && idx > 0) {
                 parent.insertBefore(item, items[idx - 1]);
@@ -190,19 +191,19 @@ export function addKeyboardDragSupport(handle, getItems, onReorder) {
  *
  * @param {Function} fn  Função a debouncar
  * @param {number}    delay Tempo de espera em ms (padrão: 250)
- * @returns {Function} Função debouncada com método .flush() para disparar imediato
+ * @returns {Function & { flush: Function, _pending: Function }} Função debouncada com método .flush() para disparar imediato
  */
 export function debounce(fn, delay = 250) {
     let timer = null;
     function debounced(...args) {
         clearTimeout(timer);
         timer = setTimeout(() => { timer = null; fn.apply(this, args); }, delay);
-        debounced._pending = () => !!timer;
+        /** @type {any} */ (debounced)._pending = () => !!timer;
     }
-    debounced.flush = function (...args) {
+    /** @type {any} */ (debounced).flush = function (...args) {
         if (timer) { clearTimeout(timer); timer = null; fn.apply(this, args); }
     };
-    return debounced;
+    return /** @type {any} */ (debounced);
 }
 
 /**
@@ -314,7 +315,7 @@ export function setupSegmented(group, onSelect, btnSelector = '.po-seg-btn') {
         btn.focus();
     };
     group.addEventListener('click', e => {
-        const btn = e.target.closest(btnSelector);
+        const btn = /** @type {HTMLElement|null} */ (/** @type {HTMLElement} */ (e.target).closest(btnSelector));
         if (btn) select(btn);
     });
     group.addEventListener('keydown', e => {
@@ -337,7 +338,7 @@ export function setupSegmented(group, onSelect, btnSelector = '.po-seg-btn') {
  * "stashando" os spans em placeholders para que regex posteriores não
  * apliquem spans dentro de spans já criados.
  *
- * @param {Array<{regex: RegExp, cls?: string, transform?: (match: string, ...groups: string[]) => string}>} rules
+ * @param {Array<{regex: RegExp, cls?: string, transform?: (...args: any[]) => string}>} rules
  *   Lista de regras (aplicadas em ordem). Se `cls` for informado, o match
  *   inteiro ganha `<span class="po-c-cls">`. Se `transform` for informado,
  *   ele recebe (match, ...groups) e devolve o HTML (use o helper `span`).
@@ -374,10 +375,10 @@ export function createHighlighter(rules) {
  * @param {(code: string) => string} highlighter - função retornada por createHighlighter
  */
 export function setCode(id, text, highlighter) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el._raw = text;
-    el.innerHTML = highlighter(text);
+    const targetEl = /** @type {HTMLElement & { _raw?: string }} */ (document.getElementById(id));
+    if (!targetEl) return;
+    targetEl._raw = text;
+    targetEl.innerHTML = highlighter(text);
 }
 
 /**
@@ -405,10 +406,11 @@ export function setupOutputTabs(container, tabSelector, paneIdPrefix, keydownSco
     };
 
     container.addEventListener('keydown', e => {
-        const scopeCheck = keydownScope ? e.target.closest(keydownScope) : e.target.closest(tabSelector);
+        const target = /** @type {HTMLElement} */ (e.target);
+        const scopeCheck = keydownScope ? target.closest(keydownScope) : target.closest(tabSelector);
         if (!scopeCheck) return;
         const list = tabs();
-        const idx = list.indexOf(e.target);
+        const idx = list.indexOf(target);
         let next = null;
         if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = list[(idx + 1) % list.length];
         else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = list[(idx - 1 + list.length) % list.length];
@@ -418,7 +420,7 @@ export function setupOutputTabs(container, tabSelector, paneIdPrefix, keydownSco
     });
 
     container.addEventListener('click', e => {
-        const tab = e.target.closest(tabSelector);
+        const tab = /** @type {HTMLElement|null} */ (/** @type {HTMLElement} */ (e.target).closest(tabSelector));
         if (tab) activate(tab);
     });
 }

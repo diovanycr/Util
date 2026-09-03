@@ -18,9 +18,9 @@ export function initShortcuts() {
     if (btnSearch) btnSearch.addEventListener('click', openSearch);
 
     document.addEventListener('keydown', (e) => {
-        const tag = document.activeElement.tagName;
-        const isEditing = tag === 'INPUT' || tag === 'TEXTAREA' ||
-            document.activeElement.isContentEditable;
+        const active = /** @type {HTMLElement|null} */ (document.activeElement);
+        const tag = active?.tagName;
+        const isEditing = tag === 'INPUT' || tag === 'TEXTAREA' || !!active?.isContentEditable;
 
         // Ctrl+K — busca global (funciona sempre)
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -49,8 +49,8 @@ export function initShortcuts() {
             if (e.key === 'Tab') {
                 const focusables = searchModal.querySelectorAll('input, button, kbd, [tabindex="0"]');
                 if (focusables.length) {
-                    const first = focusables[0];
-                    const last = focusables[focusables.length - 1];
+                    const first = /** @type {HTMLElement} */ (focusables[0]);
+                    const last = /** @type {HTMLElement} */ (focusables[focusables.length - 1]);
                     if (e.shiftKey && document.activeElement === first) {
                         e.preventDefault();
                         last.focus();
@@ -113,10 +113,10 @@ export function initShortcuts() {
         }
 
         // 1-4 — navegação entre abas
-        if (e.key === '1') { document.querySelector('[data-tab="tabMessages"]')?.click(); return; }
-        if (e.key === '2') { document.querySelector('[data-tab="tabProblems"]')?.click(); return; }
-        if (e.key === '3') { document.querySelector('[data-tab="tabLinks"]')?.click(); return; }
-        if (e.key === '4') { document.querySelector('[data-tab="tabSistemas"]')?.click(); return; }
+        if (e.key === '1') { (/** @type {HTMLElement|null} */ (document.querySelector('[data-tab="tabMessages"]')))?.click(); return; }
+        if (e.key === '2') { (/** @type {HTMLElement|null} */ (document.querySelector('[data-tab="tabProblems"]')))?.click(); return; }
+        if (e.key === '3') { (/** @type {HTMLElement|null} */ (document.querySelector('[data-tab="tabLinks"]')))?.click(); return; }
+        if (e.key === '4') { (/** @type {HTMLElement|null} */ (document.querySelector('[data-tab="tabSistemas"]')))?.click(); return; }
     });
 }
 
@@ -153,12 +153,12 @@ function _navigateResults(dir) {
 
 // Aciona a ação primária do item selecionado (abrir / navegar)
 function _activateSelected() {
-    const selected = document.querySelector('#globalSearchResults .search-result-item.search-selected');
+    const selected = /** @type {HTMLElement|null} */ (document.querySelector('#globalSearchResults .search-result-item.search-selected'));
     if (selected) {
         selected.click();
     } else {
         // Se nenhum selecionado, aciona o primeiro resultado
-        const first = document.querySelector('#globalSearchResults .search-result-item');
+        const first = /** @type {HTMLElement|null} */ (document.querySelector('#globalSearchResults .search-result-item'));
         if (first) {
             first.click();
         }

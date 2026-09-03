@@ -49,6 +49,10 @@ export const functions = getFunctions(app, 'southamerica-east1');
 export const secondaryApp = initializeApp(firebaseConfig, 'Secondary');
 export const secondaryAuth = getAuth(secondaryApp);
 
+/**
+ * @param {string} id
+ * @returns {any}
+ */
 export const el = id => document.getElementById(id);
 
 export const googleProvider = new GoogleAuthProvider();

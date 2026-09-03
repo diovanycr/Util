@@ -53,32 +53,38 @@ export async function loadTrash(userId, callbacks) {
                     <button class="btn ghost btn-delete-permanent" title="Excluir permanentemente" aria-label="Excluir permanentemente: ${escapeAttr(item.title || item.text)}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button>
                 </div>
             `;
-            row.querySelector('.btn-restore').onclick = async () => {
-                try {
-                    await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: false });
-                    if (callbacks?.onReload) {
-                        callbacks.onReload();
-                        loadTrash(userId, callbacks);
-                    } else {
-                        loadTrash(userId, callbacks);
-                        updateTrashCount(userId);
-                    }
-                } catch (err) { showModal("Erro ao restaurar a mensagem."); }
-            };
-            row.querySelector('.btn-delete-permanent').onclick = () => {
-                openConfirmModal(
-                    async () => {
-                        try {
-                            await deleteDoc(doc(db, 'users', userId, 'messages', item.id));
-                            showToast("Mensagem excluída permanentemente!");
+            const btnRestore = /** @type {HTMLElement|null} */ (row.querySelector('.btn-restore'));
+            if (btnRestore) {
+                btnRestore.onclick = async () => {
+                    try {
+                        await updateDoc(doc(db, 'users', userId, 'messages', item.id), { deleted: false });
+                        if (callbacks?.onReload) {
+                            callbacks.onReload();
+                            loadTrash(userId, callbacks);
+                        } else {
                             loadTrash(userId, callbacks);
                             updateTrashCount(userId);
-                        } catch (err) { showModal("Erro ao excluir a mensagem."); }
-                    },
-                    null,
-                    `Deseja realmente excluir esta mensagem permanentemente? Esta ação não poderá ser desfeita.`
-                );
-            };
+                        }
+                    } catch (err) { showModal("Erro ao restaurar a mensagem."); }
+                };
+            }
+            const btnPerm = /** @type {HTMLElement|null} */ (row.querySelector('.btn-delete-permanent'));
+            if (btnPerm) {
+                btnPerm.onclick = () => {
+                    openConfirmModal(
+                        async () => {
+                            try {
+                                await deleteDoc(doc(db, 'users', userId, 'messages', item.id));
+                                showToast("Mensagem excluída permanentemente!");
+                                loadTrash(userId, callbacks);
+                                updateTrashCount(userId);
+                            } catch (err) { showModal("Erro ao excluir a mensagem."); }
+                        },
+                        null,
+                        `Deseja realmente excluir esta mensagem permanentemente? Esta ação não poderá ser desfeita.`
+                    );
+                };
+            }
             list.appendChild(row);
         });
     } catch (err) { console.error("Erro ao carregar lixeira:", err); }

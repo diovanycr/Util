@@ -216,10 +216,10 @@ function renderLinks(container, links) {
                 </button>
             `;
 
-            const faviconImg = card.querySelector('[data-favicon-img]');
+            const faviconImg = /** @type {HTMLElement|null} */ (card.querySelector('[data-favicon-img]'));
             if (faviconImg) faviconImg.addEventListener('error', () => { faviconImg.style.display = 'none'; });
 
-            const linkMain = card.querySelector('.link-main');
+            const linkMain = /** @type {HTMLElement|null} */ (card.querySelector('.link-main'));
             if (linkMain) {
                 linkMain.onclick = () => {
                     item.clicks = (item.clicks || 0) + 1;
@@ -237,36 +237,44 @@ function renderLinks(container, links) {
                 };
             }
 
-            card.querySelector('.link-edit-btn').onclick = (e) => {
-                e.stopPropagation();
-                enterEditMode(card, item);
-            };
+            const btnEditLink = /** @type {HTMLElement|null} */ (card.querySelector('.link-edit-btn'));
+            if (btnEditLink) {
+                btnEditLink.onclick = (e) => {
+                    e.stopPropagation();
+                    enterEditMode(card, item);
+                };
+            }
 
-            card.querySelector('.link-del-btn').onclick = (e) => {
-                e.stopPropagation();
-                if (!currentUserId) return;
-                openConfirmModal(
-                    async () => {
-                        try {
-                            await deleteDoc(doc(db, 'users', currentUserId, 'links', item.id));
-                            showToast("Link removido!");
-                                              } catch (_err) {
-                            showModal("Erro ao remover o link.");
-                        }
-                    },
-                    null,
-                    `Deseja realmente remover o link "${item.title}"? Esta ação não poderá ser desfeita.`
+            const btnDelLink = /** @type {HTMLElement|null} */ (card.querySelector('.link-del-btn'));
+            if (btnDelLink) {
+                btnDelLink.onclick = (e) => {
+                    e.stopPropagation();
+                    if (!currentUserId) return;
+                    openConfirmModal(
+                        async () => {
+                            try {
+                                await deleteDoc(doc(db, 'users', currentUserId, 'links', item.id));
+                                showToast("Link removido!");
+                            } catch (_err) {
+                                showModal("Erro ao remover o link.");
+                            }
+                        },
+                        null,
+                        `Deseja realmente remover o link "${item.title}"? Esta ação não poderá ser desfeita.`
+                    );
+                };
+            }
+            const dragHandle = /** @type {HTMLElement|null} */ (card.querySelector('.link-drag-handle'));
+            if (dragHandle) {
+                setupDragDrop(
+                    card,
+                    dragHandle,
+                    container,
+                    () => /** @type {HTMLElement[]} */ ([...container.querySelectorAll('.link-card')]),
+                    () => saveLinkOrder(currentUserId),
+                    (target) => target.parentNode === card.parentNode
                 );
-            };
-            const dragHandle = card.querySelector('.link-drag-handle');
-            setupDragDrop(
-                card,
-                dragHandle,
-                container,
-                () => [...container.querySelectorAll('.link-card')],
-                () => saveLinkOrder(currentUserId),
-                (target) => target.parentNode === card.parentNode
-            );
+            }
 
             group.appendChild(card);
         });
@@ -303,7 +311,8 @@ function enterEditMode(card, item) {
     if (dragBtn) dragBtn.style.display = 'none';
     card.draggable = false;
 
-    form.querySelector('.edit-link-url').focus();
+    const inputUrl = /** @type {HTMLInputElement|null} */ (form.querySelector('.edit-link-url'));
+    if (inputUrl) inputUrl.focus();
 
     const restoreView = () => {
         form.replaceWith(mainEl);
@@ -315,9 +324,12 @@ function enterEditMode(card, item) {
 
     const saveLinkEdit = async () => {
         if (!currentUserId) return showModal("Sessão expirada. Faça login novamente.");
-        let url   = form.querySelector('.edit-link-url').value.trim();
-        const title    = form.querySelector('.edit-link-title').value.trim();
-        const category = form.querySelector('.edit-link-cat').value.trim();
+        const urlInput = /** @type {HTMLInputElement|null} */ (form.querySelector('.edit-link-url'));
+        const titleInput = /** @type {HTMLInputElement|null} */ (form.querySelector('.edit-link-title'));
+        const catInput = /** @type {HTMLInputElement|null} */ (form.querySelector('.edit-link-cat'));
+        let url   = urlInput?.value.trim() || '';
+        const title    = titleInput?.value.trim() || '';
+        const category = catInput?.value.trim() || '';
 
         if (!url) return showModal("A URL é obrigatória.");
         if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
@@ -337,13 +349,14 @@ function enterEditMode(card, item) {
         }
     };
 
-    form.querySelector('.btn-cancel-link-edit').onclick = () => {
-        restoreView();
-    };
-    form.querySelector('.btn-save-link-edit').onclick = saveLinkEdit;
+    const cancelBtn = /** @type {HTMLElement|null} */ (form.querySelector('.btn-cancel-link-edit'));
+    if (cancelBtn) cancelBtn.onclick = restoreView;
+    const saveBtn = /** @type {HTMLElement|null} */ (form.querySelector('.btn-save-link-edit'));
+    if (saveBtn) saveBtn.onclick = saveLinkEdit;
 
     form.querySelectorAll('input').forEach(input => {
-        input.onkeydown = (e) => {
+        const hInput = /** @type {HTMLInputElement} */ (input);
+        hInput.onkeydown = (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();
                 saveLinkEdit();
@@ -362,7 +375,7 @@ async function saveLinkOrder(userId) {
         const newOrder = {};
         let changed = 0;
         cards.forEach((card, i) => {
-            const id = card.dataset.id;
+            const id = /** @type {HTMLElement} */ (card).dataset.id;
             const newOrd = i + 1;
             if (id) newOrder[id] = newOrd;
             const existing = allLinks.find(l => l.id === id);
@@ -383,7 +396,7 @@ function filterLinks(query) {
     const cards = list.querySelectorAll('.link-card');
 
     cards.forEach(card => {
-        const id = card.dataset.id;
+        const id = /** @type {HTMLElement} */ (card).dataset.id;
         const item = allLinks.find(l => l.id === id);
         if (!item) return;
         const visible = !query || `${item.title} ${item.url} ${item.category}`.toLowerCase().includes(query);

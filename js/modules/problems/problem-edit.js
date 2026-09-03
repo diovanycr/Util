@@ -48,39 +48,46 @@ export function enterEditMode(card, item, userId, solutions, tags, loadProblemsC
     setupTagInput(tagInput, pillsEl);
     renderSolutionEditors(editContainer, solutions);
 
-    card.querySelector('.btn-add-solution-edit').onclick = () => addSolutionEditor(editContainer);
-    card.querySelector('.edit-title').focus();
+    const addBtn = /** @type {HTMLElement|null} */ (card.querySelector('.btn-add-solution-edit'));
+    if (addBtn) addBtn.onclick = () => addSolutionEditor(editContainer);
 
-    card.querySelector('.btn-save-edit').onclick = async () => {
-        const title        = card.querySelector('.edit-title').value.trim();
-        const description = card.querySelector('.edit-desc').value.trim();
-        const newTags      = getTagsFromPills(pillsEl);
-        const newSolutions = collectSolutions(editContainer);
+    const titleInput = /** @type {HTMLInputElement|null} */ (card.querySelector('.edit-title'));
+    if (titleInput) titleInput.focus();
 
-        if (!title) return showModal("O título do problema é obrigatório.");
-        if (newSolutions.length === 0) return showModal("Adicione pelo menos uma solução.");
+    const saveBtn   = /** @type {HTMLButtonElement|null} */ (card.querySelector('.btn-save-edit'));
+    const cancelBtn = /** @type {HTMLButtonElement|null} */ (card.querySelector('.btn-cancel-edit'));
 
-        const saveBtn   = card.querySelector('.btn-save-edit');
-        const cancelBtn = card.querySelector('.btn-cancel-edit');
-        const originalSaveText = saveBtn.innerHTML;
-        saveBtn.disabled   = true;
-        cancelBtn.disabled  = true;
-        saveBtn.innerHTML   = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Salvando...';
+    if (saveBtn) {
+        saveBtn.onclick = async () => {
+            const descInput = /** @type {HTMLTextAreaElement|null} */ (card.querySelector('.edit-desc'));
+            const title        = titleInput?.value.trim() || '';
+            const description = descInput?.value.trim() || '';
+            const newTags      = getTagsFromPills(pillsEl);
+            const newSolutions = collectSolutions(editContainer);
 
-        try {
-            await updateDoc(doc(db, 'users', userId, 'problems', item.id), {
-                title, description, tags: newTags, solutions: newSolutions,
-                solution: null, category: null
-            });
-            showToast("Problema atualizado!");
-            loadProblemsCallback(userId);
-        } catch (err) {
-            showModal("Erro ao atualizar o problema.");
-            saveBtn.disabled   = false;
-            cancelBtn.disabled  = false;
-            saveBtn.innerHTML   = originalSaveText;
-        }
-    };
+            if (!title) return showModal("O título do problema é obrigatório.");
+            if (newSolutions.length === 0) return showModal("Adicione pelo menos uma solução.");
 
-    card.querySelector('.btn-cancel-edit').onclick = () => loadProblemsCallback(userId);
+            const originalSaveText = saveBtn.innerHTML;
+            saveBtn.disabled   = true;
+            if (cancelBtn) cancelBtn.disabled = true;
+            saveBtn.innerHTML   = '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i> Salvando...';
+
+            try {
+                await updateDoc(doc(db, 'users', userId, 'problems', item.id), {
+                    title, description, tags: newTags, solutions: newSolutions,
+                    solution: null, category: null
+                });
+                showToast("Problema atualizado!");
+                loadProblemsCallback(userId);
+            } catch (err) {
+                showModal("Erro ao atualizar o problema.");
+                saveBtn.disabled   = false;
+                if (cancelBtn) cancelBtn.disabled = false;
+                saveBtn.innerHTML   = originalSaveText;
+            }
+        };
+    }
+
+    if (cancelBtn) cancelBtn.onclick = () => loadProblemsCallback(userId);
 }

@@ -1,3 +1,5 @@
+/// <reference lib="webworker" />
+
 const CACHE_NAME = 'painelatende-v111';
 
 self.addEventListener('install', (event) => {

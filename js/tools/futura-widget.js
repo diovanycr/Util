@@ -89,7 +89,7 @@ class FuturaSearchWidget {
       try {
         const existing = document.querySelector(`script[src="${dep}"]`);
         if (!existing) {
-          const promise = new Promise((resolve, reject) => {
+          const promise = new Promise((/** @type {(v?: any) => void} */ resolve, reject) => {
             const script = document.createElement("script");
             script.src = dep;
             script.onload = () => resolve();
@@ -131,7 +131,7 @@ class FuturaSearchWidget {
     let currentResults = [];
 
     const dom = {
-      searchInput: widgetScope.querySelector("#fw-searchInput"),
+      searchInput: /** @type {HTMLInputElement} */ (widgetScope.querySelector("#fw-searchInput")),
       searchBtn: widgetScope.querySelector("#fw-searchBtn"),
       resultsContainer: widgetScope.querySelector("#fw-results"),
       loaderEl: widgetScope.querySelector("#fw-loader"),
@@ -236,13 +236,13 @@ class FuturaSearchWidget {
       });
     });
 
-    widgetScope.addEventListener("click", e => { if (!e.target.closest(".search-wrap")) { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); } });
-    dom.searchInput.addEventListener("keydown", e => {
+    widgetScope.addEventListener("click", e => { if (!(/** @type {HTMLElement} */ (e.target)).closest(".search-wrap")) { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); } });
+    dom.searchInput.addEventListener("keydown", (/** @type {KeyboardEvent} */ e) => {
       if (e.key === "Enter") { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); performSearch(ctx, dom.searchInput.value.trim()); }
       if (e.key === "Escape") { dom.suggestionsBox.innerHTML = ""; dom.searchInput.setAttribute("aria-expanded", "false"); }
       if (e.key === "ArrowDown" && dom.suggestionsBox.children.length > 0) {
         e.preventDefault();
-        dom.suggestionsBox.children[0].focus();
+        /** @type {HTMLElement} */ (dom.suggestionsBox.children[0]).focus();
       }
     });
 
@@ -253,7 +253,7 @@ class FuturaSearchWidget {
     dom.statusPill?.addEventListener("click", () => showConfigModal(ctx));
 
     widgetScope.addEventListener("click", e => {
-      const btn = e.target.closest(".copy-code-btn");
+      const btn = /** @type {HTMLElement|null} */ (/** @type {HTMLElement} */ (e.target).closest?.(".copy-code-btn"));
       if (btn) copyCode(ctx, btn);
     });
 
@@ -298,7 +298,7 @@ class FuturaSearchWidget {
     destroyAudio();
     if (this._searchCache) this._searchCache.clear();
     if (this.container) {
-      const clone = this.container.cloneNode(false);
+      const clone = /** @type {HTMLElement} */ (this.container.cloneNode(false));
       this.container.replaceWith(clone);
       this.container = clone;
     }

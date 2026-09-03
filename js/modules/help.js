@@ -26,9 +26,9 @@ export function initHelp() {
 
     document.addEventListener('keydown', (e) => {
         if (!modal.classList.contains('hidden') && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
-            const activeTab = document.querySelector('.help-tab.active');
+            const activeTab = /** @type {HTMLElement|null} */ (document.querySelector('.help-tab.active'));
             if (!activeTab) return;
-            const tabList = [...tabs];
+            const tabList = /** @type {HTMLElement[]} */ ([...tabs]);
             const idx = tabList.indexOf(activeTab);
             if (idx < 0) return;
             e.preventDefault();
@@ -36,8 +36,8 @@ export function initHelp() {
                 ? (idx + 1) % tabList.length
                 : (idx - 1 + tabList.length) % tabList.length;
             const nextTab = tabList[nextIdx];
-            switchHelpTab(nextTab.dataset.panel);
-            nextTab.focus();
+            if (nextTab?.dataset?.panel) switchHelpTab(nextTab.dataset.panel);
+            nextTab?.focus();
         }
     });
 
@@ -46,17 +46,19 @@ export function initHelp() {
     }
 
     tabs.forEach(tab => {
-        tab.addEventListener('click', () => switchHelpTab(tab.dataset.panel));
-        tab.addEventListener('keydown', (e) => {
+        const hTab = /** @type {HTMLElement} */ (tab);
+        hTab.addEventListener('click', () => { if (hTab.dataset.panel) switchHelpTab(hTab.dataset.panel); });
+        hTab.addEventListener('keydown', (e) => {
+            const tabList = /** @type {HTMLElement[]} */ ([...tabs]);
             if (e.key === 'Home') {
                 e.preventDefault();
-                tabs[0]?.focus();
-                switchHelpTab(tabs[0].dataset.panel);
+                tabList[0]?.focus();
+                if (tabList[0]?.dataset?.panel) switchHelpTab(tabList[0].dataset.panel);
             } else if (e.key === 'End') {
                 e.preventDefault();
-                const last = tabs[tabs.length - 1];
+                const last = tabList[tabList.length - 1];
                 last?.focus();
-                switchHelpTab(last.dataset.panel);
+                if (last?.dataset?.panel) switchHelpTab(last.dataset.panel);
             }
         });
     });
@@ -64,10 +66,11 @@ export function initHelp() {
 
 function switchHelpTab(panelId) {
     document.querySelectorAll('.help-tab').forEach(t => {
-        const active = t.dataset.panel === panelId;
-        t.classList.toggle('active', active);
-        t.setAttribute('aria-selected', active ? 'true' : 'false');
-        t.setAttribute('tabindex', active ? '0' : '-1');
+        const hTab = /** @type {HTMLElement} */ (t);
+        const active = hTab.dataset.panel === panelId;
+        hTab.classList.toggle('active', active);
+        hTab.setAttribute('aria-selected', active ? 'true' : 'false');
+        hTab.setAttribute('tabindex', active ? '0' : '-1');
     });
     document.querySelectorAll('.help-panel').forEach(p => {
         p.classList.toggle('hidden', p.id !== `help-${panelId}`);

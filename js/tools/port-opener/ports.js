@@ -15,10 +15,11 @@ function _shakeField() {
 export function tryAddPort(ports, raw, callbacks) {
   if (!raw) return;
   const n = parseInt(raw);
-  if (isNaN(n) || n < 1 || n > 65535) { _shakeField(); document.getElementById('poPortInput').value=''; return; }
-  if (ports.find(p=>p.num===n)) { document.getElementById('poPortInput').value=''; return; }
+  const input = /** @type {HTMLInputElement|null} */ (document.getElementById('poPortInput'));
+  if (isNaN(n) || n < 1 || n > 65535) { _shakeField(); if (input) input.value=''; return; }
+  if (ports.find(p=>p.num===n)) { if (input) input.value=''; return; }
   ports.push({num:n, label: COMMON_PORTS[n]||''});
-  document.getElementById('poPortInput').value = '';
+  if (input) input.value = '';
   callbacks.onChange();
 }
 
@@ -40,7 +41,7 @@ export function renderTags(ports, getRemoveHandler) {
     </span>
   `).join('');
   pills.querySelectorAll('.po-tag-remove').forEach(btn =>
-    btn.addEventListener('click', () => getRemoveHandler(parseInt(btn.dataset.num)))
+    btn.addEventListener('click', () => getRemoveHandler(parseInt(/** @type {HTMLElement} */ (btn).dataset.num || '0')))
   );
 }
 
@@ -57,13 +58,13 @@ export function renderQuickPorts(ports, getToggleHandler) {
   }).join('');
 
   grid.querySelectorAll('.po-quick-btn').forEach(btn => {
-    btn.addEventListener('click', () => getToggleHandler(parseInt(btn.dataset.port), btn.dataset.label));
+    btn.addEventListener('click', () => getToggleHandler(parseInt(/** @type {HTMLElement} */ (btn).dataset.port || '0'), /** @type {HTMLElement} */ (btn).dataset.label));
   });
 }
 
 export function syncQuick(ports) {
   document.querySelectorAll('.po-quick-btn').forEach(btn => {
-    const isActive = !!ports.find(p => p.num === parseInt(btn.dataset.port));
+    const isActive = !!ports.find(p => p.num === parseInt(/** @type {HTMLElement} */ (btn).dataset.port || '0'));
     btn.classList.toggle('active', isActive);
     btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
   });

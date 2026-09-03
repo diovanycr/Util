@@ -4,7 +4,8 @@
 //  Testador rápido de endpoints REST/Webhooks para verificar
 //  integrações com WooCommerce, VTEX, Mercado Livre, APIs Mobile
 
-import { escapeHtml, escapeAttr, setStatusBadge, openConfirmModal } from '../core/modal.js';
+import { escapeHtml, escapeAttr, setStatusBadge } from '../core/utils.js';
+import { openConfirmModal } from '../core/modal.js';
 
 const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'];
 

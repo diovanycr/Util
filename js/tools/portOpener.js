@@ -233,16 +233,17 @@ function _openToolModal(tool, btnEl) {
 
   // Move o painel da ferramenta para dentro do corpo do modal (preserva listeners)
   const panel = document.getElementById(`poTool-${tool}`);
+  const typedBody = /** @type {HTMLElement & { _currentPanel?: HTMLElement|null }} */ (body);
   if (panel) {
     // Devolve painel anterior ao container original (se houver)
     const wrap = document.querySelector('.po-wrap');
-    if (body._currentPanel && wrap) {
-      body._currentPanel.classList.add('hidden');
-      wrap.appendChild(body._currentPanel);
+    if (typedBody._currentPanel && wrap) {
+      typedBody._currentPanel.classList.add('hidden');
+      wrap.appendChild(typedBody._currentPanel);
     }
     panel.classList.remove('hidden');
-    body.appendChild(panel);
-    body._currentPanel = panel;
+    typedBody.appendChild(panel);
+    typedBody._currentPanel = panel;
   }
 
   modal.classList.remove('hidden');
@@ -261,10 +262,11 @@ function _closeToolModal(container) {
 
   // Devolve o painel ao container original (oculto)
   const wrap = document.querySelector('.po-wrap');
-  if (body._currentPanel && wrap) {
-    body._currentPanel.classList.add('hidden');
-    wrap.appendChild(body._currentPanel);
-    body._currentPanel = null;
+  const typedBody = /** @type {HTMLElement & { _currentPanel?: HTMLElement|null }} */ (body);
+  if (typedBody?._currentPanel && wrap) {
+    typedBody._currentPanel.classList.add('hidden');
+    wrap.appendChild(typedBody._currentPanel);
+    typedBody._currentPanel = null;
   }
 
   modal.classList.add('hidden');
@@ -283,13 +285,13 @@ function _bindEvents(container) {
     btn.addEventListener('click', () => {
       container.querySelectorAll('.po-tool-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      _openToolModal(btn.dataset.tool, btn);
+      _openToolModal(/** @type {HTMLElement} */ (btn).dataset.tool, btn);
     });
   });
 
   // Fecha modal: botão X, clique no overlay, Escape
-  document.getElementById('poModalClose').addEventListener('click', () => _closeToolModal(container));
-  document.getElementById('poToolModal').addEventListener('click', (e) => {
+  document.getElementById('poModalClose')?.addEventListener('click', () => _closeToolModal(container));
+  document.getElementById('poToolModal')?.addEventListener('click', (e) => {
     if (e.target === e.currentTarget) _closeToolModal(container);
   });
   _escapeHandler = (e) => {
@@ -301,54 +303,60 @@ function _bindEvents(container) {
   document.addEventListener('keydown', _escapeHandler);
 
   // Tag field: click foca input
-  document.getElementById('poTagField').addEventListener('click', () =>
-    document.getElementById('poPortInput').focus()
+  document.getElementById('poTagField')?.addEventListener('click', () =>
+    document.getElementById('poPortInput')?.focus()
   );
 
   // Input de porta
-  const input = document.getElementById('poPortInput');
-  input.addEventListener('keydown', e => {
-    if (['Enter', ','].includes(e.key)) { e.preventDefault(); tryAddPort(state.ports, input.value.trim(), { onChange: _renderAllPorts }); }
-    if (e.key === 'Backspace' && input.value === '' && state.ports.length > 0)
-      removePort(state.ports, state.ports[state.ports.length - 1].num, { onChange: _renderAllPorts });
-  });
-  input.addEventListener('input', () => {
-    const v = input.value;
-    if (v.endsWith(',') || v.endsWith(' ')) tryAddPort(state.ports, v.replace(/[, ]/g,'').trim(), { onChange: _renderAllPorts });
-  });
+  const input = /** @type {HTMLInputElement|null} */ (document.getElementById('poPortInput'));
+  if (input) {
+    input.addEventListener('keydown', e => {
+      if (['Enter', ','].includes(e.key)) { e.preventDefault(); tryAddPort(state.ports, input.value.trim(), { onChange: _renderAllPorts }); }
+      if (e.key === 'Backspace' && input.value === '' && state.ports.length > 0)
+        removePort(state.ports, state.ports[state.ports.length - 1].num, { onChange: _renderAllPorts });
+    });
+    input.addEventListener('input', () => {
+      const v = input.value;
+      if (v.endsWith(',') || v.endsWith(' ')) tryAddPort(state.ports, v.replace(/[, ]/g,'').trim(), { onChange: _renderAllPorts });
+    });
+  }
 
   // Segmented controls (radiogroup): clique + navegação por setas + aria-checked
   setupSegmented(document.getElementById('poSegProto'), btn => { state.proto = btn.dataset.v; });
   setupSegmented(document.getElementById('poSegDir'),   btn => { state.dir   = btn.dataset.v; });
 
   // Gerar
-  document.getElementById('poBtnGenerate').addEventListener('click', _generate);
+  document.getElementById('poBtnGenerate')?.addEventListener('click', _generate);
 
   // Output tabs (delegação) com aria-selected e tabindex
   setupOutputTabs(container, '.po-otab', 'poPane-', '#poTool-portopener');
 
   container.addEventListener('click', e => {
-    const copyBtn = e.target.closest('.po-btn-copy');
-    if (copyBtn) {
-      const el = document.getElementById(copyBtn.dataset.id);
-      navigator.clipboard.writeText(el._raw || el.textContent).then(() => {
-        const prev = copyBtn.innerHTML;
-        copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
-        copyBtn.classList.add('po-copied');
-        setTimeout(() => { copyBtn.innerHTML = prev; copyBtn.classList.remove('po-copied'); }, 2000);
-      });
+    const copyBtn = /** @type {HTMLElement|null} */ (/** @type {HTMLElement} */ (e.target).closest?.('.po-btn-copy'));
+    if (copyBtn && copyBtn.dataset.id) {
+      const targetEl = /** @type {HTMLElement & { _raw?: string }} */ (document.getElementById(copyBtn.dataset.id));
+      if (targetEl) {
+        navigator.clipboard.writeText(targetEl._raw || targetEl.textContent || '').then(() => {
+          const prev = copyBtn.innerHTML;
+          copyBtn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado';
+          copyBtn.classList.add('po-copied');
+          setTimeout(() => { copyBtn.innerHTML = prev; copyBtn.classList.remove('po-copied'); }, 2000);
+        });
+      }
     }
 
     // Download
-    const dlBtn = e.target.closest('.po-btn-dl');
-    if (dlBtn) {
-      const el = document.getElementById(dlBtn.dataset.id);
-      const text = el._raw || el.textContent;
-      const a = Object.assign(document.createElement('a'), {
-        href: URL.createObjectURL(new Blob([text], {type:'text/plain'})),
-        download: dlBtn.dataset.name
-      });
-      a.click(); URL.revokeObjectURL(a.href);
+    const dlBtn = /** @type {HTMLElement|null} */ (/** @type {HTMLElement} */ (e.target).closest?.('.po-btn-dl'));
+    if (dlBtn && dlBtn.dataset.id) {
+      const targetEl = /** @type {HTMLElement & { _raw?: string }} */ (document.getElementById(dlBtn.dataset.id));
+      if (targetEl) {
+        const text = targetEl._raw || targetEl.textContent || '';
+        const a = Object.assign(document.createElement('a'), {
+          href: URL.createObjectURL(new Blob([text], {type:'text/plain'})),
+          download: dlBtn.dataset.name
+        });
+        a.click(); URL.revokeObjectURL(a.href);
+      }
     }
   });
 }

@@ -12,12 +12,13 @@ import { showToast } from '../../core/toast.js';
 import { allMessages } from './state.js';
 
 export async function importFromTxt(event, userId, callbacks) {
-    const file = event.target.files[0];
+    const input = /** @type {HTMLInputElement} */ (event.target);
+    const file = input.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = async (e) => {
         try {
-            const rawContent = e.target.result;
+            const rawContent = /** @type {string} */ (e.target.result || '');
             const content = rawContent.trim();
 
             let messagesToImport = [];

@@ -46,7 +46,7 @@ runTest('shortcuts.js _activateSelected triggers primary click action on selecte
 });
 
 runTest('search.js message results navigate to tabMessages on primary click', () => {
-    assert(searchCode.includes("data-tab=\"tabMessages\""), 'Message result primary action should click tabMessages tab');
+    assert(searchCode.includes("clickTab('tabMessages')") || searchCode.includes("data-tab=\"tabMessages\""), 'Message result primary action should click tabMessages tab');
     assert(searchCode.includes("msgSearch"), 'Message result primary action should target msgSearch input');
     assert(searchCode.includes("search-copy-btn"), 'Message result should preserve secondary search-copy-btn');
 });

@@ -34,9 +34,9 @@ function scheduleDailyReset() {
     if (resetTimer) clearTimeout(resetTimer);
     const now = new Date();
     const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
-    const msUntilMidnight = midnight - now;
+    const msUntilMidnight = midnight.getTime() - now.getTime();
     resetTimer = setTimeout(() => {
-        if (Date.now() >= midnight) {
+        if (Date.now() >= midnight.getTime()) {
             resetDailyCounts();
         }
         scheduleDailyReset();
@@ -150,7 +150,9 @@ export async function loadRanking() {
                 <span class="sub" style="min-width: 80px; text-align: right;">${item.category}</span>
             `;
 
-            row.querySelector('.msg-content').onclick = async () => {
+            const msgContent = /** @type {HTMLElement|null} */ (row.querySelector('.msg-content'));
+            if (msgContent) {
+                msgContent.onclick = async () => {
                 try {
                     const textToCopy = item.text.includes('{usuario}')
                         ? item.text.replace(/\{usuario\}/g, el('loggedUser')?.dataset?.username?.trim() || 'Usuário')
@@ -161,6 +163,7 @@ export async function loadRanking() {
                     console.error(err);
                 }
             };
+        }
 
             list.appendChild(row);
         });

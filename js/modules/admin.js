@@ -91,7 +91,7 @@ export async function loadUsers(append = false) {
             `;
 
             // Reset de senha
-            const btnReset = row.querySelector('.btnReset');
+            const btnReset = /** @type {HTMLElement|null} */ (row.querySelector('.btnReset'));
             if (btnReset) {
                 btnReset.onclick = () => {
                     openConfirmModal(
@@ -111,48 +111,54 @@ export async function loadUsers(append = false) {
             }
 
             // Bloquear/Desbloquear
-            row.querySelector('.btnBlock').onclick = async () => {
-                try {
-                    await updateDoc(doc(db, 'users', d.id), { blocked: !isBlocked });
-                    showToast(isBlocked ? "Usuário desbloqueado!" : "Usuário bloqueado!");
-                    loadUsers();
-                } catch (err) {
-                    console.error("Erro ao alterar bloqueio:", err);
-                    showModal("Erro ao alterar status do usuário.");
-                }
-            };
+            const btnBlock = /** @type {HTMLElement|null} */ (row.querySelector('.btnBlock'));
+            if (btnBlock) {
+                btnBlock.onclick = async () => {
+                    try {
+                        await updateDoc(doc(db, 'users', d.id), { blocked: !isBlocked });
+                        showToast(isBlocked ? "Usuário desbloqueado!" : "Usuário bloqueado!");
+                        loadUsers();
+                    } catch (err) {
+                        console.error("Erro ao alterar bloqueio:", err);
+                        showModal("Erro ao alterar status do usuário.");
+                    }
+                };
+            }
 
             // Excluir
-            row.querySelector('.btnDelete').onclick = () => {
-                openConfirmModal(
-                    async () => {
-                        try {
-                            // Busca e remove cada subcoleção em páginas para não estourar a memória
-                            const SUBCOL_PAGE = 500;
-                            const subcols = ['messages', 'problems', 'links'];
-                            for (const sub of subcols) {
-                                for (;;) {
-                                    const page = await getDocs(query(collection(db, 'users', d.id, sub), limit(SUBCOL_PAGE)));
-                                    if (page.empty) break;
-                                    const batch = writeBatch(db);
-                                    page.docs.forEach(docSnap => batch.delete(doc(db, 'users', d.id, sub, docSnap.id)));
-                                    await batch.commit();
-                                    if (page.docs.length < SUBCOL_PAGE) break;
+            const btnDelete = /** @type {HTMLElement|null} */ (row.querySelector('.btnDelete'));
+            if (btnDelete) {
+                btnDelete.onclick = () => {
+                    openConfirmModal(
+                        async () => {
+                            try {
+                                // Busca e remove cada subcoleção em páginas para não estourar a memória
+                                const SUBCOL_PAGE = 500;
+                                const subcols = ['messages', 'problems', 'links'];
+                                for (const sub of subcols) {
+                                    for (;;) {
+                                        const page = await getDocs(query(collection(db, 'users', d.id, sub), limit(SUBCOL_PAGE)));
+                                        if (page.empty) break;
+                                        const batch = writeBatch(db);
+                                        page.docs.forEach(docSnap => batch.delete(doc(db, 'users', d.id, sub, docSnap.id)));
+                                        await batch.commit();
+                                        if (page.docs.length < SUBCOL_PAGE) break;
+                                    }
                                 }
-                            }
 
-                            await deleteDoc(doc(db, 'users', d.id));
-                            showToast("Usuário excluído!");
-                            loadUsers();
-                        } catch (err) {
-                            console.error("Erro ao excluir:", err);
-                            showModal("Erro ao excluir o usuário.");
-                        }
-                    },
-                    null,
-                    `Deseja realmente excluir "${u.username}"? Todas as mensagens, problemas e links do Firestore serão removidos. Nota: Para liberar o e-mail no Firebase Auth, remova o usuário também pelo Console Firebase.`
-                );
-            };
+                                await deleteDoc(doc(db, 'users', d.id));
+                                showToast("Usuário excluído!");
+                                loadUsers();
+                            } catch (err) {
+                                console.error("Erro ao excluir:", err);
+                                showModal("Erro ao excluir o usuário.");
+                            }
+                        },
+                        null,
+                        `Deseja realmente excluir "${u.username}"? Todas as mensagens, problemas e links do Firestore serão removidos. Nota: Para liberar o e-mail no Firebase Auth, remova o usuário também pelo Console Firebase.`
+                    );
+                };
+            }
 
             userList.appendChild(row);
         });
@@ -163,7 +169,8 @@ export async function loadUsers(append = false) {
             loadMoreBtn.style.cssText = 'display:flex;justify-content:center;margin-top:12px;';
             loadMoreBtn.innerHTML = '<button class="btn ghost" id="btnLoadMoreUsers"><i class="fa-solid fa-chevron-down"></i> Carregar mais usuários</button>';
             userList.appendChild(loadMoreBtn);
-            loadMoreBtn.querySelector('#btnLoadMoreUsers').onclick = () => { loadMoreBtn.remove(); loadUsers(true); };
+            const btnMore = /** @type {HTMLElement|null} */ (loadMoreBtn.querySelector('#btnLoadMoreUsers'));
+            if (btnMore) btnMore.onclick = () => { loadMoreBtn.remove(); loadUsers(true); };
         }
     } catch (e) {
         console.error("Erro ao carregar lista:", e);

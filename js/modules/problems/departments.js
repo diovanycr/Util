@@ -148,7 +148,7 @@ export function refreshDeptCounts(allProblems) {
     const allItem = sidebar.querySelector('[data-dept-id="__all__"]');
     if (allItem) {
         const badge = allItem.querySelector('.dept-item-count');
-        if (badge) badge.textContent = allProblems.length;
+        if (badge) badge.textContent = String(allProblems.length);
     }
 
     // Por departamento
@@ -157,7 +157,7 @@ export function refreshDeptCounts(allProblems) {
         const item  = sidebar.querySelector(`[data-dept-id="${dept.id}"]`);
         if (item) {
             const badge = item.querySelector('.dept-item-count');
-            if (badge) badge.textContent = count;
+            if (badge) badge.textContent = String(count);
         }
     }
 }
@@ -191,7 +191,7 @@ function _buildDeptItem(deptId, name, color, count, deptData = null) {
 
     // Clicar seleciona o departamento
     btn.addEventListener('click', (e) => {
-        if (e.target.closest('.dept-item-actions')) return; // evita ativar ao clicar nos botões
+        if (/** @type {HTMLElement} */ (e.target).closest('.dept-item-actions')) return; // evita ativar ao clicar nos botões
         _setActive(deptId);
     });
 
@@ -215,7 +215,7 @@ function _setActive(deptId) {
     // Atualiza classes ativas
     const sidebar = el('departmentSidebar');
     sidebar?.querySelectorAll('.dept-item').forEach(item => {
-        const itemId = item.dataset.deptId;
+        const itemId = /** @type {HTMLElement} */ (item).dataset.deptId;
         const active = (deptId === null && itemId === '__all__') || itemId === deptId;
         item.classList.toggle('active', active);
     });
@@ -246,8 +246,9 @@ function _openDeptModal(existing) {
     const modalEl = el('deptModal');
     if (!modalEl) return;
 
+    const nameInput = /** @type {HTMLInputElement|null} */ (el('deptNameInput'));
     el('deptModalTitle').textContent = title;
-    el('deptNameInput').value = existing?.name || '';
+    if (nameInput) nameInput.value = existing?.name || '';
     el('deptColorPicker').innerHTML = colorOptions;
 
     // Marca cor selecionada
@@ -261,15 +262,15 @@ function _openDeptModal(existing) {
             });
             opt.classList.add('selected');
             opt.setAttribute('aria-pressed', 'true');
-            selectedColor = opt.dataset.color;
+            selectedColor = /** @type {HTMLElement} */ (opt).dataset.color || defaultColor;
         });
     });
 
-    openModalContainer(modalEl, el('deptNameInput'));
+    openModalContainer(modalEl, nameInput);
 
     // Botão salvar
     el('btnSaveDept').onclick = async () => {
-        const name = el('deptNameInput').value.trim();
+        const name = (/** @type {HTMLInputElement|null} */ (el('deptNameInput')))?.value.trim() || '';
         if (!name) return showModal('O nome do departamento é obrigatório.');
 
         try {

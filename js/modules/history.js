@@ -178,19 +178,21 @@ export function renderHistoryPanel() {
             </button>
         `;
 
-        row.querySelector('.history-copy-btn').onclick = async () => {
-            try { await navigator.clipboard.writeText(item.text); } catch {}
-            addToHistory(item.text, item.title, item.category);
-            // Feedback visual
-            const btn = row.querySelector('.history-copy-btn');
-            btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-            btn.style.color = 'var(--success)';
-            setTimeout(() => {
-                btn.innerHTML = '<i class="fa-solid fa-copy"></i>';
-                btn.style.color = '';
-                renderHistoryPanel();
-            }, 1200);
-        };
+        const btn = /** @type {HTMLElement|null} */ (row.querySelector('.history-copy-btn'));
+        if (btn) {
+            btn.onclick = async () => {
+                try { await navigator.clipboard.writeText(item.text); } catch {}
+                addToHistory(item.text, item.title, item.category);
+                // Feedback visual
+                btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+                btn.style.color = 'var(--success)';
+                setTimeout(() => {
+                    btn.innerHTML = '<i class="fa-solid fa-copy"></i>';
+                    btn.style.color = '';
+                    renderHistoryPanel();
+                }, 1200);
+            };
+        }
 
         list.appendChild(row);
     });

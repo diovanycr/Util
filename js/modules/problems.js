@@ -135,8 +135,14 @@ function setupProblemInterface() {
     };
 
     el('btnAddProblem').onclick = async () => {
-        const title       = el('problemTitle').value.trim();
-        const description = el('problemDesc').value.trim();
+        const titleInput  = /** @type {HTMLInputElement|null} */ (el('problemTitle'));
+        const descInput   = /** @type {HTMLInputElement|null} */ (el('problemDesc'));
+        const statusSel   = /** @type {HTMLSelectElement|null} */ (el('problemSolutionStatus'));
+        const labelInput  = /** @type {HTMLInputElement|null} */ (el('problemSolutionLabel'));
+        const deptSel     = /** @type {HTMLSelectElement|null} */ (el('problemDepartment'));
+
+        const title       = titleInput?.value.trim() || '';
+        const description = descInput?.value.trim() || '';
         const tags        = getTagsFromPills(el('tagPillsCreate'));
         const isMulti     = !el('solutionEditorsList').classList.contains('hidden');
 
@@ -145,11 +151,11 @@ function setupProblemInterface() {
             solutions = collectSolutions(el('solutionEditorsList'));
         } else {
             const text      = el('problemSolution').innerHTML.trim();
-            const status    = el('problemSolutionStatus').value || 'confirmed';
-            const label     = el('problemSolutionLabel').value.trim() || 'Solução 1';
+            const status    = statusSel?.value || 'confirmed';
+            const label     = labelInput?.value.trim() || 'Solução 1';
             const copyTexts = [...el('simpleCopyTextsList').querySelectorAll('.copy-text-row')].map(row => ({
-                label: row.querySelector('.copy-text-label-input')?.value.trim() || '',
-                text:  row.querySelector('.copy-text-editor')?.value.trim() || ''
+                label: /** @type {HTMLInputElement|null} */ (row.querySelector('.copy-text-label-input'))?.value.trim() || '',
+                text:  /** @type {HTMLInputElement|null} */ (row.querySelector('.copy-text-editor'))?.value.trim() || ''
             })).filter(ct => ct.text);
             solutions  = (text && text !== '<br>') ? [{ label, text, status, copyTexts }] : [];
         }
@@ -157,7 +163,7 @@ function setupProblemInterface() {
         if (!title) return showModal("O título do problema é obrigatório.");
         if (solutions.length === 0) return showModal("A solução é obrigatória.");
 
-        const department = el('problemDepartment')?.value || null;
+        const department = deptSel?.value || null;
 
         try {
             await addDoc(collection(db, 'users', currentUserId, 'problems'), {
@@ -175,7 +181,7 @@ function setupProblemInterface() {
         }
     };
 
-    el('problemSearch').oninput = debounce(() => _applyFilters(), 200);
+    el('problemSearch').oninput = /** @type {any} */ (debounce(() => _applyFilters(), 200));
     el('problemStatusFilter')?.addEventListener('change', () => _applyFilters());
     el('btnExportProblems').onclick = () => exportProblems(allProblems);
     el('btnExportManual').onclick = () => exportKnowledgeBaseManual(allProblems);
@@ -339,7 +345,8 @@ export async function loadProblems(userId, append = false) {
             loadMoreBtn.style.cssText = 'display:flex;justify-content:center;margin-top:12px;';
             loadMoreBtn.innerHTML = '<button class="btn ghost" id="btnLoadMoreProblems"><i class="fa-solid fa-chevron-down"></i> Carregar mais problemas</button>';
             list.appendChild(loadMoreBtn);
-            loadMoreBtn.querySelector('#btnLoadMoreProblems').onclick = () => { loadMoreBtn.remove(); loadProblems(currentUserId, true); };
+            const btnMore = /** @type {HTMLElement|null} */ (loadMoreBtn.querySelector('#btnLoadMoreProblems'));
+            if (btnMore) btnMore.onclick = () => { loadMoreBtn.remove(); loadProblems(currentUserId, true); };
         }
 
         // Atualiza contador na aba
@@ -359,21 +366,27 @@ export async function loadProblems(userId, append = false) {
 // --- UTILITÁRIOS ---
 
 function clearProblemForm() {
-    el('problemTitle').value = '';
-    el('problemDesc').value  = '';
-    el('problemTagInput').value = '';
+    const titleInput  = /** @type {HTMLInputElement|null} */ (el('problemTitle'));
+    const descInput   = /** @type {HTMLInputElement|null} */ (el('problemDesc'));
+    const tagInput    = /** @type {HTMLInputElement|null} */ (el('problemTagInput'));
+    const statusSel   = /** @type {HTMLSelectElement|null} */ (el('problemSolutionStatus'));
+    const labelInput  = /** @type {HTMLInputElement|null} */ (el('problemSolutionLabel'));
+    const deptSel     = /** @type {HTMLSelectElement|null} */ (el('problemDepartment'));
+
+    if (titleInput) titleInput.value = '';
+    if (descInput) descInput.value  = '';
+    if (tagInput) tagInput.value = '';
     el('tagPillsCreate').innerHTML = '';
     el('problemSolution').innerHTML = '';
     el('problemSolution').classList.remove('hidden');
     el('simpleCopyTextsList').innerHTML = '';
     el('simpleCopyTextsSection').classList.remove('hidden');
-    el('problemSolutionStatus').value = 'confirmed';
-    el('problemSolutionLabel').value = 'Solução 1';
+    if (statusSel) statusSel.value = 'confirmed';
+    if (labelInput) labelInput.value = 'Solução 1';
     el('problemSolutionHeader').classList.remove('hidden');
     el('solutionEditorsList').classList.add('hidden');
     el('solutionEditorsList').innerHTML = '';
     // Reset department select
-    const deptSel = el('problemDepartment');
     if (deptSel) deptSel.value = '';
     const dot = el('problemDeptDot');
     if (dot) dot.style.backgroundColor = '#6b7280';

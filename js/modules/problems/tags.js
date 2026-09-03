@@ -34,14 +34,15 @@ export function addTagPill(text, container) {
     pill.className = `tag-pill ${getTagColor(tag)}`;
     pill.dataset.tag = tag;
     pill.innerHTML = `${escapeHtml(tag)} <button class="tag-pill-remove" title="Remover">&times;</button>`;
-    pill.querySelector('.tag-pill-remove').onclick = () => pill.remove();
+    const removeBtn = /** @type {HTMLElement|null} */ (pill.querySelector('.tag-pill-remove'));
+    if (removeBtn) removeBtn.onclick = () => pill.remove();
     container.appendChild(pill);
 }
 
 export function getTagsFromPills(container) {
     if (!container) return [];
     const el = container.closest('.tag-input-wrapper') || container;
-    return [...el.querySelectorAll('.tag-pill')].map(p => p.dataset.tag).filter(Boolean);
+    return [...el.querySelectorAll('.tag-pill')].map(p => /** @type {HTMLElement} */ (p).dataset.tag).filter(Boolean);
 }
 
 export function renderTagPills(container, tags = [], removable = true) {
@@ -52,7 +53,8 @@ export function renderTagPills(container, tags = [], removable = true) {
         pill.dataset.tag = tag;
         if (removable) {
             pill.innerHTML = `${escapeHtml(tag)} <button class="tag-pill-remove" title="Remover">&times;</button>`;
-            pill.querySelector('.tag-pill-remove').onclick = () => pill.remove();
+            const removeBtn = /** @type {HTMLElement|null} */ (pill.querySelector('.tag-pill-remove'));
+            if (removeBtn) removeBtn.onclick = () => pill.remove();
         } else {
             pill.textContent = tag;
         }

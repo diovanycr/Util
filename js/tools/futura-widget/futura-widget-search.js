@@ -2,7 +2,7 @@
  * futura-widget-search.js — Busca principal, modo sem API e com API
  */
 import { TARGET_DOMAIN } from './futura-widget-config.js';
-import { functions, httpsCallable } from '../../../core/firebase.js';
+import { functions, httpsCallable } from '../../core/firebase.js';
 
 const aiProxyFn = httpsCallable(functions, 'aiProxy');
 
