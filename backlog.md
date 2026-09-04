@@ -27,7 +27,6 @@
 *(Nenhum item pendente)*
 
 ### 🚀 UX / Produtividade
-- [ ] **Padronizar exclusão recuperável** — aplicar soft-delete e toast “Desfazer” a mensagens, links e problemas `[M]` `[UX]`
 - [ ] **Adaptar o cabeçalho para telas estreitas e zoom de 200%** — agrupar ações secundárias em “Mais” e validar a 320 px `[M]` `[UX]`
 - [ ] **Melhorar modo Popout para janela compacta sempre no topo (`always-on-top`) ao lado do CRM/PDV** `[M]` `[UX]`
 - [ ] **Ordenação automática das mensagens por mais copiadas (igual ao que foi feito nos links)** — ranking já existente, mas mensagens ainda são ordenadas manualmente `[M]` `[UX]`
@@ -52,6 +51,7 @@
 
 
 ## Feito
+- [x] **Padronizar exclusão recuperável** — aplicar soft-delete e toast “Desfazer” a mensagens, links e problemas `[M]` `[UX]`
 - [x] **Atualizar o cache do PWA com segurança** — manifesto gerado automaticamente por `scripts/generate-sw-manifest.js`, versionado por content hash; SW aguarda confirmação do usuário (toast "Atualizar agora") antes de ativar `[G]` `[Arch]`
 - [x] **Cloud Function para exclusão completa de usuário no Firebase Auth** — `adminDeleteUser` callable com verificação de role server-side remove Auth + todas as subcoleções Firestore `[G]` `[Backend]`
 - [x] **Lazy-loading das ferramentas no portOpener** — todos os painéis são construídos no carregamento inicial; ferramentas pesadas como `decisionTree` (~30 KB) devem ser carregadas sob demanda `[G]` `[Arch]`

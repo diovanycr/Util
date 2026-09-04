@@ -11,6 +11,7 @@ import {
 import { getDocs, addDoc, writeBatch } from '../../core/firebase-retry.js';
 import { openConfirmModal, showModal } from '../../core/modal.js';
 import { showToast } from '../../core/toast.js';
+import { scheduleUndoDelete } from '../../core/undoService.js';
 import {
     escapeHtml, escapeAttr, setupDragDrop,
     getNextGreetingChange, isGreetingMessage
@@ -412,18 +413,23 @@ export function renderMessages() {
             const btnDelMsg = /** @type {HTMLElement|null} */ (row.querySelector('.btn-del'));
             if (btnDelMsg) {
                 btnDelMsg.onclick = () => {
-                    openConfirmModal(
-                        async () => {
+                    row.style.display = 'none';
+                    scheduleUndoDelete(`msg-${item.id}`, {
+                        message: 'Mensagem movida para a lixeira.',
+                        onConfirm: async () => {
                             try {
                                 await updateDoc(doc(db, 'users', state.currentUserId, 'messages', item.id), { deleted: true });
                                 loadMessages(state.currentUserId, { force: true });
                                 updateTrashCount(state.currentUserId);
-                                showToast('Mensagem movida para a lixeira.');
-                            } catch (err) { showModal('Erro ao mover para a lixeira.'); }
+                            } catch (err) {
+                                showModal('Erro ao mover para a lixeira.');
+                                row.style.display = '';
+                            }
                         },
-                        null,
-                        'Mover esta mensagem para a lixeira?'
-                    );
+                        onUndo: () => {
+                            row.style.display = '';
+                        }
+                    });
                 };
             }
 

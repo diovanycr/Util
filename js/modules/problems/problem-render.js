@@ -5,6 +5,7 @@ import { deleteDoc, addDoc } from '../../core/firebase-retry.js';
 
 import { showModal, openConfirmModal } from '../../core/modal.js';
 import { showToast } from '../../core/toast.js';
+import { scheduleUndoDelete } from '../../core/undoService.js';
 import {
     escapeHtml, escapeAttr, sanitizeHtml,
     normalizeSolutions, getTagColor, addKeyboardDragSupport, setupDragDrop
@@ -174,17 +175,22 @@ function bindCardEvents(card, item, solutions, ctx) {
 
     // Delete
     card.querySelector('.btn-del-problem').onclick = () => {
-        openConfirmModal(
-            async () => {
+        card.style.display = 'none';
+        scheduleUndoDelete(`problem-${item.id}`, {
+            message: `Problema "${item.title}" excluído.`,
+            onConfirm: async () => {
                 try {
                     await deleteDoc(doc(db, 'users', ctx.currentUserId, 'problems', item.id));
-                    showToast("Problema excluído!");
                     ctx.loadProblems(ctx.currentUserId);
-                } catch (err) { showModal("Erro ao excluir o problema."); }
+                } catch (err) {
+                    showModal("Erro ao excluir o problema.");
+                    card.style.display = '';
+                }
             },
-            null,
-            `Deseja realmente excluir o problema "${item.title}"? Esta ação não poderá ser desfeita.`
-        );
+            onUndo: () => {
+                card.style.display = '';
+            }
+        });
     };
 
     // Drag-and-drop (mouse + teclado) — helper compartilhado

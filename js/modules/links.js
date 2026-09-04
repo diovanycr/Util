@@ -15,6 +15,7 @@ import { getDocs, addDoc, deleteDoc, updateDoc, writeBatch } from '../core/fireb
 
 import { showModal, openConfirmModal } from '../core/modal.js';
 import { showToast } from '../core/toast.js';
+import { scheduleUndoDelete } from '../core/undoService.js';
 import { escapeHtml, escapeAttr, debounce, setupDragDrop } from '../core/utils.js';
 
 let currentUserId = null;
@@ -250,18 +251,21 @@ function renderLinks(container, links) {
                 btnDelLink.onclick = (e) => {
                     e.stopPropagation();
                     if (!currentUserId) return;
-                    openConfirmModal(
-                        async () => {
+                    card.style.display = 'none';
+                    scheduleUndoDelete(`link-${item.id}`, {
+                        message: `Link "${item.title}" removido.`,
+                        onConfirm: async () => {
                             try {
                                 await deleteDoc(doc(db, 'users', currentUserId, 'links', item.id));
-                                showToast("Link removido!");
                             } catch (_err) {
                                 showModal("Erro ao remover o link.");
+                                card.style.display = '';
                             }
                         },
-                        null,
-                        `Deseja realmente remover o link "${item.title}"? Esta ação não poderá ser desfeita.`
-                    );
+                        onUndo: () => {
+                            card.style.display = '';
+                        }
+                    });
                 };
             }
             const dragHandle = /** @type {HTMLElement|null} */ (card.querySelector('.link-drag-handle'));

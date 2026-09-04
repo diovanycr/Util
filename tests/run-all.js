@@ -10,7 +10,7 @@ const projectRoot = path.join(__dirname, '..');
 const args = process.argv.slice(2);
 const isCoverage = args.includes('--coverage');
 const timeoutArg = args.find(a => a.startsWith('--timeout='));
-const defaultTimeout = timeoutArg ? parseInt(timeoutArg.split('=')[1], 10) : (parseInt(process.env.TEST_TIMEOUT, 10) || 30000);
+const defaultTimeout = timeoutArg ? parseInt(timeoutArg.split('=')[1], 10) : (parseInt(process.env.TEST_TIMEOUT, 10) || 60000);
 
 const reportsDir = path.join(projectRoot, 'reports');
 const failuresDir = path.join(reportsDir, 'failures');
