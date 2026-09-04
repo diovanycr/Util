@@ -15,9 +15,15 @@ import {
     escapeHtml, escapeAttr, setupDragDrop,
     getNextGreetingChange, isGreetingMessage
 } from '../../core/utils.js';
+import { createLoadThrottle } from '../../core/throttle.js';
 import { addToHistory, renderHistoryPanel } from '../history.js';
 import { state, allMessages } from './state.js';
 import { updateTrashCount } from './trash.js';
+
+// Throttle: mínimo de 2 s entre carregamentos do Firestore para a mesma lista.
+// Exportado para que o logout/resetMessages possa chamar .reset().
+export const msgThrottle = createLoadThrottle({ minIntervalMs: 2000 });
+const _msgThrottle = msgThrottle;
 
 // --- FILTRO DE CATEGORIAS (sem re-renderizar DOM, aplica hidden-by-filter) ---
 
@@ -132,10 +138,21 @@ export function applyMessageSearchQuery() {
 
 // --- CARREGAMENTO E RENDERIZAÇÃO ---
 
-export async function loadMessages(userId) {
-    if (state.isLoadingMessages) return;
-    state.isLoadingMessages = true;
+/**
+ * Carrega mensagens do Firestore com proteção contra rate limiting.
+ * Chamadas dentro de 2 s da última execução são ignoradas silenciosamente.
+ * Execuções concorrentes também são descartadas (o throttle age como guard).
+ *
+ * @param {string} userId
+ * @param {{ force?: boolean }} [opts]  `force: true` ignora o throttle (ex.: após salvar).
+ */
+export async function loadMessages(userId, { force = false } = {}) {
+    if (force) _msgThrottle.reset();
+    await _msgThrottle.call(() => _doLoadMessages(userId));
+}
 
+/** @param {string} userId */
+async function _doLoadMessages(userId) {
     const list = el('msgList');
     if (!list) return;
     list.setAttribute('aria-busy', 'true');
@@ -184,7 +201,6 @@ export async function loadMessages(userId) {
         console.error("Erro ao carregar mensagens:", err);
         list.innerHTML = `<div class="empty-state-container"><i class="fa-solid fa-triangle-exclamation empty-state-icon"></i><p class="empty-state-title">Erro ao carregar mensagens</p></div>`;
     } finally {
-        state.isLoadingMessages = false;
         list.removeAttribute('aria-busy');
     }
 }
@@ -321,7 +337,7 @@ export function renderMessages() {
                             copyCount: 0
                         });
                         showToast("Mensagem duplicada!");
-                        loadMessages(state.currentUserId);
+                        loadMessages(state.currentUserId, { force: true });
                     } catch (err) {
                         console.error("Erro ao duplicar mensagem:", err);
                         showModal("Erro ao duplicar mensagem.");
@@ -339,7 +355,7 @@ export function renderMessages() {
                         async () => {
                             try {
                                 await updateDoc(doc(db, 'users', state.currentUserId, 'messages', item.id), { deleted: true });
-                                loadMessages(state.currentUserId);
+                                loadMessages(state.currentUserId, { force: true });
                                 updateTrashCount(state.currentUserId);
                                 showToast('Mensagem movida para a lixeira.');
                             } catch (err) { showModal('Erro ao mover para a lixeira.'); }
@@ -406,7 +422,7 @@ export function enterEditMode(row, item, userId) {
                 text: newText, title: newTitle, category: newCategory
             });
             showToast("Mensagem atualizada!");
-            loadMessages(userId);
+            loadMessages(userId, { force: true });
         } catch (err) { showModal("Erro ao atualizar a mensagem."); }
     };
 

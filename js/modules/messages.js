@@ -20,7 +20,8 @@ import {
     loadMessages,
     renderMessages,
     saveOrder,
-    applyMessageSearchQuery
+    applyMessageSearchQuery,
+    msgThrottle
 } from './messages/loader.js';
 import {
     importFromTxt,
@@ -71,6 +72,7 @@ export function resetMessages() {
         _exportModalClick = null;
     }
     resetState();
+    msgThrottle.reset(); // garante que o próximo login não seja bloqueado pelo throttle
 }
 
 function setupAutoTimeRefresh() {
@@ -141,7 +143,7 @@ function setupUserInterface(uid) {
             });
             clearMsgForm();
             el('newMsgBox').classList.add('hidden');
-            loadMessages(uid);
+            loadMessages(uid, { force: true });
         }, 'Salvando...');
     };
 

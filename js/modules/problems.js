@@ -11,6 +11,7 @@ import { getDocs, addDoc } from '../core/firebase-retry.js';
 import { showModal } from '../core/modal.js';
 import { showToast } from '../core/toast.js';
 import { debounce, normalizeSolutions } from '../core/utils.js';
+import { createLoadThrottle } from '../core/throttle.js';
 
 import { setupTagInput, getTagsFromPills, normalizeTags } from './problems/tags.js';
 import {
@@ -37,6 +38,10 @@ let activeTagFilter   = null;
 let _lastProblemDoc   = null;
 const PROBLEM_PAGE_SIZE = 50;
 
+// Throttle: mínimo de 2 s entre recarregamentos completos da lista de problemas.
+// Chamadas com append:true (botão "Carregar mais") sempre passam.
+const _problemsThrottle = createLoadThrottle({ minIntervalMs: 2000 });
+
 export function initProblems(uid) {
     currentUserId = uid;
     if (!uiInitialized) {
@@ -58,14 +63,20 @@ export function resetProblems() {
     allProblems.length = 0;
     dragSrcProblem   = null;
     _lastProblemDoc  = null;
+    _problemsThrottle.reset(); // garante que o próximo login não seja bloqueado
     resetDepartments();
 }
 
 // --- BUILD CONTEXT (DI) ---
 
 // Wrapper que fecha a dependência circular com problem-edit.js
+// Usado em recarregamentos pós-mutação: ignora throttle.
+function _forceLoadProblems(uid) {
+    return loadProblems(uid, false, { force: true });
+}
+
 function _enterEditMode(card, item, userId, solutions, tags) {
-    enterEditMode(card, item, userId, solutions, tags, loadProblems);
+    enterEditMode(card, item, userId, solutions, tags, _forceLoadProblems);
 }
 
 function buildCtx() {
@@ -79,7 +90,7 @@ function buildCtx() {
         setActiveTagFilter: (val) => { activeTagFilter = val; },
         enterEditMode:     _enterEditMode,
         saveProblemOrder,
-        loadProblems,
+        loadProblems:      _forceLoadProblems,  // ctx: sempre força após mutações
         applyFilters:      () => _applyFilters(),
         renderFiltered:     (filtered) => renderProblems(filtered, buildCtx())
     };
@@ -174,7 +185,7 @@ function setupProblemInterface() {
             clearProblemForm();
             el('newProblemBox').classList.add('hidden');
             showToast("Problema salvo!");
-            loadProblems(currentUserId);
+            loadProblems(currentUserId, false, { force: true });
         } catch (e) {
             console.error(e);
             showModal("Erro ao salvar o problema.");
@@ -186,7 +197,7 @@ function setupProblemInterface() {
     el('btnExportProblems').onclick = () => exportProblems(allProblems);
     el('btnExportManual').onclick = () => exportKnowledgeBaseManual(allProblems);
     el('btnImportProblems').onclick = () => el('importProblemsInput').click();
-    el('importProblemsInput').onchange = (e) => importProblems(e, currentUserId, allProblems, loadProblems);
+    el('importProblemsInput').onchange = (e) => importProblems(e, currentUserId, allProblems, _forceLoadProblems);
 }
 
 // Atualiza a bolinha colorida ao lado do select de departamento
@@ -287,7 +298,17 @@ export function exportKnowledgeBaseManual(problems) {
 
 // --- CARREGAMENTO ---
 
-export async function loadProblems(userId, append = false) {
+export async function loadProblems(userId, append = false, { force = false } = {}) {
+    // Paginação (append) sempre passa; recarregamentos completos são throttled.
+    if (!append) {
+        if (force) _problemsThrottle.reset();
+        await _problemsThrottle.call(() => _doLoadProblems(userId, false));
+        return;
+    }
+    await _doLoadProblems(userId, true);
+}
+
+async function _doLoadProblems(userId, append) {
     const list = el('problemList');
     if (!list) return;
 

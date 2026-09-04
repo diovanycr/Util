@@ -7,7 +7,6 @@
 let currentUserId = null;
 let dragSrc = null;
 let uiInitialized = false;
-let isLoadingMessages = false;
 let activeCategoryFilter = null;
 let lastCheckedHour = new Date().getHours();
 let autoTimeInterval = null;
@@ -23,9 +22,6 @@ export const state = {
 
     get uiInitialized() { return uiInitialized; },
     set uiInitialized(v) { uiInitialized = v; },
-
-    get isLoadingMessages() { return isLoadingMessages; },
-    set isLoadingMessages(v) { isLoadingMessages = v; },
 
     get activeCategoryFilter() { return activeCategoryFilter; },
     set activeCategoryFilter(v) { activeCategoryFilter = v; },

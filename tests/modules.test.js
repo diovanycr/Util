@@ -139,5 +139,13 @@ console.log('Test: aiAssistant.js exports');
     assert(fileContains(aiPath, 'export function processTextWithAI'), 'Should export processTextWithAI');
 }
 
+// Test: throttle.js exports
+console.log('Test: throttle.js exports');
+{
+    const throttlePath = path.join(BASE_DIR, 'js', 'core', 'throttle.js');
+    assert(fileContains(throttlePath, 'export function createLoadThrottle'), 'Should export createLoadThrottle');
+    assert(fileContains(throttlePath, 'export function createConcurrencyGuard'), 'Should export createConcurrencyGuard');
+}
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);

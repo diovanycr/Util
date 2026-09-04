@@ -43,6 +43,16 @@ assert(runnerContent.includes('readdirSync'), 'tests/run-all.js should use dynam
 assert(runnerContent.includes('junit.xml'), 'tests/run-all.js should generate junit.xml report');
 assert(runnerContent.includes('failures'), 'tests/run-all.js should generate failure artifact logs');
 
+const dependabotPath = new URL('../.github/dependabot.yml', import.meta.url);
+const dependabotContent = readFileSync(dependabotPath, 'utf8');
+assert(dependabotContent.includes('package-ecosystem: "npm"'), '.github/dependabot.yml should configure npm ecosystem');
+assert(dependabotContent.includes('package-ecosystem: "github-actions"'), '.github/dependabot.yml should configure github-actions ecosystem');
+
+const auditWorkflowPath = new URL('../.github/workflows/audit.yml', import.meta.url);
+const auditWorkflowContent = readFileSync(auditWorkflowPath, 'utf8');
+assert(auditWorkflowContent.includes('npm audit'), '.github/workflows/audit.yml should execute npm audit');
+
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);
+
 
