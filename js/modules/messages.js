@@ -21,7 +21,8 @@ import {
     renderMessages,
     saveOrder,
     applyMessageSearchQuery,
-    msgThrottle
+    msgThrottle,
+    resetMsgPagination
 } from './messages/loader.js';
 import {
     importFromTxt,
@@ -72,6 +73,7 @@ export function resetMessages() {
         _exportModalClick = null;
     }
     resetState();
+    resetMsgPagination();
     msgThrottle.reset(); // garante que o próximo login não seja bloqueado pelo throttle
 }
 

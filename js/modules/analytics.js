@@ -13,6 +13,8 @@ import { db, el, collection, getDocs, query } from '../core/firebase.js';
 import { escapeHtml } from '../core/utils.js';
 import { showToast } from '../core/toast.js';
 import { getDepartments, DEPT_COLORS } from './problems/departments.js';
+import { allMessages } from './messages/state.js';
+import { allProblems } from './problems.js';
 
 let _currentUserId = null;
 let _analyticsInitialized = false;
@@ -40,19 +42,24 @@ export function resetAnalytics() {
 }
 
 /**
- * Carrega e agrega todos os dados de estatísticas do usuário no Firestore.
+ * Carrega e agrega todos os dados de estatísticas do usuário.
+ * Utiliza o estado local em memória (allMessages e allProblems) se já estiver carregado,
+ * evitando leituras excessivas no Firestore.
  */
 export async function loadAnalyticsData() {
     if (!_currentUserId) return;
 
     try {
-        // Fetch mensagens
-        const msgsSnap = await getDocs(query(collection(db, 'users', _currentUserId, 'messages')));
+        let msgs = allMessages;
+        if (msgs.length === 0) {
+            const msgsSnap = await getDocs(query(collection(db, 'users', _currentUserId, 'messages')));
+            msgs = msgsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+
         let totalCopies = 0;
         const categoryMap = {}; // { categoryName: totalCopies }
 
-        msgsSnap.forEach(d => {
-            const data = d.data();
+        msgs.forEach(data => {
             if (data.deleted) return;
             const count = data.copyCount || 0;
             const cat = data.category || 'Geral';
@@ -61,13 +68,16 @@ export async function loadAnalyticsData() {
             categoryMap[cat] = (categoryMap[cat] || 0) + count;
         });
 
-        // Fetch problemas
-        const probsSnap = await getDocs(query(collection(db, 'users', _currentUserId, 'problems')));
+        let probs = allProblems;
+        if (probs.length === 0) {
+            const probsSnap = await getDocs(query(collection(db, 'users', _currentUserId, 'problems')));
+            probs = probsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+        }
+
         let totalProblems = 0;
         const deptMap = {}; // { deptId: count }
 
-        probsSnap.forEach(d => {
-            const data = d.data();
+        probs.forEach(data => {
             totalProblems++;
             const deptId = data.department || '__sem_dept__';
             deptMap[deptId] = (deptMap[deptId] || 0) + 1;

@@ -5,7 +5,7 @@
 import {
     db, el,
     collection, doc,
-    query, where, limit,
+    query, where, limit, startAfter,
     updateDoc, increment
 } from '../../core/firebase.js';
 import { getDocs, addDoc, writeBatch } from '../../core/firebase-retry.js';
@@ -25,7 +25,135 @@ import { updateTrashCount } from './trash.js';
 export const msgThrottle = createLoadThrottle({ minIntervalMs: 2000 });
 const _msgThrottle = msgThrottle;
 
-// --- FILTRO DE CATEGORIAS (sem re-renderizar DOM, aplica hidden-by-filter) ---
+const MSG_PAGE_SIZE = 50;
+let _lastMsgDoc = null;
+
+export function resetMsgPagination() {
+    _lastMsgDoc = null;
+}
+
+/**
+ * Carrega mensagens do Firestore com proteção contra rate limiting e paginação por cursor.
+ *
+ * @param {string} userId
+ * @param {boolean|{ force?: boolean }} [appendOrOpts]
+ * @param {{ force?: boolean }} [opts]
+ */
+export async function loadMessages(userId, appendOrOpts = false, opts = {}) {
+    let append = false;
+    let options = opts;
+
+    if (typeof appendOrOpts === 'boolean') {
+        append = appendOrOpts;
+    } else if (appendOrOpts && typeof appendOrOpts === 'object') {
+        options = appendOrOpts;
+        append = false;
+    }
+
+    const force = options.force || false;
+
+    if (!append) {
+        if (force) _msgThrottle.reset();
+        await _msgThrottle.call(() => _doLoadMessages(userId, false));
+        return;
+    }
+    await _doLoadMessages(userId, true);
+}
+
+/** 
+ * @param {string} userId 
+ * @param {boolean} append
+ */
+async function _doLoadMessages(userId, append = false) {
+    const list = el('msgList');
+    if (!list) return;
+
+    if (!append) {
+        list.setAttribute('aria-busy', 'true');
+        list.innerHTML = `
+            <div class="loading-state">
+                <span class="spinner" aria-hidden="true"></span>
+                <span>Carregando mensagens...</span>
+            </div>
+        `;
+        _lastMsgDoc = null;
+        allMessages.length = 0;
+    }
+
+    try {
+        let q = query(collection(db, 'users', userId, 'messages'), limit(MSG_PAGE_SIZE));
+        if (_lastMsgDoc) {
+            q = query(collection(db, 'users', userId, 'messages'), startAfter(_lastMsgDoc), limit(MSG_PAGE_SIZE));
+        }
+
+        const snap = await getDocs(q);
+
+        if (snap.empty && !append) {
+            const greetingsSnap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('category', '==', 'Saudação')));
+            if (greetingsSnap.empty) {
+                const defaultGreetings = [
+                    { title: 'Saudação - Bom dia', category: 'Saudação', text: 'Bom dia, {usuario}! Como posso te ajudar hoje?', order: 1, deleted: false, createdAt: Date.now() },
+                    { title: 'Saudação - Boa tarde', category: 'Saudação', text: 'Boa tarde, {usuario}! Como posso te ajudar hoje?', order: 2, deleted: false, createdAt: Date.now() },
+                    { title: 'Saudação - Boa noite', category: 'Saudação', text: 'Boa noite, {usuario}! Como posso te ajudar hoje?', order: 3, deleted: false, createdAt: Date.now() }
+                ];
+                const batch = writeBatch(db);
+                for (const g of defaultGreetings) {
+                    batch.set(doc(collection(db, 'users', userId, 'messages')), g);
+                }
+                await batch.commit();
+                const newSnap = await getDocs(query(collection(db, 'users', userId, 'messages'), limit(MSG_PAGE_SIZE)));
+                const newDocs = newSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+                if (newSnap.docs.length > 0) {
+                    _lastMsgDoc = newSnap.docs[newSnap.docs.length - 1];
+                }
+                updateTrashBadge(newDocs);
+                newDocs.filter(d => !d.deleted).sort((a, b) => (a.order || 0) - (b.order || 0)).forEach(d => allMessages.push(d));
+            }
+        } else if (snap.empty && append) {
+            showToast("Não há mais mensagens.");
+            return;
+        } else {
+            _lastMsgDoc = snap.docs[snap.docs.length - 1];
+            const fetchedDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            updateTrashBadge(fetchedDocs);
+
+            const newValidMsgs = fetchedDocs.filter(d => !d.deleted);
+            newValidMsgs.forEach(item => {
+                if (!allMessages.some(existing => existing.id === item.id)) {
+                    allMessages.push(item);
+                }
+            });
+            allMessages.sort((a, b) => (a.order || 0) - (b.order || 0));
+        }
+
+        updateCategoryFilterBar();
+        renderMessages();
+
+        if (snap.docs.length === MSG_PAGE_SIZE) {
+            const loadMoreContainer = document.createElement('div');
+            loadMoreContainer.style.cssText = 'display:flex;justify-content:center;margin-top:16px;';
+            loadMoreContainer.innerHTML = '<button class="btn ghost" id="btnLoadMoreMsgs"><i class="fa-solid fa-chevron-down"></i> Carregar mais mensagens</button>';
+            list.appendChild(loadMoreContainer);
+            const btnMore = /** @type {HTMLElement|null} */ (loadMoreContainer.querySelector('#btnLoadMoreMsgs'));
+            if (btnMore) {
+                btnMore.onclick = () => {
+                    loadMoreContainer.remove();
+                    loadMessages(userId, true);
+                };
+            }
+        }
+
+        const event = new CustomEvent('updateMsgCount', { detail: allMessages.length });
+        document.dispatchEvent(event);
+    } catch (err) {
+        console.error("Erro ao carregar mensagens:", err);
+        if (!append) {
+            list.innerHTML = `<div class="empty-state-container"><i class="fa-solid fa-triangle-exclamation empty-state-icon"></i><p class="empty-state-title">Erro ao carregar mensagens</p></div>`;
+        }
+    } finally {
+        list.removeAttribute('aria-busy');
+    }
+}
 
 export function updateCategoryFilterBar() {
     const bar = el('msgCategoryFilterBar');
@@ -137,73 +265,6 @@ export function applyMessageSearchQuery() {
 }
 
 // --- CARREGAMENTO E RENDERIZAÇÃO ---
-
-/**
- * Carrega mensagens do Firestore com proteção contra rate limiting.
- * Chamadas dentro de 2 s da última execução são ignoradas silenciosamente.
- * Execuções concorrentes também são descartadas (o throttle age como guard).
- *
- * @param {string} userId
- * @param {{ force?: boolean }} [opts]  `force: true` ignora o throttle (ex.: após salvar).
- */
-export async function loadMessages(userId, { force = false } = {}) {
-    if (force) _msgThrottle.reset();
-    await _msgThrottle.call(() => _doLoadMessages(userId));
-}
-
-/** @param {string} userId */
-async function _doLoadMessages(userId) {
-    const list = el('msgList');
-    if (!list) return;
-    list.setAttribute('aria-busy', 'true');
-    list.innerHTML = `
-        <div class="loading-state">
-            <span class="spinner" aria-hidden="true"></span>
-            <span>Carregando mensagens...</span>
-        </div>
-    `;
-    try {
-        const snap = await getDocs(query(collection(db, 'users', userId, 'messages'), limit(500)));
-        let allDocs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-        if (allDocs.length === 0) {
-            const greetingsSnap = await getDocs(query(collection(db, 'users', userId, 'messages'), where('category', '==', 'Saudação')));
-            if (greetingsSnap.empty) {
-                const defaultGreetings = [
-                    { title: 'Saudação - Bom dia', category: 'Saudação', text: 'Bom dia, {usuario}! Como posso te ajudar hoje?', order: 1, deleted: false, createdAt: Date.now() },
-                    { title: 'Saudação - Boa tarde', category: 'Saudação', text: 'Boa tarde, {usuario}! Como posso te ajudar hoje?', order: 2, deleted: false, createdAt: Date.now() },
-                    { title: 'Saudação - Boa noite', category: 'Saudação', text: 'Boa noite, {usuario}! Como posso te ajudar hoje?', order: 3, deleted: false, createdAt: Date.now() }
-                ];
-                const batch = writeBatch(db);
-                for (const g of defaultGreetings) {
-                    batch.set(doc(collection(db, 'users', userId, 'messages')), g);
-                }
-                await batch.commit();
-                const newSnap = await getDocs(query(collection(db, 'users', userId, 'messages'), limit(500)));
-                allDocs = newSnap.docs.map(d => ({ id: d.id, ...d.data() }));
-            }
-        }
-
-        updateTrashBadge(allDocs);
-
-        allMessages.length = 0;
-        allDocs
-            .filter(d => !d.deleted)
-            .sort((a, b) => (a.order || 0) - (b.order || 0))
-            .forEach(d => allMessages.push(d));
-
-        updateCategoryFilterBar();
-        renderMessages();
-
-        const event = new CustomEvent('updateMsgCount', { detail: allMessages.length });
-        document.dispatchEvent(event);
-    } catch (err) {
-        console.error("Erro ao carregar mensagens:", err);
-        list.innerHTML = `<div class="empty-state-container"><i class="fa-solid fa-triangle-exclamation empty-state-icon"></i><p class="empty-state-title">Erro ao carregar mensagens</p></div>`;
-    } finally {
-        list.removeAttribute('aria-busy');
-    }
-}
 
 function updateTrashBadge(allDocs) {
     const badge = el('trashCount');

@@ -24,7 +24,6 @@
 *(Nenhum item pendente)*
 
 ### ⚙️ Qualidade Técnica
-- [ ] **Paginar e agregar leituras do Firestore** — evitar carregamentos integrais/limites fixos em analytics, mensagens e histórico para conter latência e custo à medida que a base cresce `[G]` `[Backend]`
 - [ ] **Lazy-loading das ferramentas no portOpener** — todos os painéis são construídos no carregamento inicial; ferramentas pesadas como `decisionTree` (~30 KB) devem ser carregadas sob demanda `[G]` `[Arch]`
 - [ ] **Cloud Function para exclusão completa de usuário no Firebase Auth** — hoje a exclusão remove apenas o Firestore, não o Auth `[G]` `[Backend]`
 - [ ] **Atualizar o cache do PWA com segurança** — gerar pre-cache automaticamente, versionar assets por hash e avisar o usuário antes de ativar uma nova versão `[G]` `[Arch]`
@@ -55,6 +54,7 @@
 
 
 ## Feito
+- [x] **Paginar e agregar leituras do Firestore** — evitar carregamentos integrais/limites fixos em analytics, mensagens e histórico para conter latência e custo à medida que a base cresce `[G]` `[Backend]`
 - [x] **Proteção contra rate limiting no Firestore** — `loadMessages` e `loadProblems` sem throttle; usuários com muitos dados podem gerar leituras excessivas `[M]` `[Backend]`
 - [x] **Adicionar automação de atualização e auditoria de dependências** — configurar Dependabot para npm/GitHub Actions e auditoria agendada no CI `[M]` `[DevOps]`
 - [x] **Modernizar o runner de testes e observabilidade de CI** — migrar lista manual para descoberta (Node Test Runner/Vitest), adicionar timeout por teste, cobertura, JUnit e artefatos de falha `[G]` `[QA]`
