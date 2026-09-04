@@ -40,7 +40,11 @@ assert(/timeZone:\s*["']America\/Sao_Paulo["']/.test(fnSrc), 'timeZone America/S
 assert(fnSrc.includes('copyCount'), 'reset zera copyCount');
 assert(fnSrc.includes('auditReset'), 'reset escreve auditReset');
 assert(fnSrc.includes('deleteUserAccount'), 'exporta deleteUserAccount');
-assert(fnSrc.includes('admin.auth().deleteUser'), 'deleteUserAccount remove Auth');
+assert(fnSrc.includes('adminDeleteUser'), 'exporta adminDeleteUser');
+assert(fnSrc.includes('admin.auth().deleteUser'), 'remove usuario do Auth');
+
+const adminSrc = fs.readFileSync(path.join(root, 'js', 'modules', 'admin.js'), 'utf8');
+assert(adminSrc.includes('adminDeleteUser'), 'admin.js chama adminDeleteUser');
 
 assert(fs.existsSync(path.join(root, 'firebase.json')), 'firebase.json existe');
 const fb = JSON.parse(fs.readFileSync(path.join(root, 'firebase.json'), 'utf8'));

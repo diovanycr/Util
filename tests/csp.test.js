@@ -74,8 +74,23 @@ if (offenders.length) offenders.slice(0, 5).forEach(o => console.error(`    - ${
 
 assert(fs.existsSync(path.join(__dirname, '..', 'js', 'boot', 'theme-fouc.js')), 'js/boot/theme-fouc.js existe');
 assert(fs.existsSync(path.join(__dirname, '..', 'js', 'boot', 'sw-register.js')), 'js/boot/sw-register.js existe');
-assert(sw.includes('js/boot/theme-fouc.js'), 'sw.js pre-cacheia theme-fouc.js');
-assert(sw.includes('js/boot/sw-register.js'), 'sw.js pre-cacheia sw-register.js');
+// Pre-cache agora é gerado dinamicamente — verifica sw-manifest.json
+const MANIFEST = path.join(__dirname, '..', 'sw-manifest.json');
+if (fs.existsSync(MANIFEST)) {
+    let manifest;
+    try { manifest = JSON.parse(fs.readFileSync(MANIFEST, 'utf8')); } catch { manifest = { files: [] }; }
+    const files = manifest.files || [];
+    assert(
+        files.some(f => f.includes('js/boot/theme-fouc.js')),
+        'sw-manifest.json pre-cacheia theme-fouc.js'
+    );
+    assert(
+        files.some(f => f.includes('js/boot/sw-register.js')),
+        'sw-manifest.json pre-cacheia sw-register.js'
+    );
+} else {
+    assert(false, 'sw-manifest.json deve existir (rode npm run generate:sw)');
+}
 
 console.log(`\nCSP guard: ${passed} ok, ${failed} falharam`);
 process.exit(failed === 0 ? 0 : 1);

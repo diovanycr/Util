@@ -1,5 +1,5 @@
 import {
-    db, el, secondaryAuth, auth,
+    db, el, secondaryAuth, auth, functions, httpsCallable,
     collection,
     doc,
     createUserWithEmailAndPassword,
@@ -132,7 +132,12 @@ export async function loadUsers(append = false) {
                     openConfirmModal(
                         async () => {
                             try {
-                                // Busca e remove cada subcoleção em páginas para não estourar a memória
+                                const deleteFn = httpsCallable(functions, 'adminDeleteUser');
+                                await deleteFn({ targetUid: d.id });
+                                showToast("Usuário e conta Firebase Auth excluídos!");
+                                loadUsers();
+                            } catch (fnErr) {
+                                console.warn("Cloud function adminDeleteUser indisponível/falhou, executando exclusão local no Firestore:", fnErr);
                                 const SUBCOL_PAGE = 500;
                                 const subcols = ['messages', 'problems', 'links'];
                                 for (const sub of subcols) {
@@ -147,15 +152,12 @@ export async function loadUsers(append = false) {
                                 }
 
                                 await deleteDoc(doc(db, 'users', d.id));
-                                showToast("Usuário excluído!");
+                                showToast("Usuário excluído do Firestore!");
                                 loadUsers();
-                            } catch (err) {
-                                console.error("Erro ao excluir:", err);
-                                showModal("Erro ao excluir o usuário.");
                             }
                         },
                         null,
-                        `Deseja realmente excluir "${u.username}"? Todas as mensagens, problemas e links do Firestore serão removidos. Nota: Para liberar o e-mail no Firebase Auth, remova o usuário também pelo Console Firebase.`
+                        `Deseja realmente excluir "${u.username}" e sua conta de acesso?`
                     );
                 };
             }

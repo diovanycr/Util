@@ -24,9 +24,7 @@
 *(Nenhum item pendente)*
 
 ### ⚙️ Qualidade Técnica
-- [ ] **Lazy-loading das ferramentas no portOpener** — todos os painéis são construídos no carregamento inicial; ferramentas pesadas como `decisionTree` (~30 KB) devem ser carregadas sob demanda `[G]` `[Arch]`
-- [ ] **Cloud Function para exclusão completa de usuário no Firebase Auth** — hoje a exclusão remove apenas o Firestore, não o Auth `[G]` `[Backend]`
-- [ ] **Atualizar o cache do PWA com segurança** — gerar pre-cache automaticamente, versionar assets por hash e avisar o usuário antes de ativar uma nova versão `[G]` `[Arch]`
+*(Nenhum item pendente)*
 
 ### 🚀 UX / Produtividade
 - [ ] **Padronizar exclusão recuperável** — aplicar soft-delete e toast “Desfazer” a mensagens, links e problemas `[M]` `[UX]`
@@ -54,6 +52,9 @@
 
 
 ## Feito
+- [x] **Atualizar o cache do PWA com segurança** — manifesto gerado automaticamente por `scripts/generate-sw-manifest.js`, versionado por content hash; SW aguarda confirmação do usuário (toast "Atualizar agora") antes de ativar `[G]` `[Arch]`
+- [x] **Cloud Function para exclusão completa de usuário no Firebase Auth** — `adminDeleteUser` callable com verificação de role server-side remove Auth + todas as subcoleções Firestore `[G]` `[Backend]`
+- [x] **Lazy-loading das ferramentas no portOpener** — todos os painéis são construídos no carregamento inicial; ferramentas pesadas como `decisionTree` (~30 KB) devem ser carregadas sob demanda `[G]` `[Arch]`
 - [x] **Paginar e agregar leituras do Firestore** — evitar carregamentos integrais/limites fixos em analytics, mensagens e histórico para conter latência e custo à medida que a base cresce `[G]` `[Backend]`
 - [x] **Proteção contra rate limiting no Firestore** — `loadMessages` e `loadProblems` sem throttle; usuários com muitos dados podem gerar leituras excessivas `[M]` `[Backend]`
 - [x] **Adicionar automação de atualização e auditoria de dependências** — configurar Dependabot para npm/GitHub Actions e auditoria agendada no CI `[M]` `[DevOps]`

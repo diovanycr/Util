@@ -15,6 +15,7 @@
     "typecheck": "node scripts/typecheck.js",
     "test:e2e": "node tests/e2e-browser.test.js",
     "build": "node scripts/build-check.js",
+    "generate:sw": "node scripts/generate-sw-manifest.js",
     "validate:port-denylist": "node scripts/validate-port-denylist.js"
   },
   "devDependencies": {

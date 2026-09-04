@@ -161,3 +161,36 @@ exports.deleteUserAccount = onCall(async (req) => {
     await admin.auth().deleteUser(uid);
     return { ok: true };
 });
+
+exports.adminDeleteUser = onCall(async (req) => {
+    if (!req.auth) throw new HttpsError("unauthenticated", "Requer autenticacao.");
+    const callerUid = req.auth.uid;
+
+    const callerDoc = await db.collection("users").doc(callerUid).get();
+    if (!callerDoc.exists || callerDoc.data()?.role !== "admin") {
+        throw new HttpsError("permission-denied", "Apenas administradores podem excluir usuarios.");
+    }
+
+    const { targetUid } = req.data || {};
+    if (!targetUid || typeof targetUid !== "string") {
+        throw new HttpsError("invalid-argument", "targetUid e obrigatorio.");
+    }
+
+    const targetDoc = db.collection("users").doc(targetUid);
+    const subcolls = ["messages", "problems", "links", "history", "auditReset", "preferences"];
+    for (const name of subcolls) {
+        const snap = await db.collection("users", targetUid, name).get();
+        const batch = db.batch();
+        snap.forEach((doc) => batch.delete(doc.ref));
+        if (!snap.empty) await batch.commit();
+    }
+    await targetDoc.delete();
+
+    try {
+        await admin.auth().deleteUser(targetUid);
+    } catch (authErr) {
+        console.warn(`[adminDeleteUser] Usuario Auth ${targetUid} nao encontrado ou falha no Auth:`, authErr.message);
+    }
+
+    return { ok: true };
+});

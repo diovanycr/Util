@@ -5,21 +5,11 @@
 //  (lógica de portas em port-opener/ports.js, geração em generator.js,
 //  HTML em builders.js).
 
-import { bindEscPosEvents, buildEscPosPanel, resetEscPosState } from './escPos.js';
-import { bindDocValidatorEvents, buildDocValidatorPanel } from './docValidatorUI.js';
-import { bindStatusCheckerEvents, buildStatusCheckerPanel } from './statusChecker.js';
-import { bindApiTesterEvents, buildApiTesterPanel } from './apiTester.js';
-import { bindFileValidatorEvents, buildFileValidatorPanel } from './fileValidator.js';
-import { bindTicketSummaryEvents, buildTicketSummaryPanel } from './ticketSummary.js';
-import { bindDecisionTreeEvents, buildDecisionTreePanel } from './decisionTree.js';
-import { bindNetworkDiagEvents, buildNetworkDiagPanel } from './networkDiag.js';
-import { bindScriptGenEvents, buildScriptGenPanel } from './scriptGen.js';
-import { FuturaSearchWidget } from './futura-widget.js';
 import { auth } from '../core/firebase.js';
 import { setupSegmented, createHighlighter, setCode as setHighlightedCode, setupOutputTabs } from '../core/utils.js';
 
 import { DEFAULT_STATE } from './port-opener/constants.js';
-import { buildPortOpenerPanel, buildFuturaPanel } from './port-opener/builders.js';
+import { buildPortOpenerPanel } from './port-opener/builders.js';
 import {
   renderBat, renderPs1, renderNetsh, renderUndo, buildSummary
 } from './port-opener/generator.js';
@@ -46,6 +36,77 @@ const TOOL_TITLES = {
   decisiontree: '🌳 Árvore de Decisão',
   networkdiag: '🌐 Diagnóstico de Redes',
   scriptgen: '⚡ Scripts & Comandos'
+};
+
+const _loadedTools = new Set(['portopener']);
+
+function _appendToolPanel(toolKey, html) {
+  const wrap = document.querySelector('.po-wrap');
+  if (!wrap) return;
+  const temp = document.createElement('div');
+  temp.innerHTML = html.trim();
+  const panel = temp.firstElementChild;
+  if (panel) {
+    wrap.appendChild(panel);
+  }
+}
+
+const TOOL_LOADERS = {
+  escpos: async (container) => {
+    const mod = await import('./escPos.js');
+    mod.resetEscPosState();
+    _appendToolPanel('escpos', mod.buildEscPosPanel());
+    mod.bindEscPosEvents(container);
+  },
+  docvalidator: async (container) => {
+    const mod = await import('./docValidatorUI.js');
+    _appendToolPanel('docvalidator', mod.buildDocValidatorPanel());
+    mod.bindDocValidatorEvents(container);
+  },
+  statuschecker: async (container) => {
+    const mod = await import('./statusChecker.js');
+    _appendToolPanel('statuschecker', mod.buildStatusCheckerPanel());
+    mod.bindStatusCheckerEvents(container);
+  },
+  apitester: async (container) => {
+    const mod = await import('./apiTester.js');
+    _appendToolPanel('apitester', mod.buildApiTesterPanel());
+    mod.bindApiTesterEvents(container);
+  },
+  filevalidator: async (container) => {
+    const mod = await import('./fileValidator.js');
+    _appendToolPanel('filevalidator', mod.buildFileValidatorPanel());
+    mod.bindFileValidatorEvents(container);
+  },
+  ticketsummary: async (container) => {
+    const mod = await import('./ticketSummary.js');
+    _appendToolPanel('ticketsummary', mod.buildTicketSummaryPanel());
+    mod.bindTicketSummaryEvents(container);
+  },
+  decisiontree: async (container) => {
+    const mod = await import('./decisionTree.js');
+    _appendToolPanel('decisiontree', mod.buildDecisionTreePanel());
+    mod.bindDecisionTreeEvents(container);
+  },
+  networkdiag: async (container) => {
+    const mod = await import('./networkDiag.js');
+    _appendToolPanel('networkdiag', mod.buildNetworkDiagPanel());
+    mod.bindNetworkDiagEvents(container);
+  },
+  scriptgen: async (container) => {
+    const mod = await import('./scriptGen.js');
+    _appendToolPanel('scriptgen', mod.buildScriptGenPanel());
+    mod.bindScriptGenEvents(container);
+  },
+  futura: async () => {
+    const { buildFuturaPanel } = await import('./port-opener/builders.js');
+    const { FuturaSearchWidget } = await import('./futura-widget.js');
+    _appendToolPanel('futura', buildFuturaPanel());
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const futContainer = document.getElementById('futuraSearchWidgetContainer');
+    if (futContainer) futContainer.setAttribute('data-theme', currentTheme);
+    _futuraWidget = new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer', userId: auth.currentUser?.uid || '' });
+  }
 };
 
 // ── Seletor de ferramentas ────────────────────────────────────────────────
@@ -127,41 +188,18 @@ function _buildToolSelector() {
 
 // ── Render da aba Sistemas ────────────────────────────────────────────────
 export function renderSistemasTab(container) {
-  resetEscPosState();
+  _loadedTools.clear();
+  _loadedTools.add('portopener');
+
   container.innerHTML = `
     <div class="po-wrap">
       ${_buildToolSelector()}
       ${buildPortOpenerPanel()}
-      ${buildEscPosPanel()}
-      ${buildDocValidatorPanel()}
-      ${buildStatusCheckerPanel()}
-      ${buildApiTesterPanel()}
-      ${buildFileValidatorPanel()}
-      ${buildTicketSummaryPanel()}
-      ${buildDecisionTreePanel()}
-      ${buildNetworkDiagPanel()}
-      ${buildScriptGenPanel()}
-      ${buildFuturaPanel()}
     </div><!-- /po-wrap -->
   `;
 
   _bindEvents(container);
   _renderAllPorts();
-  bindEscPosEvents(container);
-  bindDocValidatorEvents(container);
-  bindStatusCheckerEvents(container);
-  bindApiTesterEvents(container);
-  bindFileValidatorEvents(container);
-  bindTicketSummaryEvents(container);
-  bindDecisionTreeEvents(container);
-  bindNetworkDiagEvents(container);
-  bindScriptGenEvents(container);
-
-  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-  const futContainer = document.getElementById('futuraSearchWidgetContainer');
-  if (futContainer) futContainer.setAttribute('data-theme', currentTheme);
-
-  _futuraWidget = new FuturaSearchWidget({ containerId: 'futuraSearchWidgetContainer', userId: auth.currentUser?.uid || '' });
 
   _logoutHandler = () => cleanupPortOpener();
   document.addEventListener('user-logout', _logoutHandler);
@@ -222,7 +260,7 @@ function _removeFocusTrap() {
   }
 }
 
-function _openToolModal(tool, btnEl) {
+async function _openToolModal(tool, btnEl, container) {
   const modal = document.getElementById('poToolModal');
   const body = document.getElementById('poModalBody');
   const titleEl = document.getElementById('poModalTitle');
@@ -230,6 +268,31 @@ function _openToolModal(tool, btnEl) {
 
   _toolModalReturnFocus = btnEl;
   titleEl.textContent = TOOL_TITLES[tool] || 'Ferramenta';
+
+  if (!_loadedTools.has(tool) && TOOL_LOADERS[tool]) {
+    body.innerHTML = `
+      <div class="loading-state" style="padding: 40px; text-align: center;">
+        <span class="spinner" aria-hidden="true"></span>
+        <p style="margin-top: 12px; font-weight: 500; color: var(--muted);">Carregando ferramenta...</p>
+      </div>
+    `;
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+
+    try {
+      await TOOL_LOADERS[tool](container);
+      _loadedTools.add(tool);
+    } catch (err) {
+      console.error(`Erro ao carregar ferramenta ${tool}:`, err);
+      body.innerHTML = `
+        <div style="padding: 24px; text-align: center; color: var(--danger, #ef4444);">
+          <i class="fa-solid fa-triangle-exclamation" style="font-size: 24px; margin-bottom: 8px;"></i>
+          <p>Erro ao carregar a ferramenta. Tente novamente.</p>
+        </div>
+      `;
+      return;
+    }
+  }
 
   // Move o painel da ferramenta para dentro do corpo do modal (preserva listeners)
   const panel = document.getElementById(`poTool-${tool}`);
@@ -285,7 +348,7 @@ function _bindEvents(container) {
     btn.addEventListener('click', () => {
       container.querySelectorAll('.po-tool-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      _openToolModal(/** @type {HTMLElement} */ (btn).dataset.tool, btn);
+      _openToolModal(/** @type {HTMLElement} */ (btn).dataset.tool, btn, container);
     });
   });
 
