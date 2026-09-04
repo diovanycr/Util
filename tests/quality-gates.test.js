@@ -20,7 +20,7 @@ function assert(condition, message) {
 
 console.log('Running quality gate tests...\n');
 
-for (const script of ['typecheck', 'build', 'validate:port-denylist']) {
+for (const script of ['typecheck', 'build', 'validate:port-denylist', 'test', 'test:coverage']) {
     assert(Boolean(packageJson.scripts[script]), `Should define the ${script} script`);
 }
 
@@ -35,6 +35,14 @@ const ciWorkflowContent = readFileSync(ciWorkflowPath, 'utf8');
 for (const script of ['validate:port-denylist', 'typecheck', 'build']) {
     assert(ciWorkflowContent.includes(`npm run ${script}`), `.github/workflows/ci.yml should explicitly execute npm run ${script}`);
 }
+assert(ciWorkflowContent.includes('upload-artifact'), '.github/workflows/ci.yml should upload test artifacts');
+
+const runnerPath = new URL('../tests/run-all.js', import.meta.url);
+const runnerContent = readFileSync(runnerPath, 'utf8');
+assert(runnerContent.includes('readdirSync'), 'tests/run-all.js should use dynamic test discovery');
+assert(runnerContent.includes('junit.xml'), 'tests/run-all.js should generate junit.xml report');
+assert(runnerContent.includes('failures'), 'tests/run-all.js should generate failure artifact logs');
 
 console.log(`\n${passed} passed, ${failed} failed`);
 process.exit(failed > 0 ? 1 : 0);
+

@@ -15,26 +15,36 @@ import {
     writeBatch as _writeBatch
 } from './firebase.js';
 import { announceLoading, announceComplete } from './announce.js';
-
-const RETRY_DELAYS = [1000, 2000, 4000];
+import { executeWithRetry } from './retry.js';
 
 let activeRequests = 0;
 
-function showGlobalLoading() {
+/**
+ * Exibe feedback visual global de carregamento e tentativa de reconexão.
+ * @param {number} [attempt=1]
+ */
+function showGlobalLoading(attempt = 1) {
     activeRequests++;
     if (typeof document !== 'undefined') {
         const bar = document.getElementById('globalLoadingBar');
         if (bar) {
             bar.classList.remove('hidden');
             const txt = document.getElementById('globalLoadingBarText');
-            if (txt) txt.textContent = 'Carregando dados...';
+            if (txt) {
+                txt.textContent = attempt > 1 
+                    ? `Reconectando ao servidor (tentativa ${attempt})...` 
+                    : 'Carregando dados...';
+            }
         }
         const app = document.getElementById('app');
         if (app) app.setAttribute('aria-busy', 'true');
-        announceLoading('Carregando dados...');
+        announceLoading(attempt > 1 ? `Reconectando, tentativa ${attempt}` : 'Carregando dados...');
     }
 }
 
+/**
+ * Oculta feedback visual global de carregamento.
+ */
 function hideGlobalLoading() {
     activeRequests = Math.max(0, activeRequests - 1);
     if (activeRequests === 0 && typeof document !== 'undefined') {
@@ -50,59 +60,89 @@ function hideGlobalLoading() {
     }
 }
 
-export async function withRetry(fn, retries = 3) {
-    showGlobalLoading();
+/**
+ * Executes a Firebase function with automatic retry policy.
+ * @template T
+ * @param {() => Promise<T>} fn
+ * @param {import('./retry.js').RetryOptions<T>} [options]
+ * @returns {Promise<T>}
+ */
+export async function withRetry(fn, options = {}) {
+    showGlobalLoading(1);
     try {
-        for (let i = 0; i < retries; i++) {
-            try {
-                return await fn();
-            } catch (error) {
-                const isLast = i === retries - 1;
-                const isRetryable =
-                    error.code === 'unavailable' ||
-                    error.code === 'deadline-exceeded' ||
-                    error.code === 'resource-exhausted' ||
-                    error.message?.includes('network') ||
-                    error.message?.includes('timeout');
-
-                if (isLast || !isRetryable) {
-                    throw error;
-                }
-
-                const delay = RETRY_DELAYS[i] || 4000;
-                console.warn(`Retry ${i + 1}/${retries} after ${delay}ms:`, error.message);
-                await new Promise(resolve => setTimeout(resolve, delay));
-            }
-        }
+        return await executeWithRetry(fn, {
+            maxRetries: 3,
+            initialDelayMs: 500,
+            maxDelayMs: 4000,
+            backoffFactor: 2,
+            jitter: true,
+            onRetry: (attempt, error, delayMs) => {
+                console.warn(`[Firebase Retry ${attempt}/3] Tentando novamente em ${delayMs}ms devido a:`, error?.message || error);
+                showGlobalLoading(attempt + 1);
+            },
+            ...options
+        });
     } finally {
         hideGlobalLoading();
     }
 }
 
+/**
+ * @param {any} query
+ * @returns {Promise<any>}
+ */
 export async function getDocs(query) {
     return withRetry(() => _getDocs(query));
 }
 
+/**
+ * @param {any} reference
+ * @returns {Promise<any>}
+ */
 export async function getDoc(reference) {
     return withRetry(() => _getDoc(reference));
 }
 
+/**
+ * @param {any} reference
+ * @param {any} data
+ * @returns {Promise<any>}
+ */
 export async function addDoc(reference, data) {
     return withRetry(() => _addDoc(reference, data));
 }
 
+/**
+ * @param {any} reference
+ * @param {any} data
+ * @param {any} [options]
+ * @returns {Promise<any>}
+ */
 export async function setDoc(reference, data, options) {
     return withRetry(() => _setDoc(reference, data, options));
 }
 
+/**
+ * @param {any} reference
+ * @param {any} data
+ * @returns {Promise<any>}
+ */
 export async function updateDoc(reference, data) {
     return withRetry(() => _updateDoc(reference, data));
 }
 
+/**
+ * @param {any} reference
+ * @returns {Promise<any>}
+ */
 export async function deleteDoc(reference) {
     return withRetry(() => _deleteDoc(reference));
 }
 
+/**
+ * @param {any} db
+ * @returns {any}
+ */
 export function writeBatch(db) {
     const batch = _writeBatch(db);
     const _set = batch.set.bind(batch);
@@ -117,5 +157,3 @@ export function writeBatch(db) {
 
     return batch;
 }
-
-

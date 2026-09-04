@@ -11,7 +11,9 @@
     "lint": "eslint js/",
     "format": "prettier --write js/ tests/",
     "test": "node tests/run-all.js",
+    "test:coverage": "node --experimental-test-coverage tests/run-all.js --coverage",
     "typecheck": "node scripts/typecheck.js",
+    "test:e2e": "node tests/e2e-browser.test.js",
     "build": "node scripts/build-check.js",
     "validate:port-denylist": "node scripts/validate-port-denylist.js"
   },

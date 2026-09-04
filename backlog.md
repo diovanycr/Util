@@ -24,9 +24,6 @@
 *(Nenhum item pendente)*
 
 ### ⚙️ Qualidade Técnica
-- [ ] **Adicionar testes E2E de navegador** — cobrir boot do PWA, erro de autenticação, navegação e CRUD com Firebase mockado ou Emulator `[G]` `[QA]`
-- [ ] **Modernizar o runner de testes e observabilidade de CI** — migrar lista manual para descoberta (Node Test Runner/Vitest), adicionar timeout por teste, cobertura, JUnit e artefatos de falha `[G]` `[QA]`
-- [ ] **Testar e aprimorar política de retry do Firebase** — injetar sleeper/clock para testar erros recuperáveis, limite de tentativas e loading; incluir jitter e cancelamento `[M]` `[QA]`
 - [ ] **Adicionar automação de atualização e auditoria de dependências** — configurar Dependabot para npm/GitHub Actions e auditoria agendada no CI `[M]` `[DevOps]`
 - [ ] **Paginar e agregar leituras do Firestore** — evitar carregamentos integrais/limites fixos em analytics, mensagens e histórico para conter latência e custo à medida que a base cresce `[G]` `[Backend]`
 - [ ] **Proteção contra rate limiting no Firestore** — `loadMessages` e `loadProblems` sem throttle; usuários com muitos dados podem gerar leituras excessivas `[M]` `[Backend]`
@@ -60,6 +57,8 @@
 
 
 ## Feito
+- [x] **Modernizar o runner de testes e observabilidade de CI** — migrar lista manual para descoberta (Node Test Runner/Vitest), adicionar timeout por teste, cobertura, JUnit e artefatos de falha `[G]` `[QA]`
+- [x] **Adicionar testes E2E de navegador** — cobrir boot do PWA, erro de autenticação, navegação e CRUD com Firebase mockado ou Emulator `[G]` `[QA]`
 - [x] **Evoluir o typecheck de sintaxe para contratos JavaScript** — adotar JSDoc e TypeScript com `allowJs`/`checkJs` incrementalmente, validando imports e APIs além de parsing `[G]` `[QA]`
 - [x] **Resetar `copyCount` diário via Cloud Function agendada (Firebase) au invés do timer no cliente** — `resetDailyCounts()` em `ranking.js` depende de a aba estar aberta à meia-noite `[M]` `[Backend]`
 - [x] **Proteger o API Tester contra destinos e credenciais sensíveis** — bloquear loopback/rede privada e HTTP, confirmar host/método antes do envio e mascarar `Authorization` no histórico `[M]` `[Arch]`
