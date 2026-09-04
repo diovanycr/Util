@@ -200,8 +200,6 @@ function renderLinks(container, links) {
             card.innerHTML = `
                 <a class="link-main" href="${escapeAttr(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir link: ${escapeAttr(item.title)}">
                     ${faviconHtml}
-                <a class="link-main" href="${escapeAttr(item.url)}" target="_blank" rel="noopener noreferrer" aria-label="Abrir link: ${escapeAttr(item.title)}">
-                    ${faviconHtml}
                     <div class="link-info">
                         <span class="link-title">${escapeHtml(item.title)}</span>
                         <span class="link-url">${escapeHtml(extractDomain(item.url))}</span>
